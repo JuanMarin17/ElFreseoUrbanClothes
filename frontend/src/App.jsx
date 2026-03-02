@@ -1,18 +1,10 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import HeaderMain from './modules/mainPage/components/Header/HeaderMain.jsx'
 
+import VerificationPage from "./modules/auth/pages/VerificationPage";
 
 function App() {
 
-  return (
-    <>
-      <HeaderMain></HeaderMain>
+  return <VerificationPage />;
 
-    </>
-  )
 }
 
-export default App
+export default App;
