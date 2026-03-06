@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'; // Importamos useEffect
+import React, { useEffect } from 'react';
 import Header from '../../components/Header/Header.jsx';
 import HeroSection from '../../components/HeroSection/HeroSection.jsx';
 import NewCollections from '../../components/NewCollections/NewCollections.jsx';
@@ -10,28 +10,30 @@ import './LandingPage.css';
 function LandingPage() {
   
   useEffect(() => {
-    // 1. Definimos las opciones
+    // Configuramos el observador
     const observerOptions = {
-      threshold: 0.15,
+      threshold: 0.15, // Se activa cuando el 15% es visible
     };
 
-    // 2. Creamos el observer DENTRO del useEffect
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
+          // Aparece al bajar (o si está en pantalla)
           entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
+        } else {
+          // Desaparece al subir (o salir de pantalla)
+          entry.target.classList.remove('is-visible');
         }
       });
     }, observerOptions);
 
-    // 3. Seleccionamos los elementos DESPUÉS de que el componente cargue
+    // Seleccionamos todos los elementos que deben animarse
     const sections = document.querySelectorAll('.fade-in-section');
     sections.forEach(section => observer.observe(section));
 
-    // Limpieza al desmontar el componente para evitar fugas de memoria
+    // Limpieza: dejamos de observar si el usuario cambia de página
     return () => observer.disconnect();
-  }, []); // El array vacío [] asegura que esto solo corra UNA vez
+  }, []);
 
   return (
     <div className="main-container">
@@ -40,13 +42,19 @@ function LandingPage() {
         <section className='main-section'>
           <HeroSection />
 
-          {/* OJO: Para que esto funcione, dentro del componente NewCollections
-              debes recibir la prop 'className' y aplicarla al div principal.
+          {/* IMPORTANTE: Asegúrate de que estos componentes acepten la prop className 
+            y la apliquen a su etiqueta HTML principal.
           */}
           <NewCollections className="fade-in-section" />
+          
+          <div className="fade-in-section">
+            <Reviews />
+          </div>
 
-          <Reviews className="fade-in-section" />
-          <Location className="fade-in-section" />
+          <div className="fade-in-section">
+            <Location />
+          </div>
+
           <Footer />
         </section>
       </main>
