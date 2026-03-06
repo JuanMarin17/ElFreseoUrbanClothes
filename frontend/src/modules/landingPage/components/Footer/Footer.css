@@ -1,0 +1,110 @@
+.footer-section {
+  width: 100%;
+  background-color: #050505;
+  color: white;
+  padding: 80px 0 30px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.footer-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 40px;
+  margin-bottom: 50px;
+}
+
+.footer-logo {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+}
+
+.footer-description {
+  color: #a0a0a0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.footer-title {
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 12px;
+}
+
+.footer-links a {
+  color: #a0a0a0;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.footer-links a:hover {
+  color: #3b82f6;
+  padding-left: 5px;
+}
+
+/* --- ESTILOS DE LOGOS REDES SOCIALES --- */
+.social-icons-wrapper {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap; /* Para que bajen si no caben en celular */
+}
+.social-icons-wrapper img{
+  width: 35px;
+  height: 35px;
+  border-radius: 40px;
+}
+
+.social-logo-link {
+  transition: transform 0.3s ease;
+}
+
+.social-logo-link:hover {
+  transform: translateY(-5px); /* Efecto elevación */
+}
+
+.social-logo img {
+  width: 35px; /* Tamaño de tus logos */
+  height: 35px;
+  filter: brightness(0) invert(1); /* Hace los logos blancos */
+  transition: filter 0.3s ease;
+  border-radius: 20px;
+}
+
+.social-logo-link:hover .social-logo {
+  filter: brightness(0) invert(1) drop-shadow(0 0 5px #3b82f6); /* Brillo azul en hover */
+}
+
+/* Barra inferior */
+.footer-bottom {
+  text-align: center;
+  padding-top: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  color: #606060;
+  font-size: 0.85rem;
+}
+
+/* --- RESPONSIVIDAD --- */
+@media (max-width: 768px) {
+  .footer-section { padding: 50px 0 20px 0; }
+  .footer-container { text-align: center; gap: 30px; }
+  .social-icons-wrapper { justify-content: center; }
+  .footer-logo { font-size: 1.8rem; }
+}
