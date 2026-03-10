@@ -1,18 +1,31 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState, useEffect } from 'react'
+import { AnimatePresence } from 'framer-motion';
 import './App.css'
-import HeaderMain from './modules/mainPage/components/Header/HeaderMain.jsx'
-
+import LandingPage from './modules/landingPage/pages/LandingPage/LandingPage.jsx'
+import LoadingScreen from './modules/landingPage/LoadingScreen/LoadingScreen.jsx'; // Asegura esta ruta
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <>
-      <HeaderMain></HeaderMain>
-
-    </>
+    <div className='main'>
+      <AnimatePresence>
+        {isLoading ? (
+          <LoadingScreen key="loading" />
+        ) : (
+          <LandingPage key="main" />
+        )}
+      </AnimatePresence>
+    </div>
   )
 }
 
-export default App
+export default App;

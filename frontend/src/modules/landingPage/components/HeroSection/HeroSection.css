@@ -1,0 +1,188 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.heroSection {
+  height: 80vh;
+  width: 100%;
+  background-color: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 3%;
+  position: relative;
+  overflow: hidden;
+  
+  /* OPTIMIZACIÓN: Forza el renderizado por GPU para evitar tirones en el scroll */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* --- EL BORDE NEÓN GIRATORIO OPTIMIZADO --- */
+.heroSection::before {
+  content: '';
+  position: absolute;
+  width: 150%; 
+  height: 150%;
+  /* Simplificamos el degradado para que el "pintado" sea más rápido */
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    #3b82f6 15%, 
+    #a855f7 35%, 
+    transparent 50%
+  );
+  
+  /* Aumentamos ligeramente el tiempo (8s) para suavizar la carga del procesador */
+  animation: rotateNeon 8s linear infinite;
+  top: -25%;
+  left: -25%;
+  z-index: 0;
+  
+  /* CRUCIAL: Indica al navegador que solo anime la rotación */
+  will-change: transform;
+}
+
+/* --- CAPA INTERNA --- */
+.heroSection::after {
+  content: '';
+  position: absolute;
+  inset: 4px; 
+  background: #0a0a0a;
+  z-index: 1;
+}
+
+/* Contenedor de contenido */
+.heroSection-container {
+  position: relative;
+  z-index: 2; 
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  
+  /* Evita parpadeos de texto durante la animación */
+  backface-visibility: hidden;
+}
+
+.heroSection-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 30px;
+}
+
+/* Tipografía */
+.heroSection-title {
+  color: #fff;
+  font-size: 3.9rem;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.heroSection-title span {
+  color: #fbbf24;
+  text-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+}
+
+.heroSection-description {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.5rem;
+  max-width: 550px;
+  line-height: 1.5;
+}
+
+.heroSection-tagline {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.7rem;
+  letter-spacing: 10px;
+  text-transform: uppercase;
+}
+
+/* Botón */
+.heroSection-btn {
+  background: transparent;
+  border: 3px solid #fff;
+  color: #fff;
+  padding: 15px 50px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.heroSection-btn:hover {
+  background: #fff;
+  color: #000;
+  transform: scale(1.05);
+}
+
+/* Imagen y Marco */
+.heroSection-image-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 550px;
+  height: 80%;
+}
+
+.model-frame {
+  width: 90%;
+  height: 98%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0px 15px rgba(123, 34, 226, 0.8);
+  /* Optimizamos la sombra para que no pese en móviles */
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.model-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ANIMACIÓN OPTIMIZADA (GPU) */
+@keyframes rotateNeon {
+  from {
+    transform: rotate(0deg) translateZ(0);
+  }
+  to {
+    transform: rotate(360deg) translateZ(0);
+  }
+}
+
+/* Ajuste para móviles */
+@media (max-width: 900px) {
+  .heroSection {
+    height: auto;
+    padding: 60px 3%;
+  }
+
+  .heroSection-container {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .heroSection-info {
+    align-items: center;
+  }
+
+  .heroSection-title {
+    font-size: 2.8rem;
+  }
+
+  .heroSection-image-wrapper {
+    margin-top: 40px;
+    width: 100%;
+    height: 450px;
+  }
+}
