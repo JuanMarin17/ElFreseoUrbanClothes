@@ -1,0 +1,177 @@
+/* ====== RESET & BASE ====== */
+.auth-body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: url("img/fondo.jpeg") no-repeat center center/cover;
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
+}
+
+.card-container {
+    perspective: 1200px;
+}
+
+.card {
+    width: 900px;
+    height: 500px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card.active {
+    transform: rotateY(180deg);
+}
+
+.face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    background: rgba(20, 20, 40, 0.6);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    box-shadow: 0 0 40px rgba(140, 0, 255, 0.6);
+    backface-visibility: hidden;
+    overflow: hidden;
+}
+
+.back {
+    transform: rotateY(180deg);
+}
+
+/* Borde Neón */
+.face::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    padding: 3px;
+    background: linear-gradient(90deg, #00f2ff, #8a2be2, #ff00ff, #00f2ff);
+    background-size: 400%;
+    animation: neonMove 6s linear infinite;
+    pointer-events: none;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+}
+
+@keyframes neonMove {
+    0% { background-position: 0% }
+    100% { background-position: 400% }
+}
+
+.left {
+    width: 45%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.Logo {
+    width: 240px;
+    filter: drop-shadow(0 0 20px #ff00ff);
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+.right {
+    width: 55%;
+    padding: 50px;
+    color: white;
+    z-index: 2;
+}
+
+form input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.05);
+    color: white;
+    outline: none;
+}
+
+form input:focus {
+    border-color: #8a2be2;
+    box-shadow: 0 0 10px #8a2be2;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    background: linear-gradient(90deg, #8a2be2, #00f2ff);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.4s;
+}
+
+button:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 20px #8a2be2;
+}
+
+.switch span {
+    color: #00f2ff;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* ====== ALERT SYSTEM ====== */
+.alert-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.4s;
+    z-index: 999;
+}
+
+.alert-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.alert-animated {
+    background: #141428;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    width: 350px;
+    border: 2px solid #8a2be2;
+    transform: scale(0.7);
+    transition: 0.4s;
+}
+
+.alert-overlay.active .alert-animated {
+    transform: scale(1);
+}
+
+.alert-icon {
+    font-size: 50px;
+    margin-bottom: 10px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+.success { color: #00f2ff; border-color: #00f2ff; }
+.error { color: #ff4d4d; border-color: #ff4d4d; }
