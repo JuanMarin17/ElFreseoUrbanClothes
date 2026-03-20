@@ -31,13 +31,15 @@ a:hover {
 }
 
 body {
-  margin: 0;
+  /* margin: 0;
   display: flex;
+  justify-content: center;
   overflow-x: hidden;
   place-items: center;
   width: 100%;
   min-width: 320px;
-  height: 100vh;
+  height: 100%;
+  border: 1px solid white; */
 }
 
 

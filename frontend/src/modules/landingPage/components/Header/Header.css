@@ -50,8 +50,10 @@
   text-transform: uppercase;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
- .logo img {
+
+.logo img {
   width: 50px;
   height: 50px;
   margin-right: 10px;
@@ -143,7 +145,115 @@
   color: white;
 }
 
-/* Responsivo */
+/* --- NUEVOS ESTILOS PARA EL DROPDOWN DE USUARIO --- */
+
+.user-menu-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 220px;
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px 0;
+  margin-top: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  
+  /* Animación */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 1100;
+}
+
+/* Indicador (triángulo) */
+.user-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 15px;
+  width: 12px;
+  height: 12px;
+  background: rgba(10, 10, 10, 0.95);
+  transform: rotate(45deg);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-menu-wrapper:hover .user-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-header {
+  padding: 10px 20px;
+  color: var(--text-white);
+  font-size: 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-header strong {
+  color: var(--primary-color);
+}
+
+.dropdown-list {
+  list-style: none;
+  padding: 5px 0;
+}
+
+.dropdown-list li a, 
+.login-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.login-action-btn {
+  color: var(--primary-color);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.dropdown-list li a:hover, 
+.login-action-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-white);
+  padding-left: 25px;
+}
+
+.dropdown-divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin: 5px 0;
+}
+
+/* Iconos dentro del dropdown */
+.dropdown-list svg {
+  color: var(--primary-color);
+  opacity: 0.9;
+}
+
+/* --- RESPONSIVO --- */
 @media (max-width: 768px) {
   .nav-menu {
     display: none;
@@ -151,10 +261,16 @@
   .menu-mobile {
     display: block;
   }
+  /* Ajuste para que el dropdown no se salga en móviles */
+  .user-dropdown {
+    right: -50px;
+  }
+  .user-dropdown::before {
+    right: 65px;
+  }
 }
 
 /* --- CLASE PARA EFECTO ADIDAS --- */
 .header-scroll-hidden {
-  /* Forzamos el valor top a negativo para esconderlo y usamos !important */
   top: -10vh !important;
 }
