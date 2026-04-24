@@ -1,0 +1,101 @@
+/* MainPage.css */
+
+.main-page-container {
+  min-height: 100vh;
+  background-color: #0a0a0a;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Catalog content wrapper ─────────────── */
+.catalog-content {
+  display: flex;
+  flex-direction: column;
+  padding: 100px 32px 60px;
+  flex: 1;
+  gap: 24px;
+}
+
+/* ── Page header ─────────────────────────── */
+.page-header {
+  text-align: center;
+}
+
+.page-header h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1;
+  margin: 0 0 6px;
+}
+
+.page-subtitle {
+  font-size: 0.8rem;
+  color: #5a5a5a;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ── Loading spinner ─────────────────────── */
+.loadingWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  flex: 1;
+  min-height: 50vh;
+  gap: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #1e1e1e;
+  border-top-color: #1a6bff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.loadingText {
+  font-size: 0.82rem;
+  color: #5a5a5a;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-family: 'Barlow Condensed', sans-serif;
+}
+
+/* ── Layout: sidebar izquierda + grid derecha */
+.layout-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.layout-grid > .gridContainer {
+  margin-left: 264px;
+}
+
+/* ── Responsive ───────────────────────────── */
+@media (max-width: 768px) {
+  .catalog-content {
+    padding: 90px 16px 40px;
+  }
+
+  .layout-grid {
+    flex-direction: column;
+  }
+
+  .layout-grid > .gridContainer {
+    margin-left: 0;
+  }
+}
