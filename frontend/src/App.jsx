@@ -1,40 +1,20 @@
 
-// import VerificationPage from "./modules/auth/pages/VerificationPage";
-
-// import NewPassword from "./modules/auth/pages/NewPassword";
-
-import UploadProduct from "./modules/administration/pages/UploadProduct";
-// import PasswordForm from "./modules/auth/pages/PasswordForm"
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-// import Notificationsent from "./modules/administration/pages/NotificationSent";
-// import SessionClosed from "./modules/mainPage/pages/SessionClosed";
-import EditProduct from "./modules/administration/pages/EditProduct";
-import DetailsProduct from "./modules/mainPage/pages/DetailsProduct"
-
-
-
-export default function  App() {
-  return (
-    <>
-      {/* tu app */}
-      <DetailsProduct/>
-    </>
-  );
-}
-
 import { useState, useEffect } from 'react'
 import { AnimatePresence } from 'framer-motion';
-import { Routes, Route } from 'react-router-dom'; 
+import { Routes, Route } from 'react-router-dom';
 import './App.css'
 import './animations.css'
-import LandingPage from './modules/landingPage/pages/LandingPage/LandingPage.jsx'
-import LoadingScreen from './modules/landingPage/LoadingScreen/LoadingScreen.jsx'; 
-import HelpCenter from './modules/help/pages/HelpCenter/HelpCenter.jsx';
-import Login from './modules/auth/pages/Login/Login.jsx';
-// IMPORTANTE: Importamos tu nueva página de catálogo
-import MainPage from './modules/MainPage/pages/MainPage/MainPage.jsx'; 
+import UploadProduct from "./admin/modules/administration/pages/UploadProduct";
+import EditProduct from "./admin/modules/administration/pages/EditProduct";
+import DetailsProduct from "./client/modules/MainPage/components/ProductDetail/ProductDetail.jsx";
+import LandingPage from './client/modules/landingPage/pages/LandingPage/LandingPage.jsx'
+import LoadingScreen from './client/modules/landingPage/LoadingScreen/LoadingScreen.jsx';
+import HelpCenter from './client/modules/help/pages/HelpCenter/HelpCenter.jsx';
+import Login from './admin/modules/auth/pages/Login/Login.jsx';
+import MainPage from './client/modules/MainPage/pages/MainPage/MainPage.jsx';
 import { useScrollAnimation } from './hooks/UsescrollAnimation.jsx';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 function App() {
@@ -61,10 +41,10 @@ function App() {
             <Route path="/login" element={<div className='ayuda'><Login /></div>} />
             <Route path="/ayuda" element={<div className='ayuda'><HelpCenter /></div>} />
             <Route path="/landing" element={<LandingPage />} />
-            
+
             {/* NUEVA RUTA PARA EL CATÁLOGO */}
             <Route path="/catalogo" element={<MainPage />} />
-            
+
             <Route path="/pedidos" element={<div className='ayuda'><HelpCenter /></div>} />
             <Route path="/pagos" element={<div className='ayuda'><HelpCenter /></div>} />
             <Route path="/devoluciones" element={<div className='ayuda'><HelpCenter /></div>} />
