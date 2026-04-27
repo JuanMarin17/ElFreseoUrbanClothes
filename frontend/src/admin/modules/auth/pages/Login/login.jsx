@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import './Login.css';
-<<<<<<< HEAD
 import { User, Mail, Lock, Eye, EyeOff, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-=======
 import logo from '../../../../../assets/logo.png';
 import { User, Mail, Lock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
->>>>>>> 2efcc692a6c14a6ed5bee109f7d00a4252dfb4f8
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hook/Useauth';
 
