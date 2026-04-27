@@ -13,7 +13,7 @@
 
 import React, { useState, useRef } from 'react';
 import './Login.css';
-import logo from '../../../../../../assets/logo.png';
+import logo from '../../../../../assets/logo.png';
 import { User, Mail, Lock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hook/Useauth';

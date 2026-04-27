@@ -49,6 +49,9 @@ function App() {
             <Route path="/pagos" element={<div className='ayuda'><HelpCenter /></div>} />
             <Route path="/devoluciones" element={<div className='ayuda'><HelpCenter /></div>} />
             <Route path="/seguridad" element={<div className='ayuda'><HelpCenter /></div>} />
+
+              {/* ADMINISTRACION */}
+              <Route path='/subir-producto' element={<UploadProduct/> } />
           </Routes>
         )}
       </AnimatePresence>
