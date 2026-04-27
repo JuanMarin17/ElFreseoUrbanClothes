@@ -1,211 +1,109 @@
-// SubirProducto.jsx
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React from "react";
 import "./UploadProduct.css";
 
-const tallasDisponibles = ["S", "M", "L", "XL"];
-
-export default function UploadProduct() {
-  const [producto, setProducto] = useState({
-    nombre: "",
-    descripcion: "",
-    stock: 0,
-    precioVenta: 0,
-    precioDetal: 0,
-    imagen: null,
-    tallas: [],
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProducto((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleImage = (file) => {
-    if (file) {
-      setProducto((prev) => ({
-        ...prev,
-        imagen: URL.createObjectURL(file),
-      }));
-    }
-  };
-  const changePrice = (field, value) => {
-    setProducto((prev) => ({
-      ...prev,
-      [field]: Math.max(0, prev[field] + value),
-    }));
-  };
-
-  const categorias = [
-    { id: 1, name: "Pantalon" },
-    { id: 2, name: "Camiseta" },
-    { id: 3, name: "Zapatos" },
-  ];
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const file = e.dataTransfer.files[0];
-    handleImage(file);
-  };
-  const handlePriceChange = (e) => {
-    const { name, value } = e.target;
-
-    const numero = Number(value);
-
-    setProducto((prev) => ({
-      ...prev,
-      [name]: numero < 0 ? 0 : numero,
-    }));
-  };
-
-  const toggleTalla = (talla) => {
-    setProducto((prev) => ({
-      ...prev,
-      tallas: prev.tallas.includes(talla)
-        ? prev.tallas.filter((t) => t !== talla)
-        : [...prev.tallas, talla],
-    }));
-  };
-
-  const changeStock = (value) => {
-    setProducto((prev) => ({
-      ...prev,
-      stock: Math.max(0, prev.stock + value),
-    }));
-  };
-
+const UploadProduct = () => {
   return (
-    <div className="container">
-      <motion.h1 className="title">SUBIR PRODUCTO</motion.h1>
+    <div className="adminContainer">
+      {/* Sidebar */}
 
-      <div className="layout">
-        {/* FORM */}
-        <div className="form">
-          <label>Nombre del Producto</label>
-          <input
-            name="nombre"
-            value={producto.nombre}
-            onChange={handleChange}
-            placeholder="Proyecto Neón..."
-            className="input"
-          />
+      {/* Main Content */}
+      <main className="mainContent">
 
-          {/* STOCK SEPARADO */}
-          <div className="stock-wrapper">
-            <label>Cantidad</label>
-            <div className="stock-control">
-              <button onClick={() => changeStock(-1)}>-</button>
-              <span>{producto.stock}</span>
-              <button onClick={() => changeStock(1)}>+</button>
-            </div>
+        <div className="pageTitleRow">
+          <div>
+            <h2 className="pageTitle">SUBIR PRODUCTO</h2>
           </div>
+          <div className="topButtons">
+            <button className="btnDiscard">ELIMINAR</button>
+            <button className="btnUpload">EDITAR PRODUCTO ⇡</button>
+          </div>
+        </div>
 
-          <div className="row">
-            {/* PRECIO VENTA */}
-            <div className="price-box">
-              <label>Precio Venta</label>
-              <div className="price-control">
-                <button onClick={() => changePrice("precioVenta", -1)}>
-                  -
-                </button>
-                <input
-                  type="number"
-                  name="precioVenta"
-                  value={producto.precioVenta}
-                  onChange={handlePriceChange}
-                  min="0"
-                  className="input"
-                />
+        <section className="gridContainer">
+          {/* Form Side */}
+          <div className="formColumn">
+            <div className="card">
+              <h3 className="cardTitle">
+                <span className="iconBlue">✎</span> Editar
+              </h3>
 
-                <button onClick={() => changePrice("precioVenta", 1)}>+</button>
+              <div className="inputGroup">
+                <label>Nombre producto</label>
+                <input type="text" placeholder="e.g. NEON_VAPOR HOODIE" />
+              </div>
+
+              <div className="inputGroup">
+                <label>Descripción</label>
+                <textarea placeholder="TECHNICAL SPECIFICATIONS AND DESIGN PHILOSOPHY..."></textarea>
+              </div>
+
+              <div className="row">
+                <div className="inputGroup">
+                  <label>Precio (COL)</label>
+                  <div className="priceInput">
+                    <span>$</span>
+                    <input type="text" defaultValue="0.00" />
+                  </div>
+                </div>
+                <div className="inputGroup">
+                  <label>Categoria</label>
+                  <select>
+                    <option>Pantalones</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="sizeSection">
+                <label>Tallas</label>
+                <div className="sizeGrid">
+                  {["S", "M", "L", "XL", "XXL"].map((size) => (
+                    <button
+                      key={size}
+                      className={size === "M" ? "sizeBtnActive" : "sizeBtnU"}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* PRECIO DETAL */}
-            <div className="price-box">
-              <label>Precio Detal</label>
-              <div className="price-control">
-                <button onClick={() => changePrice("precioDetal", -1)}>
-                  -
-                </button>
-                <input
-                  type="number"
-                  name="precioDetal"
-                  value={producto.precioDetal}
-                  onChange={handlePriceChange}
-                />
-                <button onClick={() => changePrice("precioDetal", 1)}>+</button>
-              </div>
+            <div className="card">
+              <h3 className="cardTitle">
+                <span className="iconBlue">📋</span> Inventario
+              </h3>
+              <div className="statusPlaceholder"></div>
             </div>
           </div>
 
-          <label>Descripción</label>
-          <textarea
-            name="descripcion"
-            onChange={handleChange}
-            placeholder="Escribe los detalles aquí..."
-            className="input textarea"
-          />
-          <label>Categorias</label>
-          <div className="categorias">
-            <select name="categorias" id="categorias">
-              {categorias.map((c) => {
-                return (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
+          {/* Preview Side */}
+          <div className="previewColumn">
+            <div className="mainPreview">
+              <div className="primaryTag">Primera vista</div>
+              <div className="imageContainer">
+                <div className="mainImagePlaceholder"></div>
+                <div className="imageOverlayText">Vista</div>
+              </div>
+              <div className="floatingActions">
+                <button className="roundBtn">🔍</button>
+                <button className="roundBtn">✂️</button>
+              </div>
+            </div>
 
-          <div className="tallas">
-            <label>Tallas</label>
-            {tallasDisponibles.map((t) => (
-              <button
-                key={t}
-                onClick={() => toggleTalla(t)}
-                className={
-                  producto.tallas.includes(t) ? "talla active" : "talla"
-                }
-              >
-                {t}
-              </button>
-            ))}
+            <div className="thumbnailRow">
+              <div className="thumb thumbActive"></div>
+              <div className="thumb"></div>
+              <div className="thumb"></div>
+              <div className="thumbAdd">
+                <span>📷</span>
+                <small>Añadir vista</small>
+              </div>
+            </div>
           </div>
-
-          {/* DROPZONE ARREGLADO */}
-          <div
-            className="dropzone"
-            onDrop={handleDrop}
-            onDragOver={(e) => e.preventDefault()}
-          >
-            <p>Arrastra o haz click para subir imagen</p>
-            <input
-              type="file"
-              onChange={(e) => handleImage(e.target.files[0])}
-            />
-          </div>
-
-          <button className="submit">PUBLICAR</button>
-        </div>
-
-        {/* PREVIEW + ESPACIO IA */}
-        <div className="side-panel">
-          <div className="preview">
-            {producto.imagen ? (
-              <img src={producto.imagen} alt="preview" />
-            ) : (
-              <span>Sin previsualización</span>
-            )}
-          </div>
-
-          <div className="ai-box">
-            <p>🤖 Sugerencias IA aparecerán aquí...</p>
-          </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
-}
+};
+
+export default UploadProduct;
