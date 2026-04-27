@@ -1,0 +1,51 @@
+.table-container {
+  background: #0d0d0d;
+  border-radius: 8px;
+  border: 1px solid #1a1a1a;
+  margin: 20px 0;
+}
+
+.terminal-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.terminal-table th {
+  padding: 15px 20px;
+  font-size: 0.65rem;
+  color: #444;
+  text-align: left;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.terminal-table td {
+  padding: 12px 20px;
+  border-bottom: 1px solid #141414;
+  font-size: 0.85rem;
+}
+
+.user-cell { display: flex; align-items: center; gap: 12px; }
+.avatar-circle { width: 32px; height: 32px; background: #222; border-radius: 6px; }
+.name { font-weight: bold; color: #fff; margin: 0; }
+.email { font-size: 0.7rem; color: #555; margin: 0; }
+
+.role-badge {
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  background: #1a1a1a;
+}
+.role-badge.admin { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+.role-badge.moderador { color: #a855f7; background: rgba(168, 85, 247, 0.1); }
+
+.status-dot { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; }
+.status-dot.activo { color: #10b981; }
+.status-dot.activo::before { content: ""; width: 6px; height: 6px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; }
+
+.status-dot.baneado { color: #ef4444; }
+.status-dot.baneado::before { content: ""; width: 6px; height: 6px; background: #ef4444; border-radius: 50%; box-shadow: 0 0 8px #ef4444; }
+
+.actions-cell button { background: none; border: none; color: #444; cursor: pointer; margin-right: 10px; }
+.actions-cell button:hover { color: #fff; }
+.actions-cell button.green:hover { color: #10b981; }

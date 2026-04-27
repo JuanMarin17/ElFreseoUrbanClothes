@@ -1,0 +1,57 @@
+.admin-top-bar {
+  height: 65px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+  border-bottom: 1px solid #141414;
+  background: #080808;
+}
+
+.search-box-terminal {
+  display: flex;
+  align-items: center;
+  background: #111;
+  padding: 8px 16px;
+  border-radius: 6px;
+  width: 350px;
+  border: 1px solid #1a1a1a;
+}
+
+.s-icon { color: #444; margin-right: 12px; }
+
+.search-box-terminal input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  outline: none;
+  font-size: 0.8rem;
+  width: 100%;
+}
+
+.top-bar-tools {
+  display: flex;
+  gap: 20px;
+}
+
+.tool-btn {
+  background: transparent;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  position: relative;
+  transition: 0.2s;
+}
+
+.tool-btn:hover { color: #fff; }
+
+.dot-alert {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 6px;
+  height: 6px;
+  background: #3b82f6;
+  border-radius: 50%;
+  box-shadow: 0 0 5px #3b82f6;
+}

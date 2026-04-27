@@ -145,7 +145,7 @@
   color: white;
 }
 
-/* --- NUEVOS ESTILOS PARA EL DROPDOWN DE USUARIO --- */
+/* --- DROPDOWN DE USUARIO --- */
 
 .user-menu-wrapper {
   position: relative;
@@ -210,8 +210,10 @@
   padding: 5px 0;
 }
 
+/* Estilo unificado para links y botones de acción */
 .dropdown-list li a, 
-.login-action-btn {
+.login-action-btn,
+.logout-action-btn {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -234,8 +236,14 @@
   letter-spacing: 0.5px;
 }
 
+/* Estilo específico para cerrar sesión */
+.logout-action-btn {
+  color: #ff4d4d; 
+}
+
 .dropdown-list li a:hover, 
-.login-action-btn:hover {
+.login-action-btn:hover,
+.logout-action-btn:hover {
   background: rgba(255, 255, 255, 0.05);
   color: var(--text-white);
   padding-left: 25px;
@@ -247,7 +255,6 @@
   margin: 5px 0;
 }
 
-/* Iconos dentro del dropdown */
 .dropdown-list svg {
   color: var(--primary-color);
   opacity: 0.9;
@@ -261,7 +268,6 @@
   .menu-mobile {
     display: block;
   }
-  /* Ajuste para que el dropdown no se salga en móviles */
   .user-dropdown {
     right: -50px;
   }
