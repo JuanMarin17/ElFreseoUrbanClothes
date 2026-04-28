@@ -24,6 +24,7 @@ import { useScrollAnimation } from "./hooks/UsescrollAnimation.jsx";
 import { AuthProvider } from "./admin/modules/auth/pages/hook/Useauth.jsx";
 import NewPassword from "./admin/modules/auth/pages/NewPassword.jsx";
 import VerificationPage from "./admin/modules/auth/pages/VerificationPage.jsx";
+import SessionClosed from "./client/modules/MainPage/pages/SessionClosed.jsx";
 
 
 function App() {
@@ -109,7 +110,9 @@ function App() {
                 }
               />
                 <Route path="nueva-contraseña" element={<NewPassword />}></Route>
-                <Route path="verificacion-pagina" element={<VerificationPage/>}></Route>
+                <Route path="verificacion-pagina" element={<VerificationPage />}></Route>
+                <Route path="session-cerrada" element={<SessionClosed />}>np</Route>
+                
 
               {/* --- RUTAS DE ADMINISTRACIÓN (LAYOUT ANIDADO) --- */}
               {/* Al entrar a /admin, se carga el Sidebar y el Header fijo */}
