@@ -1,28 +1,40 @@
 /**
- * useAuth.jsx   ← extensión .jsx para que Vite/OXC procese JSX
+ * Useauth.jsx
  * ─────────────────────────────────────────────────────────────
- * Hook de autenticación con soporte para:
- *   - Login / Register con email + password (mock)
- *   - Login con Google (mock)
- *   - Logout
+ * Hook de autenticación. Provee:
+ *   - login / register / loginWithGoogle / logout
+ *   - user, loading, error, clearError
+ *
+ * IMPORTAR AuthProvider en main.jsx o App.jsx:
+ *
+ *   import { AuthProvider } from './components/auth/hook/Useauth';
+ *
+ *   <AuthProvider>
+ *     <App />        ← envuelve toda tu aplicación
+ *   </AuthProvider>
+ *
+ * CAMBIO RESPECTO A LA VERSIÓN ANTERIOR:
+ *   loginWithGoogle ahora acepta un parámetro `chosenAccount`
+ *   que es la cuenta seleccionada en el Picker React de Login.jsx.
+ *   Esto elimina la dependencia del DOM vanilla en authService.
  * ─────────────────────────────────────────────────────────────
  */
 
 import { useState, useCallback, createContext, useContext } from 'react';
-import authService, { AuthError } from '../../services/Authservice';
+import authService, { AuthError } from '../../services/Authservice'; // ← ajusta si cambia la ruta
 
-// ── Contexto ──────────────────────────────────────────────────
-
+/* ─── Contexto ───────────────────────────────────────────────── */
 const AuthContext = createContext(null);
 
+/* ─── AuthProvider ───────────────────────────────────────────── */
 export function AuthProvider({ children }) {
   const [user,    setUser]    = useState(() => authService.getUser());
   const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState(null); // { message: string }
+  const [error,   setError]   = useState(null); // { message: string } | null
 
   const clearError = useCallback(() => setError(null), []);
 
-  // ── Login con correo + password ───────────────────────────
+  /* ── Login con email + password ──────────────────────────── */
   const login = useCallback(async (credentials) => {
     setLoading(true);
     setError(null);
@@ -39,7 +51,7 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // ── Registro ──────────────────────────────────────────────
+  /* ── Registro ────────────────────────────────────────────── */
   const register = useCallback(async (info) => {
     setLoading(true);
     setError(null);
@@ -56,12 +68,20 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // ── Login con Google (mock) ───────────────────────────────
-  const loginWithGoogle = useCallback(async () => {
+  /**
+   * loginWithGoogle
+   * ──────────────────────────────────────────────────────────
+   * Recibe la cuenta elegida en el Picker React (Login.jsx).
+   * El Picker se encarga de mostrar las opciones; este hook
+   * solo procesa la cuenta elegida con authService.
+   *
+   * @param {object} chosenAccount  { id, nombre, correo, role, avatar, provider }
+   */
+  const loginWithGoogle = useCallback(async (chosenAccount) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await authService.loginWithGoogle();
+      const data = await authService.loginWithGoogle(chosenAccount);
       setUser(data.user);
       return { success: true, user: data.user };
     } catch (err) {
@@ -73,7 +93,7 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // ── Logout ────────────────────────────────────────────────
+  /* ── Logout ──────────────────────────────────────────────── */
   const logout = useCallback(async () => {
     await authService.logout();
     setUser(null);
@@ -86,6 +106,7 @@ export function AuthProvider({ children }) {
   );
 }
 
+/* ─── useAuth ────────────────────────────────────────────────── */
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth debe usarse dentro de <AuthProvider>');

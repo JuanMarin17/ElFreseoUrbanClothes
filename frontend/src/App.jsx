@@ -22,6 +22,7 @@ import DetailsProduct from "./client/modules/MainPage/components/ProductDetail/P
 // --- HOOKS Y PROVIDERS ---
 import { useScrollAnimation } from './hooks/UsescrollAnimation.jsx';
 import { AuthProvider } from './admin/modules/auth/pages/hook/Useauth.jsx';
+import { ProtectedRoute } from './admin/modules/auth/pages/hook/ProtectedRoute.jsx'; // ← AÑADIDO
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -50,26 +51,23 @@ function App() {
               <Route path="/catalogo" element={<MainPage />} />
               <Route path="/login" element={<div className='ayuda'><Login /></div>} />
               <Route path="/ayuda" element={<div className='ayuda'><HelpCenter /></div>} />
-              
+
               {/* Rutas de ayuda adicionales mapeadas al HelpCenter */}
               <Route path="/pedidos" element={<div className='ayuda'><HelpCenter /></div>} />
               <Route path="/pagos" element={<div className='ayuda'><HelpCenter /></div>} />
               <Route path="/devoluciones" element={<div className='ayuda'><HelpCenter /></div>} />
               <Route path="/seguridad" element={<div className='ayuda'><HelpCenter /></div>} />
 
-              {/* --- RUTAS DE ADMINISTRACIÓN (LAYOUT ANIDADO) --- */}
-              {/* Al entrar a /admin, se carga el Sidebar y el Header fijo */}
-              <Route path="/admin" element={<AdminLayout />}>
-                {/* Redirige automáticamente de /admin a /admin/dashboard */}
-                <Route index element={<Navigate to="dashboard" />} />
-                
-                {/* Estas rutas se inyectan en el <Outlet /> de AdminLayout */}
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="subir-productos" element={<UploadProduct />} />
-                <Route path="editar-producto/:id" element={<EditProduct />} />
-                
-                {/* Ejemplo de ruta futura para Usuarios */}
-                <Route path="usuarios" element={<Dashboard />} /> 
+              {/* --- RUTAS DE ADMINISTRACIÓN PROTEGIDAS --- */}
+              {/* ProtectedRoute verifica sesión y role='admin'; si no, redirige a /login */}
+              <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<Navigate to="dashboard" />} />
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="subir-productos" element={<UploadProduct />} />
+                  <Route path="editar-producto/:id" element={<EditProduct />} />
+                  <Route path="usuarios" element={<Dashboard />} />
+                </Route>
               </Route>
 
               {/* Redirección para rutas no encontradas */}
