@@ -22,6 +22,9 @@ import DetailsProduct from "./client/modules/MainPage/components/ProductDetail/P
 // --- HOOKS Y PROVIDERS ---
 import { useScrollAnimation } from "./hooks/UsescrollAnimation.jsx";
 import { AuthProvider } from "./admin/modules/auth/pages/hook/Useauth.jsx";
+import NewPassword from "./admin/modules/auth/pages/NewPassword.jsx";
+import VerificationPage from "./admin/modules/auth/pages/VerificationPage.jsx";
+
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -105,6 +108,8 @@ function App() {
                   </div>
                 }
               />
+                <Route path="nueva-contraseña" element={<NewPassword />}></Route>
+                <Route path="verificacion-pagina" element={<VerificationPage/>}></Route>
 
               {/* --- RUTAS DE ADMINISTRACIÓN (LAYOUT ANIDADO) --- */}
               {/* Al entrar a /admin, se carga el Sidebar y el Header fijo */}

@@ -1,113 +1,106 @@
 import React, { useState } from "react";
-import { Lock, Eye, EyeOff } from "lucide-react";
+import "./NewPassword.css";
+import vexio from "../../../../assets/vexio.png";
+const NewPassword = () => {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
 
-import "./PasswordForm.css";
+  // Validación de requisitos
+  const requirements = [
+    { label: "MÍNIMO 8 CARACTERES", met: password.length >= 8 },
+    {
+      label: "UN CARÁCTER ESPECIAL",
+      met: /[!@#$%^&*(),.?":{}|<>|-]/.test(password),
+    },
+    { label: "UNA LETRA MAYÚSCULA", met: /[A-Z]/.test(password) },
+  ];
 
-function NewPassword() {
-const [showPass, setShowPass] = useState(false);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (password === confirmPassword && requirements.every((r) => r.met)) {
+      console.log("Contraseña actualizada con éxito");
+    } else {
+      alert(
+        "Por favor, verifica los requisitos y que las contraseñas coincidan.",
+      );
+    }
+  };
 
-const [passwords, setPasswords] = useState({
-  password: "",
-  confirm: "",
-});
+  return (
+    <div className="container">
+      <div className="card">
+        <header className="header">
+           <img
+           src={vexio}
+           alt="logo vexio"
+          className="logo-placeholder"></img>
+          <h1>REESTABLECER CONTRASEÑA</h1>
+          <p>Ingresa tu nueva clave de acceso</p>
+        </header>
 
-const handleChange = (e) => {
-  setPasswords({
-    ...passwords,
-    [e.target.name]: e.target.value,
-  });
-};
+        <form onSubmit={handleSubmit} className="form">
+          <div className="input-group">
+            <label>NUEVA CONTRASEÑA</label>
+            <div className="input-wrapper">
+              <input
+                type={showPass ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="........"
+              />
+              <button
+                type="button"
+                className="eye-icon"
+                onClick={() => setShowPass(!showPass)}
+              >
+                👁
+              </button>
+            </div>
+          </div>
 
-const isMatch =
-  passwords.password === passwords.confirm && passwords.password !== "";
+          <div className="input-group">
+            <label>CONFIRMAR CONTRASEÑA</label>
+            <div className="input-wrapper">
+              <input
+                type={showPass ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="........"
+              />
+              <button
+                type="button"
+                className="eye-icon"
+                onClick={() => setShowPass(!showPass)}
+              >
+                👁
+              </button>
+            </div>
+          </div>
 
-// 🔐 Nivel de seguridad
-const getStrength = () => {
-  const pass = passwords.password;
-  let strength = 0;
+          <div className="requirements-box">
+            <p className="req-title">REQUERIMIENTOS TÉCNICOS</p>
+            <ul>
+              {requirements.map((req, index) => (
+                <li key={index} className={req.met ? "met" : ""}>
+                  <span className="check-circle">{req.met ? "✓" : "○"}</span>
+                  {req.label}
+                </li>
+              ))}
+            </ul>
+          </div>
 
-  if (pass.length > 5) strength++;
-  if (/[A-Z]/.test(pass)) strength++;
-  if (/[0-9]/.test(pass)) strength++;
-  if (/[^A-Za-z0-9]/.test(pass)) strength++;
+          <button type="submit" className="submit-btn">
+            ACTUALIZAR CONTRASEÑA <span>→</span>
+          </button>
+        </form>
 
-  return strength;
-};
-
-const strength = getStrength();
-
-return (
-  <div className="upload-page">
-    <div className="upload-container password-card">
-      {/* HEADER */}
-      <div className="header-security">
-        <h2 className="upload-title">Nueva Contraseña</h2>
+        <footer className="footer">
+          <a href="/login">← VOLVER AL INICIO DE SESIÓN</a>
+        </footer>
       </div>
-
-      {/* FORM */}
-      <form className="upload-form">
-        {/* Password */}
-        <div className="field">
-          <label>Nueva Contraseña</label>
-
-          <div
-            className={`custom-number-input pass-field ${passwords.password ? "active-neon" : ""}`}
-          >
-            <Lock size={18} className="prefix-icon" />
-
-            <input
-              type={showPass ? "text" : "password"}
-              name="password"
-              placeholder="Escribe tu nueva contraseña"
-              className="input-count"
-              onChange={handleChange}
-            />
-
-            <button
-              type="button"
-              className="eye-btn"
-              onClick={() => setShowPass(!showPass)}
-            >
-              {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
-
-          {/* 🔥 Barra de seguridad */}
-          <div className="strength-bar">
-            <div className={`strength-fill level-${strength}`}></div>
-          </div>
-        </div>
-
-        {/* Confirm */}
-        <div className="field">
-          <label>Confirmar Contraseña</label>
-
-          <div
-            className={`custom-number-input pass-field ${isMatch ? "match-success" : ""}`}
-          >
-            <Lock size={18} className="prefix-icon" />
-
-            <input
-              type={showPass ? "text" : "password"}
-              name="confirm"
-              placeholder="Repite la contraseña"
-              className="input-count"
-              onChange={handleChange}
-            />
-          </div>
-
-          {passwords.confirm && !isMatch && (
-            <span className="error-text">Las contraseñas no coinciden</span>
-          )}
-        </div>
-
-        <button className="save-btn neon-btn-heavy" type="submit">
-          Guardar Nueva Contraseña
-        </button>
-      </form>
     </div>
-  </div>
-);
-}
+  );
+};
 
 export default NewPassword;

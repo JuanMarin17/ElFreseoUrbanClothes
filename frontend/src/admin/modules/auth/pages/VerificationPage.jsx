@@ -1,5 +1,5 @@
 import "./VerificationPage.css";
-import logo from "../../../assets/logo.png";
+import vexio from "../../../../assets/vexio.png";
 
 export default function VerificationPage() {
   return (
@@ -36,7 +36,7 @@ export default function VerificationPage() {
       </div>
 
       <div className="verification-illustration">
-        <img src={logo} />
+        <img src={vexio} />
       </div>
     </div>
   );
