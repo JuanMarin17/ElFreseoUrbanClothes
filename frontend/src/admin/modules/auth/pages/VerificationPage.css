@@ -17,7 +17,6 @@
   align-items: center;
   background-color: var(--bg-black);
   color: white;
-  font-family: "Inter", sans-serif;
   overflow: auto;
 }
 
@@ -57,7 +56,6 @@
   position: absolute;
   top: 15px;
   right: 20px;
-  font-family: monospace;
   font-size: 0.6rem;
   color: #333;
 }
