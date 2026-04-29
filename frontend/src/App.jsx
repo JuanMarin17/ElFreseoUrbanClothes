@@ -11,7 +11,6 @@ import UploadProduct from "./admin/modules/administration/pages/UploadProduct/Up
 import EditProduct from "./admin/modules/administration/pages/EditProduct/EditProduct.jsx";
 import Login from "./admin/modules/auth/pages/Login/Login.jsx";
 
-
 // --- IMPORTS DE CLIENTE ---
 import LandingPage from "./client/modules/landingPage/pages/LandingPage/LandingPage.jsx";
 import LoadingScreen from "./client/modules/landingPage/LoadingScreen/LoadingScreen.jsx";
@@ -26,8 +25,6 @@ import { AuthProvider } from "./admin/modules/auth/pages/hook/Useauth.jsx";
 import NewPassword from "./admin/modules/auth/pages/NewPassword.jsx";
 import VerificationPage from "./admin/modules/auth/pages/VerificationPage.jsx";
 import SessionClosed from "./client/modules/MainPage/pages/SessionClosed.jsx";
-
-
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -111,10 +108,12 @@ function App() {
                   </div>
                 }
               />
-                <Route path="nueva-contraseña" element={<NewPassword />}></Route>
-                <Route path="verificacion-pagina" element={<VerificationPage />}></Route>
-                <Route path="session-cerrada" element={<SessionClosed />}></Route>
-                
+              <Route path="nueva-contraseña" element={<NewPassword />}></Route>
+              <Route
+                path="verificacion-pagina"
+                element={<VerificationPage />}
+              ></Route>
+              <Route path="session-cerrada" element={<SessionClosed />}></Route>
 
               {/* --- RUTAS DE ADMINISTRACIÓN (LAYOUT ANIDADO) --- */}
               {/* Al entrar a /admin, se carga el Sidebar y el Header fijo */}
@@ -125,7 +124,7 @@ function App() {
                 {/* Estas rutas se inyectan en el <Outlet /> de AdminLayout */}
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="subir-productos" element={<UploadProduct />} />
-                  <Route path="editar-producto/:id" element={<EditProduct />} />
+                <Route path="editar-producto" element={<EditProduct />} />
 
                 {/* Ejemplo de ruta futura para Usuarios */}
                 <Route path="usuarios" element={<Dashboard />} />
