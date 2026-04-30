@@ -16,7 +16,9 @@ import LandingPage from "./client/modules/landingPage/pages/LandingPage/LandingP
 import LoadingScreen from "./client/modules/landingPage/LoadingScreen/LoadingScreen.jsx";
 import HelpCenter from "./client/modules/help/pages/HelpCenter/HelpCenter.jsx";
 import MainPage from "./client/modules/MainPage/pages/MainPage/MainPage.jsx";
+
 // eslint-disable-next-line no-unused-vars
+
 import DetailsProduct from "./client/modules/MainPage/components/ProductDetail/ProductDetail.jsx";
 
 // --- HOOKS Y PROVIDERS ---
@@ -26,6 +28,8 @@ import NewPassword from "./admin/modules/auth/pages/NewPassword.jsx";
 import VerificationPage from "./admin/modules/auth/pages/VerificationPage.jsx";
 import SessionClosed from "./client/modules/MainPage/pages/SessionClosed.jsx";
 
+// --- IMPORTAR LA PÁGINA DEL CARRITO ---
+import Cart from "./client/modules/landingPage/Cart/pages/Cart.jsx";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -58,6 +62,8 @@ function App() {
                 }
               />
               <Route path="/landing" element={<LandingPage />} />
+              {/* Ruta para visualizar el carrito de compras */}
+              <Route path="/cart" element={<Cart />} />
               <Route path="/catalogo" element={<MainPage />} />
               <Route
                 path="/login"
@@ -109,10 +115,14 @@ function App() {
                   </div>
                 }
               />
-                <Route path="nueva-contraseña" element={<NewPassword />}></Route>
-                <Route path="verificacion-pagina" element={<VerificationPage />}></Route>
-                <Route path="session-cerrada" element={<SessionClosed />}>np</Route>
-                
+              <Route path="nueva-contraseña" element={<NewPassword />}></Route>
+              <Route
+                path="verificacion-pagina"
+                element={<VerificationPage />}
+              ></Route>
+              <Route path="session-cerrada" element={<SessionClosed />}>
+                np
+              </Route>
 
               {/* --- RUTAS DE ADMINISTRACIÓN (LAYOUT ANIDADO) --- */}
               {/* Al entrar a /admin, se carga el Sidebar y el Header fijo */}
