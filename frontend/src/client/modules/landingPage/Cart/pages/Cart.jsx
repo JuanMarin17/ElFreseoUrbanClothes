@@ -117,12 +117,6 @@ const Cart = () => {
               ⚡ COMPRA RÁPIDA (APPLE/GOOGLE PAY)
             </button>
           </div>
-
-          <div className="trust-icons">
-            <span>🏛️</span>
-            <span>🛡️</span>
-            <span>🚚</span>
-          </div>
         </aside>
       </div>
     </div>
