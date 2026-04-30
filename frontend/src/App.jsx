@@ -21,8 +21,8 @@ import DetailsProduct from "./client/modules/MainPage/components/ProductDetail/P
 
 // --- HOOKS Y PROVIDERS ---
 import { useScrollAnimation } from './hooks/UsescrollAnimation.jsx';
-import { AuthProvider } from './admin/modules/auth/pages/hook/Useauth.jsx';
-import { ProtectedRoute } from './admin/modules/auth/pages/hook/ProtectedRoute.jsx'; // ← AÑADIDO
+import { AuthProvider } from './admin/modules/auth/pages/hook/AuthContext.jsx';
+import { ProtectedRoute } from './admin/modules/auth/pages/hook/ProtectedRoute.jsx';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
