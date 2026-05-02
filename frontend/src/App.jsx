@@ -31,6 +31,9 @@ import SessionClosed from "./client/modules/MainPage/pages/SessionClosed.jsx";
 // --- IMPORTAR LA PÁGINA DEL CARRITO ---
 import Cart from "./client/modules/landingPage/Cart/pages/Cart.jsx";
 
+// --- IMPORTAR LA PÁGINA DE FILTRO ---
+import Filter from "./admin/modules/administration/dashboard/Filter.jsx";
+
 function App() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -64,6 +67,7 @@ function App() {
               <Route path="/landing" element={<LandingPage />} />
               {/* Ruta para visualizar el carrito de compras */}
               <Route path="/cart" element={<Cart />} />
+              {/* Ruta para visualizar el filtro */}
               <Route path="/catalogo" element={<MainPage />} />
               <Route
                 path="/login"
@@ -128,8 +132,8 @@ function App() {
               {/* Al entrar a /admin, se carga el Sidebar y el Header fijo */}
               <Route path="/admin" element={<AdminLayout />}>
                 {/* Redirige automáticamente de /admin a /admin/dashboard */}
-                <Route index element={<Navigate to="dashboard" />} />
-
+                  <Route index element={<Navigate to="dashboard" />} />
+                  <Route path ="filter" element={<Filter/>}/>
                 {/* Estas rutas se inyectan en el <Outlet /> de AdminLayout */}
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="subir-productos" element={<UploadProduct />} />

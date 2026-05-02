@@ -40,4 +40,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; // <--- ESTO ES LO QUE CAUSA TU ERROR
+export default Dashboard; 
