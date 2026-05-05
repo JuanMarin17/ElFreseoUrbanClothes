@@ -1,0 +1,216 @@
+:root {
+  --neon-green: #c2ccb1;
+  --dark-panel: #0f0f0f;
+  --border-tech: #2a2a2a;
+}
+
+.filter-system {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border-tech);
+  margin-bottom: 40px;
+}
+
+/* Módulo de Búsqueda */
+.search-module {
+  margin-bottom: 25px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  background: var(--dark-panel);
+  border: 1px solid var(--border-tech);
+  padding: 5px;
+}
+
+.input-wrapper input {
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 15px 20px;
+  width: 100%;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.search-btn {
+  background: var(--neon-green);
+  color: black;
+  border: none;
+  padding: 0 30px;
+  font-weight: 900;
+  cursor: pointer;
+  clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%); /* Corte brutalista */
+}
+
+/* Categorías */
+.category-grid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.filter-tab {
+  background: transparent;
+  border: 1px solid var(--border-tech);
+  color: var(--text-muted);
+  padding: 10px 20px;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.filter-tab.active {
+  background: white;
+  color: black;
+  border-color: white;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: #333;
+  border-radius: 50%;
+}
+
+.active .status-dot {
+  background: var(--neon-green);
+  box-shadow: 0 0 8px var(--neon-green);
+}
+
+/* Selectores Secundarios */
+.secondary-filters {
+  display: flex;
+  gap: 30px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-size: 0.6rem;
+  color: #555;
+  font-weight: bold;
+}
+
+.filter-group select {
+  background: #141414;
+  color: white;
+  border: 1px solid var(--border-tech);
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  cursor: pointer;
+ appearance: none; /* Limpiar estilo nativo */
+
+ /* --- Variables de Estilo --- */
+:root {
+  --neon-green: #c2ccb1;
+  --dark-panel: #0f0f0f;
+  --border-tech: #2a2a2a;
+  --text-muted: #666;
+}
+
+.filter-system {
+  padding: 20px;
+  background: var(--bg-color);
+}
+
+/* --- Animación Scanner Line --- */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  background: var(--dark-panel);
+  border: 1px solid var(--border-tech);
+  overflow: hidden; /* Importante para la línea */
+  transition: border-color 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.scanner-line {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(194, 204, 177, 0.1), transparent);
+  animation: scanLoop 3s infinite linear;
+  pointer-events: none;
+}
+
+@keyframes scanLoop {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.input-wrapper:focus-within {
+  border-color: var(--neon-green);
+}
+
+/* --- Inputs de Precio Animados --- */
+.price-inputs-row {
+  display: flex;
+  align-items: center;
+  background: #141414;
+  border: 1px solid var(--border-tech);
+  padding: 5px 10px;
+}
+
+.price-inputs-row input {
+  background: transparent;
+  border: none;
+  color: var(--neon-green);
+  font-family: 'JetBrains Mono', monospace;
+  width: 70px;
+  font-size: 0.8rem;
+  padding: 5px;
+  outline: none;
+  transition: transform 0.2s ease;
+}
+
+.price-inputs-row input:focus {
+  transform: translateY(-2px);
+  color: white;
+}
+
+.price-separator {
+  color: #333;
+  margin: 0 5px;
+}
+
+/* --- Tabs y Status Dot --- */
+.filter-tab {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.status-dot {
+  width: 5px;
+  height: 5px;
+  background: #333;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.filter-tab.active .status-dot {
+  background: var(--neon-green);
+  box-shadow: 0 0 10px var(--neon-green);
+  transform: scale(1.5);
+}
+
+/* --- Selectores Técnicos --- */
+.tech-select {
+  background: #141414;
+  color: white;
+  border: 1px solid var(--border-tech);
+  padding: 8px;
+  font-size: 0.75rem;
+  outline: none;
+}
+}

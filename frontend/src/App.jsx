@@ -16,7 +16,9 @@ import LandingPage from "./client/modules/landingPage/pages/LandingPage/LandingP
 import LoadingScreen from "./client/modules/landingPage/LoadingScreen/LoadingScreen.jsx";
 import HelpCenter from "./client/modules/help/pages/HelpCenter/HelpCenter.jsx";
 import MainPage from "./client/modules/MainPage/pages/MainPage/MainPage.jsx";
+
 // eslint-disable-next-line no-unused-vars
+
 import DetailsProduct from "./client/modules/MainPage/components/ProductDetail/ProductDetail.jsx";
 
 // --- HOOKS Y PROVIDERS ---
@@ -27,6 +29,11 @@ import NewPassword from "./admin/modules/auth/pages/NewPassword.jsx";
 import VerificationPage from "./admin/modules/auth/pages/VerificationPage.jsx";
 import SessionClosed from "./client/modules/MainPage/pages/SessionClosed.jsx";
 
+// --- IMPORTAR LA PÁGINA DEL CARRITO ---
+import Cart from "./client/modules/landingPage/Cart/pages/Cart.jsx";
+
+// --- IMPORTAR LA PÁGINA DE FILTRO ---
+import Filter from "./admin/modules/administration/dashboard/Filter.jsx";
 
 
 import { useScrollAnimation } from './hooks/UsescrollAnimation.jsx';
@@ -65,6 +72,9 @@ function App() {
                 }
               />
               <Route path="/landing" element={<LandingPage />} />
+              {/* Ruta para visualizar el carrito de compras */}
+              <Route path="/cart" element={<Cart />} />
+              {/* Ruta para visualizar el filtro */}
               <Route path="/catalogo" element={<MainPage />} />
 
               <Route
@@ -129,15 +139,21 @@ function App() {
                 path="verificacion-pagina"
                 element={<VerificationPage />}
               ></Route>
-              <Route path="session-cerrada" element={<SessionClosed />}></Route>
+
+              <Route path="session-cerrada" element={<SessionClosed />}>
+                np
+              </Route>
+
+             <Route path="session-cerrada" element={<SessionClosed />}></Route>
+
 
 
               {/* --- RUTAS DE ADMINISTRACIÓN (LAYOUT ANIDADO) --- */}
               {/* Al entrar a /admin, se carga el Sidebar y el Header fijo */}
               <Route path="/admin" element={<AdminLayout />}>
                 {/* Redirige automáticamente de /admin a /admin/dashboard */}
-                <Route index element={<Navigate to="dashboard" />} />
-
+                  <Route index element={<Navigate to="dashboard" />} />
+                  <Route path ="filter" element={<Filter/>}/>
                 {/* Estas rutas se inyectan en el <Outlet /> de AdminLayout */}
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="subir-productos" element={<UploadProduct />} />
