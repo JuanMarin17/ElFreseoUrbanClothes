@@ -3,14 +3,15 @@ import { Mail, Lock, User, Phone, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useNavigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from '../hook/Useauth';
 import VerificationPage from '../VerificationPage';
+import PasswordForm from '../PasswordForm';
 import Logo from '../../../../../assets/LogoVexios/banervexio.png';
 import './login.css';
 
 /* ─── Logo Vexio ─── */
 const VexioLogo = () => (
   <div className="vp-logo-wrapper">
-    <img src={Logo} alt="vexio logo" className="vp-logo" /> 
-   
+    <img src={Logo} alt="vexio logo" className="vp-logo" />
+
   </div>
 );
 
@@ -54,11 +55,13 @@ function Field({ icon, type = 'text', placeholder, value, onChange, showToggle, 
 function LoginForm({ mode }) {
   const navigate = useNavigate();
   const { login, verifyLoginOTP, register, verifyRegisterOTP, loading } = useAuth();
-  
+
   const [step, setStep] = useState('form');
   const [emailForOTP, setEmailForOTP] = useState('');
   const [serverError, setServerError] = useState('');
   const [errors, setErrors] = useState({});
+  const [showRecovery, setShowRecovery] = useState(false);
+  const [showPasswordRecoveryForm, setShowPasswordRecoveryForm] = useState(false);
 
   const userName = useField();
   const email = useField();
@@ -92,6 +95,8 @@ function LoginForm({ mode }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     setServerError('');
+    setShowRecovery(false);
+    setShowPasswordRecoveryForm(false);
     if (!validate()) return;
 
     try {
@@ -101,7 +106,10 @@ function LoginForm({ mode }) {
         setStep('otp');
       }
     } catch (err) {
-      setServerError(err?.response?.data?.message || 'Error al iniciar sesión');
+      const errorMsg = err?.response?.data?.message || 'Correo o contraseña incorrectos';
+      setServerError(errorMsg);
+      setShowRecovery(true);
+      setShowPasswordRecoveryForm(false);
     }
   };
 
@@ -154,56 +162,56 @@ function LoginForm({ mode }) {
       <div className="vp-card">
         <VexioLogo />
         <h2 className="vp-title">{mode === 'login' ? 'INICIA SESIÓN' : 'CREAR CUENTA'}</h2>
-        
+
         {serverError && <div className="vp-server-error">{serverError}</div>}
 
         <form onSubmit={mode === 'login' ? handleLogin : handleRegister} noValidate>
           {mode === 'register' && (
             <>
-              <Field 
-                icon={<User size={18} />} 
-                placeholder="Nombre Completo" 
-                value={userName.value} 
+              <Field
+                icon={<User size={18} />}
+                placeholder="Nombre Completo"
+                value={userName.value}
                 onChange={userName.onChange}
                 error={errors.userName}
               />
-              <Field 
-                icon={<Phone size={18} />} 
-                placeholder="Teléfono" 
-                value={phone.value} 
+              <Field
+                icon={<Phone size={18} />}
+                placeholder="Teléfono"
+                value={phone.value}
                 onChange={phone.onChange}
                 error={errors.phone}
               />
             </>
           )}
 
-          <Field 
-            icon={<Mail size={18} />} 
-            placeholder="Correo Electrónico" 
-            value={email.value} 
+          <Field
+            icon={<Mail size={18} />}
+            placeholder="Correo Electrónico"
+            value={email.value}
             onChange={email.onChange}
             error={errors.email}
           />
-          
-          <Field 
-            icon={<Lock size={18} />} 
-            placeholder="Contraseña" 
-            value={password.value} 
-            onChange={password.onChange} 
-            showToggle 
-            show={password.show} 
+
+          <Field
+            icon={<Lock size={18} />}
+            placeholder="Contraseña"
+            value={password.value}
+            onChange={password.onChange}
+            showToggle
+            show={password.show}
             onToggle={password.onToggle}
             error={errors.password}
           />
 
           {mode === 'register' && (
-            <Field 
-              icon={<Lock size={18} />} 
-              placeholder="Confirmar Contraseña" 
-              value={confirmPassword.value} 
-              onChange={confirmPassword.onChange} 
-              showToggle 
-              show={confirmPassword.show} 
+            <Field
+              icon={<Lock size={18} />}
+              placeholder="Confirmar Contraseña"
+              value={confirmPassword.value}
+              onChange={confirmPassword.onChange}
+              showToggle
+              show={confirmPassword.show}
               onToggle={confirmPassword.onToggle}
               error={errors.confirmPassword}
             />
@@ -213,6 +221,16 @@ function LoginForm({ mode }) {
             {loading ? <Loader2 className="vp-spin" size={20} /> : (mode === 'login' ? 'ENTRAR' : 'REGISTRARME')}
           </button>
         </form>
+
+        {showRecovery && !showPasswordRecoveryForm && (
+          <p className="vp-switch-auth">
+            <span className="vp-link" onClick={() => setShowPasswordRecoveryForm(true)}>
+              Recuperar contraseña
+            </span>
+          </p>
+        )}
+
+        {showPasswordRecoveryForm && <PasswordForm />}
 
         <p className="vp-switch-auth">
           {mode === 'login' ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}
