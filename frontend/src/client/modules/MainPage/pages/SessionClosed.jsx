@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import "./SessionClosed.css";
-import logo from "../../../assets/logo.png";
+import vexio from ".././../../../assets/vexio-img.png";
 
 
 
@@ -17,7 +17,7 @@ const PARTICLE_DATA = Array.from({ length: 22 }, (_, i) => ({
   del: `${Math.random() * 8}s`,
 }));
 function SessionClosed() {
-  const REDIRECT_SECS = 50;
+  const REDIRECT_SECS = 500;
   const [secs, setSecs] = useState(REDIRECT_SECS);
   const [redirected, setRedirected] = useState(false);
   const interval = useRef(null);
@@ -64,9 +64,6 @@ function SessionClosed() {
     return (
       <>
         <div className="scene">
-          <div className="orb o1" />
-          <div className="orb o2" />
-          <div className="orb o3" />
           <div
             className="card"
             style={{ textAlign: "center", padding: "60px 40px" }}
@@ -94,46 +91,21 @@ function SessionClosed() {
     <>
       <div className="scene">
         {/* Ambient */}
-        <div className="orb o1" />
-        <div className="orb o2" />
-        <div className="orb o3" />
 
         {/* Particles */}
-        <div className="particles">
-          {PARTICLE_DATA.map((p) => (
-            <div
-              key={p.id}
-              className="particle"
-              style={{
-                left: p.left,
-                bottom: p.bottom,
-                width: p.size,
-                height: p.size,
-                background: p.color,
-                "--dur": p.dur,
-                "--del": p.del,
-              }}
-            />
-          ))}
-        </div>
-
         {/* ── CARD ── */}
         <div className="card">
           {/* TOP */}
           <div className="card-top">
             {/* Ring system */}
             <div className="rings">
-              <div className="ring ring-1" />
-              <div className="ring ring-2" />
-              <div className="ring ring-3" />
               <div className="lock-center">
                 <div className="lock-bg">
                   <span className="lock-icon">
-                    <img src={logo} alt="" />
+                    <img src={vexio} alt="" />
                   </span>
                 </div>
               </div>
-              <div className="badge">!</div>
             </div>
 
             <h1 className="session-title">
