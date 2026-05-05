@@ -5,12 +5,10 @@ export const ProtectedRoute = ({ allowedRoles }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  // 🔹 1. Mientras se carga el estado inicial
   if (loading) {
     return <div className="loading-spinner">Cargando sesión...</div>;
   }
 
-  // 🔹 2. No autenticado → login
   if (!user) {
     return (
       <Navigate
@@ -21,11 +19,9 @@ export const ProtectedRoute = ({ allowedRoles }) => {
     );
   }
 
-  // 🔹 3. Usuario sin permisos
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     return <Navigate to="/" replace />;
   }
 
-  // 🔹 4. Todo correcto
   return <Outlet />;
 };
