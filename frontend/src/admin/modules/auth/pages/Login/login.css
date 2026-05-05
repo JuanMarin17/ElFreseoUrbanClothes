@@ -1,0 +1,311 @@
+/* login.css */
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --vp-bg: #0a0a0f;
+  --vp-card-bg: rgba(15, 15, 25, 0.7);
+  --vp-border: rgba(255, 255, 255, 0.08);
+  --vp-text: #e8e8f0;
+  --vp-muted: rgba(200, 200, 220, 0.5);
+  --vp-accent: #4f6ef7;
+  --vp-error: #ff4d4f;
+  --vp-btn-bg: linear-gradient(135deg, #4f6ef7 0%, #7c3aed 100%);
+  --vp-btn-glow: rgba(79, 110, 247, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.vp-body {
+  min-height: 100vh;
+  width: 100%;
+  background: var(--vp-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+}
+
+/* ─── Orbes de Fondo (Efecto image_58b73b.png) ─── */
+.vp-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.vp-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.12;
+}
+
+.vp-bg-orb--1 {
+  width: 500px;
+  height: 500px;
+  background: #4f6ef7;
+  top: -100px;
+  left: -100px;
+  animation: orbFloat 10s infinite ease-in-out;
+}
+
+.vp-bg-orb--2 {
+  width: 450px;
+  height: 450px;
+  background: #7c3aed;
+  bottom: -100px;
+  right: -50px;
+  animation: orbFloat 12s infinite ease-in-out reverse;
+}
+
+.vp-bg-orb--3 {
+  width: 300px;
+  height: 300px;
+  background: #06b6d4;
+  top: 40%;
+  left: 50%;
+  animation: orbFloat 15s infinite ease-in-out 2s;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -60px) scale(1.1); }
+}
+
+/* ─── Tarjeta Principal ─── */
+.vp-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  background: var(--vp-card-bg);
+  border: 1px solid var(--vp-border);
+  border-radius: 24px;
+  padding: 40px;
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+/* ─── Header & Logo ─── */
+.vp-logo-wrapper {
+  margin-bottom: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height:30vh;
+}
+.vp-logo-wrapper img{
+  height:52vh;
+  width: 52vh;
+}
+
+.vp-logo {
+  height: 30px;
+  margin-bottom: 5px;
+  filter: drop-shadow(0 0 15px var(--vp-accent));
+}
+
+.vp-brand-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  text-transform: lowercase;
+}
+
+.vp-slogan {
+  font-size: 0.65rem;
+  color: var(--vp-muted);
+  letter-spacing: 1.5px;
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+
+.vp-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--vp-text);
+  letter-spacing: 1px;
+  margin-bottom: 25px;
+}
+
+/* ─── Formulario e Inputs ─── */
+.vp-field-group {
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.vp-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--vp-border);
+  border-radius: 14px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vp-input-wrapper:focus-within {
+  border-color: var(--vp-accent);
+  background: rgba(79, 110, 247, 0.06);
+  box-shadow: 0 0 0 4px rgba(79, 110, 247, 0.1);
+}
+
+.vp-input-error {
+  border-color: rgba(255, 77, 79, 0.4) !important;
+  background: rgba(255, 77, 79, 0.04) !important;
+}
+
+.vp-field-icon {
+  padding-left: 16px;
+  color: var(--vp-muted);
+  display: flex;
+  align-items: center;
+}
+
+.vp-input-main {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 15px 12px;
+  color: var(--vp-text);
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.vp-input-main::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.vp-eye-btn {
+  background: none;
+  border: none;
+  padding: 0 16px;
+  color: var(--vp-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.vp-eye-btn:hover {
+  color: var(--vp-text);
+}
+
+/* ─── Errores ─── */
+.vp-error-text {
+  color: var(--vp-error);
+  font-size: 0.75rem;
+  margin-top: 5px;
+  margin-left: 4px;
+  display: block;
+}
+
+.vp-server-error {
+  background: rgba(255, 77, 79, 0.1);
+  border: 1px solid rgba(255, 77, 79, 0.2);
+  color: #ff7875;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+  40%, 60% { transform: translate3d(3px, 0, 0); }
+}
+
+/* ─── Botón de Acción ─── */
+.vp-submit-btn {
+  width: 100%;
+  padding: 16px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 50px;
+  background: var(--vp-btn-bg);
+  color: #fff;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 8px 20px var(--vp-btn-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.vp-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px var(--vp-btn-glow);
+  filter: brightness(1.1);
+}
+
+.vp-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.vp-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.vp-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Footer de la Tarjeta ─── */
+.vp-switch-auth {
+  margin-top: 25px;
+  font-size: 0.9rem;
+  color: var(--vp-muted);
+}
+
+.vp-link {
+  color: var(--vp-accent);
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 6px;
+  transition: color 0.2s;
+}
+
+.vp-link:hover {
+  color: #7c3aed;
+  text-decoration: underline;
+}
+
+/* Responsivo para móviles */
+@media (max-width: 480px) {
+  .vp-card {
+    padding: 30px 20px;
+    border-radius: 0;
+    height: 100vh;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: none;
+  }
+}

@@ -1,0 +1,14 @@
+.admin-stat-box {
+  background: #0d0d0d;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #1a1a1a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 200px;
+}
+
+.stat-label { color: #555; font-size: 0.7rem; font-weight: 800; }
+.stat-number { font-size: 2rem; font-weight: 800; margin: 5px 0; }
+.stat-percent { color: #10b981; font-size: 0.75rem; font-weight: bold; display: flex; align-items: center; }

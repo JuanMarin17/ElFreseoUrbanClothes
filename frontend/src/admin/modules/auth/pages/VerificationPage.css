@@ -1,0 +1,434 @@
+/* ═══════════════════════════════════════
+   VERIFICATION PAGE — Dark Neon Theme
+   Fiel al diseño de referencia (Vexio)
+═══════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+/* ─── Variables ─── */
+:root {
+  --vp-bg:          #0a0a0f;
+  --vp-card-bg:     rgba(15, 15, 25, 0.85);
+  --vp-border:      rgba(255, 255, 255, 0.07);
+  --vp-text:        #e8e8f0;
+  --vp-muted:       rgba(200, 200, 220, 0.55);
+  --vp-accent:      #4f6ef7;
+  --vp-accent-glow: rgba(79, 110, 247, 0.45);
+  --vp-input-bg:    rgba(255, 255, 255, 0.05);
+  --vp-input-border:rgba(255, 255, 255, 0.12);
+  --vp-input-active:#4f6ef7;
+  --vp-btn-bg:      linear-gradient(135deg, #4f6ef7 0%, #7c3aed 100%);
+  --vp-btn-glow:    rgba(79, 110, 247, 0.5);
+  --vp-radius:      14px;
+}
+
+/* ─── Body / Background ─── */
+.vp-body {
+  min-height: 100vh;
+  width: 100%;
+  background: var(--vp-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Orbes decorativos de fondo */
+.vp-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.vp-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.18;
+}
+
+.vp-bg-orb--1 {
+  width: 500px;
+  height: 500px;
+  background: #4f6ef7;
+  top: -150px;
+  left: -100px;
+  animation: orbFloat 8s ease-in-out infinite;
+}
+
+.vp-bg-orb--2 {
+  width: 400px;
+  height: 400px;
+  background: #7c3aed;
+  bottom: -100px;
+  right: -80px;
+  animation: orbFloat 10s ease-in-out infinite reverse;
+}
+
+.vp-bg-orb--3 {
+  width: 250px;
+  height: 250px;
+  background: #06b6d4;
+  top: 50%;
+  left: 60%;
+  animation: orbFloat 12s ease-in-out infinite 2s;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0); }
+  33%       { transform: translate(20px, -30px); }
+  66%       { transform: translate(-15px, 15px); }
+}
+
+/* ─── Card ─── */
+.vp-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  background: var(--vp-card-bg);
+  border: 1px solid var(--vp-border);
+  border-radius: 24px;
+  padding: 40px 36px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04),
+    0 30px 60px rgba(0,0,0,0.5),
+    0 0 80px rgba(79, 110, 247, 0.08);
+  animation: cardIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ─── Logo ─── */
+.vp-logo-wrapper {
+  margin-bottom: 20px;
+}
+
+.vp-logo {
+  height: 72px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(79, 110, 247, 0.4));
+  animation: logoPulse 3s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { filter: drop-shadow(0 0 16px rgba(79, 110, 247, 0.35)); }
+  50%       { filter: drop-shadow(0 0 28px rgba(124, 58, 237, 0.55)); }
+}
+
+/* ─── Título ─── */
+.vp-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(1.4rem, 4vw, 1.85rem);
+  font-weight: 700;
+  color: var(--vp-text);
+  text-align: center;
+  margin: 0 0 8px;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+}
+
+/* ─── Subtítulo ─── */
+.vp-subtitle {
+  font-size: 0.83rem;
+  color: var(--vp-muted);
+  text-align: center;
+  margin: 0 0 28px;
+  line-height: 1.5;
+}
+
+.vp-email {
+  color: var(--vp-text);
+  font-weight: 600;
+}
+
+/* ─── Inputs OTP ─── */
+.vp-inputs-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+  flex-wrap: nowrap;
+}
+
+.vp-input {
+  width: 52px;
+  height: 60px;
+  background: var(--vp-input-bg);
+  border: 1.5px solid var(--vp-input-border);
+  border-radius: var(--vp-radius);
+  color: var(--vp-text);
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: 'Rajdhani', sans-serif;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s, transform 0.15s;
+  caret-color: transparent;
+}
+
+.vp-input::selection {
+  background: transparent;
+}
+
+.vp-input--active {
+  border-color: var(--vp-input-active);
+  background: rgba(79, 110, 247, 0.08);
+  box-shadow:
+    0 0 0 3px rgba(79, 110, 247, 0.18),
+    0 0 16px rgba(79, 110, 247, 0.2);
+  transform: scale(1.06);
+}
+
+.vp-input--filled {
+  border-color: rgba(79, 110, 247, 0.5);
+  background: rgba(79, 110, 247, 0.06);
+}
+
+/* ─── Timer ─── */
+.vp-timer {
+  font-size: 0.8rem;
+  color: var(--vp-muted);
+  text-align: center;
+  margin-bottom: 20px;
+  min-height: 22px;
+}
+
+.vp-timer-value {
+  color: var(--vp-accent);
+  font-weight: 600;
+}
+
+.vp-resend-btn {
+  background: none;
+  border: none;
+  color: var(--vp-accent);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+
+.vp-resend-btn:hover {
+  opacity: 0.75;
+}
+
+/* ─── Auth options ─── */
+.vp-auth-options {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--vp-border);
+  border-radius: 50px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.vp-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 10px;
+  background: none;
+  border: none;
+  color: var(--vp-muted);
+  font-size: 0.78rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+
+.vp-option:hover {
+  color: var(--vp-text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.vp-option-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.vp-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--vp-border);
+  flex-shrink: 0;
+}
+
+/* ─── Botón verificar ─── */
+.vp-verify-btn {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #3a3a5c 0%, #2a2a40 100%);
+  color: rgba(255, 255, 255, 0.35);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  cursor: not-allowed;
+  transition: all 0.3s ease;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.vp-verify-btn--ready {
+  background: var(--vp-btn-bg);
+  color: #fff;
+  cursor: pointer;
+  box-shadow:
+    0 0 20px var(--vp-btn-glow),
+    0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.vp-verify-btn--ready:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 32px var(--vp-btn-glow),
+    0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+.vp-verify-btn--ready:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Shimmer al estar listo */
+.vp-verify-btn--ready::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255,255,255,0.15) 50%,
+    transparent 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.5s infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Spinner de carga */
+.vp-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Botón regresar ─── */
+.vp-back-btn {
+  background: none;
+  border: 1px solid var(--vp-border);
+  border-radius: 50px;
+  color: var(--vp-muted);
+  font-size: 0.82rem;
+  font-family: 'Inter', sans-serif;
+  padding: 9px 24px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.vp-back-btn:hover {
+  color: var(--vp-text);
+  border-color: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.04);
+}
+
+/* ═══════════════════════════
+   RESPONSIVO
+═══════════════════════════ */
+
+/* Tablet / pantallas medianas */
+@media (max-width: 520px) {
+  .vp-card {
+    padding: 32px 24px 28px;
+    border-radius: 20px;
+  }
+
+  .vp-logo {
+    height: 58px;
+  }
+
+  .vp-input {
+    width: 44px;
+    height: 54px;
+    font-size: 1.25rem;
+    border-radius: 11px;
+  }
+
+  .vp-inputs-row {
+    gap: 8px;
+  }
+
+  .vp-option {
+    font-size: 0.72rem;
+    padding: 10px 6px;
+    gap: 5px;
+  }
+}
+
+/* Móviles pequeños */
+@media (max-width: 380px) {
+  .vp-card {
+    padding: 26px 16px 24px;
+  }
+
+  .vp-input {
+    width: 38px;
+    height: 48px;
+    font-size: 1.1rem;
+    border-radius: 10px;
+  }
+
+  .vp-inputs-row {
+    gap: 6px;
+  }
+
+  .vp-title {
+    font-size: 1.25rem;
+  }
+
+  .vp-option span:last-child {
+    display: none; /* solo iconos en móvil muy pequeño */
+  }
+
+  .vp-option {
+    padding: 10px;
+  }
+}

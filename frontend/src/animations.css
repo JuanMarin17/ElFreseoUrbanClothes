@@ -1,0 +1,61 @@
+/* ============================================
+   ANIMACIONES GLOBALES DE SCROLL
+   Importa este archivo en tu index.css o App.css
+   ============================================ */
+
+/* Estado inicial: invisible y desplazado */
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  will-change: opacity, transform;
+}
+
+/* Estado visible: aparece al entrar al viewport */
+.fade-in-section.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Variantes opcionales ── */
+
+/* Aparece desde la izquierda */
+.fade-in-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-in-left.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Aparece desde la derecha */
+.fade-in-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-in-right.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Aparece con zoom */
+.fade-in-scale {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-in-scale.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── Delays escalonados para listas/grids ──
+   Úsalos así: <div class="fade-in-section delay-1"> */
+.delay-1 { transition-delay: 0.1s; }
+.delay-2 { transition-delay: 0.2s; }
+.delay-3 { transition-delay: 0.3s; }
+.delay-4 { transition-delay: 0.4s; }
+.delay-5 { transition-delay: 0.5s; }

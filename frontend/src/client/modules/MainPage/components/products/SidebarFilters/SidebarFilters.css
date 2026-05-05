@@ -1,0 +1,297 @@
+/* ── Sidebar container ───────────────────── */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: #0c0c0c;
+  border: 1px solid #1a1a1a;
+  border-radius: 16px;
+  padding: 20px 16px 24px;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+/* ── Favorites filter button ─────────────── */
+.favFilterBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #1e1e1e;
+  background: transparent;
+  color: #666;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  position: relative;
+}
+
+.favFilterBtn:hover {
+  border-color: #ff4d6d44;
+  color: #ff4d6d;
+}
+
+.favFilterBtn.active {
+  border-color: #ff4d6d;
+  background: rgba(255, 77, 109, 0.08);
+  color: #ff4d6d;
+}
+
+.favFilterIcon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.favCount {
+  margin-left: auto;
+  background: #ff4d6d;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+}
+
+/* ── Divider ─────────────────────────────── */
+.divider {
+  height: 1px;
+  background: #1a1a1a;
+  margin: 16px 0;
+}
+
+/* ── Section ─────────────────────────────── */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionTitle {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #3a3a3a;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* ── Price range ─────────────────────────── */
+.priceRange {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.priceLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #444;
+}
+
+.priceValue {
+  color: #5a8aff;
+  font-weight: 700;
+}
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to right,
+    #1a6bff 0%,
+    #1a6bff var(--progress, 100%),
+    #1e1e1e var(--progress, 100%),
+    #1e1e1e 100%
+  );
+  outline: none;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #1a6bff;
+  border: 2px solid #0c0c0c;
+  box-shadow: 0 0 6px #1a6bff66;
+  cursor: pointer;
+}
+
+/* ── Checkboxes ──────────────────────────── */
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 8px;
+}
+
+.checkLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: #555;
+  cursor: pointer;
+  transition: color 0.2s;
+  letter-spacing: 0.03em;
+}
+
+.checkLabel:hover { color: #ccc; }
+
+.checkLabel input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  border: 1.5px solid #2a2a2a;
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.checkLabel input[type="checkbox"]:checked {
+  background: #1a6bff;
+  border-color: #1a6bff;
+}
+
+.checkLabel input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 0px;
+  width: 5px;
+  height: 8px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+/* ── Color circles ───────────────────────── */
+.colorGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.colorCircle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.15s, border-color 0.2s;
+  padding: 0;
+}
+
+.colorCircle:hover { transform: scale(1.15); }
+.colorCircle.active { border-color: #fff; box-shadow: 0 0 0 1px #555; }
+
+.colorWhite  { background: #f0f0f0; }
+.colorBlack  { background: #1a1a1a; border: 1.5px solid #333; }
+.colorGray   { background: #666; }
+.colorBlue   { background: #1a6bff; }
+.colorYellow { background: #f5c400; }
+.colorGreen  { background: #22c55e; }
+
+/* ── Tag options ─────────────────────────── */
+.tagList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tagOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.76rem;
+  color: #555;
+  cursor: pointer;
+  transition: color 0.2s;
+  letter-spacing: 0.03em;
+}
+
+.tagOption:hover { color: #ccc; }
+
+.tagOption input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  border: 1.5px solid #2a2a2a;
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.tagOption input[type="checkbox"]:checked {
+  background: #1a6bff;
+  border-color: #1a6bff;
+}
+
+.tagOption input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 0px;
+  width: 5px;
+  height: 8px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+.tagIcon {
+  font-size: 0.7rem;
+  color: #3a3a3a;
+}
+
+/* ── Reset button ────────────────────────── */
+.resetButton {
+  margin-top: 20px;
+  width: 100%;
+  padding: 9px;
+  border-radius: 8px;
+  border: 1px solid #1e1e1e;
+  background: transparent;
+  color: #333;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.resetButton:hover {
+  border-color: #333;
+  color: #666;
+}
