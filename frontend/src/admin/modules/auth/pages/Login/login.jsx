@@ -1,68 +1,99 @@
 import React, { useState } from 'react';
 import { Mail, Lock, User, Phone, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from '../hook/Useauth';
+import VerificationPage from '../VerificationPage';
+import Logo from '../../../../../assets/LogoVexios/banervexio.png';
 import './login.css';
 
-/* ─── useField ───────────────────────── */
-function useField() {
-  const [value, setValue] = useState('');
+/* ─── Logo Vexio ─── */
+const VexioLogo = () => (
+  <div className="vp-logo-wrapper">
+    <img src={Logo} alt="vexio logo" className="vp-logo" /> 
+   
+  </div>
+);
+
+/* ─── Hook de Campo Personalizado ─── */
+function useField(initialValue = '') {
+  const [value, setValue] = useState(initialValue);
   const [show, setShow] = useState(false);
   return {
     value,
     show,
     onChange: (e) => setValue(e.target.value),
     onToggle: () => setShow(s => !s),
+    reset: () => setValue(''),
   };
 }
 
-/* ─── Field ─────────────────────────── */
-function Field({ icon, type = 'text', placeholder, value, onChange, showToggle, show, onToggle }) {
+/* ─── Componente de Campo de Entrada ─── */
+function Field({ icon, type = 'text', placeholder, value, onChange, showToggle, show, onToggle, error }) {
   return (
-    <div className="lf-field">
-      <span className="lf-field-icon">{icon}</span>
-      <input
-        className="lf-field-input"
-        type={showToggle ? (show ? 'text' : 'password') : type}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-      />
-      {showToggle && (
-        <button type="button" className="lf-eye-btn" onClick={onToggle}>
-          {show ? <EyeOff size={15} /> : <Eye size={15} />}
-        </button>
-      )}
+    <div className="vp-field-group">
+      <div className={`vp-input-wrapper ${error ? 'vp-input-error' : ''}`}>
+        <span className="vp-field-icon">{icon}</span>
+        <input
+          className="vp-input-main"
+          type={showToggle ? (show ? 'text' : 'password') : type}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+        />
+        {showToggle && (
+          <button type="button" className="vp-eye-btn" onClick={onToggle}>
+            {show ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        )}
+      </div>
+      {error && <span className="vp-error-text">{error}</span>}
     </div>
   );
 }
 
-/* ─── COMPONENTE PRINCIPAL ───────────────── */
-export default function Login() {
+function LoginForm({ mode }) {
   const navigate = useNavigate();
   const { login, verifyLoginOTP, register, verifyRegisterOTP, loading } = useAuth();
-
-  const [mode, setMode] = useState('login');       // 'login' | 'register'
-  const [step, setStep] = useState('form');        // 'form' | 'otp'
+  
+  const [step, setStep] = useState('form');
   const [emailForOTP, setEmailForOTP] = useState('');
-  const [error, setError] = useState('');
+  const [serverError, setServerError] = useState('');
+  const [errors, setErrors] = useState({});
 
-  const userName   = useField();
-  const email   = useField();
+  const userName = useField();
+  const email = useField();
   const phone = useField();
   const password = useField();
-  const code   = useField();
+  const confirmPassword = useField();
 
-  /* ─── Redirige según el rol del usuario ─── */
-  const redirect = (user) => {
-    if (user?.role === 'admin') navigate('/admin');
-    else navigate('/');
+  // Lógica de validación manual
+  const validate = () => {
+    let tempErrors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!email.value.trim()) tempErrors.email = "El correo es requerido";
+    else if (!emailRegex.test(email.value)) tempErrors.email = "Email no válido";
+
+    if (!password.value) tempErrors.password = "La contraseña es requerida";
+    else if (password.value.length < 6) tempErrors.password = "Mínimo 6 caracteres";
+
+    if (mode === 'register') {
+      if (!userName.value.trim()) tempErrors.userName = "El nombre es requerido";
+      if (!phone.value.trim()) tempErrors.phone = "El teléfono es requerido";
+      if (password.value !== confirmPassword.value) {
+        tempErrors.confirmPassword = "Las contraseñas no coinciden";
+      }
+    }
+
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
   };
 
-  /* ─── LOGIN paso 1 ───────────────────── */
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
+    setServerError('');
+    if (!validate()) return;
+
     try {
       const result = await login({ email: email.value, password: password.value });
       if (result.success) {
@@ -70,161 +101,135 @@ export default function Login() {
         setStep('otp');
       }
     } catch (err) {
-      setError(err.message);
+      setServerError(err?.response?.data?.message || 'Error al iniciar sesión');
     }
   };
 
-  /* ─── REGISTER paso 1 ───────────────── */
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError('');
+    setServerError('');
+    if (!validate()) return;
+
     try {
       const result = await register({
-        userName:  userName.value,
-        email:  email.value,
+        userName: userName.value,
+        email: email.value,
         password: password.value,
-        phone:   phone.value,
+        phone: phone.value,
       });
       if (result.success) {
         setEmailForOTP(result.email);
         setStep('otp');
       }
     } catch (err) {
-      setError(err.message);
+      setServerError(err?.response?.data?.message || 'Error en el registro');
     }
   };
 
-  /* ─── OTP LOGIN paso 2 ──────────────── */
-  const handleVerifyLogin = async (e) => {
-    e.preventDefault();
-    setError('');
-    try {
-      const result = await verifyLoginOTP({ email: emailForOTP, code: code.value });
-      if (result.success) redirect(result.user);
-      else setError('Código inválido');
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  /* ─── OTP REGISTER paso 2 ───────────── */
-  const handleVerifyRegister = async (e) => {
-    e.preventDefault();
-    setError('');
-    try {
-      const result = await verifyRegisterOTP({ email: emailForOTP, code: code.value });
-      if (result.success) redirect(result.user);
-      else setError('Código inválido');
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+  if (step === 'otp') {
+    return (
+      <VerificationPage
+        email={emailForOTP}
+        loading={loading}
+        onVerify={async (code) => {
+          try {
+            const fn = mode === 'login' ? verifyLoginOTP : verifyRegisterOTP;
+            const result = await fn({ email: emailForOTP, code });
+            if (result.success) navigate(result.user?.role === 'admin' ? '/admin' : '/');
+          } catch (err) { setServerError('Código inválido'); }
+        }}
+        onBack={() => setStep('form')}
+      />
+    );
+  }
 
   return (
-    <div className="lf-body">
-      <div className="lf-card">
+    <div className="vp-body">
+      <div className="vp-bg">
+        <div className="vp-bg-orb vp-bg-orb--1"></div>
+        <div className="vp-bg-orb vp-bg-orb--2"></div>
+        <div className="vp-bg-orb vp-bg-orb--3"></div>
+      </div>
 
-        <h2 className="lf-title">
-          {mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
-        </h2>
+      <div className="vp-card">
+        <VexioLogo />
+        <h2 className="vp-title">{mode === 'login' ? 'INICIA SESIÓN' : 'CREAR CUENTA'}</h2>
+        
+        {serverError && <div className="vp-server-error">{serverError}</div>}
 
-        {error && <div className="lf-error-banner">{error}</div>}
+        <form onSubmit={mode === 'login' ? handleLogin : handleRegister} noValidate>
+          {mode === 'register' && (
+            <>
+              <Field 
+                icon={<User size={18} />} 
+                placeholder="Nombre Completo" 
+                value={userName.value} 
+                onChange={userName.onChange}
+                error={errors.userName}
+              />
+              <Field 
+                icon={<Phone size={18} />} 
+                placeholder="Teléfono" 
+                value={phone.value} 
+                onChange={phone.onChange}
+                error={errors.phone}
+              />
+            </>
+          )}
 
-        {/* ─── FORMULARIO ─── */}
-        {step === 'form' && (
-          <form onSubmit={mode === 'login' ? handleLogin : handleRegister}>
+          <Field 
+            icon={<Mail size={18} />} 
+            placeholder="Correo Electrónico" 
+            value={email.value} 
+            onChange={email.onChange}
+            error={errors.email}
+          />
+          
+          <Field 
+            icon={<Lock size={18} />} 
+            placeholder="Contraseña" 
+            value={password.value} 
+            onChange={password.onChange} 
+            showToggle 
+            show={password.show} 
+            onToggle={password.onToggle}
+            error={errors.password}
+          />
 
-            {mode === 'register' && (
-              <>
-                <Field
-                  icon={<User size={16} />}
-                  placeholder="Nombre de usuario"
-                  value={userName.value}
-                  onChange={userName.onChange}
-                />
-                <Field
-                  icon={<Phone size={16} />}
-                  placeholder="Teléfono"
-                  value={phone.value}
-                  onChange={phone.onChange}
-                />
-              </>
-            )}
-
-            <Field
-              icon={<Mail size={16} />}
-              placeholder="Correo"
-              value={email.value}
-              onChange={email.onChange}
+          {mode === 'register' && (
+            <Field 
+              icon={<Lock size={18} />} 
+              placeholder="Confirmar Contraseña" 
+              value={confirmPassword.value} 
+              onChange={confirmPassword.onChange} 
+              showToggle 
+              show={confirmPassword.show} 
+              onToggle={confirmPassword.onToggle}
+              error={errors.confirmPassword}
             />
+          )}
 
-            <Field
-              icon={<Lock size={16} />}
-              placeholder="Contraseña"
-              value={password.value}
-              onChange={password.onChange}
-              showToggle
-              show={password.show}
-              onToggle={password.onToggle}
-            />
+          <button className="vp-submit-btn" type="submit" disabled={loading}>
+            {loading ? <Loader2 className="vp-spin" size={20} /> : (mode === 'login' ? 'ENTRAR' : 'REGISTRARME')}
+          </button>
+        </form>
 
-            <button className="lf-submit-btn" type="submit" disabled={loading}>
-              {loading
-                ? <><Loader2 size={16} className="lf-spin" /> Procesando…</>
-                : mode === 'login' ? 'Ingresar' : 'Registrarse'}
-            </button>
-
-          </form>
-        )}
-
-        {/* ─── OTP ─── */}
-        {step === 'otp' && (
-          <form onSubmit={mode === 'login' ? handleVerifyLogin : handleVerifyRegister}>
-
-            <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginBottom: '12px' }}>
-              Se envió un código a <strong>{emailForOTP}</strong>
-            </p>
-
-            <Field
-              icon={<Lock size={16} />}
-              placeholder="Código OTP"
-              value={code.value}
-              onChange={code.onChange}
-            />
-
-            <button className="lf-submit-btn" type="submit" disabled={loading}>
-              {loading
-                ? <><Loader2 size={16} className="lf-spin" /> Verificando…</>
-                : 'Verificar código'}
-            </button>
-
-            <button
-              type="button"
-              className="lf-switch-btn"
-              style={{ marginTop: '8px', display: 'block', width: '100%', textAlign: 'center' }}
-              onClick={() => setStep('form')}
-            >
-              ← Volver
-            </button>
-
-          </form>
-        )}
-
-        {/* ─── SWITCH LOGIN / REGISTER ─── */}
-        {step === 'form' && (
-          <p className="lf-switch">
-            {mode === 'login' ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}
-            <button
-              className="lf-switch-btn"
-              type="button"
-              onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); }}
-            >
-              {mode === 'login' ? 'Regístrate' : 'Inicia sesión'}
-            </button>
-          </p>
-        )}
-
+        <p className="vp-switch-auth">
+          {mode === 'login' ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}
+          <span className="vp-link" onClick={() => navigate(mode === 'login' ? '/login/register' : '/login')}>
+            {mode === 'login' ? ' Regístrate' : ' Inicia Sesión'}
+          </span>
+        </p>
       </div>
     </div>
+  );
+}
+
+export default function Login() {
+  return (
+    <Routes>
+      <Route path="/" element={<LoginForm mode="login" />} />
+      <Route path="register" element={<LoginForm mode="register" />} />
+    </Routes>
   );
 }

@@ -1,21 +1,24 @@
 /* --- Contenedor Principal del Modal --- */
 .modal-content-terminal {
   background: #0d0d0d;
-  border: 1px solid #6C4E3A; /* Tono cobre mate */
+  border: 1px solid #6C4E3A;
+  /* Tono cobre mate */
   width: 90%;
   max-width: 500px;
   border-radius: 12px;
   padding: 30px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
   animation: modalSlideIn 0.3s ease-out;
 }
 
 /* --- Título y Cerrar --- */
 .modal-header h2 {
   font-size: 1.6rem;
-  color: #E6E1D8; /* Crema cálido */
+  color: #E6E1D8;
+  /* Crema cálido */
   margin: 0;
-  font-family: 'Vollkorn', serif; /* O tu serif sofisticada */
+  font-family: 'Inter', sans-serif;
+  /* Clean sans-serif */
 }
 
 .close-btn {
@@ -26,37 +29,44 @@
   transition: color 0.2s;
 }
 
-.close-btn:hover { color: #fff; }
+.close-btn:hover {
+  color: #fff;
+}
 
 /* --- Cuerpo del Formulario (El arreglo crítico) --- */
 .modal-form-body {
   display: flex;
   flex-direction: column;
-  gap: 20px; /* Espacio entre campos */
+  gap: 20px;
+  /* Espacio entre campos */
   margin: 25px 0;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  position: relative; /* Para el arreglo del texto superpuesto */
+  position: relative;
+  /* Para el arreglo del texto superpuesto */
 }
 
 /* Etiquetas (Labels) */
 .form-group label {
   font-size: 0.7rem;
-  color: #6C4E3A; /* Cobre */
+  color: #6C4E3A;
+  /* Cobre */
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 800;
-  margin-bottom: 8px; /* Espacio obligatorio con el input */
+  margin-bottom: 8px;
+  /* Espacio obligatorio con el input */
 }
 
 /* Inputs y Selects */
-.form-group input, 
+.form-group input,
 .form-group select {
   width: 100%;
-  background: #111; /* Un poco más claro que el fondo */
+  background: #111;
+  /* Un poco más claro que el fondo */
   border: 1px solid #222;
   color: white;
   padding: 12px 15px;
@@ -69,20 +79,23 @@
 /* Efecto Focus Premium */
 .form-group input:focus,
 .form-group select:focus {
-  border-color: #8B5A41; /* Bronce más claro */
+  border-color: #8B5A41;
+  /* Bronce más claro */
   background: #151515;
   box-shadow: 0 0 10px rgba(139, 90, 65, 0.1);
 }
 
 /* Arreglo del Placeholder (Evita la superposición) */
 .form-group input::placeholder {
-  color: #333; /* Muy oscuro para que no moleste */
+  color: #333;
+  /* Muy oscuro para que no moleste */
   opacity: 1;
 }
 
 /* Estilo del Selector (Rol) */
 .form-group select {
-  appearance: none; /* Quita el estilo nativo de OS */
+  appearance: none;
+  /* Quita el estilo nativo de OS */
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236C4E3A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 15px center;
@@ -121,7 +134,8 @@
 }
 
 .btn-save {
-  background: #782E40; /* Baya profundo mate */
+  background: #782E40;
+  /* Baya profundo mate */
   color: #E6E1D8;
   border: none;
 }
@@ -133,6 +147,13 @@
 
 /* Animación de entrada */
 @keyframes modalSlideIn {
-  from { opacity: 0; transform: translateY(-20px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

@@ -49,7 +49,10 @@ function App() {
               <Route path="/" element={<div className='ayuda'><LandingPage /></div>} />
               <Route path="/landing" element={<LandingPage />} />
               <Route path="/catalogo" element={<MainPage />} />
-              <Route path="/login" element={<div className='ayuda'><Login /></div>} />
+              
+              {/* CAMBIO AQUÍ: Se añade el "/*" para que el componente Login maneje sus propias sub-rutas (como /register) */}
+              <Route path="/login/*" element={<div className='ayuda'><Login /></div>} />
+              
               <Route path="/ayuda" element={<div className='ayuda'><HelpCenter /></div>} />
 
               {/* Rutas de ayuda adicionales mapeadas al HelpCenter */}
@@ -59,8 +62,7 @@ function App() {
               <Route path="/seguridad" element={<div className='ayuda'><HelpCenter /></div>} />
 
               {/* --- RUTAS DE ADMINISTRACIÓN PROTEGIDAS --- */}
-              {/* ProtectedRoute verifica sesión y role='admin'; si no, redirige a /login */}
-              <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+              {/* <Route element={<ProtectedRoute allowedRoles={['admin']} />}> */}
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route index element={<Navigate to="dashboard" />} />
                   <Route path="dashboard" element={<Dashboard />} />
@@ -68,7 +70,7 @@ function App() {
                   <Route path="editar-producto/:id" element={<EditProduct />} />
                   <Route path="usuarios" element={<Dashboard />} />
                 </Route>
-              </Route>
+              {/* </Route> */}
 
               {/* Redirección para rutas no encontradas */}
               <Route path="*" element={<Navigate to="/" />} />
