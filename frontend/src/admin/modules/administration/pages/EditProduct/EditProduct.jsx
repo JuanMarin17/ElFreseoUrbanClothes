@@ -1,174 +1,108 @@
-// SubirProducto.jsx
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React from "react";
 import "./EditProduct.css";
 
-const tallasDisponibles = ["S", "M", "L", "XL"];
-
-export default function SubirProducto() {
-  const [producto, setProducto] = useState({
-    nombre: "",
-    descripcion: "",
-    stock: 0,
-    precioVenta: 0,
-    precioDetal: 0,
-    imagen: null,
-    tallas: [],
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProducto((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleImage = (file) => {
-    if (file) {
-      setProducto((prev) => ({
-        ...prev,
-        imagen: URL.createObjectURL(file),
-      }));
-    }
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    handleImage(file);
-  };
-
-  const toggleTalla = (talla) => {
-    setProducto((prev) => ({
-      ...prev,
-      tallas: prev.tallas.includes(talla)
-        ? prev.tallas.filter((t) => t !== talla)
-        : [...prev.tallas, talla],
-    }));
-  };
-
-  const changeStock = (value) => {
-    setProducto((prev) => ({
-      ...prev,
-      stock: Math.max(0, prev.stock + value),
-    }));
-  };
-
+const EditProduct = () => {
   return (
-    <div className="container">
-      <motion.h1
-        className="title"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        SUBIR PRODUCTO
-      </motion.h1>
+    <div className="adminContainer">
+      {/* Sidebar */}
 
-      <div className="layout">
-        {/* FORM */}
-        <motion.div
-          className="form"
-          initial={{ opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          <label>Nombre del Producto</label>
-          <input
-            name="nombre"
-            value={producto.nombre}
-            onChange={handleChange}
-            placeholder="Proyecto Neón..."
-          />
+      {/* Main Content */}
+      <main className="mainContent">
+        <div className="pageTitleRow">
+          <div>
+            <h2 className="pageTitle">EDITAR PRODUCTO</h2>
+          </div>
+          <div className="topButtons">
+            <button className="btnDiscard">ELIMINAR</button>
+            <button className="btnUpload">ACTUALIZAR PRODUCTO ⇡</button>
+          </div>
+        </div>
 
-          <div className="row">
-            <div className="stock-box">
-              <label>Cantidad</label>
-              <div className="stock-control">
-                <button onClick={() => changeStock(-1)}>-</button>
-                <span>{producto.stock}</span>
-                <button onClick={() => changeStock(1)}>+</button>
+        <section className="gridContainer">
+          {/* Form Side */}
+          <div className="formColumn">
+            <div className="card">
+              <h3 className="cardTitle">
+                <span className="iconBlue">✎</span> Editar
+              </h3>
+
+              <div className="inputGroup">
+                <label>Nombre producto</label>
+                <input type="text" placeholder="e.g. NEON_VAPOR HOODIE" />
+              </div>
+
+              <div className="inputGroup">
+                <label>Descripción</label>
+                <textarea placeholder="TECHNICAL SPECIFICATIONS AND DESIGN PHILOSOPHY..."></textarea>
+              </div>
+
+              <div className="row">
+                <div className="inputGroup">
+                  <label>Precio (COL)</label>
+                  <div className="priceInput">
+                    <span>$</span>
+                    <input type="text" defaultValue="0.00" />
+                  </div>
+                </div>
+                <div className="inputGroup">
+                  <label>Categoria</label>
+                  <select>
+                    <option>Pantalones</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="sizeSection">
+                <label>Tallas</label>
+                <div className="sizeGrid">
+                  {["S", "M", "L", "XL", "XXL"].map((size) => (
+                    <button
+                      key={size}
+                      className={size === "M" ? "sizeBtnActive" : "sizeBtnU"}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div>
-              <label>Precio Venta</label>
-              <input
-                type="number"
-                name="precioVenta"
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label>Precio Detal</label>
-              <input
-                type="number"
-                name="precioDetal"
-                onChange={handleChange}
-              />
+            <div className="card">
+              <h3 className="cardTitle">
+                <span className="iconBlue">📋</span> Inventario
+              </h3>
+              <div className="statusPlaceholder"></div>
             </div>
           </div>
 
-          <label>Descripción</label>
-          <textarea
-            name="descripcion"
-            onChange={handleChange}
-            placeholder="Escribe los detalles aquí..."
-          />
+          {/* Preview Side */}
+          <div className="previewColumn">
+            <div className="mainPreview">
+              <div className="primaryTag">Primera vista</div>
+              <div className="imageContainer">
+                <div className="mainImagePlaceholder"></div>
+                <div className="imageOverlayText">Vista</div>
+              </div>
+              <div className="floatingActions">
+                <button className="roundBtn">🔍</button>
+                <button className="roundBtn">✂️</button>
+              </div>
+            </div>
 
-          <label>Tallas</label>
-          <div className="tallas">
-            {tallasDisponibles.map((t) => (
-              <motion.button
-                key={t}
-                onClick={() => toggleTalla(t)}
-                className={
-                  producto.tallas.includes(t) ? "talla active" : "talla"
-                }
-                whileTap={{ scale: 0.9 }}
-              >
-                {t}
-              </motion.button>
-            ))}
+            <div className="thumbnailRow">
+              <div className="thumb thumbActive"></div>
+              <div className="thumb"></div>
+              <div className="thumb"></div>
+              <div className="thumbAdd">
+                <span>📷</span>
+                <small>Añadir vista</small>
+              </div>
+            </div>
           </div>
-
-          <div
-            className="dropzone"
-            onDrop={handleDrop}
-            onDragOver={(e) => e.preventDefault()}
-          >
-            <p>Arrastra o selecciona imagen</p>
-            <input
-              type="file"
-              onChange={(e) => handleImage(e.target.files[0])}
-            />
-          </div>
-
-          <motion.button
-            className="submit"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            PUBLICAR
-          </motion.button>
-        </motion.div>
-
-        {/* PREVIEW */}
-        <motion.div
-          className="preview"
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          {producto.imagen ? (
-            <motion.img
-              src={producto.imagen}
-              alt="preview"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            />
-          ) : (
-            <span>Sin previsualización</span>
-          )}
-        </motion.div>
-      </div>
+        </section>
+      </main>
     </div>
   );
-}
+};
 
+export default EditProduct;

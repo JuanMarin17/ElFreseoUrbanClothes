@@ -28,9 +28,11 @@ import VerificationPage from "./admin/modules/auth/pages/VerificationPage.jsx";
 import SessionClosed from "./client/modules/MainPage/pages/SessionClosed.jsx";
 
 
+
 import { useScrollAnimation } from './hooks/UsescrollAnimation.jsx';
 import { AuthProvider } from './admin/modules/auth/pages/hook/AuthContext.jsx';
 import { ProtectedRoute } from './admin/modules/auth/pages/hook/ProtectedRoute.jsx';
+
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -122,10 +124,12 @@ function App() {
                   </div>
                 }
               />
-                <Route path="nueva-contraseña" element={<NewPassword />}></Route>
-                <Route path="verificacion-pagina" element={<VerificationPage />}></Route>
-                <Route path="session-cerrada" element={<SessionClosed />}>np</Route>
-                
+              <Route path="nueva-contraseña" element={<NewPassword />}></Route>
+              <Route
+                path="verificacion-pagina"
+                element={<VerificationPage />}
+              ></Route>
+              <Route path="session-cerrada" element={<SessionClosed />}></Route>
 
 
               {/* --- RUTAS DE ADMINISTRACIÓN (LAYOUT ANIDADO) --- */}
@@ -137,7 +141,7 @@ function App() {
                 {/* Estas rutas se inyectan en el <Outlet /> de AdminLayout */}
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="subir-productos" element={<UploadProduct />} />
-                <Route path="editar-producto/:id" element={<EditProduct />} />
+                <Route path="editar-producto" element={<EditProduct />} />
 
                 {/* Ejemplo de ruta futura para Usuarios */}
                 <Route path="usuarios" element={<Dashboard />} />
