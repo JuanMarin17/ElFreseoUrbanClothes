@@ -14,7 +14,7 @@ export const ProtectedRoute = ({ allowedRoles }) => {
       <Navigate
         to="/login"
         replace
-        state={{ from: location }} // 👈 opcional: volver a donde estaba
+        state={{ from: location }} 
       />
     );
   }
