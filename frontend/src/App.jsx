@@ -20,12 +20,17 @@ import MainPage from "./client/modules/MainPage/pages/MainPage/MainPage.jsx";
 import DetailsProduct from "./client/modules/MainPage/components/ProductDetail/ProductDetail.jsx";
 
 // --- HOOKS Y PROVIDERS ---
+
 import { useScrollAnimation } from "./hooks/UsescrollAnimation.jsx";
 import { AuthProvider } from "./admin/modules/auth/pages/hook/Useauth.jsx";
 import NewPassword from "./admin/modules/auth/pages/NewPassword.jsx";
 import VerificationPage from "./admin/modules/auth/pages/VerificationPage.jsx";
 import SessionClosed from "./client/modules/MainPage/pages/SessionClosed.jsx";
 
+
+import { useScrollAnimation } from './hooks/UsescrollAnimation.jsx';
+import { AuthProvider } from './admin/modules/auth/pages/hook/AuthContext.jsx';
+import { ProtectedRoute } from './admin/modules/auth/pages/hook/ProtectedRoute.jsx';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -59,6 +64,7 @@ function App() {
               />
               <Route path="/landing" element={<LandingPage />} />
               <Route path="/catalogo" element={<MainPage />} />
+
               <Route
                 path="/login"
                 element={
@@ -75,6 +81,13 @@ function App() {
                   </div>
                 }
               />
+
+              
+              {/* CAMBIO AQUÍ: Se añade el "/*" para que el componente Login maneje sus propias sub-rutas (como /register) */}
+              <Route path="/login/*" element={<div className='ayuda'><Login /></div>} />
+              
+              <Route path="/ayuda" element={<div className='ayuda'><HelpCenter /></div>} />
+
 
               {/* Rutas de ayuda adicionales mapeadas al HelpCenter */}
               <Route
@@ -114,6 +127,7 @@ function App() {
                 <Route path="session-cerrada" element={<SessionClosed />}>np</Route>
                 
 
+
               {/* --- RUTAS DE ADMINISTRACIÓN (LAYOUT ANIDADO) --- */}
               {/* Al entrar a /admin, se carga el Sidebar y el Header fijo */}
               <Route path="/admin" element={<AdminLayout />}>
@@ -128,6 +142,18 @@ function App() {
                 {/* Ejemplo de ruta futura para Usuarios */}
                 <Route path="usuarios" element={<Dashboard />} />
               </Route>
+
+              {/* --- RUTAS DE ADMINISTRACIÓN PROTEGIDAS --- */}
+              {/* <Route element={<ProtectedRoute allowedRoles={['admin']} />}> */}
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<Navigate to="dashboard" />} />
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="subir-productos" element={<UploadProduct />} />
+                  <Route path="editar-producto/:id" element={<EditProduct />} />
+                  <Route path="usuarios" element={<Dashboard />} />
+                </Route>
+              {/* </Route> */}
+
 
               {/* Redirección para rutas no encontradas */}
               <Route path="*" element={<Navigate to="/" />} />

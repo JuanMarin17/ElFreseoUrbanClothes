@@ -1,187 +1,311 @@
+/* login.css */
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
 :root {
-  --bg-dark: #060a0f;
-  --surface: #0d1520;
-  --accent-primary: #00e6b4;
-  --accent-secondary: #0090ff;
-  --text-main: #e8f0fe;
-  --text-dim: rgba(232, 240, 254, 0.4);
-  --border-color: rgba(255, 255, 255, 0.08);
+  --vp-bg: #0a0a0f;
+  --vp-card-bg: rgba(15, 15, 25, 0.7);
+  --vp-border: rgba(255, 255, 255, 0.08);
+  --vp-text: #e8e8f0;
+  --vp-muted: rgba(200, 200, 220, 0.5);
+  --vp-accent: #4f6ef7;
+  --vp-error: #ff4d4f;
+  --vp-btn-bg: linear-gradient(135deg, #4f6ef7 0%, #7c3aed 100%);
+  --vp-btn-glow: rgba(79, 110, 247, 0.4);
 }
 
-.auth-body {
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.vp-body {
   min-height: 100vh;
-  background-color: var(--bg-dark);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  font-family: 'Outfit', sans-serif;
-}
-
-.auth-main-container {
-  display: flex;
   width: 100%;
-  max-width: 950px;
-  min-height: 600px;
-  background: var(--surface);
-  border-radius: 24px;
-  border: 1px solid var(--border-color);
-  overflow: hidden;
-  box-shadow: 0 50px 100px rgba(0,0,0,0.5);
-}
-
-/* --- LADO VISUAL --- */
-.auth-visual-side {
-  flex: 1;
-  position: relative;
-  background: linear-gradient(135deg, #0d1520 0%, #04070a 100%);
+  background: var(--vp-bg);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+}
+
+/* ─── Orbes de Fondo (Efecto image_58b73b.png) ─── */
+.vp-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.vp-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.12;
+}
+
+.vp-bg-orb--1 {
+  width: 500px;
+  height: 500px;
+  background: #4f6ef7;
+  top: -100px;
+  left: -100px;
+  animation: orbFloat 10s infinite ease-in-out;
+}
+
+.vp-bg-orb--2 {
+  width: 450px;
+  height: 450px;
+  background: #7c3aed;
+  bottom: -100px;
+  right: -50px;
+  animation: orbFloat 12s infinite ease-in-out reverse;
+}
+
+.vp-bg-orb--3 {
+  width: 300px;
+  height: 300px;
+  background: #06b6d4;
+  top: 40%;
+  left: 50%;
+  animation: orbFloat 15s infinite ease-in-out 2s;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -60px) scale(1.1); }
+}
+
+/* ─── Tarjeta Principal ─── */
+.vp-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  background: var(--vp-card-bg);
+  border: 1px solid var(--vp-border);
+  border-radius: 24px;
   padding: 40px;
-  border-right: 1px solid var(--border-color);
-}
-
-.logo-glow {
-  font-size: 80px;
-  filter: drop-shadow(0 0 20px var(--accent-primary));
-  margin-bottom: 20px;
-}
-
-.brand-text {
-  font-family: 'Space Mono', monospace;
-  color: var(--accent-primary);
-  font-size: 32px;
-  letter-spacing: 6px;
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
   text-align: center;
 }
 
-.brand-slogan {
-  color: var(--text-dim);
-  font-size: 12px;
-  letter-spacing: 2px;
-  margin-top: 10px;
-  text-align: center;
-}
-
-/* --- LADO FORMULARIO --- */
-.auth-form-side {
-  flex: 1.2;
-  padding: 60px;
+/* ─── Header & Logo ─── */
+.vp-logo-wrapper {
+  margin-bottom: 2px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  background: var(--surface);
+  align-items: center;
+  height:30vh;
+}
+.vp-logo-wrapper img{
+  height:52vh;
+  width: 52vh;
 }
 
-.auth-title {
-  font-size: 28px;
-  color: var(--text-main);
-  margin-bottom: 8px;
+.vp-logo {
+  height: 30px;
+  margin-bottom: 5px;
+  filter: drop-shadow(0 0 15px var(--vp-accent));
 }
 
-.auth-subtitle {
-  color: var(--text-dim);
-  font-size: 14px;
-  margin-bottom: 30px;
+.vp-brand-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  text-transform: lowercase;
 }
 
-/* --- CAMPOS --- */
-.field {
+.vp-slogan {
+  font-size: 0.65rem;
+  color: var(--vp-muted);
+  letter-spacing: 1.5px;
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+
+.vp-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--vp-text);
+  letter-spacing: 1px;
+  margin-bottom: 25px;
+}
+
+/* ─── Formulario e Inputs ─── */
+.vp-field-group {
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.vp-input-wrapper {
   position: relative;
-  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--vp-border);
+  border-radius: 14px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.field-icon {
-  position: absolute;
-  left: 15px;
-  top: 14px;
-  color: var(--text-dim);
+.vp-input-wrapper:focus-within {
+  border-color: var(--vp-accent);
+  background: rgba(79, 110, 247, 0.06);
+  box-shadow: 0 0 0 4px rgba(79, 110, 247, 0.1);
 }
 
-.field input {
+.vp-input-error {
+  border-color: rgba(255, 77, 79, 0.4) !important;
+  background: rgba(255, 77, 79, 0.04) !important;
+}
+
+.vp-field-icon {
+  padding-left: 16px;
+  color: var(--vp-muted);
+  display: flex;
+  align-items: center;
+}
+
+.vp-input-main {
   width: 100%;
-  padding: 14px 15px 14px 45px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  color: white;
-  transition: all 0.3s;
-}
-
-.field input:focus {
+  background: transparent;
+  border: none;
+  padding: 15px 12px;
+  color: var(--vp-text);
+  font-size: 0.95rem;
   outline: none;
-  border-color: var(--accent-primary);
-  background: rgba(0, 230, 180, 0.05);
 }
 
-.btn-submit {
+.vp-input-main::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.vp-eye-btn {
+  background: none;
+  border: none;
+  padding: 0 16px;
+  color: var(--vp-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.vp-eye-btn:hover {
+  color: var(--vp-text);
+}
+
+/* ─── Errores ─── */
+.vp-error-text {
+  color: var(--vp-error);
+  font-size: 0.75rem;
+  margin-top: 5px;
+  margin-left: 4px;
+  display: block;
+}
+
+.vp-server-error {
+  background: rgba(255, 77, 79, 0.1);
+  border: 1px solid rgba(255, 77, 79, 0.2);
+  color: #ff7875;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+  40%, 60% { transform: translate3d(3px, 0, 0); }
+}
+
+/* ─── Botón de Acción ─── */
+.vp-submit-btn {
   width: 100%;
-  padding: 15px;
+  padding: 16px;
   margin-top: 10px;
   border: none;
-  border-radius: 12px;
-  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-  color: #060a0f;
+  border-radius: 50px;
+  background: var(--vp-btn-bg);
+  color: #fff;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
   font-weight: 700;
-  text-transform: uppercase;
+  letter-spacing: 1.5px;
   cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.btn-submit:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(0, 230, 180, 0.2);
-}
-
-.btn-google {
-  width: 100%;
-  padding: 12px;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  color: white;
+  transition: all 0.3s;
+  box-shadow: 0 8px 20px var(--vp-btn-glow);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  cursor: pointer;
-  margin-bottom: 20px;
 }
 
-.auth-divider {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 20px;
+.vp-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px var(--vp-btn-glow);
+  filter: brightness(1.1);
 }
 
-.auth-divider span { flex: 1; height: 1px; background: var(--border-color); }
-.auth-divider p { font-size: 12px; color: var(--text-dim); }
+.vp-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
 
-.switch {
-  text-align: center;
+.vp-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.vp-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Footer de la Tarjeta ─── */
+.vp-switch-auth {
   margin-top: 25px;
-  font-size: 14px;
-  color: var(--text-dim);
+  font-size: 0.9rem;
+  color: var(--vp-muted);
 }
 
-.switch button {
-  background: none;
-  border: none;
-  color: var(--accent-primary);
+.vp-link {
+  color: var(--vp-accent);
   font-weight: 600;
-  text-decoration: underline;
   cursor: pointer;
+  margin-left: 6px;
+  transition: color 0.2s;
 }
 
-/* --- ANIMACIONES --- */
-.auth-form-side.switching { opacity: 0; transform: translateX(20px); transition: 0.2s; }
-.auth-form-side.switching-in { opacity: 1; transform: translateX(0); transition: 0.3s; }
+.vp-link:hover {
+  color: #7c3aed;
+  text-decoration: underline;
+}
 
-/* --- RESPONSIVE --- */
-@media (max-width: 850px) {
-  .auth-main-container { flex-direction: column; }
-  .auth-visual-side { padding: 30px; }
-  .auth-form-side { padding: 40px 20px; }
+/* Responsivo para móviles */
+@media (max-width: 480px) {
+  .vp-card {
+    padding: 30px 20px;
+    border-radius: 0;
+    height: 100vh;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: none;
+  }
 }

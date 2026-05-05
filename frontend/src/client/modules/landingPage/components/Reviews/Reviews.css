@@ -19,11 +19,12 @@
   align-items: center;
   margin-bottom: 50px;
   /* ALINEACIÓN: padding izquierdo para que el título se alinee con las tarjetas */
-  padding: 0 5%; 
+  padding: 0 5%;
 }
 
 .reviews-title {
-  font-size: 3rem; /* Título grande */
+  font-size: 3rem;
+  /* Título grande */
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 4px;
@@ -60,11 +61,13 @@
 
 /* --- TARJETA DISEÑO GRANDE --- */
 .review-card {
-  background: #0f121d; /* Fondo azul oscuro de captura */
+  background: #0f121d;
+  /* Fondo azul oscuro de captura */
   border: 1px solid rgba(255, 255, 255, 0.03);
   border-radius: 25px;
   padding: 50px;
-  min-height: 380px; /* Tamaño aumentado */
+  min-height: 380px;
+  /* Tamaño aumentado */
   display: flex;
   flex-direction: column;
   transition: all 0.4s ease;
@@ -82,7 +85,8 @@
   height: 90px;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid #a855f7; /* Círculo morado */
+  border: 3px solid #a855f7;
+  /* Círculo morado */
 }
 
 .review-img-wrapper img {
@@ -107,7 +111,8 @@
 }
 
 .review-stars {
-  color: #fbbf24; /* Dorado original */
+  color: #fbbf24;
+  /* Dorado original */
   margin-top: 8px;
   font-size: 1.1rem;
 }
@@ -116,7 +121,7 @@
   color: #c9c9c9;
   font-size: 1.2rem;
   line-height: 1.8;
-  font-style: italic;
+  font-style: normal;
 }
 
 /* --- ADAPTACIÓN RESPONSIVA (Menos de 3 reseñas) --- */
@@ -130,12 +135,26 @@
 
 .reviews-static-grid .review-card {
   width: 100%;
-  max-width: 500px; /* Tarjetas anchas cuando son pocas */
+  max-width: 500px;
+  /* Tarjetas anchas cuando son pocas */
 }
 
 @media (max-width: 768px) {
-  .reviews-title { font-size: 2rem; }
-  .review-card { padding: 30px; min-height: auto; }
-  .review-text { font-size: 1rem; }
-  .nav-arrow { width: 45px; height: 45px; }
+  .reviews-title {
+    font-size: 2rem;
+  }
+
+  .review-card {
+    padding: 30px;
+    min-height: auto;
+  }
+
+  .review-text {
+    font-size: 1rem;
+  }
+
+  .nav-arrow {
+    width: 45px;
+    height: 45px;
+  }
 }
