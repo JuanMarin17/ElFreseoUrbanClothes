@@ -1,0 +1,81 @@
+/* Reset de desbordes globales */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+  background-color: #0d0d1a;
+}
+
+.account-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Ocupa exactamente el alto de la pantalla */
+  width: 100%;
+  overflow: hidden; /* Evita que el wrapper genere scroll propio */
+  background-color: #0d0d1a;
+}
+
+.account-layout {
+  display: flex;
+  flex: 1; /* Ocupa el resto del espacio después del Header */
+  width: 100%;
+  padding-top: 70px; /* Ajusta según el alto de tu Header real */
+  overflow: hidden; /* Mantiene el sidebar y contenido en su sitio */
+}
+
+/* Área de contenido con scroll independiente */
+.account-content {
+  flex: 1;
+  overflow-y: auto; /* Solo permite scroll vertical aquí */
+  overflow-x: hidden; /* Bloqueo total de scroll horizontal */
+  padding: 40px;
+  min-width: 0; /* Fix para desbordes de flexbox */
+  scrollbar-gutter: stable; /* Evita saltos cuando aparece el scroll */
+}
+
+/* Contenedor interno para limitar el ancho de las tablas/forms */
+.section-content-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Custom Scrollbar (Estilo Programador Dark) */
+.account-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.account-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.account-content::-webkit-scrollbar-thumb {
+  background: #1e1e3f;
+  border-radius: 10px;
+}
+
+.account-content::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6; /* Azul neón de la marca */
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .account-wrapper {
+    height: auto; /* En móvil permitimos que crezca */
+    overflow-y: visible;
+  }
+
+  .account-layout {
+    flex-direction: column;
+    padding-top: 60px;
+    height: auto;
+    overflow: visible;
+  }
+
+  .account-content {
+    padding: 20px 15px;
+    height: auto;
+    overflow: visible;
+  }
+}

@@ -1,0 +1,226 @@
+.address-section {
+  padding: 10px;
+  font-family: 'Barlow Condensed', sans-serif;
+  max-width: 900px;
+}
+
+/* Header Estilo Terminal */
+.addr-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 35px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 20px;
+}
+
+.info-tag {
+  display: block;
+  font-size: 10px;
+  color: #444;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.section-title {
+  font-size: 2.2rem;
+  font-weight: 950;
+  color: #fff;
+  line-height: 1;
+}
+
+.add-main-btn {
+  background: #111;
+  border: 1px solid #222;
+  color: #eee;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.add-main-btn:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+/* Formulario */
+.addr-form-container {
+  background: #0a0a0a;
+  border: 1px solid #151515;
+  padding: 30px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+}
+
+.form-subtitle {
+  font-size: 0.9rem;
+  color: #3b82f6;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  margin-bottom: 25px;
+}
+
+.addr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.field-label {
+  display: block;
+  font-size: 0.7rem;
+  color: #555;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.addr-input {
+  background: #0f0f0f;
+  border: 1px solid #222;
+  border-radius: 6px;
+  padding: 12px 15px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-family: inherit;
+  width: 100%;
+  transition: 0.3s;
+}
+
+.addr-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
+}
+
+.form-actions {
+  margin-top: 25px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.save-btn {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-weight: 900;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Lista de Tarjetas */
+.addr-list {
+  display: grid;
+  gap: 12px;
+}
+
+.addr-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #0a0a0a;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #151515;
+  overflow: hidden;
+  transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.addr-card:hover {
+  border-color: #3b82f6;
+  transform: translateX(5px);
+}
+
+.card-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #3b82f6;
+  opacity: 0.3;
+}
+
+.addr-icon-box {
+  width: 40px;
+  height: 40px;
+  background: #111;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3b82f6;
+}
+
+.addr-body { flex: 1; }
+
+.addr-alias {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.addr-detail {
+  font-size: 0.9rem;
+  color: #aaa;
+  font-weight: 600;
+}
+
+.addr-detail-sub {
+  font-size: 0.75rem;
+  color: #444;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.addr-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.control-btn {
+  background: #111;
+  border: 1px solid #222;
+  color: #555;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.control-btn:hover {
+  color: #fff;
+  border-color: #3b82f6;
+}
+
+.control-btn.delete:hover {
+  color: #ff4d4d;
+  border-color: #ff4d4d;
+}
+
+.empty-msg {
+  color: #333;
+  font-weight: 800;
+  text-align: center;
+  padding: 40px;
+  border: 1px dashed #151515;
+  border-radius: 12px;
+}
+
+@media (max-width: 600px) {
+  .addr-card { flex-direction: column; align-items: flex-start; }
+  .addr-controls { width: 100%; justify-content: flex-end; }
+}

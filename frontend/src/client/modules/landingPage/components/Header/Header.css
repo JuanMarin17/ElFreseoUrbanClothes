@@ -280,3 +280,35 @@
 .header-scroll-hidden {
   top: -10vh !important;
 }
+
+/* Badge de notificaciones */
+.notif-btn {
+  position: relative;
+}
+
+.notif-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #e24b4a;
+  color: white;
+  font-size: 10px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+/* Badge dentro del dropdown */
+.dropdown-badge {
+  margin-left: auto;
+  background: #fce8e8;
+  color: #a32d2d;
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 20px;
+  font-weight: 500;
+}

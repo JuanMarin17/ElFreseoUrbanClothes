@@ -1,82 +1,10 @@
-
-import React, { useState, useRef } from "react";
-import { Lock, ArrowRight } from "lucide-react";
-import "./VerificationPage.css";
-import vexio from "../../../../assets/vexio.png";
-
-const VerificationPage = () => {
-  const [code, setCode] = useState(new Array(6).fill(""));
-  const inputRefs = useRef([]);
-
-  const handleChange = (element, index) => {
-    if (isNaN(element.value)) return false;
-
-    const newCode = [...code];
-    newCode[index] = element.value;
-    setCode(newCode);
-
-    // Mover al siguiente input automáticamente
-    if (element.value !== "" && index < 5) {
-      inputRefs.current[index + 1].focus();
-    }
-  };
-
-  const handleKeyDown = (e, index) => {
-    // Volver al input anterior al borrar
-    if (e.key === "Backspace" && !code[index] && index > 0) {
-      inputRefs.current[index - 1].focus();
-    }
-  };
-
-  return (
-    <div className="verify-wrapper">
-      <div className="grid-background"></div>
-
-      <div className="verify-card">
-        <header className="verify-header">
-          <img src={vexio} alt="logo" className="logo" />
-
-          <h1>VERIFICAR CÓDIGO</h1>
-          <p>Ingresa el código de 6 dígitos enviado a tu correo electrónico</p>
-        </header>
-
-        <div className="otp-container">
-          {code.map((data, index) => (
-            <input
-              key={index}
-              type="text"
-              maxLength="1"
-              ref={(el) => (inputRefs.current[index] = el)}
-              value={data}
-              onChange={(e) => handleChange(e.target, index)}
-              onKeyDown={(e) => handleKeyDown(e, index)}
-              className={data ? "input-active" : ""}
-            />
-          ))}
-        </div>
-
-        <button className="verify-btn">
-          VERIFICAR CÓDIGO <Lock size={18} />
-        </button>
-
-        <footer className="verify-footer">
-          <p>¿No recibiste el código?</p>
-          <button className="resend-link">REENVIAR CÓDIGO</button>
-        </footer>
-      </div>
-    </div>
-  );
-};
-
-export default VerificationPage;
-
 import { useRef, useState, useEffect } from "react";
 import "./VerificationPage.css";
 // import logo from "../../assets/logo.png";
 
 export default function VerificationPage({ email, onVerify, onBack, loading }) {
   const [digits, setDigits] = useState(["", "", "", "", "", ""]);
-  const [timer, setTimer] = useState(120); // 2:00 min
+  const [timer, setTimer] = useState(120);
   const [canResend, setCanResend] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -109,7 +37,6 @@ export default function VerificationPage({ email, onVerify, onBack, loading }) {
     setCanResend(false);
     setDigits(["", "", "", "", "", ""]);
     refs[0].current.focus();
-    // Aquí puedes llamar a tu función de reenvío si la tienes
   };
 
   /* ─── Input handlers ─── */
@@ -165,7 +92,6 @@ export default function VerificationPage({ email, onVerify, onBack, loading }) {
 
   return (
     <div className="vp-body">
-      {/* Fondo con partículas decorativas */}
       <div className="vp-bg">
         <div className="vp-bg-orb vp-bg-orb--1" />
         <div className="vp-bg-orb vp-bg-orb--2" />
@@ -173,19 +99,12 @@ export default function VerificationPage({ email, onVerify, onBack, loading }) {
       </div>
 
       <div className="vp-card">
-        {/* Logo */}
-        {/* <div className="vp-logo-wrapper">
-          <img src={logo} alt="Vexio logo" className="vp-logo" />
-        </div> */}
-
-        {/* Título */}
         <h1 className="vp-title">Ingresa el código de verificación</h1>
         <p className="vp-subtitle">
           Hemos enviado un código a{" "}
           <span className="vp-email">{email}</span>
         </p>
 
-        {/* Inputs OTP - 6 dígitos */}
         <div className="vp-inputs-row" onPaste={handlePaste}>
           {digits.map((d, i) => (
             <input
@@ -204,7 +123,6 @@ export default function VerificationPage({ email, onVerify, onBack, loading }) {
           ))}
         </div>
 
-        {/* Timer / Reenvío */}
         <div className="vp-timer">
           {canResend ? (
             <button className="vp-resend-btn" onClick={handleResend}>
@@ -218,7 +136,6 @@ export default function VerificationPage({ email, onVerify, onBack, loading }) {
           )}
         </div>
 
-        {/* Opciones de envío */}
         <div className="vp-auth-options">
           <button className="vp-option">
             <span className="vp-option-icon">💬</span>
@@ -231,20 +148,14 @@ export default function VerificationPage({ email, onVerify, onBack, loading }) {
           </button>
         </div>
 
-        {/* Botón verificar */}
         <button
           className={`vp-verify-btn ${isComplete ? "vp-verify-btn--ready" : ""}`}
           onClick={handleSubmit}
           disabled={loading || !isComplete}
         >
-          {loading ? (
-            <span className="vp-spinner" />
-          ) : (
-            "VERIFICAR"
-          )}
+          {loading ? <span className="vp-spinner" /> : "VERIFICAR"}
         </button>
 
-        {/* Volver */}
         <button className="vp-back-btn" onClick={onBack}>
           ← Regresar
         </button>
@@ -252,4 +163,3 @@ export default function VerificationPage({ email, onVerify, onBack, loading }) {
     </div>
   );
 }
-
