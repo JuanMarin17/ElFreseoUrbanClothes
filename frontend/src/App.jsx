@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import "./App.css";
 import "./animations.css";
 
@@ -8,8 +8,8 @@ import "./animations.css";
 import AdminLayout from "./admin/modules/administration/components/AdminLayout/AdminLayout.jsx";
 import Dashboard from "./admin/modules/administration/dashboard/Dashboard.jsx";
 import UploadProduct from "./admin/modules/administration/pages/UploadProduct/UploadProduct.jsx";
-import EditProduct from "./admin/modules/administration/pages/EditProduct/EditProduct.jsx";
 import Login from "./admin/modules/auth/pages/Login/Login.jsx";
+import InventaryStock from "./admin/modules/administration/pages/Inventary/InventaryStock.jsx";
 
 // --- IMPORTS DE CLIENTE ---
 import LandingPage from "./client/modules/landingPage/pages/LandingPage/LandingPage.jsx";
@@ -28,15 +28,38 @@ import NewPassword from "./admin/modules/auth/pages/NewPassword.jsx";
 import VerificationPage from "./admin/modules/auth/pages/VerificationPage.jsx";
 import SessionClosed from "./client/modules/MainPage/pages/SessionClosed.jsx";
 
+// // --- IMPORTS MULTI-TENANT ---
+// import CreateStore from "../multi-tenant/pages/CreateStore.jsx";
+
 // --- IMPORTAR LA PÁGINA DEL CARRITO ---
 import Cart from "./client/modules/landingPage/Cart/pages/Cart.jsx";
+// --- MULTI-TENANT ---
+import CreateStore from "./multi-tenant/pages/CreateStore.jsx";
+import StepBasicPage from "./multi-tenant/pages/StepBasicPage.jsx";
+import StepLegalPage from "./multi-tenant/pages/StepLegalPage.jsx";
+import StepPaymentPage from "./multi-tenant/pages/StepPaymentPage.jsx";
+import SelectPlan from "./multi-tenant/pages/SelectPlan.jsx";
+import LayoutSelect from "./multi-tenant/components/SelectLayout/LayoutSelect.jsx";
+import CustomizationPanel from "./multi-tenant/components/CustomizationPanel.jsx";
+import ComponentCustomizer from "./multi-tenant/components/ComponentCustomizer.jsx";
+import WidgetsCustomizer from "./multi-tenant/components/WidgetsCustomizer.jsx";
+import InventaryDashboard from "./multi-tenant/components/InventaryDashboard.jsx";
+import OrdersDashboard from "./multi-tenant/components/OrdersDashboard.jsx";
+import MyStore from "./multi-tenant/pages/MyStore.jsx";
+
+// ✅ NUEVO: guard de rutas
+import ProtectedStep from "./multi-tenant/components/ProtectStep.jsx";
+import { StoreProvider } from "./multi-tenant/pages/StoreContext.jsx";
+import StoreResult from "./multi-tenant/pages/StoreResult.jsx";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-
+  const navigate = useNavigate();
   useScrollAnimation();
 
   useEffect(() => {
+    navigate("/admin/subir-producto"); // crear nuevo
+    // navigate("/admin/upload-product/123"); // editar producto con id 123
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
@@ -46,105 +69,178 @@ function App() {
 
   return (
     <AuthProvider>
-      <div className="main-container">
-        <AnimatePresence mode="wait">
-          {isLoading ? (
-            <LoadingScreen key="loading" />
-          ) : (
-            <Routes key="main-content">
-              {/* --- RUTAS PÚBLICAS CLIENTE --- */}
-              <Route
-                path="/"
-                element={
-                  <div className="ayuda">
-                    <LandingPage />
-                  </div>
-                }
-              />
-              <Route path="/landing" element={<LandingPage />} />
-              {/* Ruta para visualizar el carrito de compras */}
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/catalogo" element={<MainPage />} />
-              <Route
-                path="/login"
-                element={
-                  <div className="ayuda">
-                    <Login />
-                  </div>
-                }
-              />
-              <Route
-                path="/ayuda"
-                element={
-                  <div className="ayuda">
-                    <HelpCenter />
-                  </div>
-                }
-              />
+      <StoreProvider>
+        <div className="main-container">
+          <AnimatePresence mode="wait">
+            {isLoading ? (
+              <LoadingScreen key="loading" />
+            ) : (
+              <Routes key="main-content">
+                {/* --- RUTAS PÚBLICAS CLIENTE --- */}
+                <Route
+                  path="/"
+                  element={
+                    <div className="ayuda">
+                      <LandingPage />
+                    </div>
+                  }
+                />
+                <Route path="/landing" element={<LandingPage />} />
+                {/* Ruta para visualizar el carrito de compras */}
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/catalogo" element={<MainPage />} />
 
-              {/* Rutas de ayuda adicionales mapeadas al HelpCenter */}
-              <Route
-                path="/pedidos"
-                element={
-                  <div className="ayuda">
-                    <HelpCenter />
-                  </div>
-                }
-              />
-              <Route
-                path="/pagos"
-                element={
-                  <div className="ayuda">
-                    <HelpCenter />
-                  </div>
-                }
-              />
-              <Route
-                path="/devoluciones"
-                element={
-                  <div className="ayuda">
-                    <HelpCenter />
-                  </div>
-                }
-              />
-              <Route
-                path="/seguridad"
-                element={
-                  <div className="ayuda">
-                    <HelpCenter />
-                  </div>
-                }
-              />
-              <Route path="nueva-contraseña" element={<NewPassword />}></Route>
-              <Route
-                path="verificacion-pagina"
-                element={<VerificationPage />}
-              ></Route>
-              <Route path="session-cerrada" element={<SessionClosed />}>
-                np
-              </Route>
+                <Route path="/plan" element={<SelectPlan />} />
 
-              {/* --- RUTAS DE ADMINISTRACIÓN (LAYOUT ANIDADO) --- */}
-              {/* Al entrar a /admin, se carga el Sidebar y el Header fijo */}
-              <Route path="/admin" element={<AdminLayout />}>
-                {/* Redirige automáticamente de /admin a /admin/dashboard */}
-                <Route index element={<Navigate to="dashboard" />} />
+                {/* Paso 2a – Información básica */}
+                <Route
+                  path="/crear-tienda/basico"
+                  element={<StepBasicPage />}
+                />
 
-                {/* Estas rutas se inyectan en el <Outlet /> de AdminLayout */}
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="subir-productos" element={<UploadProduct />} />
-                <Route path="editar-producto/:id" element={<EditProduct />} />
+                {/* Paso 2b – Información legal */}
+                <Route path="/crear-tienda/legal" element={<StepLegalPage />} />
 
-                {/* Ejemplo de ruta futura para Usuarios */}
-                <Route path="usuarios" element={<Dashboard />} />
-              </Route>
+                {/* Paso 2c – Pagos y envíos */}
+                <Route
+                  path="/crear-tienda/pagos"
+                  element={<StepPaymentPage />}
+                />
 
-              {/* Redirección para rutas no encontradas */}
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          )}
-        </AnimatePresence>
-      </div>
+                {/* Paso 2d – Términos y crear tienda */}
+                <Route
+                  path="/crear-tienda"
+                  element={
+                    <ProtectedStep requiredStep={1}>
+                      <CreateStore />
+                    </ProtectedStep>
+                  }
+                />
+
+                {/* Paso 3 – Elegir layout */}
+                <Route
+                  path="/layout"
+                  element={
+                    <ProtectedStep requiredStep={2}>
+                      <LayoutSelect />
+                    </ProtectedStep>
+                  }
+                />
+
+                {/* Paso 4 – Estilos / CustomizationPanel */}
+                <Route
+                  path="/customer"
+                  element={
+                    <ProtectedStep requiredStep={3}>
+                      <CustomizationPanel />
+                    </ProtectedStep>
+                  }
+                />
+
+                {/* Paso 5 – Componentes */}
+                <Route
+                  path="/component"
+                  element={
+                    <ProtectedStep requiredStep={4}>
+                      <ComponentCustomizer />
+                    </ProtectedStep>
+                  }
+                />
+
+                {/* Paso 6 – Widgets */}
+                <Route
+                  path="/widgets"
+                  element={
+                    <ProtectedStep requiredStep={5}>
+                      <WidgetsCustomizer />
+                    </ProtectedStep>
+                  }
+                />
+
+                <Route
+                  path="/resultado"
+                  element={
+                    <ProtectedStep requiredStep={6}>
+                      <StoreResult />
+                    </ProtectedStep>
+                  }
+                />
+
+                {/* Inventario y órdenes (fuera del flujo, sin protección) */}
+                <Route path="/inventario" element={<InventaryDashboard />} />
+                <Route path="/ordenes" element={<OrdersDashboard />} />
+                <Route path="/tiendas" element={<MyStore />} />
+
+                <Route
+                  path="/ayuda"
+                  element={
+                    <div className="ayuda">
+                      <HelpCenter />
+                    </div>
+                  }
+                />
+                {/* Rutas de ayuda adicionales mapeadas al HelpCenter */}
+                <Route
+                  path="/pedidos"
+                  element={
+                    <div className="ayuda">
+                      <HelpCenter />
+                    </div>
+                  }
+                />
+                <Route
+                  path="/pagos"
+                  element={
+                    <div className="ayuda">
+                      <HelpCenter />
+                    </div>
+                  }
+                />
+                <Route
+                  path="/devoluciones"
+                  element={
+                    <div className="ayuda">
+                      <HelpCenter />
+                    </div>
+                  }
+                />
+                <Route
+                  path="/seguridad"
+                  element={
+                    <div className="ayuda">
+                      <HelpCenter />
+                    </div>
+                  }
+                />
+                <Route
+                  path="nueva-contraseña"
+                  element={<NewPassword />}
+                ></Route>
+                <Route
+                  path="verificacion-pagina"
+                  element={<VerificationPage />}
+                ></Route>
+                <Route path="session-cerrada" element={<SessionClosed />}>
+                  np
+                </Route>
+
+                {/* --- RUTAS DE ADMINISTRACIÓN (LAYOUT ANIDADO) --- */}
+                {/* Al entrar a /admin, se carga el Sidebar y el Header fijo */}
+                {/* --- RUTAS DE ADMINISTRACIÓN (LAYOUT ANIDADO) --- */}
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<Navigate to="dashboard" />} />
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="subir-producto" element={<UploadProduct />} />
+                  <Route path="inventario" element={<InventaryStock/>}/>
+                  <Route path="usuarios" element={<Dashboard />} />
+                </Route>
+                {/* Redirección para rutas no encontradas */}
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+            )}
+          </AnimatePresence>
+        </div>
+      </StoreProvider>
     </AuthProvider>
   );
 }

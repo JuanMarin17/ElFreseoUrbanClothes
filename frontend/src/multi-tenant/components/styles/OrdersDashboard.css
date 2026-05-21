@@ -1,0 +1,174 @@
+:root {
+  --black-pure: #000000;
+  --black-soft: #0a0a0a;
+  --dark-gray: #111111;
+  --border: #1f1f1f;
+  --accent-blue: #2563eb;
+  --text-primary: #ffffff;
+  --text-secondary: #666666;
+  
+  /* Colores de estados */
+  --status-pending: #d97706; /* Ámbar/Dorado */
+  --status-shipped: #2563eb; /* Azul */
+  --status-delivered: #059669; /* Verde */
+  --status-cancelled: #dc2626; /* Rojo */
+}
+
+.orders-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--black-pure);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+}
+
+/* SIDEBAR */
+.orders-sidebar {
+  width: 260px;
+  background-color: var(--black-pure);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 30px 0;
+}
+
+.brand-section { padding: 0 30px 40px; }
+.brand-section h2 { font-size: 1.1rem; font-weight: 900; margin: 0; }
+.brand-section p { font-size: 0.6rem; color: var(--text-secondary); margin: 0; letter-spacing: 1px; }
+
+.nav-menu { flex: 1; }
+.menu-item {
+  padding: 14px 30px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: 0.2s;
+}
+
+.menu-item.active {
+  background-color: var(--accent-blue);
+  color: white;
+  border-radius: 0 50px 50px 0;
+  margin-right: 20px;
+}
+
+.logout-btn { padding: 20px 30px; font-size: 0.75rem; color: var(--text-secondary); cursor: pointer; }
+
+/* MAIN CONTENT */
+.orders-main { flex: 1; background-color: var(--black-soft); padding: 20px 40px; }
+
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 40px;
+}
+
+.store-selector {
+  background: var(--dark-gray);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.header-actions { display: flex; gap: 20px; color: var(--text-secondary); }
+
+.section-title { font-size: 1.6rem; margin-bottom: 25px; font-weight: 800; }
+
+/* TABS */
+.tabs-container {
+  display: flex;
+  gap: 25px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 25px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  padding: 10px 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+}
+
+.tab-btn.active {
+  color: var(--text-primary);
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--accent-blue);
+}
+
+/* TABLE */
+.table-wrapper {
+  background: var(--dark-gray);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.orders-table th {
+  padding: 18px 25px;
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+}
+
+.orders-table td {
+  padding: 18px 25px;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.order-id { font-weight: 700; color: #ccc; }
+
+/* BADGES */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: inline-block;
+}
+
+.status-badge.pendiente { background: rgba(217, 119, 6, 0.15); color: #fbbf24; border: 1px solid rgba(217, 119, 6, 0.3); }
+.status-badge.enviado { background: rgba(37, 99, 235, 0.15); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.3); }
+.status-badge.entregado { background: rgba(5, 150, 105, 0.15); color: #34d399; border: 1px solid rgba(5, 150, 105, 0.3); }
+.status-badge.cancelado { background: rgba(220, 38, 38, 0.15); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.3); }
+
+.empty-msg { padding: 40px; text-align: center; color: var(--text-secondary); font-size: 0.9rem; }
+
+/* RESPONSIVO */
+@media (max-width: 1024px) {
+  .orders-sidebar { width: 80px; }
+  .brand-section h2, .brand-section p, .menu-item span:not(.icon) { display: none; }
+  .menu-item { justify-content: center; padding: 20px; }
+  .menu-item .icon { margin: 0; font-size: 1.2rem; }
+}
+
+@media (max-width: 768px) {
+  .orders-container { flex-direction: column; }
+  .orders-sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+  .nav-menu { display: none; } /* En móvil usarías un menú hamburguesa */
+  .orders-table th:nth-child(2), .orders-table td:nth-child(2) { display: none; } /* Esconder cliente en móvil */
+}

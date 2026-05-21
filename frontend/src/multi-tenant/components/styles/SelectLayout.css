@@ -1,0 +1,29 @@
+.appContainer {
+  display: flex;
+  height: 100vh;
+  background: #050505;
+}
+
+.mainContent {
+  flex: 1;
+  padding: 30px;
+}
+
+.footerAction {
+  margin-top: 30px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.continueBtn {
+  background: #2e6ff2;
+  border: none;
+  padding: 12px 25px;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.continueBtn:hover {
+  background: #1f5ae0;
+}

@@ -1,0 +1,232 @@
+/* ══════════════════════════════════════════════
+   SelectPlan.css  —  Paso 1: Elegir plan
+   Tema: dark profesional, acento azul eléctrico
+══════════════════════════════════════════════ */
+
+.plan-container {
+  min-height: 100vh;
+  background: #080c14;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Cabecera ─────────────────────────────── */
+.header-plan {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 40px 0;
+}
+
+.back-btn {
+  position: absolute;
+  left: 40px;
+  background: transparent;
+  border: 1px solid #1e2a3a;
+  color: #8899aa;
+  font-size: 18px;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.back-btn:hover {
+  border-color: #3e78ff;
+  color: #fff;
+  transform: none;
+}
+
+.title-plan {
+  text-align: center;
+}
+
+.title-plan h1 {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin: 0 0 6px;
+  color: #fff;
+}
+
+.subtitle-plan {
+  font-size: 14px;
+  color: #5a7a9a;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+/* ── Grid de planes ───────────────────────── */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 40px 40px 60px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* ── Carta de plan ────────────────────────── */
+.plan-card {
+  background: #0d1520;
+  border: 1px solid #1a2535;
+  border-radius: 16px;
+  padding: 28px 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  cursor: pointer;
+}
+
+.plan-card:hover {
+  border-color: #3e78ff;
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(62, 120, 255, 0.12);
+}
+
+.plan-card.selected {
+  border-color: #3e78ff;
+  box-shadow: 0 0 0 1px #3e78ff, 0 16px 40px rgba(62, 120, 255, 0.15);
+}
+
+/* Popular badge */
+.plan-card.popular {
+  border-color: #3e78ff;
+  background: #0d1a30;
+}
+
+.badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #3e78ff, #6c63ff);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(62, 120, 255, 0.35);
+}
+
+/* Nombre del plan */
+.plan-card h2 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #5a7a9a;
+  text-transform: uppercase;
+  margin: 0 0 16px;
+}
+
+/* Precio */
+.plan-card h3 {
+  font-size: 40px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 4px;
+  line-height: 1;
+}
+
+.plan-card h3 span {
+  font-size: 14px;
+  font-weight: 400;
+  color: #5a7a9a;
+  margin-left: 4px;
+}
+
+/* Divisor */
+.plan-card::after {
+  content: "";
+  display: block;
+  height: 1px;
+  background: #1a2535;
+  margin: 20px 0;
+}
+
+/* Features */
+.plan-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.plan-card li {
+  font-size: 13px;
+  color: #8899aa;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.4;
+}
+
+.plan-card li::before {
+  content: "✓";
+  color: #3e78ff;
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+/* Botón */
+.plan-card button {
+  width: 100%;
+  margin: 0;
+  padding: 13px;
+  border-radius: 10px;
+  border: 1px solid #1a2535;
+  background: #111c2e;
+  color: #8899aa;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.plan-card button:hover,
+.plan-card.popular button {
+  background: #3e78ff;
+  border-color: #3e78ff;
+  color: #fff;
+  transform: none;
+}
+
+/* ── Responsive ───────────────────────────── */
+@media (max-width: 900px) {
+  .plans-grid {
+    grid-template-columns: 1fr;
+    padding: 32px 20px 48px;
+  }
+
+  .header-plan {
+    padding: 28px 20px 0;
+  }
+
+  .back-btn {
+    left: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title-plan h1 {
+    font-size: 22px;
+  }
+}
