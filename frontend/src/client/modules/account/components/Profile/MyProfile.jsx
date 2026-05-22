@@ -1,60 +1,91 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Mail, Phone, Save, Loader2, Camera, ShieldCheck } from 'lucide-react';
+import { User, Phone, Mail, Loader2, ShieldCheck, Lock, Save, Camera } from 'lucide-react';
 import accountService from '../../services/accountService';
 import './MyProfile.css';
 
-export default function MyProfile() {
-  const [form, setForm]       = useState({ userName: '', email: '', phone: '' });
-  const [avatar, setAvatar]   = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [msg, setMsg]         = useState('');
-  const fileRef               = useRef();
+export default function MyProfile({ onNavigate }) {
+  const [form, setForm]           = useState({ userName: '', phone: '', imageProfile: '', email: '' });
+  const [preview, setPreview]     = useState(null);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [loading, setLoading]     = useState(true);
+  const [saving, setSaving]       = useState(false);
+  const [msg, setMsg]             = useState('');
+  const fileRef                   = useRef();
 
   useEffect(() => {
     accountService.getProfile()
       .then(({ data }) => {
         setForm({
-          userName: data.userName || '',
-          email:    data.email    || '',
-          phone:    data.phone    || '',
+          userName:     data.userName     || '',
+          phone:        data.phone        || '',
+          imageProfile: data.imageProfile || '',
+          userEmail:    data.userEmail    || '',
         });
-        if (data.avatarUrl) setPreview(data.avatarUrl);
+        console.log('Perfil cargado:', data);
+        if (data.imageProfile) setPreview(data.imageProfile);
       })
-      .catch(() => {});
+      .catch(() => setMsg('ERROR_CARGANDO_PERFIL'))
+      .finally(() => setLoading(false));
   }, []);
 
   const handleChange = (e) =>
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
+  /* ─── Seleccionar imagen ─── */
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    setAvatar(file);
+    if (file.size > 2 * 1024 * 1024) {
+      setMsg('ERROR_IMAGEN_MUY_GRANDE');
+      return;
+    }
+    setAvatarFile(file);
     setPreview(URL.createObjectURL(file));
   };
 
+  /* ─── Guardar cambios ─── */
   const handleSave = async () => {
-    setLoading(true);
+    setSaving(true);
+    setMsg('');
     try {
-      if (avatar) {
-        setUploading(true);
-        const formData = new FormData();
-        formData.append('file', avatar);
-        await accountService.uploadAvatar(formData);
-        setUploading(false);
+      let imageProfile = form.imageProfile;
+
+      /* 1. Subir nueva imagen a Cloudinary si hay una */
+      if (avatarFile) {
+        imageProfile = await accountService.uploadAvatar(avatarFile);
       }
-      await accountService.updateProfile(form);
+
+      /* 2. Actualizar perfil en el backend */
+      await accountService.updateProfile({
+        userName:     form.userName,
+        phone:        form.phone,
+        imageProfile,
+      });
+
+      /* 3. Actualizar estado local */
+      setForm(f => ({ ...f, imageProfile }));
+      setAvatarFile(null);
       setMsg('DATOS_ACTUALIZADOS_EXITO');
-      setAvatar(null);
     } catch {
       setMsg('ERROR_SISTEMA_FALLIDO');
     } finally {
-      setLoading(false);
+      setSaving(false);
       setTimeout(() => setMsg(''), 3000);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="profile-section">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#444' }}>
+          <Loader2 size={20} className="spin" />
+          <span style={{ fontSize: '0.8rem', fontWeight: 800, letterSpacing: 2 }}>
+            CARGANDO_DATOS...
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="profile-section">
@@ -68,8 +99,8 @@ export default function MyProfile() {
         <div className="profile-card avatar-card">
           <div className="avatar-preview-box">
             <div className="avatar-frame">
-              {preview 
-                ? <img src={preview} alt="avatar" /> 
+              {preview
+                ? <img src={preview} alt="avatar" />
                 : <User size={40} className="placeholder-icon" />
               }
               <button className="edit-overlay" onClick={() => fileRef.current.click()}>
@@ -78,10 +109,9 @@ export default function MyProfile() {
             </div>
             <div className="online-pulse" />
           </div>
-          
+
           <div className="avatar-meta">
             <h3 className="profile-display-name">{form.userName || 'USUARIO_NULL'}</h3>
-            <span className="user-role-tag">DEVELOPER</span>
           </div>
 
           <input
@@ -91,41 +121,82 @@ export default function MyProfile() {
             style={{ display: 'none' }}
             onChange={handleFileChange}
           />
-          
+
           <button className="upload-trigger" onClick={() => fileRef.current.click()}>
-            {uploading ? 'SINCRONIZANDO...' : 'SUBIR NUEVA IMAGEN'}
+            {avatarFile ? '✓ IMAGEN SELECCIONADA' : 'SUBIR NUEVA IMAGEN'}
           </button>
           <p className="format-hint">FORMATO: JPG, PNG, WEBP (MAX 2MB)</p>
         </div>
 
-        {/* ─── Columna Derecha: Formulario ─── */}
+        {/* ─── Columna Derecha: Info ─── */}
         <div className="profile-card form-card">
           <div className="form-group-row">
+
             <div className="field-box">
-              <label><User size={14} /> USER_ID</label>
-              <input name="userName" value={form.userName} onChange={handleChange} placeholder="username" />
+              <label><User size={14} /> USER_NAME</label>
+              <input
+                name="userName"
+                value={form.userName}
+                onChange={handleChange}
+                placeholder="username"
+              />
             </div>
+
             <div className="field-box">
               <label><Mail size={14} /> EMAIL_ADDRESS</label>
-              <input name="email" value={form.email} onChange={handleChange} placeholder="dev@elfreseo.com" />
+              <input
+                name="email"
+                value={form.userEmail}
+                readOnly
+                placeholder="correo@ejemplo.com"
+                style={{ opacity: 0.5, cursor: 'not-allowed' }}
+              />
             </div>
+
             <div className="field-box">
               <label><Phone size={14} /> PHONE_LINK</label>
-              <input name="phone" value={form.phone} onChange={handleChange} placeholder="+57 000 000" />
+              <input
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                placeholder="+57 000 000"
+              />
             </div>
+
           </div>
+
+          {/* ─── Link cambiar contraseña ─── */}
+          <button
+            className="security-link-btn"
+            onClick={() => onNavigate('security')}
+          >
+            <Lock size={14} />
+            CAMBIAR CONTRASEÑA
+          </button>
 
           {msg && (
             <div className={`status-alert ${msg.includes('ERROR') ? 'error' : 'success'}`}>
-              <ShieldCheck size={14} /> <span>{msg}</span>
+              <ShieldCheck size={14} />
+              <span>
+                {msg === 'DATOS_ACTUALIZADOS_EXITO'  && 'Perfil actualizado correctamente'}
+                {msg === 'ERROR_SISTEMA_FALLIDO'      && 'Error al actualizar el perfil'}
+                {msg === 'ERROR_CARGANDO_PERFIL'      && 'Error al cargar el perfil'}
+                {msg === 'ERROR_IMAGEN_MUY_GRANDE'    && 'La imagen no puede superar 2MB'}
+              </span>
             </div>
           )}
 
-          <div className="form-footer">
-            <button className="save-profile-btn" onClick={handleSave} disabled={loading}>
-              {loading ? <Loader2 size={18} className="spin" /> : <><Save size={16} /> <span>EJECUTAR CAMBIOS</span></>}
-            </button>
-          </div>
+          {/* ─── Botón guardar ─── */}
+          <button
+            className="save-profile-btn"
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving
+              ? <><Loader2 size={16} className="spin" /> GUARDANDO...</>
+              : <><Save size={16} /> GUARDAR CAMBIOS</>
+            }
+          </button>
         </div>
       </div>
     </div>

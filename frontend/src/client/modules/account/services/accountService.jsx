@@ -1,158 +1,75 @@
-// accountService.js — MOCK (sin API real)
+import axios from 'axios';
 
-const mockProfile = {
-  userName: 'Juan Pérez',
-  email: 'juan@example.com',
-  phone: '3001234567',
-  avatarUrl: null,
+const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api/v1';
+
+const TOKEN_KEY = 'jwt'; // ← clave correcta
+
+const getToken = () => localStorage.getItem(TOKEN_KEY);
+
+const getAuthHeader = () => ({
+  headers: { Authorization: `Bearer ${getToken()}` },
+});
+
+const getUserIdFromToken = () => {
+  const token = getToken();
+  if (!token) return null;
+  try {
+    const decoded = JSON.parse(atob(token.split('.')[1]));
+    return decoded.user_id;
+  } catch {
+    return null;
+  }
 };
 
-const mockOrders = [
-  {
-    id: '1001',
-    date: '2025-04-10',
-    status: 'Entregado',
-    total: '185.000',
-    items: [
-      { name: 'Camiseta Oversize', qty: 2, price: '60.000', image: 'https://via.placeholder.com/50' },
-      { name: 'Jogger Urbano',     qty: 1, price: '65.000', image: 'https://via.placeholder.com/50' },
-    ],
+const getAuthHeaderWithUserId = () => ({
+  headers: {
+    Authorization: `Bearer ${getToken()}`,
+    'X-User-Id': getUserIdFromToken(),
   },
-  {
-    id: '1002',
-    date: '2025-05-01',
-    status: 'En Espera',
-    total: '120.000',
-    items: [
-      { name: 'Hoodie Negro', qty: 1, price: '120.000', image: 'https://via.placeholder.com/50' },
-    ],
-  },
-];
-
-const mockAddresses = [
-  {
-    id: '1',
-    alias: 'Casa',
-    street: 'Calle 45 # 23-10',
-    city: 'Bogotá',
-    state: 'Cundinamarca',
-    zip: '110111',
-    country: 'Colombia',
-  },
-];
-
-const mockSessions = [
-  { id: '1', device: 'Chrome en Windows - Bogotá, CO (Actual)', location: 'Bogotá', lastActive: 'Ahora' },
-  { id: '2', device: 'Mobile Safari - iPhone',                  location: 'Bogotá', lastActive: 'Hace 2 horas' },
-];
-
-const mockTickets = [
-  { id: '3001', subject: 'Problema con envío',   status: 'Resuelto',   updatedAt: '2025-04-12' },
-  { id: '3002', subject: 'Cambio de talla',       status: 'En Espera',  updatedAt: '2025-05-02' },
-];
-
-const mockPreferences = {
-  newCollections: true,
-  offers:         true,
-  events:         false,
-  blog:           false,
-};
-
-/* ─── Simula delay de red ─── */
-const delay = (ms = 300) => new Promise(res => setTimeout(res, ms));
+});
 
 const accountService = {
-  /* ─── Perfil ─── */
-  getProfile: async () => {
-    await delay();
-    return { data: mockProfile };
-  },
-  updateProfile: async (data) => {
-    await delay();
-    Object.assign(mockProfile, data);
-    return { data: mockProfile };
-  },
-  uploadAvatar: async (formData) => {
-    await delay(500);
-    return { data: { avatarUrl: URL.createObjectURL(formData.get('file')) } };
+
+  getProfile: () =>
+    axios.get(`${BASE_URL}/users/me`, getAuthHeader()),
+
+  updateProfile: async ({ userName, phone, imageProfile }) => {
+    const userId = getUserIdFromToken();
+    if (!userId) throw new Error('No se encontró el usuario en el token');
+    return axios.put(
+      `${BASE_URL}/users/update`,
+      { userName, phone, imageProfile },
+      getAuthHeaderWithUserId()
+    );
   },
 
-  /* ─── Seguridad ─── */
-  changePassword: async () => {
-    await delay();
-    return { data: { message: 'Contraseña actualizada' } };
-  },
-  getSessions: async () => {
-    await delay();
-    return { data: mockSessions };
-  },
-  closeSession: async (id) => {
-    await delay();
-    const idx = mockSessions.findIndex(s => s.id === id);
-    if (idx !== -1) mockSessions.splice(idx, 1);
-    return { data: { message: 'Sesión cerrada' } };
-  },
-  toggle2FA: async (enabled) => {
-    await delay();
-    return { data: { enabled } };
+  uploadAvatar: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
+      { method: 'POST', body: formData }
+    );
+    const data = await response.json();
+    if (!data.secure_url) throw new Error('Error al subir la imagen');
+    return data.secure_url;
   },
 
-  /* ─── Pedidos ─── */
-  getOrders: async () => {
-    await delay();
-    return { data: mockOrders };
-  },
-  getOrderDetail: async (id) => {
-    await delay();
-    return { data: mockOrders.find(o => o.id === id) };
-  },
-
-  /* ─── Direcciones ─── */
-  getAddresses: async () => {
-    await delay();
-    return { data: mockAddresses };
-  },
-  addAddress: async (data) => {
-    await delay();
-    const newAddr = { ...data, id: Date.now().toString() };
-    mockAddresses.push(newAddr);
-    return { data: newAddr };
-  },
-  updateAddress: async (id, data) => {
-    await delay();
-    const idx = mockAddresses.findIndex(a => a.id === id);
-    if (idx !== -1) mockAddresses[idx] = { ...data, id };
-    return { data: mockAddresses[idx] };
-  },
-  deleteAddress: async (id) => {
-    await delay();
-    const idx = mockAddresses.findIndex(a => a.id === id);
-    if (idx !== -1) mockAddresses.splice(idx, 1);
-    return { data: { message: 'Dirección eliminada' } };
-  },
-
-  /* ─── Preferencias ─── */
-  getPreferences: async () => {
-    await delay();
-    return { data: mockPreferences };
-  },
-  updatePreferences: async (data) => {
-    await delay();
-    Object.assign(mockPreferences, data);
-    return { data: mockPreferences };
-  },
-
-  /* ─── Soporte ─── */
-  getTickets: async () => {
-    await delay();
-    return { data: mockTickets };
-  },
-  createTicket: async (data) => {
-    await delay();
-    const newTicket = { ...data, id: Date.now().toString(), status: 'Abierto', updatedAt: new Date().toISOString().split('T')[0] };
-    mockTickets.unshift(newTicket);
-    return { data: newTicket };
-  },
+  changePassword:    async () => ({ data: { message: 'Contraseña actualizada' } }),
+  getSessions:       async () => ({ data: [] }),
+  closeSession:      async () => ({ data: {} }),
+  toggle2FA:         async () => ({ data: {} }),
+  getOrders:         async () => ({ data: [] }),
+  getOrderDetail:    async () => ({ data: {} }),
+  getAddresses:      async () => ({ data: [] }),
+  addAddress:        async (data) => ({ data: { ...data, id: Date.now().toString() } }),
+  updateAddress:     async (id, data) => ({ data: { ...data, id } }),
+  deleteAddress:     async () => ({ data: {} }),
+  getPreferences:    async () => ({ data: { newCollections: false, offers: false, events: false, blog: false } }),
+  updatePreferences: async (data) => ({ data }),
+  getTickets:        async () => ({ data: [] }),
+  createTicket:      async (data) => ({ data: { ...data, id: Date.now().toString(), status: 'Abierto', updatedAt: new Date().toISOString().split('T')[0] } }),
 };
 
 export default accountService;

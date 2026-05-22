@@ -1,22 +1,26 @@
-import React, { useState } from 'react';
-import { Mail, Lock, User, Phone, Eye, EyeOff, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Mail, Lock, User, Phone, Eye, EyeOff, Loader2, CheckCircle, XCircle, Camera } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hook/Useauth';
 import VerificationPage from '../VerificationPage';
 import Logo from '../../../../../assets/LogoVexios/banervexio.png';
 import './login.css';
 
-/* ─── UUID del rol admin (de la BD) ─── */
-const ADMIN_ROL_ID = '04b2b854-05b6-488c-9fe9-afeabf32ed41';
+const ROLE_ROUTES = {
+  '04b2b854-05b6-488c-9fe9-afeabf32ed41': '/admin',
+};
+const DEFAULT_ROUTE = '/';
 
-/* ─── Logo ─── */
+function getRouteByRol(rolId) {
+  return ROLE_ROUTES[rolId] ?? DEFAULT_ROUTE;
+}
+
 const VexioLogo = () => (
   <div className="vp-logo-wrapper">
     <img src={Logo} alt="vexio logo" className="vp-logo" />
   </div>
 );
 
-/* ─── Toast ─── */
 function Toast({ message, type, onClose }) {
   if (!message) return null;
   return (
@@ -30,20 +34,18 @@ function Toast({ message, type, onClose }) {
   );
 }
 
-/* ─── useField ─── */
 function useField(initialValue = '') {
   const [value, setValue] = useState(initialValue);
-  const [show, setShow] = useState(false);
+  const [show, setShow]   = useState(false);
   return {
     value,
     show,
-    onChange: (e) => setValue(e.target.value),
-    onToggle: () => setShow(s => !s),
-    reset: () => setValue(''),
+    onChange:  (e) => setValue(e.target.value),
+    onToggle:  () => setShow(s => !s),
+    reset:     () => setValue(''),
   };
 }
 
-/* ─── Field ─── */
 function Field({ icon, type = 'text', placeholder, value, onChange, showToggle, show, onToggle, error }) {
   return (
     <div className="vp-field-group">
@@ -67,48 +69,54 @@ function Field({ icon, type = 'text', placeholder, value, onChange, showToggle, 
   );
 }
 
-/* ─── Componente principal ─── */
 export default function Login({ mode }) {
   const navigate = useNavigate();
   const { login, verifyLoginOTP, register, verifyRegisterOTP, loading } = useAuth();
 
-  const [step, setStep] = useState('form');
+  const [step, setStep]               = useState('form');
   const [emailForOTP, setEmailForOTP] = useState('');
-  const [errors, setErrors] = useState({});
-  const [toast, setToast] = useState({ message: '', type: 'error' });
+  const [errors, setErrors]           = useState({});
+  const [toast, setToast]             = useState({ message: '', type: 'error' });
   const [showRecovery, setShowRecovery] = useState(false);
 
-  const userName = useField();
-  const email = useField();
-  const phone = useField();
-  const password = useField();
+  /* ─── Avatar ─── */
+  const [avatarFile, setAvatarFile]       = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const fileRef                           = useRef();
+
+  const userName        = useField();
+  const email           = useField();
+  const phone           = useField();
+  const password        = useField();
   const confirmPassword = useField();
 
-  /* ─── Toast helpers ─── */
   const showToast = (message, type = 'error') => {
     setToast({ message, type });
     if (type === 'success') setTimeout(() => setToast({ message: '', type: 'error' }), 3000);
   };
   const clearToast = () => setToast({ message: '', type: 'error' });
 
-  /* ─── Validación ─── */
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { showToast('La imagen no puede superar 2MB'); return; }
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  };
+
   const validate = () => {
     const tempErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!email.value.trim()) tempErrors.email = 'El correo es requerido';
-    else if (!emailRegex.test(email.value)) tempErrors.email = 'Email no válido';
-
-    if (!password.value) tempErrors.password = 'La contraseña es requerida';
-    else if (password.value.length < 6) tempErrors.password = 'Mínimo 6 caracteres';
-
+    if (!email.value.trim())                tempErrors.email    = 'El correo es requerido';
+    else if (!emailRegex.test(email.value)) tempErrors.email    = 'Email no válido';
+    if (!password.value)                    tempErrors.password = 'La contraseña es requerida';
+    else if (password.value.length < 6)     tempErrors.password = 'Mínimo 6 caracteres';
     if (mode === 'register') {
       if (!userName.value.trim()) tempErrors.userName = 'El nombre es requerido';
-      if (!phone.value.trim()) tempErrors.phone = 'El teléfono es requerido';
+      if (!phone.value.trim())    tempErrors.phone    = 'El teléfono es requerido';
       if (password.value !== confirmPassword.value)
         tempErrors.confirmPassword = 'Las contraseñas no coinciden';
     }
-
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -119,7 +127,6 @@ export default function Login({ mode }) {
     clearToast();
     setShowRecovery(false);
     if (!validate()) return;
-
     try {
       const result = await login({ email: email.value, password: password.value });
       if (result.success) {
@@ -138,13 +145,13 @@ export default function Login({ mode }) {
     e.preventDefault();
     clearToast();
     if (!validate()) return;
-
     try {
       const result = await register({
         userName: userName.value,
-        email: email.value,
+        email:    email.value,
         password: password.value,
-        phone: phone.value,
+        phone:    phone.value,
+        avatarFile,
       });
       if (result.success) {
         showToast('Código de verificación enviado a tu correo', 'success');
@@ -159,15 +166,15 @@ export default function Login({ mode }) {
   /* ─── OTP paso 2 ─── */
   const handleVerify = async (code) => {
     try {
-      const fn = mode === 'login' ? verifyLoginOTP : verifyRegisterOTP;
+      const fn     = mode === 'login' ? verifyLoginOTP : verifyRegisterOTP;
       const result = await fn({ email: emailForOTP, code });
       if (result.success) {
+        const route = getRouteByRol(result.user?.rolId);
         showToast(
           mode === 'login' ? '¡Bienvenido de vuelta!' : '¡Cuenta creada exitosamente!',
           'success'
         );
-        const isAdmin = result.user?.rolId === ADMIN_ROL_ID;
-        setTimeout(() => navigate(isAdmin ? '/admin' : '/'), 1200);
+        setTimeout(() => navigate(route), 1200);
       }
     } catch (err) {
       showToast(err.message);
@@ -202,7 +209,6 @@ export default function Login({ mode }) {
 
       <div className="vp-card">
         <VexioLogo />
-
         <h2 className="vp-title">
           {mode === 'login' ? 'INICIA SESIÓN' : 'CREAR CUENTA'}
         </h2>
@@ -210,6 +216,30 @@ export default function Login({ mode }) {
         <form onSubmit={mode === 'login' ? handleLogin : handleRegister} noValidate>
           {mode === 'register' && (
             <>
+              <div className="avatar-upload-field">
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handleAvatarChange}
+                />
+                <div
+                  className="avatar-upload-preview"
+                  onClick={() => fileRef.current.click()}
+                  title="Seleccionar foto de perfil"
+                >
+                  {avatarPreview
+                    ? <img src={avatarPreview} alt="avatar" className="avatar-preview-img" />
+                    : <div className="avatar-upload-placeholder">
+                        <User size={28} /><span>Foto de perfil</span>
+                      </div>
+                  }
+                  <div className="avatar-upload-overlay"><Camera size={14} /></div>
+                </div>
+                <p className="avatar-upload-hint">Opcional · JPG, PNG · Máx 2MB</p>
+              </div>
+
               <Field
                 icon={<User size={18} />}
                 placeholder="Nombre de usuario"
@@ -266,9 +296,13 @@ export default function Login({ mode }) {
           </button>
         </form>
 
-        {showRecovery && (
+        {/* ─── Link recuperar contraseña — siempre visible en login ─── */}
+        {mode === 'login' && (
           <p className="vp-switch-auth">
-            <span className="vp-link" onClick={() => navigate('/nueva-contraseña')}>
+            <span
+              className="vp-link"
+              onClick={() => navigate('/recuperar-contraseña')}
+            >
               ¿Olvidaste tu contraseña?
             </span>
           </p>
@@ -281,6 +315,8 @@ export default function Login({ mode }) {
             onClick={() => {
               clearToast();
               setErrors({});
+              setAvatarFile(null);
+              setAvatarPreview(null);
               navigate(mode === 'login' ? '/login/register' : '/login');
             }}
           >

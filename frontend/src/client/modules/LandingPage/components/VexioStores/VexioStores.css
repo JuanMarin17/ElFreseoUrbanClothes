@@ -1,0 +1,177 @@
+/* ============================================================
+   VexioStores.css — Tiendas destacadas
+   ============================================================ */
+
+.vx-stores-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.vx-store-card {
+  background: var(--vx-card);
+  border: 1px solid var(--vx-border);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: border-color .25s, transform .22s, box-shadow .25s;
+}
+.vx-store-card:hover {
+  border-color: rgba(37,99,255,.3);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 32px rgba(37,99,255,.07);
+}
+
+/* Header */
+.vx-store-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.vx-store-avatar {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--vx-font-display);
+  font-size: .95rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.vx-store-avatar--pink   { background: rgba(244,63,94,.12);  color: #f43f5e; border: 1px solid rgba(244,63,94,.25); }
+.vx-store-avatar--orange { background: rgba(249,115,22,.12); color: #f97316; border: 1px solid rgba(249,115,22,.25); }
+.vx-store-avatar--teal   { background: rgba(20,184,166,.12); color: #14b8a6; border: 1px solid rgba(20,184,166,.25); }
+.vx-store-avatar--purple { background: rgba(139,92,246,.12); color: #8b5cf6; border: 1px solid rgba(139,92,246,.25); }
+.vx-store-avatar--blue   { background: rgba(37,99,255,.12);  color: #3B82F6; border: 1px solid rgba(37,99,255,.25); }
+
+.vx-store-meta {
+  flex: 1;
+  min-width: 0;
+}
+.vx-store-name {
+  font-family: var(--vx-font-display);
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--vx-text);
+  letter-spacing: -.02em;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.vx-store-category {
+  font-size: .75rem;
+  color: var(--vx-muted);
+}
+
+/* Tags */
+.vx-store-tag {
+  padding: 3px 9px;
+  border-radius: 5px;
+  font-size: .67rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  font-family: var(--vx-font-body);
+}
+.vx-store-tag--gold   { background: rgba(234,179,8,.12);  color: #EAB308; border: 1px solid rgba(234,179,8,.25);  }
+.vx-store-tag--blue   { background: rgba(37,99,255,.12);  color: #3B82F6; border: 1px solid rgba(37,99,255,.25); }
+.vx-store-tag--green  { background: rgba(34,197,94,.12);  color: #22C55E; border: 1px solid rgba(34,197,94,.25);  }
+.vx-store-tag--purple { background: rgba(139,92,246,.12); color: #8b5cf6; border: 1px solid rgba(139,92,246,.25); }
+
+/* Stats row */
+.vx-store-stats {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--vx-border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--vx-bg);
+}
+.vx-store-stat {
+  flex: 1;
+  text-align: center;
+  padding: 12px 8px;
+  position: relative;
+}
+.vx-store-stat + .vx-store-stat::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 15%; bottom: 15%;
+  width: 1px;
+  background: var(--vx-border);
+}
+.vx-store-stat-num {
+  display: block;
+  font-family: var(--vx-font-display);
+  font-size: .95rem;
+  font-weight: 800;
+  color: var(--vx-text);
+  letter-spacing: -.02em;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.vx-store-stat-label {
+  font-size: .7rem;
+  color: var(--vx-muted);
+}
+
+/* CTA button dentro de card */
+.vx-store-btn {
+  background: transparent;
+  border: 1px solid var(--vx-border);
+  color: var(--vx-muted);
+  padding: 9px 16px;
+  border-radius: 7px;
+  font-family: var(--vx-font-body);
+  font-size: .82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color .2s, color .2s, background .2s;
+  text-align: center;
+}
+.vx-store-btn:hover {
+  border-color: var(--vx-accent1);
+  color: var(--vx-accent1);
+  background: var(--vx-accent1-dim);
+}
+
+/* Footer con CTA global */
+.vx-stores-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--vx-border);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.vx-stores-footer-text {
+  font-size: .9rem;
+  color: var(--vx-muted);
+}
+
+/* ── Reveal ── */
+.vx-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.vx-reveal.vx-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .vx-stores-grid { grid-template-columns: 1fr; }
+  .vx-stores-footer { flex-direction: column; align-items: stretch; text-align: center; }
+  .vx-stores-footer .vx-btn-ghost { width: 100%; justify-content: center; }
+}

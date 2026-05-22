@@ -1,0 +1,161 @@
+/* ============================================================
+   VexioPricing.css
+   ============================================================ */
+
+.vx-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+@media (max-width: 900px)  { .vx-pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; } }
+
+/* ── Card base ── */
+.vx-price-card {
+  background: var(--vx-card);
+  border: 1px solid var(--vx-border);
+  border-radius: 18px;
+  padding: 32px 28px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color .28s, transform .28s;
+}
+.vx-price-card:hover {
+  border-color: var(--vx-border2);
+  transform: translateY(-3px);
+}
+
+/* ── Card destacada ── */
+.vx-price-card--featured {
+  background: var(--vx-card2);
+  border-color: rgba(37,99,255,.35);
+  box-shadow: 0 0 0 1px rgba(37,99,255,.15), 0 16px 48px rgba(37,99,255,.10);
+}
+.vx-price-card--featured:hover {
+  border-color: rgba(37,99,255,.55);
+}
+
+/* Línea superior azul en card featured */
+.vx-price-card--featured::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #2563FF, #3B82F6);
+}
+
+/* ── Badge popular ── */
+.vx-price-popular {
+  position: absolute;
+  top: 20px; right: 20px;
+  background: rgba(37,99,255,.15);
+  border: 1px solid rgba(37,99,255,.30);
+  color: #3B82F6;
+  font-family: 'Syne', sans-serif;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 5px;
+}
+
+/* ── Nombre ── */
+.vx-price-name {
+  font-family: 'Syne', sans-serif;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  color: #9CA3AF;
+  margin-bottom: 16px;
+}
+
+/* ── Precio ── */
+.vx-price-amount {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1;
+  letter-spacing: -.03em;
+  margin-bottom: 4px;
+}
+.vx-price-amount sup {
+  font-size: 1.1rem;
+  font-weight: 600;
+  vertical-align: super;
+  color: #9CA3AF;
+  margin-right: 2px;
+}
+.vx-price-period {
+  font-size: .78rem;
+  color: #9CA3AF;
+  margin-bottom: 28px;
+}
+
+/* ── Features ── */
+.vx-price-features {
+  list-style: none;
+  padding: 0; margin: 0 0 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+.vx-price-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: .845rem;
+  color: #FFFFFF;
+  line-height: 1.4;
+}
+.vx-price-features li.vx-price-feat--off { color: #6B7280; }
+
+.vx-price-check {
+  font-size: .7rem;
+  color: var(--vx-accent1);
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.vx-price-feat--off .vx-price-check { color: #374151; }
+
+/* ── Botones ── */
+.vx-price-btn {
+  width: 100%;
+  padding: 11px 20px;
+  border-radius: 8px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: .85rem;
+  cursor: pointer;
+  letter-spacing: .03em;
+  transition: all .2s;
+}
+
+.vx-price-btn--solid {
+  background: #2563FF;
+  border: none;
+  color: #FFFFFF;
+  box-shadow: 0 4px 18px rgba(37,99,255,.35);
+}
+.vx-price-btn--solid:hover {
+  background: #3B82F6;
+  box-shadow: 0 6px 24px rgba(37,99,255,.50);
+  transform: translateY(-1px);
+}
+
+.vx-price-btn--outline {
+  background: transparent;
+  border: 1px solid #2A2A2A;
+  color: #9CA3AF;
+}
+.vx-price-btn--outline:hover {
+  border-color: #2563FF;
+  color: #3B82F6;
+  background: rgba(37,99,255,.06);
+}

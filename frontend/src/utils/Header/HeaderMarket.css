@@ -1,0 +1,332 @@
+:root {
+  --primary-color:#2563FF; /* Cian futurista de Vexio */
+  --bg-dark: #0a0a0a;
+  --text-white: #ffffff;
+  --transition: all 0.3s ease;
+}
+
+.header {
+  position: fixed;
+  display: flex;  
+  top: 0;
+  left: 0;
+  width: 100%;
+  height:6vh;
+  z-index: 1000;
+  transition: top 0.3s ease-in-out;
+  
+  /* Efecto Esmerilado (Cristal Oscuro) */
+  background: rgba(4, 5, 7, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+}
+
+/* Estado dinámico al hacer Scroll */
+.header.scrolled {
+  background: rgba(6, 8, 16, 0.95);
+  border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+}
+
+/* ── CONTENEDOR ESQUINADO TOTAL (Sin límites de ancho) ── */
+.header-container {
+  padding: 0 40px; /* Generoso espacio de separación en cada esquina */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%; /* Toma el ancho completo de cualquier pantalla */
+}
+
+/* Bloque Logo */
+.logo-market-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.logo-image {
+  height: 12vh; /* Altura estilizada para no romper proporciones */
+  width: 15vw;
+  object-fit: contain;
+}
+
+/* Menú de Navegación del Centro */
+.nav-menu {
+  display: flex;
+  gap: 40px; /* Excelente espacio de respiro entre enlaces */
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+   color: var(--vx-muted);
+  font-family: var(--vx-font-body);
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  transition: var(--transition);
+  position: relative;
+}
+
+.nav-link:hover {
+  color: var(--text-white);
+}
+
+/* Efecto de línea inferior al hacer Hover */
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary-color);
+  transition: var(--transition);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Enlace Destacado: VENDER AQUÍ */
+.nav-link--accent {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+.nav-link--accent::after {
+  background: linear-gradient(90deg, #06b6d4, #a855f7);
+}
+
+/* Botones de Acciones del Extremo Derecho */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-white);
+  cursor: pointer;
+  padding: 8px;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+}
+
+.icon-btn:hover {
+  color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+/* Badges flotantes */
+.cart-btn {
+  position: relative;
+}
+
+.cart-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--primary-color);
+  color: #060810;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+/* Inicial del avatar */
+.user-avatar-init {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(6, 182, 212, 0.2);
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(6, 182, 212, 0.4);
+}
+
+/* ── MENÚ DROPDOWN DE USUARIO ── */
+.user-menu-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 220px;
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px 0;
+  margin-top: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 1100;
+}
+
+/* Triángulo de Dropdown */
+.user-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 15px;
+  width: 12px;
+  height: 12px;
+  background: rgba(10, 10, 10, 0.95);
+  transform: rotate(45deg);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-menu-wrapper:hover .user-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-header {
+  padding: 10px 20px;
+  color: var(--text-white);
+  font-size: 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-list {
+  list-style: none;
+  padding: 5px 0;
+}
+
+.dropdown-list li a, 
+.login-action-btn,
+.logout-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.login-link-wrapper {
+  text-decoration: none;
+  width: 100%;
+}
+
+.login-action-btn {
+  color: var(--primary-color);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.logout-action-btn {
+  color: #ff4d4d; 
+}
+
+.dropdown-list li a:hover, 
+.login-action-btn:hover,
+.logout-action-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-white);
+  padding-left: 25px;
+}
+
+.dropdown-divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin: 5px 0;
+}
+
+.dropdown-list svg {
+  color: var(--primary-color);
+  opacity: 0.9;
+}
+
+/* Ocultamiento de barra en scroll */
+.header-scroll-hidden {
+  top: -10vh !important;
+}
+
+.notif-btn {
+  position: relative;
+}
+
+.notif-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #e24b4a;
+  color: white;
+  font-size: 10px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.dropdown-badge {
+  margin-left: auto;
+  background: rgba(226, 75, 74, 0.15);
+  color: #ff4d4d;
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+/* ── RESPONSIVO ── */
+.menu-mobile {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+@media (max-width: 992px) {
+  .nav-menu {
+    display: none;
+  }
+  .menu-mobile {
+    display: block;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    padding: 0 20px;
+  }
+  .user-dropdown {
+    right: -50px;
+  }
+  .user-dropdown::before {
+    right: 65px;
+  }
+}

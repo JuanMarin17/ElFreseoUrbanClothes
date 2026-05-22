@@ -218,3 +218,25 @@
   .profile-grid { grid-template-columns: 1fr; }
   .save-profile-btn { width: 100%; justify-content: center; }
 }
+.security-link-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  background: transparent;
+  border: 1px solid #222;
+  color: #3b82f6;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: 0.3s;
+  width: fit-content;
+}
+
+.security-link-btn:hover {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}

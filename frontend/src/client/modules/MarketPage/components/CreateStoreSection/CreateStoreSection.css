@@ -1,0 +1,150 @@
+/* ── CreateStoreSection ── */
+.vx-cstore-root {
+  width: 100%;
+  padding: 0 0 64px;
+  position: relative;
+}
+
+.vx-cstore-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 60% at 50% 0%, rgba(37, 99, 255, 0.09) 0%, transparent 70%),
+    linear-gradient(180deg, transparent 0%, var(--vx-bg2) 30%, var(--vx-bg2) 70%, transparent 100%);
+  pointer-events: none;
+}
+
+.vx-cstore-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+/* Header */
+.vx-cstore-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.vx-cstore-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 14px;
+  background: var(--vx-cyan-dim);
+  border: 1px solid var(--vx-cyan-mid);
+  border-radius: 99px;
+  color: var(--vx-cyan);
+  font-weight: 700;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.vx-cstore-title {
+  font-weight: 800;
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  color: var(--vx-text);
+  line-height: 1.15;
+  letter-spacing: -0.6px;
+  margin-bottom: 16px;
+}
+.vx-cstore-title span { color: var(--vx-cyan); }
+
+.vx-cstore-sub {
+  font-size: 1rem;
+  color: var(--vx-muted);
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+/* Perks grid */
+.vx-cstore-perks {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  margin-bottom: 40px;
+}
+@media (min-width: 860px) {
+  .vx-cstore-perks { grid-template-columns: repeat(4, 1fr); }
+}
+
+.vx-cstore-perk {
+  background: var(--vx-card);
+  border: 1px solid var(--vx-border);
+  border-radius: var(--vx-radius-lg);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+}
+.vx-cstore-perk:hover {
+  border-color: var(--vx-cyan-mid);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(37, 99, 255, 0.08);
+}
+
+.vx-cstore-perk-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: var(--vx-cyan-dim);
+  border: 1px solid var(--vx-cyan-mid);
+  color: var(--vx-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vx-cstore-perk h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--vx-text);
+  margin-bottom: 6px;
+}
+.vx-cstore-perk p {
+  font-size: 0.82rem;
+  color: var(--vx-muted);
+  line-height: 1.45;
+}
+
+/* Bottom: pasos + CTAs */
+.vx-cstore-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+  background: var(--vx-card);
+  border: 1px solid var(--vx-border2);
+  border-radius: var(--vx-radius-xl);
+  padding: 28px 36px;
+}
+
+.vx-cstore-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.vx-cstore-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: var(--vx-muted);
+}
+.vx-cstore-step svg { color: var(--vx-cyan); flex-shrink: 0; }
+
+.vx-cstore-ctas {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .vx-cstore-bottom { flex-direction: column; align-items: flex-start; padding: 24px 22px; }
+  .vx-cstore-perks  { grid-template-columns: 1fr; }
+}

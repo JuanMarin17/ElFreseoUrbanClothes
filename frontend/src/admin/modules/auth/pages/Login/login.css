@@ -409,3 +409,138 @@
   from { opacity: 0; transform: translateX(-50%) translateY(-12px); }
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
+/* ─── Avatar Upload ─── */
+.avatar-upload-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.avatar-upload-preview {
+  position: relative;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  cursor: pointer;
+  overflow: hidden;
+  border: 2px dashed rgba(79, 110, 247, 0.5);
+  transition: border-color 0.2s;
+  background: rgba(255,255,255,0.03);
+}
+
+.avatar-upload-preview:hover {
+  border-color: #4f6ef7;
+}
+
+.avatar-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-upload-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: rgba(200,200,220,0.5);
+  font-size: 11px;
+}
+
+.avatar-upload-overlay {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  background: #4f6ef7;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.avatar-upload-hint {
+  font-size: 11px;
+  color: rgba(200,200,220,0.4);
+  margin: 0;
+}
+/* ─── OTP inputs — VerifyCode ─── */
+.vc-otp-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.vc-otp-input {
+  width: 48px;
+  height: 56px;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: 'Rajdhani', sans-serif;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  color: #e8e8f0;
+  outline: none;
+  transition: all 0.2s;
+  caret-color: #4f6ef7;
+}
+
+.vc-otp-input:focus {
+  border-color: #4f6ef7;
+  background: rgba(79,110,247,0.06);
+  box-shadow: 0 0 0 4px rgba(79,110,247,0.1);
+}
+
+.vc-otp-input--filled {
+  border-color: rgba(79,110,247,0.4);
+  background: rgba(79,110,247,0.05);
+}/* ─── OTP inputs — VerifyCode ─── */
+.vc-otp-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.vc-otp-input {
+  width: 48px;
+  height: 56px;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: 'Rajdhani', sans-serif;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  color: #e8e8f0;
+  outline: none;
+  transition: all 0.2s;
+  caret-color: #4f6ef7;
+}
+
+.vc-otp-input:focus {
+  border-color: #4f6ef7;
+  background: rgba(79,110,247,0.06);
+  box-shadow: 0 0 0 4px rgba(79,110,247,0.1);
+}
+
+.vc-otp-input--filled {
+  border-color: rgba(79,110,247,0.4);
+  background: rgba(79,110,247,0.05);
+}
+
+.vc-otp-input--blocked {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: rgba(255,77,79,0.3);
+}

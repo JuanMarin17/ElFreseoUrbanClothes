@@ -3,12 +3,14 @@ import authService from '../../services/Authservice';
 
 const AuthContext = createContext(null);
 
-/* ─── Provider ─── */
+const DEFAULT_AVATAR = 'https://res.cloudinary.com/dz8vfcha2/image/upload/v1778672888/iconoPerfil_ixkd2j.png';
+
 export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [user, setUser]       = useState(() => authService.getCurrentUser());
 
-  const extractError = (err) => err?.message || 'Ocurrió un error inesperado';
+  const extractError = (err) =>
+    err?.response?.data?.message || err?.message || 'Ocurrió un error inesperado';
 
   /* ── LOGIN PASO 1 ── */
   const login = async ({ email, password }) => {
@@ -38,15 +40,16 @@ export function AuthProvider({ children }) {
   };
 
   /* ── REGISTER PASO 1 ── */
-  const register = async ({ userName, email, password, phone }) => {
+  const register = async ({ userName, email, password, phone, avatarFile }) => {
     setLoading(true);
     try {
-      await authService.register({
-        userName,
-        email,
-        phone: phone || '0000000000',
-        password,
-      });
+      let imageProfile = import.meta.env.VITE_DEFAULT_AVATAR || DEFAULT_AVATAR;
+
+      if (avatarFile) {
+        imageProfile = await authService.uploadAvatar(avatarFile);
+      }
+
+      await authService.register({ userName, email, password, phone, imageProfile });
       return { success: true, email };
     } catch (err) {
       throw new Error(extractError(err));
@@ -74,7 +77,7 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const data = await authService.resendCode({ email });
-      return { success: true, message: data.message };
+      return { success: true, message: data?.message };
     } catch (err) {
       throw new Error(extractError(err));
     } finally {
@@ -107,7 +110,6 @@ export function AuthProvider({ children }) {
   );
 }
 
-/* ─── Hooks para consumir el contexto ─── */
 export function useAuth() {
   return useContext(AuthContext);
 }

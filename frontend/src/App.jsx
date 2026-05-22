@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import './animations.css';
@@ -13,16 +12,18 @@ import EditProduct   from './admin/modules/administration/pages/EditProduct/Edit
 
 /* ─── Auth ─── */
 import Login            from './admin/modules/auth/pages/Login/Login.jsx';
+import ForgotPassword   from './admin/modules/auth/pages/ForgotPassword/ForgotPassword.jsx';
 import NewPassword      from './admin/modules/auth/pages/NewPassword.jsx';
 import VerificationPage from './admin/modules/auth/pages/VerificationPage.jsx';
+import VerifyCode       from './admin/modules/auth/pages/VerifyCode/VerifyCode.jsx';
 
 /* ─── Cliente ─── */
-import LandingPage   from './client/modules/landingPage/pages/LandingPage/LandingPage.jsx';
-import LoadingScreen from './client/modules/landingPage/LoadingScreen/LoadingScreen.jsx';
-import Cart          from './client/modules/landingPage/Cart/pages/Cart.jsx';
-import MainPage      from './client/modules/MainPage/pages/MainPage/MainPage.jsx';
+import VexioLanding  from './client/modules/landingPage/pages/VexioLanding/VexioLanding.jsx';
 import HelpCenter    from './client/modules/help/pages/HelpCenter/HelpCenter.jsx';
 import SessionClosed from './client/modules/MainPage/pages/SessionClosed.jsx';
+
+/* ─── Vexio Market (Nueva Vista Principal) ─── */
+import MarketPage    from './client/modules/MarketPage/Pages/MarketPage/MarketPage.jsx';
 
 /* ─── Account ─── */
 import AccountPage from './client/modules/account/pages/AccountPage/AccountPage.jsx';
@@ -32,65 +33,58 @@ import { useScrollAnimation } from './hooks/UsescrollAnimation.jsx';
 import { AuthProvider }       from './admin/modules/auth/pages/hook/Useauth.jsx';
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-
   useScrollAnimation();
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
 
   return (
     <AuthProvider>
       <div className="main-container">
-        <AnimatePresence mode="wait">
-          {isLoading ? (
-            <LoadingScreen key="loading" />
-          ) : (
-            <Routes key="main-content">
+        <Routes>
 
-              {/* ─── Públicas cliente ─── */}
-              <Route path="/"         element={<div className="ayuda"><LandingPage /></div>} />
-              <Route path="/landing"  element={<LandingPage />} />
-              <Route path="/cart"     element={<Cart />} />
-              <Route path="/catalogo" element={<MainPage />} />
+          {/* ─── Públicas cliente ─── */}
+          <Route path="/"         element={<div className="ayuda"><VexioLanding /></div>} />
+          <Route path="/landing"  element={<VexioLanding />} />
+          
+          {/* Redireccionamos el antiguo catálogo al nuevo Market global */}
+          <Route path="/catalogo" element={<MarketPage />} />
+          <Route path="/market"   element={<MarketPage />} />
 
-              {/* ─── Account ─── */}
-              <Route path="/cuenta/*" element={<AccountPage />} />
+          {/* ─── Account ─── */}
+          <Route path="/cuenta/*" element={<AccountPage />} />
 
-              {/* ─── Login ─── */}
-              <Route path="/login"          element={<div className="ayuda"><Login mode="login" /></div>} />
-              <Route path="/login/register" element={<div className="ayuda"><Login mode="register" /></div>} />
+          {/* ─── Login ─── */}
+          <Route path="/login"          element={<div className="ayuda"><Login mode="login" /></div>} />
+          <Route path="/login/register" element={<div className="ayuda"><Login mode="register" /></div>} />
 
-              {/* ─── Ayuda ─── */}
-              <Route path="/ayuda"          element={<div className="ayuda"><HelpCenter /></div>} />
-              <Route path="/pedidos-ayuda"  element={<div className="ayuda"><HelpCenter /></div>} />
-              <Route path="/pagos"          element={<div className="ayuda"><HelpCenter /></div>} />
-              <Route path="/devoluciones"   element={<div className="ayuda"><HelpCenter /></div>} />
-              <Route path="/seguridad-ayuda" element={<div className="ayuda"><HelpCenter /></div>} />
+          {/* ─── Recuperar contraseña ─── */}
+          <Route path="/recuperar-contraseña" element={<ForgotPassword />} />
+          <Route path="/verificar-codigo"     element={<VerifyCode />} />
+          <Route path="/nueva-contraseña"      element={<NewPassword />} />
 
-              {/* ─── Misc ─── */}
-              <Route path="/nueva-contraseña"    element={<NewPassword />} />
-              <Route path="/verificacion-pagina" element={<VerificationPage />} />
-              <Route path="/session-cerrada"     element={<SessionClosed />} />
+          {/* ─── Ayuda ─── */}
+          <Route path="/ayuda"           element={<div className="ayuda"><HelpCenter /></div>} />
+          <Route path="/pedidos-ayuda"   element={<div className="ayuda"><HelpCenter /></div>} />
+          <Route path="/pagos"           element={<div className="ayuda"><HelpCenter /></div>} />
+          <Route path="/devoluciones"    element={<div className="ayuda"><HelpCenter /></div>} />
+          <Route path="/seguridad-ayuda" element={<div className="ayuda"><HelpCenter /></div>} />
 
-              {/* ─── Admin ─── */}
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index                      element={<Navigate to="dashboard" replace />} />
-                <Route path="dashboard"           element={<Dashboard />} />
-                <Route path="filter"              element={<Filter />} />
-                <Route path="subir-productos"     element={<UploadProduct />} />
-                <Route path="editar-producto/:id" element={<EditProduct />} />
-                <Route path="usuarios"            element={<Dashboard />} />
-              </Route>
+          {/* ─── Misc ─── */}
+          <Route path="/verificacion-pagina" element={<VerificationPage />} />
+          <Route path="/session-cerrada"     element={<SessionClosed />} />
 
-              {/* ─── Fallback ─── */}
-              <Route path="*" element={<Navigate to="/" replace />} />
+          {/* ─── Admin ─── */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index                      element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard"           element={<Dashboard />} />
+            <Route path="filter"              element={<Filter />} />
+            <Route path="subir-productos"     element={<UploadProduct />} />
+            <Route path="editar-producto/:id" element={<EditProduct />} />
+            <Route path="usuarios"            element={<Dashboard />} />
+          </Route>
 
-            </Routes>
-          )}
-        </AnimatePresence>
+          {/* ─── Fallback ─── */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+
+        </Routes>
       </div>
     </AuthProvider>
   );

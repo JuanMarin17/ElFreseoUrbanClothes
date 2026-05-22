@@ -6,29 +6,27 @@ import MyOrders       from '../../components/Orders/MyOrders.jsx';
 import AddressBook    from '../../components/Addresses/AddressBook.jsx';
 import Preferences    from '../../components/Preferences/Preferences.jsx';
 import HelpSupport    from '../../components/Support/HelpSupport.jsx';
-import Header         from '../../../landingPage/components/Header/Header.jsx';
 import './AccountPage.css';
 
-const SECTIONS = {
-  profile:     <MyProfile />,
+const SECTIONS = (onNavigate) => ({
+  profile:     <MyProfile onNavigate={onNavigate} />,
   security:    <Security />,
   orders:      <MyOrders />,
   addresses:   <AddressBook />,
   preferences: <Preferences />,
   support:     <HelpSupport />,
-};
+});
 
 export default function AccountPage() {
   const [active, setActive] = useState('profile');
 
   return (
     <div className="account-wrapper">
-      <Header />
       <div className="account-layout">
         <AccountSidebar active={active} onSelect={setActive} />
         <main className="account-content">
           <div className="section-content-wrapper">
-            {SECTIONS[active]}
+            {SECTIONS(setActive)[active]}
           </div>
         </main>
       </div>

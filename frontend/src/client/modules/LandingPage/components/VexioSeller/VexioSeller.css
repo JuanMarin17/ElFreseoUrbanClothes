@@ -1,0 +1,89 @@
+/* ============================================================
+   VexioSeller.css — Sección para vendedores (secundaria)
+   ============================================================ */
+
+.vx-seller-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 72px;
+  align-items: center;
+}
+
+/* ── Copy lado izquierdo ── */
+.vx-seller-copy .vx-section-title {
+  margin-bottom: 20px;
+}
+
+.vx-seller-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 32px;
+  margin-bottom: 16px;
+}
+
+.vx-seller-disclaimer {
+  font-size: .76rem;
+  color: var(--vx-muted);
+  letter-spacing: .01em;
+}
+
+/* ── Perks grid lado derecho ── */
+.vx-seller-perks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.vx-seller-perk {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--vx-card);
+  border: 1px solid var(--vx-border);
+  border-radius: 12px;
+  padding: 16px;
+  transition: border-color .22s;
+}
+.vx-seller-perk:hover {
+  border-color: rgba(37,99,255,.3);
+}
+
+.vx-seller-perk-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.vx-seller-perk-title {
+  font-family: var(--vx-font-display);
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--vx-text);
+  margin-bottom: 4px;
+  letter-spacing: -.01em;
+}
+
+.vx-seller-perk-desc {
+  font-size: .77rem;
+  color: var(--vx-muted);
+  line-height: 1.6;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .vx-seller-inner {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+}
+@media (max-width: 640px) {
+  .vx-seller-perks { grid-template-columns: 1fr; }
+  .vx-seller-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .vx-seller-actions .vx-btn-primary,
+  .vx-seller-actions .vx-btn-ghost { justify-content: center; }
+}

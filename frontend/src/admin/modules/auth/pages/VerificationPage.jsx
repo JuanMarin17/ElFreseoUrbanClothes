@@ -1,28 +1,25 @@
 import { useRef, useState, useEffect } from "react";
+import { RefreshCw } from "lucide-react";
+import authService from "../services/Authservice";
 import "./VerificationPage.css";
-// import logo from "../../assets/logo.png";
+
+const TIMER_SECONDS = 60;
 
 export default function VerificationPage({ email, onVerify, onBack, loading }) {
-  const [digits, setDigits] = useState(["", "", "", "", "", ""]);
-  const [timer, setTimer] = useState(120);
+  const [digits, setDigits]       = useState(["", "", "", "", "", ""]);
+  const [timer, setTimer]         = useState(TIMER_SECONDS);
   const [canResend, setCanResend] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [resending, setResending] = useState(false);
 
-  const ref0 = useRef();
-  const ref1 = useRef();
-  const ref2 = useRef();
-  const ref3 = useRef();
-  const ref4 = useRef();
-  const ref5 = useRef();
+  const ref0 = useRef(); const ref1 = useRef(); const ref2 = useRef();
+  const ref3 = useRef(); const ref4 = useRef(); const ref5 = useRef();
   const refs = [ref0, ref1, ref2, ref3, ref4, ref5];
 
   /* ─── Countdown timer ─── */
   useEffect(() => {
-    if (timer <= 0) {
-      setCanResend(true);
-      return;
-    }
-    const interval = setInterval(() => setTimer((t) => t - 1), 1000);
+    if (timer <= 0) { setCanResend(true); return; }
+    const interval = setInterval(() => setTimer(t => t - 1), 1000);
     return () => clearInterval(interval);
   }, [timer]);
 
@@ -32,11 +29,21 @@ export default function VerificationPage({ email, onVerify, onBack, loading }) {
     return `${m}:${sec.toString().padStart(2, "0")}`;
   };
 
-  const handleResend = () => {
-    setTimer(120);
-    setCanResend(false);
-    setDigits(["", "", "", "", "", ""]);
-    refs[0].current.focus();
+  /* ─── Reenviar código ─── */
+  const handleResend = async () => {
+    setResending(true);
+    try {
+      await authService.resendCode({ email });
+      setTimer(TIMER_SECONDS);
+      setCanResend(false);
+      setDigits(["", "", "", "", "", ""]);
+      refs[0].current?.focus();
+      setActiveIndex(0);
+    } catch (err) {
+      console.error('Error al reenviar código:', err.message);
+    } finally {
+      setResending(false);
+    }
   };
 
   /* ─── Input handlers ─── */
@@ -72,9 +79,7 @@ export default function VerificationPage({ email, onVerify, onBack, loading }) {
     const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
     if (!pasted) return;
     const updated = [...digits];
-    pasted.split("").forEach((char, i) => {
-      if (i < 6) updated[i] = char;
-    });
+    pasted.split("").forEach((char, i) => { if (i < 6) updated[i] = char; });
     setDigits(updated);
     const nextIndex = Math.min(pasted.length, 5);
     refs[nextIndex].current.focus();
@@ -88,7 +93,7 @@ export default function VerificationPage({ email, onVerify, onBack, loading }) {
     onVerify(code);
   };
 
-  const isComplete = digits.every((d) => d !== "");
+  const isComplete = digits.every(d => d !== "");
 
   return (
     <div className="vp-body">
@@ -123,10 +128,16 @@ export default function VerificationPage({ email, onVerify, onBack, loading }) {
           ))}
         </div>
 
+        {/* ─── Timer / Reenviar ─── */}
         <div className="vp-timer">
           {canResend ? (
-            <button className="vp-resend-btn" onClick={handleResend}>
-              Reenviar código
+            <button
+              className="vp-resend-btn"
+              onClick={handleResend}
+              disabled={resending}
+            >
+              <RefreshCw size={13} />
+              {resending ? 'Enviando...' : 'Reenviar código'}
             </button>
           ) : (
             <span>
@@ -136,17 +147,7 @@ export default function VerificationPage({ email, onVerify, onBack, loading }) {
           )}
         </div>
 
-        <div className="vp-auth-options">
-          <button className="vp-option">
-            <span className="vp-option-icon">💬</span>
-            <span>mediante mensaje de texto</span>
-          </button>
-          <div className="vp-divider" />
-          <button className="vp-option">
-            <span className="vp-option-icon">✉️</span>
-            <span>por correo electrónico</span>
-          </button>
-        </div>
+       
 
         <button
           className={`vp-verify-btn ${isComplete ? "vp-verify-btn--ready" : ""}`}
