@@ -65,14 +65,16 @@ const WidgetsCustomizer = () => {
     updateWidget("sidebar", "items", design.sidebar.items.filter((_, i) => i !== index));
   };
 
+  // ← Vuelve al paso anterior
   const handleBack = () => {
     saveProgress("widgets", design);
     navigate("/component");
   };
 
+  // ✓ Guarda y avanza a crear tienda
   const handleFinish = () => {
     completeStep("widgets", design);
-    navigate("/resultado");
+    navigate("/crear-tienda");
   };
 
   const sb = design.sidebar;
@@ -90,7 +92,7 @@ const WidgetsCustomizer = () => {
               {state.store?.name ?? "EL FRESEO"} <span>WIDGETS</span>
             </div>
             <button className="btn-save-top" onClick={handleFinish}>
-              FINALIZAR TIENDA ✓
+              SIGUIENTE →
             </button>
           </header>
           <StepProgress />
@@ -125,7 +127,6 @@ const WidgetsCustomizer = () => {
                 {/* ── SIDEBAR ── */}
                 {activeWidget === "SIDEBAR" && (
                   <>
-                    {/* Visible toggle */}
                     <div className="field-group">
                       <label>Visibilidad</label>
                       <label className="wc-toggle">
@@ -141,7 +142,6 @@ const WidgetsCustomizer = () => {
                       </label>
                     </div>
 
-                    {/* Items */}
                     <div className="field-group">
                       <label>Ítems del menú</label>
                       <div className="links-manager">
@@ -160,7 +160,6 @@ const WidgetsCustomizer = () => {
                       </div>
                     </div>
 
-                    {/* Fuente */}
                     <div className="field-group">
                       <label>Fuente</label>
                       <div className="font-grid-mini">
@@ -174,7 +173,6 @@ const WidgetsCustomizer = () => {
                       </div>
                     </div>
 
-                    {/* Colores */}
                     <div className="field-group">
                       <label>Colores</label>
                       <div className="color-row">
@@ -193,13 +191,11 @@ const WidgetsCustomizer = () => {
                       </div>
                     </div>
 
-                    {/* Ancho */}
                     <div className="field-group">
                       <label>Ancho: <span>{sb.width}px</span></label>
                       <input type="range" min="160" max="400" value={sb.width} onChange={(e) => updateWidget("sidebar", "width", Number(e.target.value))} className="f-range" />
                     </div>
 
-                    {/* Borde redondeado */}
                     <div className="field-group">
                       <label>Borde redondeado: <span>{sb.radius}px</span></label>
                       <input type="range" min="0" max="24" value={sb.radius} onChange={(e) => updateWidget("sidebar", "radius", Number(e.target.value))} className="f-range" />
@@ -210,7 +206,6 @@ const WidgetsCustomizer = () => {
                 {/* ── BUSCADOR ── */}
                 {activeWidget === "BUSCADOR" && (
                   <>
-                    {/* Visible toggle */}
                     <div className="field-group">
                       <label>Visibilidad</label>
                       <label className="wc-toggle">
@@ -226,7 +221,6 @@ const WidgetsCustomizer = () => {
                       </label>
                     </div>
 
-                    {/* Placeholder */}
                     <div className="field-group">
                       <label>Texto placeholder</label>
                       <input
@@ -237,7 +231,6 @@ const WidgetsCustomizer = () => {
                       />
                     </div>
 
-                    {/* Fuente */}
                     <div className="field-group">
                       <label>Fuente</label>
                       <div className="font-grid-mini">
@@ -251,7 +244,6 @@ const WidgetsCustomizer = () => {
                       </div>
                     </div>
 
-                    {/* Colores */}
                     <div className="field-group">
                       <label>Colores</label>
                       <div className="color-row">
@@ -280,13 +272,11 @@ const WidgetsCustomizer = () => {
                       </div>
                     </div>
 
-                    {/* Borde redondeado */}
                     <div className="field-group">
                       <label>Borde redondeado: <span>{srch.radius}px</span></label>
                       <input type="range" min="0" max="32" value={srch.radius} onChange={(e) => updateWidget("searchbar", "radius", Number(e.target.value))} className="f-range" />
                     </div>
 
-                    {/* Mostrar icono */}
                     <div className="field-group">
                       <label>Mostrar icono de búsqueda</label>
                       <label className="wc-toggle">
@@ -314,23 +304,11 @@ const WidgetsCustomizer = () => {
             <button className="btn-exit-full" onClick={() => setIsFullscreen(false)}>VOLVER ×</button>
           )}
 
-          {/* PREVIEW */}
           <div className="wc-preview-shell">
-
             {/* Searchbar preview */}
             {srch.visible && (
               <div className="wc-preview-searchbar-wrap" style={{ background: "#060a10", padding: "12px 20px", borderBottom: `1px solid ${srch.borderColor}` }}>
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  background: srch.bg,
-                  border: `${srch.borderWidth}px solid ${srch.borderColor}`,
-                  borderRadius: srch.radius,
-                  padding: "10px 16px",
-                  maxWidth: 480,
-                  fontFamily: `"${srch.font}", sans-serif`,
-                }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, background: srch.bg, border: `${srch.borderWidth}px solid ${srch.borderColor}`, borderRadius: srch.radius, padding: "10px 16px", maxWidth: 480, fontFamily: `"${srch.font}", sans-serif` }}>
                   {srch.showIcon && (
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={srch.iconColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="11" cy="11" r="8" />
@@ -340,17 +318,7 @@ const WidgetsCustomizer = () => {
                   <span style={{ fontSize: 13, color: srch.placeholderColor, fontFamily: `"${srch.font}", sans-serif`, flex: 1 }}>
                     {srch.placeholder}
                   </span>
-                  <button style={{
-                    background: accentColor,
-                    border: "none",
-                    color: "#fff",
-                    padding: "5px 14px",
-                    borderRadius: Math.max(0, srch.radius - 2),
-                    fontSize: 11,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    letterSpacing: 0.5,
-                  }}>
+                  <button style={{ background: accentColor, border: "none", color: "#fff", padding: "5px 14px", borderRadius: Math.max(0, srch.radius - 2), fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
                     Buscar
                   </button>
                 </div>
@@ -359,46 +327,19 @@ const WidgetsCustomizer = () => {
 
             {/* Body: sidebar + content */}
             <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-
-              {/* Sidebar preview */}
               {sb.visible && (
-                <nav style={{
-                  width: sb.width,
-                  minWidth: sb.width,
-                  background: sb.bg,
-                  borderRight: `${sb.borderWidth}px solid ${sb.borderColor}`,
-                  borderRadius: sb.radius,
-                  padding: "24px 0",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 2,
-                  flexShrink: 0,
-                  fontFamily: `"${sb.font}", sans-serif`,
-                }}>
+                <nav style={{ width: sb.width, minWidth: sb.width, background: sb.bg, borderRight: `${sb.borderWidth}px solid ${sb.borderColor}`, borderRadius: sb.radius, padding: "24px 0", display: "flex", flexDirection: "column", gap: 2, flexShrink: 0, fontFamily: `"${sb.font}", sans-serif` }}>
                   <div style={{ padding: "0 20px 20px", borderBottom: `1px solid ${sb.borderColor}`, marginBottom: 8 }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: sb.color, opacity: 0.4, letterSpacing: 2, textTransform: "uppercase" }}>
-                      MENÚ
-                    </span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: sb.color, opacity: 0.4, letterSpacing: 2, textTransform: "uppercase" }}>MENÚ</span>
                   </div>
                   {sb.items.map((item, i) => (
-                    <div key={i} style={{
-                      padding: "11px 20px",
-                      fontSize: 13,
-                      color: i === 0 ? accentColor : sb.color,
-                      fontWeight: i === 0 ? 700 : 400,
-                      borderLeft: i === 0 ? `3px solid ${accentColor}` : "3px solid transparent",
-                      background: i === 0 ? `${accentColor}10` : "transparent",
-                      cursor: "pointer",
-                      transition: "background 0.15s",
-                      letterSpacing: 0.3,
-                    }}>
+                    <div key={i} style={{ padding: "11px 20px", fontSize: 13, color: i === 0 ? accentColor : sb.color, fontWeight: i === 0 ? 700 : 400, borderLeft: i === 0 ? `3px solid ${accentColor}` : "3px solid transparent", background: i === 0 ? `${accentColor}10` : "transparent", cursor: "pointer", letterSpacing: 0.3 }}>
                       {item}
                     </div>
                   ))}
                 </nav>
               )}
 
-              {/* Content area placeholder */}
               <div style={{ flex: 1, background: "#080c14", padding: "28px 24px", display: "flex", flexDirection: "column", gap: 16, overflow: "auto" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <span style={{ fontSize: 11, color: "#3a5a7a", letterSpacing: 3, textTransform: "uppercase" }}>CATÁLOGO</span>
@@ -419,11 +360,11 @@ const WidgetsCustomizer = () => {
             </div>
           </div>
 
-          {/* Fullscreen buttons */}
+          {/* Botones fullscreen */}
           {isFullscreen && (
             <div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", gap: 10 }}>
               <button onClick={handleBack} style={{ background: "#1a1a1a", border: "1px solid #555", color: "#aaa", padding: "10px 18px", borderRadius: 8, cursor: "pointer", fontSize: 18 }}>←</button>
-              <button className="btn-save-top" onClick={handleFinish} style={{ padding: "10px 24px" }}>FINALIZAR ✓</button>
+              <button className="btn-save-top" onClick={handleFinish} style={{ padding: "10px 24px" }}>SIGUIENTE →</button>
             </div>
           )}
         </section>

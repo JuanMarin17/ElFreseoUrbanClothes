@@ -58,12 +58,9 @@ function App() {
   useScrollAnimation();
 
   useEffect(() => {
-    navigate("/admin/subir-producto"); // crear nuevo
-    // navigate("/admin/upload-product/123"); // editar producto con id 123
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
-
     return () => clearTimeout(timer);
   }, []);
 
@@ -107,60 +104,61 @@ function App() {
                   element={<StepPaymentPage />}
                 />
 
-                {/* Paso 2d – Términos y crear tienda */}
-                <Route
-                  path="/crear-tienda"
-                  element={
-                    <ProtectedStep requiredStep={1}>
-                      <CreateStore />
-                    </ProtectedStep>
-                  }
-                />
-
-                {/* Paso 3 – Elegir layout */}
+                {/* Paso 4 – Elegir layout */}
                 <Route
                   path="/layout"
                   element={
-                    <ProtectedStep requiredStep={2}>
+                    <ProtectedStep requiredStep={3}>
                       <LayoutSelect />
                     </ProtectedStep>
                   }
                 />
 
-                {/* Paso 4 – Estilos / CustomizationPanel */}
+                {/* Paso 5 – Estilos / CustomizationPanel */}
                 <Route
                   path="/customer"
                   element={
-                    <ProtectedStep requiredStep={3}>
+                    <ProtectedStep requiredStep={4}>
                       <CustomizationPanel />
                     </ProtectedStep>
                   }
                 />
 
-                {/* Paso 5 – Componentes */}
+                {/* Paso 6 – Componentes */}
                 <Route
                   path="/component"
                   element={
-                    <ProtectedStep requiredStep={4}>
+                    <ProtectedStep requiredStep={5}>
                       <ComponentCustomizer />
                     </ProtectedStep>
                   }
                 />
 
-                {/* Paso 6 – Widgets */}
+                {/* Paso 7 – Widgets */}
                 <Route
                   path="/widgets"
                   element={
-                    <ProtectedStep requiredStep={5}>
+                    <ProtectedStep requiredStep={6}>
                       <WidgetsCustomizer />
                     </ProtectedStep>
                   }
                 />
 
+                {/* Paso 8 – Términos y crear tienda */}
+                <Route
+                  path="/crear-tienda"
+                  element={
+                    <ProtectedStep requiredStep={7}>
+                      <CreateStore />
+                    </ProtectedStep>
+                  }
+                />
+
+                {/* Resultado final */}
                 <Route
                   path="/resultado"
                   element={
-                    <ProtectedStep requiredStep={6}>
+                    <ProtectedStep requiredStep={8}>
                       <StoreResult />
                     </ProtectedStep>
                   }
@@ -228,10 +226,10 @@ function App() {
                 {/* Al entrar a /admin, se carga el Sidebar y el Header fijo */}
                 {/* --- RUTAS DE ADMINISTRACIÓN (LAYOUT ANIDADO) --- */}
                 <Route path="/admin" element={<AdminLayout />}>
-                  <Route index element={<Navigate to="dashboard" />} />
+                  <Route element={<Navigate to="dashboard" />} />
                   <Route path="dashboard" element={<Dashboard />} />
                   <Route path="subir-producto" element={<UploadProduct />} />
-                  <Route path="inventario" element={<InventaryStock/>}/>
+                  <Route path="inventario" element={<InventaryStock />} />
                   <Route path="usuarios" element={<Dashboard />} />
                 </Route>
                 {/* Redirección para rutas no encontradas */}

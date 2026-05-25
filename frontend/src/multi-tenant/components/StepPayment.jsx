@@ -3,7 +3,6 @@ export default function StepPayment({ handleChange }) {
     <div className="step">
       <select name="paymentMethod" onChange={handleChange}>
         <option>Método de pago</option>
-        <option>Wonpy</option>
         <option>Tarjeta credito</option>
       </select>
 

@@ -154,7 +154,7 @@ const ComponentCustomizer = () => {
   };
 
   // ✓ Guarda y va a la pantalla de widgets
-  const handleFinish = () => {
+  const handleSave = () => {
     // Las imágenes ya son base64 — se serializan correctamente en localStorage
     completeStep(5, design);
     navigate("/widgets");
@@ -178,9 +178,8 @@ const ComponentCustomizer = () => {
               {state.store?.name ?? "EL FRESEO"} <span>STUDIO V3</span>
             </div>
 
-            {/* ✓ Finaliza y va a /resultado */}
-            <button className="btn-save-top" onClick={handleFinish}>
-              FINALIZAR TIENDA ✓
+            <button className="btn-save-top" onClick={handleSave}>
+              SIGUIENTE →
             </button>
           </header>
           <StepProgress />
@@ -776,10 +775,10 @@ const ComponentCustomizer = () => {
               </button>
               <button
                 className="btn-save-top"
-                onClick={handleFinish}
+                onClick={handleSave}
                 style={{ padding: "10px 24px" }}
               >
-                FINALIZAR ✓
+                SIGUIENTE →
               </button>
             </div>
           )}

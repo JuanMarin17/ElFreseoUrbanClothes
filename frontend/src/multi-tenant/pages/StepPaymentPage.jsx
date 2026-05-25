@@ -9,14 +9,28 @@ import StepProgress from "../components/StepProgress";
 import "../components/styles/StepPages.css";
 
 const PAYMENT_OPTIONS = [
-  { id: "stripe",       label: "Wonpy",       icon: "💳", desc: "Tarjetas de crédito y débito" },
-  { id: "mercadopago",  label: "MercadoPago",  icon: "🟦", desc: "Pagos locales en Latinoamérica" },
+  {
+    id: "stripe",
+    label: "Wonpy",
+    icon: "💳",
+    desc: "Tarjetas de crédito y débito",
+  },
+  {
+    id: "mercadopago",
+    label: "MercadoPago",
+    icon: "🟦",
+    desc: "Pagos locales en Latinoamérica",
+  },
 ];
 
 const SHIPPING_OPTIONS = [
-  { id: "nacional",       label: "Nacional",        desc: "Envíos dentro del país" },
-  { id: "internacional",  label: "Internacional",   desc: "Envíos a todo el mundo" },
-  { id: "ambos",          label: "Ambos",           desc: "Nacional e internacional" },
+  { id: "nacional", label: "Nacional", desc: "Envíos dentro del país" },
+  {
+    id: "internacional",
+    label: "Internacional",
+    desc: "Envíos a todo el mundo",
+  },
+  { id: "ambos", label: "Ambos", desc: "Nacional e internacional" },
 ];
 
 export default function StepPaymentPage() {
@@ -37,7 +51,7 @@ export default function StepPaymentPage() {
     if (!form.paymentMethod) return alert("Selecciona un método de pago");
     if (!form.shipping) return alert("Selecciona el tipo de envío");
     completeStep("payment", form);
-    navigate("/crear-tienda");   // → paso de términos / crear tienda
+    navigate("/layout"); // Ahora el siguiente paso es elegir layout
   };
 
   return (
@@ -46,7 +60,9 @@ export default function StepPaymentPage() {
 
       <div className="step-card">
         <div className="step-header">
-          <button className="btn-back" onClick={handleBack}>←</button>
+          <button className="btn-back" onClick={handleBack}>
+            ←
+          </button>
           <div>
             <h1 className="step-title">Pagos y envíos</h1>
             <p className="step-subtitle">Configura cómo cobras y envías</p>
@@ -63,7 +79,9 @@ export default function StepPaymentPage() {
                   key={opt.id}
                   type="button"
                   className={`option-card ${form.paymentMethod === opt.id ? "selected" : ""}`}
-                  onClick={() => setForm((prev) => ({ ...prev, paymentMethod: opt.id }))}
+                  onClick={() =>
+                    setForm((prev) => ({ ...prev, paymentMethod: opt.id }))
+                  }
                 >
                   <span className="option-icon">{opt.icon}</span>
                   <span className="option-label">{opt.label}</span>
@@ -82,7 +100,9 @@ export default function StepPaymentPage() {
                   key={opt.id}
                   type="button"
                   className={`option-card ${form.shipping === opt.id ? "selected" : ""}`}
-                  onClick={() => setForm((prev) => ({ ...prev, shipping: opt.id }))}
+                  onClick={() =>
+                    setForm((prev) => ({ ...prev, shipping: opt.id }))
+                  }
                 >
                   <span className="option-label">{opt.label}</span>
                   <span className="option-desc">{opt.desc}</span>
@@ -93,8 +113,12 @@ export default function StepPaymentPage() {
         </div>
 
         <div className="step-actions">
-          <button className="btn-secondary" onClick={handleBack}>Atrás</button>
-          <button className="btn-primary" onClick={handleNext}>Continuar →</button>
+          <button className="btn-secondary" onClick={handleBack}>
+            Atrás
+          </button>
+          <button className="btn-primary" onClick={handleNext}>
+            Continuar →
+          </button>
         </div>
       </div>
     </div>

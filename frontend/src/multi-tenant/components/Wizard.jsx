@@ -9,6 +9,8 @@ import useStoreForm from "../hooks/useStoreForm";
 import SelectLayoutStep from "./SelectLayout/SelectLayoutStep.jsx";
 import ComponentCustomizer from "./ComponentCustomizer.jsx";
 import CustomizationPanel from "./CustomizationPanel.jsx";
+import CreateStore from "../pages/CreateStore.jsx";
+import WidgetsCustomizer from "./WidgetsCustomizer.jsx";
 
 const steps = [
   "basic",
@@ -18,6 +20,8 @@ const steps = [
   "layout",
   "customizer",
   "panel",
+  "widgets",
+  "crear-tienda"
 ];
 export default function Wizard() {
   const [step, setStep] = useState(0);
@@ -50,6 +54,7 @@ export default function Wizard() {
         )}
         {step === 5 && <ComponentCustomizer />}
         {step === 6 && <CustomizationPanel selectedLayout={selectedLayout} />}
+        {step === 7 && <CreateStore />}
 
         <div className="fullscreen-actions">
           {step > 4 && <button onClick={prev}>Atrás</button>}

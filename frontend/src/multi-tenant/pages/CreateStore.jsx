@@ -1,14 +1,3 @@
-/**
- * CreateStore.jsx
- * Ruta: /crear-tienda
- * ─────────────────────────────────────────────────────────────────────────────
- * Paso final del wizard: nombre de tienda, subdominio y aceptación de términos.
- * Al confirmar llama a la API real:
- *   1. POST /api/stores              → crea la tienda
- *   2. POST /api/stores/:id/settings → guarda toda la configuración del wizard
- * ─────────────────────────────────────────────────────────────────────────────
- */
-
 import "../components/styles/Store.css";
 import "../components/styles/StepPages.css";
 import { useNavigate } from "react-router-dom";
@@ -21,17 +10,12 @@ import useCreateStore from "../hooks/useCreateStore";
 /**
  * ⚠️  INTEGRACIÓN AUTH:
  * Reemplaza HARDCODED_OWNER_ID por el UUID real del usuario autenticado.
- * Ejemplo con tu sistema de auth:
- *
- *   import { useAuth } from "../auth/AuthContext";
- *   const { user } = useAuth();
- *   const ownerId = user.id;
  */
 const HARDCODED_OWNER_ID = "00000000-0000-0000-0000-000000000001"; // ← reemplazar
 
 export default function CreateStore() {
   const nav = useNavigate();
-  const { state, completeStep, saveProgress } = useStore();
+  const { state, completeStep } = useStore();
 
   // ── Estado local del formulario ─────────────────────────────────────────────
   const [form, setForm] = useState({
@@ -48,11 +32,6 @@ export default function CreateStore() {
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
-  const handleBack = () => {
-    saveProgress("store", form);
-    nav("/crear-tienda/pagos");
-  };
-
   const handleChange = (e) => {
     clearError();
     const { name, value, type, checked } = e.target;
@@ -62,7 +41,7 @@ export default function CreateStore() {
     }));
   };
 
-  // Genera un slug automático a partir del nombre mientras el usuario escribe
+  // Genera slug automático a partir del nombre mientras el usuario escribe
   const handleNameChange = (e) => {
     const name = e.target.value;
     const autoSlug = name
@@ -80,12 +59,12 @@ export default function CreateStore() {
     }));
   };
 
+  const handleBack = () => {
+    nav("/widgets");
+  };
+
   const handleSubmit = async () => {
-    // Validaciones locales (UX rápida antes de llamar a la API)
-    if (!form.name.trim() || !form.subdomain.trim()) {
-      return; // el error de validación lo mostramos inline
-    }
-    if (!form.accepted) return;
+    if (!form.name.trim() || !form.subdomain.trim() || !form.accepted) return;
 
     try {
       const createdStoreId = await submit(form);
@@ -94,9 +73,9 @@ export default function CreateStore() {
       completeStep("store", { ...form, storeId: createdStoreId });
 
       // Navega al resultado
-      nav("/layout");
+      nav("/resultado");
     } catch {
-      // El error ya está en el estado del hook, no hace falta hacer nada más aquí
+      // El error ya está en el estado del hook
     }
   };
 

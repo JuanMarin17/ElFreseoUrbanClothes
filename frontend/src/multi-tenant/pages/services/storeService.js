@@ -4,23 +4,24 @@
  * Capa de servicio para el micro-servicio Store.
  * Mapea EXACTAMENTE los endpoints definidos en los controllers Java:
  *
- *   StoreController          →  POST   /api/stores
- *                               GET    /api/stores/:storeId
+ *   StoreController          →  POST   
+ *                               GET    /:storeId
  *
- *   StoreUserController      →  POST   /api/stores/:storeId/users
- *                               GET    /api/stores/:storeId/users
- *                               GET    /api/stores/users/:userId
- *                               GET    /api/stores/:storeId/access/:userId
+ *   StoreUserController      →  POST   /:storeId/users
+ *                               GET    /:storeId/users
+ *                               GET    /users/:userId
+ *                               GET    /:storeId/access/:userId
  *
- *   StoreSettingsController  →  GET    /api/stores/:storeId/settings
- *                               POST   /api/stores/:storeId/settings
+ *   StoreSettingsController  →  GET    /:storeId/settings
+ *                               POST   /:storeId/settings
  *
  * Puerto del backend: 8081  (server.port en application.yaml)
  * No hay context-path configurado → base: http://localhost:8081
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-const BASE_URL = import.meta.env.VITE_STORE_API_URL ?? "http://localhost:8080";
+const BASE_URL        = "http://localhost:8080/api/v1/stores";
+const SETTINGS_URL    = "http://localhost:8080/api/v1/stores/settings";
 
 // ─── Utilidad interna ──────────────────────────────────────────────────────────
 
@@ -69,13 +70,13 @@ async function request(url, options = {}) {
 
 /**
  * Crea una nueva tienda.
- * POST /api/stores
+ * POST 
  *
  * @param {{ ownerId: string, name: string, slug: string, description?: string }} payload
  * @returns {Promise<StoreResponseDTO>}
  */
 export async function createStore(payload) {
-  return request(`${BASE_URL}/api/stores`, {
+  return request(`${BASE_URL}`, {
     method: "POST",
     body: JSON.stringify(payload),
   });
@@ -83,27 +84,27 @@ export async function createStore(payload) {
 
 /**
  * Obtiene una tienda por su UUID.
- * GET /api/stores/:storeId
+ * GET /:storeId
  *
  * @param {string} storeId
  * @returns {Promise<StoreResponseDTO>}
  */
 export async function getStoreById(storeId) {
-  return request(`${BASE_URL}/api/stores/${storeId}`);
+  return request(`${BASE_URL}/${storeId}`);
 }
 
 // ─── StoreUserController ──────────────────────────────────────────────────────
 
 /**
  * Agrega un usuario a una tienda con rol ADMIN o STAFF.
- * POST /api/stores/:storeId/users
+ * POST /:storeId/users
  *
  * @param {string} storeId
  * @param {{ userId: string, role: "ADMIN" | "STAFF" }} payload
  * @returns {Promise<StoreUserResponseDTO>}
  */
 export async function addUserToStore(storeId, payload) {
-  return request(`${BASE_URL}/api/stores/${storeId}/users`, {
+  return request(`${BASE_URL}/${storeId}/users`, {
     method: "POST",
     body: JSON.stringify({ ...payload, storeId }),
   });
@@ -111,56 +112,55 @@ export async function addUserToStore(storeId, payload) {
 
 /**
  * Lista todos los usuarios de una tienda.
- * GET /api/stores/:storeId/users
+ * GET /:storeId/users
  *
  * @param {string} storeId
  * @returns {Promise<StoreUserResponseDTO[]>}
  */
 export async function getUsersByStore(storeId) {
-  return request(`${BASE_URL}/api/stores/${storeId}/users`);
+  return request(`${BASE_URL}/${storeId}/users`);
 }
 
 /**
  * Lista todas las tiendas a las que pertenece un usuario.
- * GET /api/stores/users/:userId
+ * GET /users/:userId
  *
  * @param {string} userId
  * @returns {Promise<StoreUserResponseDTO[]>}
  */
 export async function getStoresByUser(userId) {
-  return request(`${BASE_URL}/api/stores/users/${userId}`);
+  return request(`${BASE_URL}/users/${userId}`);
 }
 
 /**
  * Verifica si un usuario tiene acceso a una tienda.
- * GET /api/stores/:storeId/access/:userId
+ * GET /:storeId/access/:userId
  *
  * @param {string} storeId
  * @param {string} userId
  * @returns {Promise<{ hasAccess: boolean }>}
  */
 export async function validateAccess(storeId, userId) {
-  return request(`${BASE_URL}/api/stores/${storeId}/access/${userId}`);
+  return request(`${BASE_URL}/${storeId}/access/${userId}`);
 }
 
 // ─── StoreSettingsController ──────────────────────────────────────────────────
 
 /**
  * Obtiene la configuración actual de una tienda.
- * GET /api/stores/:storeId/settings
+ * GET /api/v1/store/settings/:storeId
  *
  * @param {string} storeId
  * @returns {Promise<StoreSettingsResponseDTO>}
  */
 export async function getStoreSettings(storeId) {
-  return request(`${BASE_URL}/api/stores/${storeId}/settings`);
+  return request(`${SETTINGS_URL}/${storeId}`);
 }
 
 /**
  * Guarda / actualiza la configuración de la tienda.
- * POST /api/stores/:storeId/settings
+ * POST /api/v1/store/settings/crearSettings
  *
- * Semántica PATCH: solo los campos que se envíen serán actualizados.
  * El campo `completedStep` es OBLIGATORIO siempre.
  *
  * @param {string} storeId
@@ -168,19 +168,19 @@ export async function getStoreSettings(storeId) {
  * @returns {Promise<StoreSettingsResponseDTO>}
  */
 export async function saveStoreSettings(storeId, payload) {
-  return request(`${BASE_URL}/api/stores/${storeId}/settings`, {
+  return request(`${SETTINGS_URL}/createSettings`, {
     method: "POST",
-    body: JSON.stringify(payload),
+    headers: { "x-store-id": storeId },
+    body: JSON.stringify({ storeId, ...payload }),
   });
 }
 
 /**
  * Guarda un paso parcial del wizard sin avanzar completedStep más de lo necesario.
- * Envuelve saveStoreSettings para simplificar las llamadas desde cada step.
  *
  * @param {string} storeId
- * @param {number} step              – número del paso completado
- * @param {Partial<StoreSettingsRequestDTO>} stepData  – datos del paso
+ * @param {number} step
+ * @param {Partial<StoreSettingsRequestDTO>} stepData
  */
 export async function saveWizardStep(storeId, step, stepData) {
   return saveStoreSettings(storeId, { completedStep: step, ...stepData });

@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./UploadProduct.css";
 import { getCategories, createCategory } from "../../services/categoryService";
-import { getBrands } from "../../services/brandService";
+import { createProduct } from "../../services/productService";
+import { getBrands, createBrand } from "../../services/BrandService";
 import InventaryStock from "../Inventary/InventaryStock";
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
@@ -15,7 +16,7 @@ const estadoInicial = {
   name: "",
   description: "",
   precioVenta: "",
-  categoryId: "",
+  categoryIds: [],   // ← ahora es array (multi-categoría)
   brandId: "",
   tallas: [],
   stock: {},
@@ -39,20 +40,11 @@ const subirACloudinary = async (file) => {
 
 // ─── SlotImagen ───────────────────────────────────────────────────────────────
 const SlotImagen = ({
-  imagen,
-  indice,
-  esPrincipal,
-  onAgregar,
-  onEliminar,
-  dragging,
-  onDragOver,
-  onDragLeave,
-  onDrop,
+  imagen, indice, esPrincipal, onAgregar, onEliminar,
+  dragging, onDragOver, onDragLeave, onDrop,
 }) => {
   const inputRef = useRef(null);
-  const handleClick = () => {
-    if (!imagen) inputRef.current?.click();
-  };
+  const handleClick = () => { if (!imagen) inputRef.current?.click(); };
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) onAgregar(indice, file);
@@ -61,76 +53,36 @@ const SlotImagen = ({
 
   return (
     <div
-      className={[
-        esPrincipal ? "mainPreview" : "thumb",
-        dragging ? "draggingOver" : "",
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      className={[esPrincipal ? "mainPreview" : "thumb", dragging ? "draggingOver" : ""].filter(Boolean).join(" ")}
       onClick={handleClick}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={(e) => onDrop(e, indice)}
       role="button"
-      aria-label={
-        imagen ? `Imagen ${indice + 1}` : `Añadir imagen ${indice + 1}`
-      }
+      aria-label={imagen ? `Imagen ${indice + 1}` : `Añadir imagen ${indice + 1}`}
       tabIndex={0}
       onKeyDown={(e) => e.key === "Enter" && handleClick()}
     >
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        className="hiddenInput"
-        onChange={handleFileChange}
-        aria-hidden="true"
-        tabIndex={-1}
-      />
+      <input ref={inputRef} type="file" accept="image/*" className="hiddenInput"
+        onChange={handleFileChange} aria-hidden="true" tabIndex={-1} />
       {imagen ? (
         <>
-          <img
-            src={imagen.previewUrl}
-            alt={`Vista ${indice + 1}`}
+          <img src={imagen.previewUrl} alt={`Vista ${indice + 1}`}
             className={esPrincipal ? "mainImage" : "thumbImage"}
-            style={{
-              opacity: imagen.uploading ? 0.5 : 1,
-              transition: "opacity 0.3s",
-            }}
-          />
-          {imagen.uploading && (
-            <div className="uploadingOverlay">
-              <span>Subiendo…</span>
-            </div>
-          )}
+            style={{ opacity: imagen.uploading ? 0.5 : 1, transition: "opacity 0.3s" }} />
+          {imagen.uploading && <div className="uploadingOverlay"><span>Subiendo…</span></div>}
           {!imagen.uploading && imagen.cloudinaryUrl && esPrincipal && (
             <div className="primaryTag">✅ Subida</div>
           )}
           {esPrincipal && !imagen.uploading && (
             <div className="floatingActions">
-              <button
-                className="roundBtn"
-                aria-label="Eliminar imagen"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEliminar(indice);
-                }}
-              >
-                ✕
-              </button>
+              <button className="roundBtn" aria-label="Eliminar imagen"
+                onClick={(e) => { e.stopPropagation(); onEliminar(indice); }}>✕</button>
             </div>
           )}
           {!esPrincipal && !imagen.uploading && (
-            <button
-              className="thumbRemoveBtn"
-              aria-label="Eliminar miniatura"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEliminar(indice);
-              }}
-            >
-              ✕
-            </button>
+            <button className="thumbRemoveBtn" aria-label="Eliminar miniatura"
+              onClick={(e) => { e.stopPropagation(); onEliminar(indice); }}>✕</button>
           )}
         </>
       ) : (
@@ -143,37 +95,92 @@ const SlotImagen = ({
   );
 };
 
-// ─── BrandSelector ────────────────────────────────────────────────────────────
-const BrandSelector = ({ brands, value, onChange, disabled }) => (
-  <div className="inputGroup">
-    <label>Marca</label>
-    <div className="selectWrapper">
-      <span className="selectIcon">◈</span>
-      <select
-        name="brandId"
-        value={value}
-        onChange={onChange}
-        disabled={disabled}
-        className="selectWithIcon"
-      >
-        <option value="">— Sin marca —</option>
-        {brands.map((b) => (
-          <option key={b.brandId} value={b.brandId}>
-            {b.name}
-          </option>
-        ))}
-      </select>
-    </div>
-  </div>
-);
+// ─── BrandSelector (con creación inline) ─────────────────────────────────────
+const BrandSelector = ({ brands = [], value, onChange, onBrandCreated, disabled }) => {
+  const [showNew, setShowNew] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [createErr, setCreateErr] = useState(null);
 
-// ─── CategorySelector (con creación inline) ───────────────────────────────────
+  const handleCreate = async () => {
+    const name = newName.trim();
+    if (!name) return;
+    setCreating(true);
+    setCreateErr(null);
+    try {
+      const created = await createBrand(name);
+      onBrandCreated(created);
+      onChange({ target: { name: "brandId", value: created.brandId } });
+      setNewName("");
+      setShowNew(false);
+    } catch (e) {
+      setCreateErr(e.message ?? "Error al crear marca.");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  return (
+    <div className="inputGroup">
+      <label>Marca</label>
+      <div className="categoryRow">
+        <div className="selectWrapper" style={{ flex: 1 }}>
+          <span className="selectIcon">◈</span>
+          <select
+            name="brandId"
+            value={value}
+            onChange={onChange}
+            disabled={disabled}
+            className="selectWithIcon"
+          >
+            <option value="">— Sin marca —</option>
+            {Array.isArray(brands) &&
+              brands.map((b) => (
+                <option key={b.brandId} value={b.brandId}>{b.name}</option>
+              ))}
+          </select>
+        </div>
+        <button
+          type="button"
+          className={`btnNewCategory ${showNew ? "btnNewCategoryActive" : ""}`}
+          onClick={() => { setShowNew((p) => !p); setCreateErr(null); }}
+          disabled={disabled}
+          title="Crear nueva marca"
+        >
+          {showNew ? "✕" : "+ Nueva"}
+        </button>
+      </div>
+
+      {showNew && (
+        <div className="newCategoryBox">
+          <input
+            type="text"
+            placeholder="Nombre de la marca…"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+            disabled={creating}
+            className="newCategoryInput"
+            autoFocus
+          />
+          <button
+            type="button"
+            className="btnConfirmCategory"
+            onClick={handleCreate}
+            disabled={creating || !newName.trim()}
+          >
+            {creating ? "…" : "Guardar"}
+          </button>
+          {createErr && <span className="createCatError">{createErr}</span>}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── CategorySelector (multi-selección con creación inline) ──────────────────
 const CategorySelector = ({
-  categories,
-  value,
-  onChange,
-  onCategoryCreated,
-  disabled,
+  categories, selectedIds, onToggle, onCategoryCreated, disabled,
 }) => {
   const [showNew, setShowNew] = useState(false);
   const [newName, setNewName] = useState("");
@@ -188,7 +195,7 @@ const CategorySelector = ({
     try {
       const created = await createCategory(name);
       onCategoryCreated(created);
-      onChange({ target: { name: "categoryId", value: created.categoryId } });
+      onToggle(created.categoryId); // seleccionarla automáticamente
       setNewName("");
       setShowNew(false);
     } catch (e) {
@@ -200,32 +207,52 @@ const CategorySelector = ({
 
   return (
     <div className="inputGroup">
-      <label>Categoría</label>
+      <label>Categorías</label>
+
+      {/* Pills de categorías seleccionadas */}
+      {selectedIds.length > 0 && (
+        <div className="selectedCategoryPills">
+          {selectedIds.map((id) => {
+            const cat = categories.find((c) => c.categoryId === id);
+            return cat ? (
+              <span key={id} className="categoryPill">
+                {cat.name}
+                <button
+                  type="button"
+                  className="pillRemove"
+                  onClick={() => onToggle(id)}
+                  disabled={disabled}
+                  aria-label={`Quitar ${cat.name}`}
+                >
+                  ✕
+                </button>
+              </span>
+            ) : null;
+          })}
+        </div>
+      )}
+
       <div className="categoryRow">
         <div className="selectWrapper" style={{ flex: 1 }}>
           <span className="selectIcon">◇</span>
           <select
-            name="categoryId"
-            value={value}
-            onChange={onChange}
+            value=""
+            onChange={(e) => { if (e.target.value) onToggle(e.target.value); }}
             disabled={disabled}
             className="selectWithIcon"
           >
-            <option value="">— Seleccionar —</option>
-            {categories.map((c) => (
-              <option key={c.categoryId} value={c.categoryId}>
-                {c.name}
-              </option>
-            ))}
+            <option value="">— Añadir categoría —</option>
+            {categories
+              .filter((c) => !selectedIds.includes(c.categoryId))
+              .map((c) => (
+                <option key={c.categoryId} value={c.categoryId}>{c.name}</option>
+              ))}
           </select>
         </div>
         <button
           type="button"
           className={`btnNewCategory ${showNew ? "btnNewCategoryActive" : ""}`}
-          onClick={() => {
-            setShowNew((p) => !p);
-            setCreateErr(null);
-          }}
+          onClick={() => { setShowNew((p) => !p); setCreateErr(null); }}
           disabled={disabled}
           title="Crear nueva categoría"
         >
@@ -271,15 +298,14 @@ const UploadProduct = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  // ── Cargar categorías y marcas al montar ──
   useEffect(() => {
     const fetchMeta = async () => {
       setLoadingMeta(true);
       try {
         const [cats, brnds] = await Promise.all([getCategories(), getBrands()]);
-        setCategories(cats);
-        setBrands(brnds);
-      } catch {
+        setCategories(Array.isArray(cats) ? cats : []);
+        setBrands(Array.isArray(brnds) ? brnds : []);
+      } catch (err) {
         setError("Error al cargar categorías y marcas.");
       } finally {
         setLoadingMeta(false);
@@ -288,15 +314,29 @@ const UploadProduct = () => {
     fetchMeta();
   }, []);
 
-  // ── Campos de texto ──
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProducto((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ── Cuando se crea una categoría nueva, agregarla a la lista local ──
+  // ── Marca: agregar nueva a la lista local ──
+  const handleBrandCreated = (brand) => {
+    setBrands((prev) => [...prev, brand]);
+  };
+
+  // ── Categoría: agregar nueva a la lista local ──
   const handleCategoryCreated = (cat) => {
     setCategories((prev) => [...prev, cat]);
+  };
+
+  // ── Categoría: toggle multi-selección ──
+  const handleCategoryToggle = (categoryId) => {
+    setProducto((prev) => ({
+      ...prev,
+      categoryIds: prev.categoryIds.includes(categoryId)
+        ? prev.categoryIds.filter((id) => id !== categoryId)
+        : [...prev.categoryIds, categoryId],
+    }));
   };
 
   // ── Tallas ──
@@ -309,51 +349,32 @@ const UploadProduct = () => {
     }));
   };
 
-  // ── Stock / MinStock ──
   const handleStockChange = (talla, cantidad) =>
-    setProducto((prev) => ({
-      ...prev,
-      stock: { ...prev.stock, [talla]: cantidad },
-    }));
+    setProducto((prev) => ({ ...prev, stock: { ...prev.stock, [talla]: cantidad } }));
 
   const handleMinStockChange = (talla, valor) =>
-    setProducto((prev) => ({
-      ...prev,
-      minStock: { ...prev.minStock, [talla]: Number(valor) },
-    }));
+    setProducto((prev) => ({ ...prev, minStock: { ...prev.minStock, [talla]: Number(valor) } }));
 
   // ── Imágenes ──
   const agregarImagen = async (indice, file) => {
     const previewUrl = URL.createObjectURL(file);
     setProducto((prev) => {
       const nuevas = [...prev.imagenes];
-      if (nuevas[indice]?.previewUrl)
-        URL.revokeObjectURL(nuevas[indice].previewUrl);
-      nuevas[indice] = {
-        file,
-        previewUrl,
-        cloudinaryUrl: null,
-        uploading: true,
-      };
+      if (nuevas[indice]?.previewUrl) URL.revokeObjectURL(nuevas[indice].previewUrl);
+      nuevas[indice] = { file, previewUrl, cloudinaryUrl: null, uploading: true };
       return { ...prev, imagenes: nuevas };
     });
     try {
       const cloudinaryUrl = await subirACloudinary(file);
       setProducto((prev) => {
         const nuevas = [...prev.imagenes];
-        if (nuevas[indice])
-          nuevas[indice] = {
-            ...nuevas[indice],
-            cloudinaryUrl,
-            uploading: false,
-          };
+        if (nuevas[indice]) nuevas[indice] = { ...nuevas[indice], cloudinaryUrl, uploading: false };
         return { ...prev, imagenes: nuevas };
       });
     } catch {
       setProducto((prev) => {
         const nuevas = [...prev.imagenes];
-        if (nuevas[indice]?.previewUrl)
-          URL.revokeObjectURL(nuevas[indice].previewUrl);
+        if (nuevas[indice]?.previewUrl) URL.revokeObjectURL(nuevas[indice].previewUrl);
         nuevas.splice(indice, 1);
         return { ...prev, imagenes: nuevas };
       });
@@ -364,18 +385,13 @@ const UploadProduct = () => {
   const eliminarImagen = (indice) => {
     setProducto((prev) => {
       const nuevas = [...prev.imagenes];
-      if (nuevas[indice]?.previewUrl)
-        URL.revokeObjectURL(nuevas[indice].previewUrl);
+      if (nuevas[indice]?.previewUrl) URL.revokeObjectURL(nuevas[indice].previewUrl);
       nuevas.splice(indice, 1);
       return { ...prev, imagenes: nuevas };
     });
   };
 
-  // ── Drag & Drop ──
-  const handleDragOver = (e, indice) => {
-    e.preventDefault();
-    setDraggingIndice(indice);
-  };
+  const handleDragOver = (e, indice) => { e.preventDefault(); setDraggingIndice(indice); };
   const handleDragLeave = () => setDraggingIndice(null);
   const handleDrop = (e, indice) => {
     e.preventDefault();
@@ -389,30 +405,15 @@ const UploadProduct = () => {
     setError(null);
     setSuccess(null);
 
-    if (!producto.name.trim()) {
-      setError("El nombre del producto es obligatorio.");
-      return;
-    }
-    if (producto.tallas.length === 0) {
-      setError("Selecciona al menos una talla.");
-      return;
-    }
-    if (!producto.precioVenta || Number(producto.precioVenta) <= 0) {
-      setError("El precio debe ser mayor que 0.");
-      return;
-    }
-    if (producto.imagenes.length === 0) {
-      setError("Agrega al menos una imagen.");
-      return;
-    }
-    if (producto.imagenes.some((img) => img.uploading)) {
-      setError("Espera a que terminen de subirse todas las imágenes.");
-      return;
-    }
-    if (producto.imagenes.some((img) => !img.cloudinaryUrl)) {
-      setError("Algunas imágenes no se subieron correctamente.");
-      return;
-    }
+    if (!producto.name.trim()) return setError("El nombre del producto es obligatorio.");
+    if (producto.tallas.length === 0) return setError("Selecciona al menos una talla.");
+    if (!producto.precioVenta || Number(producto.precioVenta) <= 0)
+      return setError("El precio debe ser mayor que 0.");
+    if (producto.imagenes.length === 0) return setError("Agrega al menos una imagen.");
+    if (producto.imagenes.some((img) => img.uploading))
+      return setError("Espera a que terminen de subirse todas las imágenes.");
+    if (producto.imagenes.some((img) => !img.cloudinaryUrl))
+      return setError("Algunas imágenes no se subieron correctamente.");
 
     setLoading(true);
     try {
@@ -428,7 +429,7 @@ const UploadProduct = () => {
         name: producto.name.trim(),
         description: producto.description ?? "",
         brandId: producto.brandId || null,
-        categoryIds: producto.categoryId ? [producto.categoryId] : [],
+        categoryIds: producto.categoryIds,          // ← array completo
         images: imageUrls,
         variants,
       });
@@ -450,25 +451,16 @@ const UploadProduct = () => {
     setSuccess(null);
   };
 
-  // ── Render ──
   return (
     <div className="adminContainer">
       <main className="mainContent">
         <div className="pageTitleRow">
           <h2 className="pageTitle">SUBIR PRODUCTO</h2>
           <div className="topButtons">
-            <button
-              className="btnDiscard"
-              onClick={handleEliminar}
-              disabled={loading}
-            >
+            <button className="btnDiscard" onClick={handleEliminar} disabled={loading}>
               ELIMINAR
             </button>
-            <button
-              className="btnUpload"
-              onClick={handleSubmit}
-              disabled={loading || loadingMeta}
-            >
+            <button className="btnUpload" onClick={handleSubmit} disabled={loading || loadingMeta}>
               {loading ? "Subiendo..." : "SUBIR PRODUCTO ⇡"}
             </button>
           </div>
@@ -476,39 +468,23 @@ const UploadProduct = () => {
 
         {error && <div className="errorMsg">{error}</div>}
         {success && <div className="successMsg">{success}</div>}
-        {loadingMeta && (
-          <div className="metaLoading">Cargando marcas y categorías…</div>
-        )}
+        {loadingMeta && <div className="metaLoading">Cargando marcas y categorías…</div>}
 
         <section className="gridContainer">
-          {/* ── Formulario ── */}
           <div className="formColumn">
             <div className="card">
-              <h3 className="cardTitle">
-                <span className="iconBlue">✎</span> Información General
-              </h3>
+              <h3 className="cardTitle"><span className="iconBlue">✎</span> Información General</h3>
 
               <div className="inputGroup">
                 <label>Nombre producto</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={producto.name}
-                  onChange={handleChange}
-                  placeholder="e.g. NEON_VAPOR HOODIE"
-                  disabled={loading}
-                />
+                <input type="text" name="name" value={producto.name} onChange={handleChange}
+                  placeholder="e.g. NEON_VAPOR HOODIE" disabled={loading} />
               </div>
 
               <div className="inputGroup">
                 <label>Descripción</label>
-                <textarea
-                  name="description"
-                  value={producto.description}
-                  onChange={handleChange}
-                  placeholder="Especificaciones técnicas y filosofía de diseño..."
-                  disabled={loading}
-                />
+                <textarea name="description" value={producto.description} onChange={handleChange}
+                  placeholder="Especificaciones técnicas y filosofía de diseño..." disabled={loading} />
               </div>
 
               <div className="row">
@@ -516,32 +492,26 @@ const UploadProduct = () => {
                   <label>Precio (COL $)</label>
                   <div className="priceInput">
                     <span>$</span>
-                    <input
-                      type="number"
-                      name="precioVenta"
-                      value={producto.precioVenta}
-                      onChange={handleChange}
-                      placeholder="0"
-                      min="0"
-                      disabled={loading}
-                    />
+                    <input type="number" name="precioVenta" value={producto.precioVenta}
+                      onChange={handleChange} placeholder="0" min="0" disabled={loading} />
                   </div>
                 </div>
 
-                {/* ─── Marca ─── */}
+                {/* ─── Marca con creación inline ─── */}
                 <BrandSelector
                   brands={brands}
                   value={producto.brandId}
                   onChange={handleChange}
+                  onBrandCreated={handleBrandCreated}
                   disabled={loading || loadingMeta}
                 />
               </div>
 
-              {/* ─── Categoría con creación inline ─── */}
+              {/* ─── Categorías multi-selección con creación inline ─── */}
               <CategorySelector
                 categories={categories}
-                value={producto.categoryId}
-                onChange={handleChange}
+                selectedIds={producto.categoryIds}
+                onToggle={handleCategoryToggle}
                 onCategoryCreated={handleCategoryCreated}
                 disabled={loading || loadingMeta}
               />
@@ -550,17 +520,9 @@ const UploadProduct = () => {
                 <label>Tallas</label>
                 <div className="sizeGrid">
                   {TALLAS_DISPONIBLES.map((t) => (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => toggleTalla(t)}
-                      className={
-                        producto.tallas.includes(t)
-                          ? "sizeBtnActive"
-                          : "sizeBtnU"
-                      }
-                      disabled={loading}
-                    >
+                    <button key={t} type="button" onClick={() => toggleTalla(t)}
+                      className={producto.tallas.includes(t) ? "sizeBtnActive" : "sizeBtnU"}
+                      disabled={loading}>
                       {t}
                     </button>
                   ))}
@@ -574,16 +536,9 @@ const UploadProduct = () => {
                     {producto.tallas.map((t) => (
                       <div key={t} className="minStockItem">
                         <span>{t}</span>
-                        <input
-                          type="number"
-                          min="0"
-                          value={producto.minStock[t] ?? 0}
-                          onChange={(e) =>
-                            handleMinStockChange(t, e.target.value)
-                          }
-                          disabled={loading}
-                          style={{ width: 50, marginLeft: 6 }}
-                        />
+                        <input type="number" min="0" value={producto.minStock[t] ?? 0}
+                          onChange={(e) => handleMinStockChange(t, e.target.value)}
+                          disabled={loading} style={{ width: 50, marginLeft: 6 }} />
                       </div>
                     ))}
                   </div>
@@ -592,44 +547,24 @@ const UploadProduct = () => {
             </div>
 
             <div className="card">
-              <h3 className="cardTitle">
-                <span className="iconBlue">📋</span> Inventario
-              </h3>
-              <InventaryStock
-                tallas={producto.tallas}
-                stock={producto.stock}
-                onStockChange={handleStockChange}
-              />
+              <h3 className="cardTitle"><span className="iconBlue">📋</span> Inventario</h3>
+              <InventaryStock tallas={producto.tallas} stock={producto.stock}
+                onStockChange={handleStockChange} />
             </div>
           </div>
 
-          {/* ── Imágenes ── */}
           <div className="previewColumn">
-            <SlotImagen
-              indice={0}
-              esPrincipal
-              imagen={producto.imagenes[0] ?? null}
-              onAgregar={agregarImagen}
-              onEliminar={eliminarImagen}
-              dragging={draggingIndice === 0}
-              onDragOver={(e) => handleDragOver(e, 0)}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-            />
+            <SlotImagen indice={0} esPrincipal imagen={producto.imagenes[0] ?? null}
+              onAgregar={agregarImagen} onEliminar={eliminarImagen}
+              dragging={draggingIndice === 0} onDragOver={(e) => handleDragOver(e, 0)}
+              onDragLeave={handleDragLeave} onDrop={handleDrop} />
             <div className="thumbnailRow">
               {[1, 2, 3].map((idx) => (
-                <SlotImagen
-                  key={idx}
-                  indice={idx}
-                  esPrincipal={false}
+                <SlotImagen key={idx} indice={idx} esPrincipal={false}
                   imagen={producto.imagenes[idx] ?? null}
-                  onAgregar={agregarImagen}
-                  onEliminar={eliminarImagen}
-                  dragging={draggingIndice === idx}
-                  onDragOver={(e) => handleDragOver(e, idx)}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                />
+                  onAgregar={agregarImagen} onEliminar={eliminarImagen}
+                  dragging={draggingIndice === idx} onDragOver={(e) => handleDragOver(e, idx)}
+                  onDragLeave={handleDragLeave} onDrop={handleDrop} />
               ))}
               <div className="thumbCount">
                 <span>{producto.imagenes.length}</span>

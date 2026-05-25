@@ -10,11 +10,11 @@ const STEP_PATHS = {
   1: "/crear-tienda/basico",
   2: "/crear-tienda/legal",
   3: "/crear-tienda/pagos",
-  4: "/crear-tienda",
-  5: "/layout",
-  6: "/customer",
-  7: "/component",
-  8: "/widgets",
+  4: "/layout",
+  5: "/customer",
+  6: "/component",
+  7: "/widgets",
+  8: "/crear-tienda",
 };
 
 export default function ProtectedStep({ requiredStep, children }) {

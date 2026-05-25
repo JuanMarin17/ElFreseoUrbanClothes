@@ -61,15 +61,15 @@ function resolveField(key) {
 }
 
 const STEP_ORDER = [
-  "plan",
-  "basic",
-  "legal",
-  "payment",
-  "store",
-  "layout",
-  "styles",
-  "components",
-  "widgets",
+  "plan",      // 0 → /plan
+  "basic",     // 1 → /crear-tienda/basico
+  "legal",     // 2 → /crear-tienda/legal
+  "payment",   // 3 → /crear-tienda/pagos
+  "layout",    // 4 → /layout
+  "styles",    // 5 → /customer
+  "components",// 6 → /component
+  "widgets",   // 7 → /widgets
+  "store",     // 8 → /crear-tienda (términos + crear)
 ];
 
 function stepIndex(key) {

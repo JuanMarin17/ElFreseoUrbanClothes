@@ -13,11 +13,11 @@ const STEPS = [
   { label: "Básico",      path: "/crear-tienda/basico" },
   { label: "Legal",       path: "/crear-tienda/legal" },
   { label: "Pagos",       path: "/crear-tienda/pagos" },
-  { label: "Términos",    path: "/crear-tienda" },
   { label: "Layout",      path: "/layout" },
   { label: "Estilos",     path: "/customer" },
   { label: "Componentes", path: "/component" },
   { label: "Widgets",     path: "/widgets" },
+  { label: "Crear tienda",path: "/crear-tienda" },
 ];
 
 export default function StepProgress() {
