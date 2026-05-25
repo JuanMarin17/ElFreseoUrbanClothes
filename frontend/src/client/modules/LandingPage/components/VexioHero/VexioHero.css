@@ -3,15 +3,15 @@
    Dark Modern / Azul eléctrico #2563FF
    Fuente: Bricolage Grotesque + Plus Jakarta Sans
    ============================================================ */
-
 .vx-hero {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column; /* ← verificar que esté */
   position: relative;
   overflow: hidden;
-  padding: 140px 6% 100px;
+  padding: 100px 6% 80px;
   background: var(--vx-bg);
 }
 
@@ -45,13 +45,18 @@
 }
 
 /* ── Contenedor interior ── */
+/* Reemplaza .vx-hero-inner */
 .vx-hero-inner {
-  position: relative; z-index: 1;
+  position: relative;
+  z-index: 1;
   max-width: 820px;
+  width: 100%;           /* ← agregar */
   margin: 0 auto;
   text-align: center;
+  display: flex;         /* ← agregar */
+  flex-direction: column;/* ← agregar */
+  align-items: center;   /* ← agregar */
 }
-
 /* ── Badge superior ── */
 .vx-hero-badge {
   display: inline-flex;

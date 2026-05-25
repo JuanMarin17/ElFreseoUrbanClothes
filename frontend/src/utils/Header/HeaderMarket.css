@@ -48,8 +48,8 @@
 }
 
 .logo-image {
-  height: 12vh; /* Altura estilizada para no romper proporciones */
-  width: 15vw;
+  height: 10vh; /* Altura estilizada para no romper proporciones */
+  width: 13vw;
   object-fit: contain;
 }
 

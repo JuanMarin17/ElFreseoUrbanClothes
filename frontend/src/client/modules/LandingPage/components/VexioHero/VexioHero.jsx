@@ -1,13 +1,6 @@
 import React from 'react';
 import './VexioHero.css';
 
-const STATS = [
-  { num: '+48,000', label: 'Productos disponibles' },
-  { num: '+2,400',  label: 'Tiendas activas'       },
-  { num: '18',      label: 'Ciudades con domicilio' },
-  { num: '4.9★',    label: 'Calificación promedio'  },
-];
-
 const AVATARS = ['SR', 'MC', 'DP', 'AL'];
 
 export default function VexioHero() {
@@ -16,15 +9,12 @@ export default function VexioHero() {
 
   return (
     <section id="vx-hero" className="vx-hero">
-      {/* Orbes de fondo */}
       <div className="vx-hero-orb vx-hero-orb--1" />
       <div className="vx-hero-orb vx-hero-orb--2" />
       <div className="vx-hero-orb vx-hero-orb--3" />
 
       <div className="vx-hero-inner">
 
-        {/* Badge */}
-       
 
         {/* Heading */}
         <h1 className="vx-hero-h1">
@@ -38,7 +28,7 @@ export default function VexioHero() {
           y apoya el comercio local — todo en Vexio.
         </p>
 
-        {/* CTA buttons — comprador primero */}
+        {/* CTAs */}
         <div className="vx-hero-actions">
           <button className="vx-btn-primary" onClick={() => scrollTo('vx-categories')}>
             Explorar productos
@@ -60,23 +50,10 @@ export default function VexioHero() {
           </p>
         </div>
 
-        {/* Stats — panel estilo dashboard */}
-        <div className="vx-hero-stats">
-          {STATS.map(({ num, label }) => (
-            <div key={label} className="vx-hero-stat">
-              <span className="vx-hero-stat-num">{num}</span>
-              <span className="vx-hero-stat-label">{label}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* CTA vendedor — secundario, abajo */}
+        {/* CTA vendedor */}
         <div className="vx-hero-seller-nudge">
           ¿Tienes un negocio?{' '}
-          <button
-            className="vx-hero-seller-link"
-            onClick={() => scrollTo('vx-seller')}
-          >
+          <button className="vx-hero-seller-link" onClick={() => scrollTo('vx-seller')}>
             Crea tu tienda gratis →
           </button>
         </div>

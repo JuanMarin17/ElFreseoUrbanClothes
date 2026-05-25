@@ -1,68 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Search, ShoppingCart, Package, Star, Store, ClipboardList, DollarSign, TrendingUp } from 'lucide-react';
 import './VexioHowItWorks.css';
 
 const BUYER_STEPS = [
-  {
-    num: '01',
-    icon: '🔍',
-    title: 'Descubre tiendas',
-    desc: 'Explora miles de tiendas de emprendedores reales. Filtra por categoría, ciudad o calificación.',
-  },
-  {
-    num: '02',
-    icon: '🛒',
-    title: 'Elige y compra',
-    desc: 'Agrega productos al carrito y paga con tarjeta, PSE, Nequi o Daviplata. Seguro y sin complicaciones.',
-  },
-  {
-    num: '03',
-    icon: '📦',
-    title: 'Recibe en tu puerta',
-    desc: 'Seguimiento en tiempo real desde que el emprendedor despacha hasta que el domicilio llega a ti.',
-  },
-  {
-    num: '04',
-    icon: '⭐',
-    title: 'Califica y vuelve',
-    desc: 'Deja tu reseña, ayuda a la comunidad y acumula puntos para descuentos en tu próxima compra.',
-  },
+  { num: '01', Icon: Search,       title: 'Descubre tiendas', desc: 'Explora miles de tiendas de emprendedores reales. Filtra por categoría, ciudad o calificación.' },
+  { num: '02', Icon: ShoppingCart, title: 'Elige y compra',   desc: 'Agrega productos al carrito y paga con tarjeta, PSE, Nequi o Daviplata. Seguro y sin complicaciones.' },
+  { num: '03', Icon: Package,      title: 'Recibe en tu puerta', desc: 'Seguimiento en tiempo real desde que el emprendedor despacha hasta que el domicilio llega a ti.' },
+  { num: '04', Icon: Star,         title: 'Califica y vuelve', desc: 'Deja tu reseña, ayuda a la comunidad y acumula puntos para descuentos en tu próxima compra.' },
 ];
 
 const SELLER_STEPS = [
-  {
-    num: '01',
-    icon: '🏪',
-    title: 'Crea tu tienda',
-    desc: 'Regístrate gratis, elige una plantilla y personaliza tu tienda en menos de 10 minutos. Sin código.',
-  },
-  {
-    num: '02',
-    icon: '📋',
-    title: 'Sube tu catálogo',
-    desc: 'Agrega productos con fotos, variantes y stock. Importa masivamente desde Excel o uno a uno.',
-  },
-  {
-    num: '03',
-    icon: '💰',
-    title: 'Recibe pedidos',
-    desc: 'Notificaciones en tiempo real. Gestiona pedidos, genera guías y coordina envíos desde un solo lugar.',
-  },
-  {
-    num: '04',
-    icon: '📈',
-    title: 'Crece con data',
-    desc: 'Analytics de ventas, comportamiento del cliente y herramientas de marketing para escalar sin fricción.',
-  },
+  { num: '01', Icon: Store,         title: 'Crea tu tienda',  desc: 'Regístrate gratis, elige una plantilla y personaliza tu tienda en menos de 10 minutos. Sin código.' },
+  { num: '02', Icon: ClipboardList, title: 'Sube tu catálogo', desc: 'Agrega productos con fotos, variantes y stock. Importa masivamente desde Excel o uno a uno.' },
+  { num: '03', Icon: DollarSign,    title: 'Recibe pedidos',  desc: 'Notificaciones en tiempo real. Gestiona pedidos, genera guías y coordina envíos desde un solo lugar.' },
+  { num: '04', Icon: TrendingUp,    title: 'Crece con data',  desc: 'Analytics de ventas, comportamiento del cliente y herramientas de marketing para escalar sin fricción.' },
 ];
 
 export default function VexioHowItWorks() {
-  const [mode, setMode] = useState('buyer'); // 'buyer' | 'seller'
+  const [mode, setMode] = useState('buyer');
   const stepsRef = useRef([]);
 
   const steps = mode === 'buyer' ? BUYER_STEPS : SELLER_STEPS;
 
   useEffect(() => {
-    // Reset visibility then re-observe when tab changes
     stepsRef.current.forEach(el => el && el.classList.remove('vx-visible'));
     const timer = setTimeout(() => {
       const observer = new IntersectionObserver(
@@ -87,23 +47,21 @@ export default function VexioHowItWorks() {
         </p>
       </div>
 
-      {/* Toggle tabs */}
       <div className="vx-how-tabs">
         <button
           className={`vx-how-tab${mode === 'buyer' ? ' active' : ''}`}
           onClick={() => setMode('buyer')}
         >
-          🛍️ Soy comprador
+          <ShoppingCart size={16} /> Soy comprador
         </button>
         <button
           className={`vx-how-tab${mode === 'seller' ? ' active' : ''}`}
           onClick={() => setMode('seller')}
         >
-          🏪 Tengo un negocio
+          <Store size={16} /> Tengo un negocio
         </button>
       </div>
 
-      {/* Steps */}
       <div className="vx-how-steps">
         <div className="vx-how-line" />
         {steps.map((step, i) => (
@@ -114,7 +72,7 @@ export default function VexioHowItWorks() {
             style={{ transitionDelay: `${i * 90}ms` }}
           >
             <div className="vx-how-num">
-              <span className="vx-how-num-icon">{step.icon}</span>
+              <span className="vx-how-num-icon"><step.Icon size={20} /></span>
               <span className="vx-how-num-badge">{step.num}</span>
             </div>
             <h3 className="vx-how-title">{step.title}</h3>
@@ -123,16 +81,11 @@ export default function VexioHowItWorks() {
         ))}
       </div>
 
-      {/* CTA contextual */}
       <div className="vx-how-cta">
         {mode === 'buyer' ? (
-          <button className="vx-btn-primary">
-            Empezar a explorar →
-          </button>
+          <button className="vx-btn-primary">Empezar a explorar →</button>
         ) : (
-          <button className="vx-btn-primary">
-            Crear mi tienda gratis →
-          </button>
+          <button className="vx-btn-primary">Crear mi tienda gratis →</button>
         )}
       </div>
     </section>

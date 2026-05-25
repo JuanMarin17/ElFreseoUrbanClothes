@@ -1,13 +1,14 @@
 import React from 'react';
+import { Store, Package, CreditCard, Truck, BarChart2, Plug } from 'lucide-react';
 import './VexioSeller.css';
 
 const PERKS = [
-  { icon: '🏪', title: 'Tienda en minutos',     desc: 'Sin código, con plantillas profesionales.' },
-  { icon: '📦', title: 'Gestión de catálogo',   desc: 'Importa masivamente o agrega uno a uno.' },
-  { icon: '💳', title: 'Cobros integrados',     desc: 'PSE, Nequi, Daviplata y más sin comisiones ocultas.' },
-  { icon: '🚚', title: 'Logística conectada',   desc: 'Coordinadora, Servientrega, Envia y más.' },
-  { icon: '📊', title: 'Analytics en tiempo real', desc: 'Ventas, conversión y comportamiento.' },
-  { icon: '🔌', title: '+50 integraciones',     desc: 'WhatsApp, Meta Ads, Google Shopping y más.' },
+  { Icon: Store,      title: 'Tienda en minutos',        desc: 'Sin código, con plantillas profesionales.' },
+  { Icon: Package,    title: 'Gestión de catálogo',      desc: 'Importa masivamente o agrega uno a uno.' },
+  { Icon: CreditCard, title: 'Cobros integrados',        desc: 'PSE, Nequi, Daviplata y más sin comisiones ocultas.' },
+  { Icon: Truck,      title: 'Logística conectada',      desc: 'Coordinadora, Servientrega, Envia y más.' },
+  { Icon: BarChart2,  title: 'Analytics en tiempo real', desc: 'Ventas, conversión y comportamiento.' },
+  { Icon: Plug,       title: '+50 integraciones',        desc: 'WhatsApp, Meta Ads, Google Shopping y más.' },
 ];
 
 export default function VexioSeller() {
@@ -34,16 +35,16 @@ export default function VexioSeller() {
               Ver cómo funciona
             </button>
           </div>
-          <p className="vx-seller-disclaimer">
-            14 días gratis · Sin tarjeta de crédito · Cancela cuando quieras
-          </p>
+         
         </div>
 
         {/* Grid de perks lado derecho */}
         <div className="vx-seller-perks">
-          {PERKS.map(({ icon, title, desc }) => (
+          {PERKS.map(({ Icon, title, desc }) => (
             <div key={title} className="vx-seller-perk">
-              <span className="vx-seller-perk-icon">{icon}</span>
+              <span className="vx-seller-perk-icon">
+                <Icon size={20} />
+              </span>
               <div>
                 <h4 className="vx-seller-perk-title">{title}</h4>
                 <p className="vx-seller-perk-desc">{desc}</p>

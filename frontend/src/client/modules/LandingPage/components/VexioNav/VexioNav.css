@@ -34,7 +34,7 @@
 
 /* ── Logo ── */
 .vx-nav-brand { display: flex; align-items: center; }
-.vx-nav-logo-img { height: 80px; width: 80px; object-fit: contain; }
+.vx-nav-logo-img { height: 9vh; width: 13vw; object-fit: contain; }
 
 /* ── Links de navegación ── */
 .vx-nav-links {
