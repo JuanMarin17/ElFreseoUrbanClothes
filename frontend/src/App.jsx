@@ -12,7 +12,7 @@ import Login from "./admin/modules/auth/pages/Login/Login.jsx";
 import InventaryStock from "./admin/modules/administration/pages/Inventary/InventaryStock.jsx";
 
 // --- IMPORTS DE CLIENTE ---
-import LandingPage from "./client/modules/landingPage/pages/LandingPage/LandingPage.jsx";
+import LandingPage from "./client/modules/landingPage/LandingPage.jsx";
 import LoadingScreen from "./client/modules/landingPage/LoadingScreen/LoadingScreen.jsx";
 import HelpCenter from "./client/modules/help/pages/HelpCenter/HelpCenter.jsx";
 import MainPage from "./client/modules/MainPage/pages/MainPage/MainPage.jsx";
