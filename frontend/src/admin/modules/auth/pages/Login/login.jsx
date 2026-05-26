@@ -9,7 +9,7 @@ import './login.css';
 const ROLE_ROUTES = {
   '04b2b854-05b6-488c-9fe9-afeabf32ed41': '/admin',
 };
-const DEFAULT_ROUTE = '/';
+const DEFAULT_ROUTE = '/market';
 
 function getRouteByRol(rolId) {
   return ROLE_ROUTES[rolId] ?? DEFAULT_ROUTE;

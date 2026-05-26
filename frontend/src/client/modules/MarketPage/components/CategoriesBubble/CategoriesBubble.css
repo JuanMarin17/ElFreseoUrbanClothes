@@ -73,3 +73,12 @@
   line-height: 1.2;
   transition: color 0.2s;
 }
+.vx-cats-root {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.vx-cats-root.vx-visible {
+  opacity: 1;
+  transform: translateY(0);
+}

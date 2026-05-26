@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Heart, ShoppingCart, ArrowRight, Star } from 'lucide-react';
 import './ProductGrid.css';
 
@@ -17,11 +17,21 @@ import './ProductGrid.css';
 export default function ProductGrid({ title, products = [], loading = false }) {
   const [wishlist, setWishlist] = useState([]);
 
-  const toggleWish = (id) => {
-    setWishlist(prev =>
-      prev.includes(id) ? prev.filter(w => w !== id) : [...prev, id]
+  useEffect(() => {
+    if (loading || products.length === 0) return;
+    const cards = document.querySelectorAll('.vx-product-card');
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('vx-visible'), i * 60);
+          obs.unobserve(e.target);
+        }
+      }),
+      { threshold: 0.08 }
     );
-  };
+    cards.forEach(el => obs.observe(el));
+    return () => obs.disconnect();
+  }, [loading, products]);
 
   return (
     <section className="vx-pgrid-root">
