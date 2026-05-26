@@ -44,7 +44,7 @@ const plans = [
   },
 ];
 
-export default function SelectPlan() {
+export default function SelectPlan({showComponents}) {
   const { state, completeStep, resetStep } = useStore();
   const nav = useNavigate();
 
@@ -65,11 +65,19 @@ export default function SelectPlan() {
 
   return (
     <div className="plan-container">
-      <StepProgress />
+      {
+        showComponents && (
+          <StepProgress />
+        )
+      }
       <div className="header-plan">
-        <button className="back-btn" onClick={() => nav(-1)}>
-          ←
-        </button>
+        {
+          showComponents && (
+            <button className="back-btn" onClick={() => nav(-1)}>
+              ←
+            </button>
+          )
+        }
         <div className="title-plan">
           <h1>Crear nueva tienda</h1>
           <p className="subtitle-plan">Elige un plan para comenzar</p>

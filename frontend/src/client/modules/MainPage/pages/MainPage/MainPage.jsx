@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import Header from "../../../landingPage/components/Header/Header";
 import SidebarFilters from '../../components/products/SidebarFilters/SidebarFilters';
 import ProductGrid from '../../components/products/ProductGrid/ProductGrid';
 import ModalTastes from '../../components/ModalTastes/ModalTastes';

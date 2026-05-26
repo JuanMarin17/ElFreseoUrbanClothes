@@ -1,0 +1,126 @@
+.notification-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(8px);
+}
+
+.notification-card {
+  background-color: #000;
+  border: 1px solid #1a1a1a;
+  width: 100%;
+  max-width: 420px;
+  padding: 3.5rem 2.5rem 1.5rem;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* Línea superior decorativa */
+.accent-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #0055ff, #0033aa);
+}
+
+/* Contenedor del Icono */
+.icon-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.icon-border {
+  width: 80px;
+  height: 80px;
+  border: 1.5px solid #0055ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 85, 255, 0.05);
+}
+
+.check-icon {
+  color: #0055ff;
+  filter: drop-shadow(0 0 10px rgba(0, 85, 255, 0.3));
+}
+
+/* Tipografía */
+.title {
+  color: #fff;
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+}
+
+.description {
+  color: #777;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+}
+
+.highlight {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Botón de Acción */
+.action-btn {
+  width: 100%;
+  background-color: #0055ff;
+  color: #fff;
+  border: none;
+  padding: 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 2rem;
+}
+
+.action-btn:hover {
+  background-color: #0044cc;
+  transform: translateY(-2px);
+}
+
+/* Footer informativo */
+.notification-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.notification-footer p {
+  color: #555;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.inline-link {
+  background: none;
+  border: none;
+  color: #0055ff;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  margin-left: 5px;
+}
+
+.metadata {
+  color: #222;
+  font-family: monospace;
+  font-size: 0.6rem;
+  text-align: right;
+  display: block;
+}

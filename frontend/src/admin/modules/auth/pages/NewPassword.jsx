@@ -1,106 +1,156 @@
-import React, { useState } from "react";
-import "./NewPassword.css";
-import vexio from "../../../../assets/vexio.png";
-const NewPassword = () => {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPass, setShowPass] = useState(false);
+import React, { useState, useEffect } from 'react';
+import { Lock, Eye, EyeOff, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import authService from '../services/Authservice';
+import Logo from '../../../../assets/LogoVexios/banervexio.png';
+import './Login/login.css';
 
-  // Validación de requisitos
-  const requirements = [
-    { label: "MÍNIMO 8 CARACTERES", met: password.length >= 8 },
-    {
-      label: "UN CARÁCTER ESPECIAL",
-      met: /[!@#$%^&*(),.?":{}|<>|-]/.test(password),
-    },
-    { label: "UNA LETRA MAYÚSCULA", met: /[A-Z]/.test(password) },
-  ];
+function Toast({ message, type, onClose }) {
+  if (!message) return null;
+  return (
+    <div className={`vp-toast vp-toast--${type}`}>
+      <span className="vp-toast-icon">
+        {type === 'success' ? <CheckCircle size={18} /> : <XCircle size={18} />}
+      </span>
+      <span className="vp-toast-msg">{message}</span>
+      <button className="vp-toast-close" onClick={onClose}>✕</button>
+    </div>
+  );
+}
 
-  const handleSubmit = (e) => {
+export default function NewPassword() {
+  const navigate = useNavigate();
+
+  const [email, setEmail]             = useState('');
+  const [code, setCode]               = useState('');
+  const [password, setPassword]       = useState('');
+  const [confirmPassword, setConfirm] = useState('');
+  const [showPass, setShowPass]       = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading]         = useState(false);
+  const [errors, setErrors]           = useState({});
+  const [toast, setToast]             = useState({ message: '', type: 'error' });
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('recovery_email');
+    const savedCode  = localStorage.getItem('recovery_code');
+
+    /* Si no hay email o código redirige al inicio del flujo */
+    if (!savedEmail || !savedCode) {
+      navigate('/recuperar-contraseña');
+      return;
+    }
+    setEmail(savedEmail);
+    setCode(savedCode);
+  }, []);
+
+  const showToast = (message, type = 'error') => {
+    setToast({ message, type });
+    if (type === 'success') setTimeout(() => setToast({ message: '', type: 'error' }), 3000);
+  };
+  const clearToast = () => setToast({ message: '', type: 'error' });
+
+  const validate = () => {
+    const tempErrors = {};
+    if (!password)              tempErrors.password = 'La contraseña es requerida';
+    else if (password.length < 8) tempErrors.password = 'Mínimo 8 caracteres';
+    if (!confirmPassword)         tempErrors.confirmPassword = 'Confirma tu contraseña';
+    else if (password !== confirmPassword) tempErrors.confirmPassword = 'Las contraseñas no coinciden';
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password === confirmPassword && requirements.every((r) => r.met)) {
-      console.log("Contraseña actualizada con éxito");
-    } else {
-      alert(
-        "Por favor, verifica los requisitos y que las contraseñas coincidan.",
-      );
+    clearToast();
+    if (!validate()) return;
+
+    setLoading(true);
+    try {
+      await authService.forgotPasswordSecondStep({ email, code, password });
+      showToast('¡Contraseña actualizada exitosamente!', 'success');
+
+      /* Limpiar datos temporales */
+      localStorage.removeItem('recovery_email');
+      localStorage.removeItem('recovery_code');
+
+      setTimeout(() => navigate('/login'), 1500);
+    } catch (err) {
+      showToast(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="container">
-      <div className="card">
-        <header className="header">
-           <img
-           src={vexio}
-           alt="logo vexio"
-          className="logo-placeholder"></img>
-          <h1>REESTABLECER CONTRASEÑA</h1>
-          <p>Ingresa tu nueva clave de acceso</p>
-        </header>
+    <div className="vp-body">
+      <div className="vp-bg">
+        <div className="vp-bg-orb vp-bg-orb--1" />
+        <div className="vp-bg-orb vp-bg-orb--2" />
+        <div className="vp-bg-orb vp-bg-orb--3" />
+      </div>
 
-        <form onSubmit={handleSubmit} className="form">
-          <div className="input-group">
-            <label>NUEVA CONTRASEÑA</label>
-            <div className="input-wrapper">
+      <Toast message={toast.message} type={toast.type} onClose={clearToast} />
+
+      <div className="vp-card">
+        <div className="vp-logo-wrapper">
+          <img src={Logo} alt="vexio logo" className="vp-logo" />
+        </div>
+
+        <h2 className="vp-title">NUEVA CONTRASEÑA</h2>
+        <p style={{ fontSize: '0.85rem', color: 'rgba(200,200,220,0.5)', marginBottom: 28, lineHeight: 1.5 }}>
+          Crea una nueva contraseña segura para tu cuenta
+        </p>
+
+        <form onSubmit={handleSubmit} noValidate>
+
+          {/* ─── Nueva contraseña ─── */}
+          <div className="vp-field-group">
+            <div className={`vp-input-wrapper ${errors.password ? 'vp-input-error' : ''}`}>
+              <span className="vp-field-icon"><Lock size={18} /></span>
               <input
-                type={showPass ? "text" : "password"}
+                className="vp-input-main"
+                type={showPass ? 'text' : 'password'}
+                placeholder="Nueva Contraseña"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="........"
+                onChange={(e) => { setPassword(e.target.value); setErrors(er => ({ ...er, password: '' })); }}
               />
-              <button
-                type="button"
-                className="eye-icon"
-                onClick={() => setShowPass(!showPass)}
-              >
-                👁
+              <button type="button" className="vp-eye-btn" onClick={() => setShowPass(s => !s)}>
+                {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            {errors.password && <span className="vp-error-text">{errors.password}</span>}
           </div>
 
-          <div className="input-group">
-            <label>CONFIRMAR CONTRASEÑA</label>
-            <div className="input-wrapper">
+          {/* ─── Confirmar contraseña ─── */}
+          <div className="vp-field-group">
+            <div className={`vp-input-wrapper ${errors.confirmPassword ? 'vp-input-error' : ''}`}>
+              <span className="vp-field-icon"><Lock size={18} /></span>
               <input
-                type={showPass ? "text" : "password"}
+                className="vp-input-main"
+                type={showConfirm ? 'text' : 'password'}
+                placeholder="Confirmar Contraseña"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="........"
+                onChange={(e) => { setConfirm(e.target.value); setErrors(er => ({ ...er, confirmPassword: '' })); }}
               />
-              <button
-                type="button"
-                className="eye-icon"
-                onClick={() => setShowPass(!showPass)}
-              >
-                👁
+              <button type="button" className="vp-eye-btn" onClick={() => setShowConfirm(s => !s)}>
+                {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            {errors.confirmPassword && <span className="vp-error-text">{errors.confirmPassword}</span>}
           </div>
 
-          <div className="requirements-box">
-            <p className="req-title">REQUERIMIENTOS TÉCNICOS</p>
-            <ul>
-              {requirements.map((req, index) => (
-                <li key={index} className={req.met ? "met" : ""}>
-                  <span className="check-circle">{req.met ? "✓" : "○"}</span>
-                  {req.label}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <button type="submit" className="submit-btn">
-            ACTUALIZAR CONTRASEÑA <span>→</span>
+          <button className="vp-submit-btn" type="submit" disabled={loading}>
+            {loading ? <Loader2 className="vp-spin" size={20} /> : 'CAMBIAR CONTRASEÑA'}
           </button>
         </form>
 
-        <footer className="footer">
-          <a href="/login">← VOLVER AL INICIO DE SESIÓN</a>
-        </footer>
+        <p className="vp-switch-auth">
+          <span className="vp-link" onClick={() => navigate('/login')}>
+            ← Volver al inicio de sesión
+          </span>
+        </p>
       </div>
     </div>
   );
-};
-
-export default NewPassword;
+}
