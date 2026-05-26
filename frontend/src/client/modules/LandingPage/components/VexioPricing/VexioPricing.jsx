@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import './VexioPricing.css';
+import SelectPlan from '../../../../../multi-tenant/pages/SelectPlan';
 
 const PLANS = [
   {
@@ -7,14 +8,14 @@ const PLANS = [
     price: '89.900',
     featured: false,
     features: [
-      { text: '1 tienda activa',               active: true  },
-      { text: 'Hasta 200 productos',            active: true  },
-      { text: 'Panel de analytics básico',      active: true  },
-      { text: 'Pasarela de pagos incluida',     active: true  },
-      { text: 'Soporte por email (48h)',         active: true  },
-      { text: 'Integraciones avanzadas',         active: false },
-      { text: 'API Access',                      active: false },
-      { text: 'Gestor de logística',             active: false },
+      { text: '1 tienda activa', active: true },
+      { text: 'Hasta 200 productos', active: true },
+      { text: 'Panel de analytics básico', active: true },
+      { text: 'Pasarela de pagos incluida', active: true },
+      { text: 'Soporte por email (48h)', active: true },
+      { text: 'Integraciones avanzadas', active: false },
+      { text: 'API Access', active: false },
+      { text: 'Gestor de logística', active: false },
     ],
     cta: 'Comenzar gratis 14 días',
     ctaStyle: 'outline',
@@ -24,14 +25,14 @@ const PLANS = [
     price: '219.900',
     featured: true,
     features: [
-      { text: 'Hasta 3 tiendas activas',         active: true  },
-      { text: 'Productos ilimitados',            active: true  },
-      { text: 'Analytics avanzado + reportes',   active: true  },
-      { text: 'Pasarela multi-método de pago',   active: true  },
-      { text: 'Logística conectada (3 carriers)',active: true  },
-      { text: 'Integraciones (WhatsApp, Meta)',  active: true  },
-      { text: 'Soporte prioritario (4h)',         active: true  },
-      { text: 'API Access dedicada',             active: false },
+      { text: 'Hasta 3 tiendas activas', active: true },
+      { text: 'Productos ilimitados', active: true },
+      { text: 'Analytics avanzado + reportes', active: true },
+      { text: 'Pasarela multi-método de pago', active: true },
+      { text: 'Logística conectada (3 carriers)', active: true },
+      { text: 'Integraciones (WhatsApp, Meta)', active: true },
+      { text: 'Soporte prioritario (4h)', active: true },
+      { text: 'API Access dedicada', active: false },
     ],
     cta: 'Elegir Pro',
     ctaStyle: 'solid',
@@ -41,14 +42,14 @@ const PLANS = [
     price: '489.900',
     featured: false,
     features: [
-      { text: 'Tiendas ilimitadas',              active: true },
-      { text: 'Productos y variantes ilimitados',active: true },
-      { text: 'Analytics enterprise + BI export',active: true },
-      { text: 'Todos los métodos de pago',       active: true },
-      { text: 'Logística (todos los carriers)',  active: true },
+      { text: 'Tiendas ilimitadas', active: true },
+      { text: 'Productos y variantes ilimitados', active: true },
+      { text: 'Analytics enterprise + BI export', active: true },
+      { text: 'Todos los métodos de pago', active: true },
+      { text: 'Logística (todos los carriers)', active: true },
       { text: 'API Access + webhooks dedicados', active: true },
-      { text: 'Gestor de cuenta dedicado',       active: true },
-      { text: 'SLA 99.9% + soporte 24/7',        active: true },
+      { text: 'Gestor de cuenta dedicado', active: true },
+      { text: 'SLA 99.9% + soporte 24/7', active: true },
     ],
     cta: 'Contactar ventas',
     ctaStyle: 'outline',
@@ -79,7 +80,7 @@ export default function VexioPricing() {
         </p>
       </div>
 
-      <div className="vx-pricing-grid">
+      {/* <div className="vx-pricing-grid">
         {PLANS.map((plan, i) => (
           <div
             key={plan.name}
@@ -111,7 +112,9 @@ export default function VexioPricing() {
             </button>
           </div>
         ))}
-      </div>
+      </div> */}
+
+      <SelectPlan showComponents={false} />
     </section>
   );
 }

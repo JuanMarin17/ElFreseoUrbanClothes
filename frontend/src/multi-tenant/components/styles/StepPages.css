@@ -1,0 +1,275 @@
+/* ══════════════════════════════════════════════
+   StepPages.css  —  Pasos básico / legal / pagos
+   Tema: dark profesional, acento azul eléctrico
+══════════════════════════════════════════════ */
+
+.step-page {
+  min-height: 100vh;
+  background: #080c14;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+}
+
+/* ── Card central ─────────────────────────── */
+.step-card {
+  width: 100%;
+  max-width: 560px;
+  background: #0d1520;
+  border: 1px solid #1a2535;
+  border-radius: 16px;
+  margin: 28px 16px 48px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Header del card ──────────────────────── */
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid #111c2e;
+}
+
+.btn-back {
+  background: #111c2e;
+  border: 1px solid #1a2535;
+  color: #5a7a9a;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  margin: 0;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.btn-back:hover {
+  border-color: #3e78ff;
+  color: #fff;
+  transform: none;
+}
+
+.step-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 3px;
+  letter-spacing: 0.3px;
+}
+
+.step-subtitle {
+  font-size: 12px;
+  color: #3a5a7a;
+  margin: 0;
+}
+
+/* ── Cuerpo ───────────────────────────────── */
+.step-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Campo ────────────────────────────────── */
+.field-block {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.field-block label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #3a5a7a;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.field-block input,
+.field-block textarea,
+.field-block select {
+  background: #060a10;
+  border: 1px solid #1a2535;
+  color: #d0dde8;
+  border-radius: 8px;
+  padding: 11px 14px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+}
+
+.field-block input:focus,
+.field-block textarea:focus,
+.field-block select:focus {
+  border-color: #3e78ff;
+  box-shadow: 0 0 0 3px rgba(62, 120, 255, 0.1);
+  outline: none;
+}
+
+.field-block textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
+}
+
+/* ── Upload ───────────────────────────────── */
+.upload-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  border: 1px dashed #1a2535;
+  border-radius: 8px;
+  color: #3a5a7a;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.upload-area:hover {
+  border-color: #3e78ff;
+  color: #3e78ff;
+  background: rgba(62, 120, 255, 0.04);
+}
+
+.logo-preview {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #1a2535;
+  margin-top: 8px;
+}
+
+/* ── Opciones de pago/envío ───────────────── */
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.option-card {
+  background: #060a10;
+  border: 1px solid #1a2535;
+  border-radius: 10px;
+  padding: 14px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  margin: 0;
+}
+
+.option-card:hover {
+  border-color: #3e78ff;
+  background: rgba(62, 120, 255, 0.05);
+  transform: none;
+}
+
+.option-card.selected {
+  border-color: #3e78ff;
+  background: rgba(62, 120, 255, 0.1);
+  box-shadow: 0 0 0 1px #3e78ff;
+}
+
+.option-icon  { font-size: 20px; }
+.option-label { font-size: 12px; font-weight: 700; color: #d0dde8; }
+.option-desc  { font-size: 11px; color: #3a5a7a; line-height: 1.3; }
+
+/* ── Acciones ─────────────────────────────── */
+.step-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  border-top: 1px solid #111c2e;
+  gap: 12px;
+}
+
+.btn-primary {
+  background: #3e78ff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 28px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.2s, box-shadow 0.2s;
+  margin: 0;
+}
+
+.btn-primary:hover {
+  background: #2d66ee;
+  box-shadow: 0 6px 20px rgba(62, 120, 255, 0.3);
+  transform: none;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #3a5a7a;
+  border: 1px solid #1a2535;
+  border-radius: 8px;
+  padding: 11px 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  margin: 0;
+}
+
+.btn-secondary:hover {
+  color: #d0dde8;
+  border-color: #2a3a4a;
+  transform: none;
+}
+
+/* ── Responsive ───────────────────────────── */
+@media (max-width: 600px) {
+  .step-card   { margin: 16px 8px 32px; border-radius: 12px; }
+  .step-body   { padding: 18px 16px; }
+  .step-actions { padding: 14px 16px; }
+  .step-header { padding: 18px 16px 14px; }
+}
+
+/* ── Caja scrollable para términos ───────── */
+.terms-scroll-box {
+  height: 320px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid #1a2535;
+  border-radius: 10px;
+  background: #060a10;
+  scrollbar-width: thin;
+  scrollbar-color: #1a2535 transparent;
+}
+
+.terms-scroll-box::-webkit-scrollbar { width: 5px; }
+.terms-scroll-box::-webkit-scrollbar-thumb {
+  background: #1a2535;
+  border-radius: 4px;
+}
+.terms-scroll-box::-webkit-scrollbar-thumb:hover {
+  background: #2a3a5a;
+}

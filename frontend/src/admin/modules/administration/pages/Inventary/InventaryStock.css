@@ -1,0 +1,169 @@
+/* ─────────────────────────────────────────────────────────────
+   InventarioStock.css
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Tabla de stock ───────────────────────────────────────── */
+.inventario-stock {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid #222;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* Cabecera */
+.inventario-stock__header {
+  display: grid;
+  grid-template-columns: 60px 1fr 110px;
+  padding: 8px 16px;
+  background: #0a0a0a;
+  border-bottom: 1px solid #222;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #555;
+  text-transform: uppercase;
+}
+
+/* Filas */
+.inventario-stock__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.fila-talla {
+  display: grid;
+  grid-template-columns: 60px 1fr 110px;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid #1a1a1a;
+  transition: background 0.15s ease;
+}
+
+.fila-talla:last-child { border-bottom: none; }
+
+.fila-talla:hover { background: rgba(255, 255, 255, 0.02); }
+
+.fila-talla__nombre {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+/* ── Stepper ──────────────────────────────────────────────── */
+.fila-talla__stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: fit-content;
+}
+
+.stepper__btn {
+  width: 28px;
+  height: 28px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: #fff;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+  user-select: none;
+}
+
+.stepper__btn:first-child { border-radius: 4px 0 0 4px; }
+.stepper__btn:last-child  { border-radius: 0 4px 4px 0; }
+
+.stepper__btn:hover:not(:disabled) { background: #2e6ff2; border-color: #2e6ff2; }
+.stepper__btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.stepper__input {
+  width: 54px;
+  height: 28px;
+  background: #000;
+  border: 1px solid #333;
+  border-left: none;
+  border-right: none;
+  color: #fff;
+  text-align: center;
+  font-size: 13px;
+  font-family: 'Inter', monospace;
+  -moz-appearance: textfield;
+}
+
+.stepper__input::-webkit-inner-spin-button,
+.stepper__input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+.stepper__input:focus {
+  outline: none;
+  background: #0d1b3e;
+  border-color: #2e6ff2;
+}
+
+/* ── Badges de estado ─────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.badge--success { background: rgba(34, 197, 94, 0.12);  color: #22c55e; }
+.badge--warning { background: rgba(234, 179, 8, 0.12);  color: #eab308; }
+.badge--danger  { background: rgba(239, 68, 68, 0.12);  color: #ef4444; }
+
+/* ── Footer ───────────────────────────────────────────────── */
+.inventario-stock__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: #0a0a0a;
+  border-top: 1px solid #222;
+}
+
+.footer__label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #555;
+  text-transform: uppercase;
+}
+
+.footer__total {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2e6ff2;
+}
+
+/* ── Estado vacío ─────────────────────────────────────────── */
+.inventario-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 28px 16px;
+  border: 1px dashed #222;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.inventario-vacio__icon { font-size: 28px; opacity: 0.4; }
+
+.inventario-vacio p {
+  font-size: 11px;
+  color: #555;
+  margin: 0;
+  line-height: 1.5;
+}

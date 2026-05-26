@@ -1,0 +1,320 @@
+/* ══════════════════════════════════════════════
+   StoreResult.css  —  Vista final de la tienda
+   Tema: dark profesional, acento azul eléctrico
+══════════════════════════════════════════════ */
+
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@400;700&family=Syncopate:wght@700&family=Oswald:wght@400;700&display=swap");
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  overflow-x: hidden;
+  background: #080c14;
+  font-family: "Inter", sans-serif;
+  color: #fff;
+}
+
+/* ── Página ───────────────────────────────── */
+.result-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #080c14;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Topbar ───────────────────────────────── */
+.result-topbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 0 24px;
+  height: 60px;
+  background: #060a10;
+  border-bottom: 1px solid #1a2535;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  flex-shrink: 0;
+}
+
+.result-topbar__left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.result-badge {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+}
+
+.result-store-name {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.result-plan-badge {
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid rgba(62, 120, 255, 0.3);
+  background: rgba(62, 120, 255, 0.08);
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.8px;
+}
+
+.result-topbar__center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  min-width: 240px;
+}
+
+.result-url-box {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #1a2535;
+}
+
+.result-url-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: #5a7a9a;
+  font-family: monospace;
+}
+
+.result-url-copy {
+  border: 1px solid #1a2535;
+  background: transparent;
+  color: #5a7a9a;
+  padding: 5px 10px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.result-url-copy:hover {
+  border-color: #3e78ff;
+  color: #3e78ff;
+  transform: none;
+}
+
+.result-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.result-btn-secondary,
+.result-btn-primary {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.result-btn-secondary {
+  background: transparent;
+  border: 1px solid #1a2535;
+  color: #5a7a9a;
+}
+
+.result-btn-secondary:hover {
+  border-color: #2a3a5a;
+  color: #d0dde8;
+  transform: none;
+}
+
+.result-btn-primary {
+  border: none;
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(62, 120, 255, 0.25);
+}
+
+.result-btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* ── Summary bar ──────────────────────────── */
+.result-summary-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px 20px;
+  background: #0d1520;
+  border-bottom: 1px solid #1a2535;
+}
+
+.summary-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid #1a2535;
+}
+
+.summary-pill__label {
+  font-size: 9px;
+  color: #3a5a7a;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.summary-pill__value {
+  font-size: 11px;
+  font-weight: 600;
+  color: #8899aa;
+}
+
+.summary-pill__color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.summary-divider { display: none; }
+
+/* ── Preview container ────────────────────── */
+.result-preview-container {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 28px 20px 60px;
+  overflow-x: hidden;
+}
+
+/* ── Store preview ────────────────────────── */
+.store-preview {
+  width: 100%;
+  max-width: 1100px;
+  border-radius: 20px;
+  overflow: visible;          /* no cortar el contenido */
+  border: 1px solid #1a2535;
+  background: #0b0f18;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+  /* Scroll horizontal solo si el contenido interno lo necesita */
+  overflow-x: auto;
+}
+
+/* Variantes de layout */
+.store-preview.minimalista { background: #ffffff; color: #111827; border-color: #e5e7eb; }
+.store-preview.clasico     { background: #f3f4f6; color: #111827; border-color: #dfe3e8; }
+.store-preview.urbano      { background: #060606; }
+
+/* ── Responsive ───────────────────────────── */
+@media (max-width: 900px) {
+  .result-topbar {
+    height: auto;
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .result-topbar__center {
+    order: 3;
+    width: 100%;
+    min-width: unset;
+  }
+
+  .result-url-box { max-width: 100%; }
+
+  .result-preview-container { padding: 16px 10px 40px; }
+
+  .result-topbar__right {
+    gap: 6px;
+  }
+
+  .result-btn-secondary {
+    font-size: 10px;
+    padding: 0 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .result-topbar__left {
+    gap: 6px;
+  }
+
+  .result-store-name {
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  .result-badge {
+    font-size: 9px;
+    padding: 4px 9px;
+  }
+
+  .result-btn-secondary {
+    display: none;
+  }
+
+  .result-topbar__right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .result-summary-bar {
+    padding: 10px 12px;
+    gap: 4px;
+  }
+
+  .summary-pill {
+    padding: 5px 9px;
+  }
+
+  .summary-pill__label {
+    display: none;
+  }
+
+  .result-preview-container {
+    padding: 12px 8px 32px;
+  }
+}
+
+/* ── Scrollbar ────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #060a10; }
+::-webkit-scrollbar-thumb { background: #1a2535; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #2a3a5a; }
