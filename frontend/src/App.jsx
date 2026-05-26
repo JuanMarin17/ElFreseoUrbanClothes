@@ -3,6 +3,7 @@ import { AnimatePresence } from "framer-motion";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import "./App.css";
 import "./animations.css";
+import { AuthProvider } from "./context/AuthContext";
 
 // --- IMPORTS DE ADMINISTRACIÓN ---
 import AdminLayout from "./admin/modules/administration/components/AdminLayout/AdminLayout.jsx";
