@@ -1,16 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../../../../assets/LogoVexios/banervexio.png';
 import './VexioNav.css';
 
-export default function VexioNav() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+const isAuthenticated = () => !!localStorage.getItem('jwt');
 
+const NAV_LINKS = [
+  { id: 'vx-features', label: 'Características' },
+  { id: 'vx-how',      label: 'Cómo funciona'  },
+  { id: 'vx-pricing',  label: 'Precios'         },
+  { id: 'vx-reviews',  label: 'Reseñas'         },
+  { id: 'vx-faq',      label: 'FAQ'             },
+];
+
+export default function VexioNav() {
+  const [scrolled,  setScrolled]  = useState(false);
+  const [menuOpen,  setMenuOpen]  = useState(false);
+  const [loggedIn,  setLoggedIn]  = useState(isAuthenticated);
+  const navigate = useNavigate();
+
+  // Detecta scroll
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Detecta cambios de sesión en otras pestañas
+  useEffect(() => {
+    const syncAuth = () => setLoggedIn(isAuthenticated());
+    window.addEventListener('storage', syncAuth);
+    return () => window.removeEventListener('storage', syncAuth);
+  }, []);
+
+  // Cierra el menú al cambiar de ruta / resize
+  useEffect(() => {
+    const close = () => setMenuOpen(false);
+    window.addEventListener('resize', close);
+    return () => window.removeEventListener('resize', close);
   }, []);
 
   const scrollTo = (id) => {
@@ -18,22 +45,24 @@ export default function VexioNav() {
     setMenuOpen(false);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('jwt');
+    setLoggedIn(false);
+    navigate('/');
+  };
+
   return (
     <nav className={`vx-nav${scrolled ? ' vx-nav--scrolled' : ''}`}>
       <div className="vx-nav-inner">
 
-        <div className="vx-nav-brand">
+        {/* Logo */}
+        <Link to="/" className="vx-nav-brand">
           <img src={Logo} alt="Vexio" className="vx-nav-logo-img" />
-        </div>
+        </Link>
 
+        {/* Links de sección */}
         <ul className={`vx-nav-links${menuOpen ? ' open' : ''}`}>
-          {[
-            ['vx-features',  'Características'],
-            ['vx-how',       'Cómo funciona'],
-            ['vx-pricing',   'Precios'],
-            ['vx-reviews',   'Reseñas'],
-            ['vx-faq',       'FAQ'],
-          ].map(([id, label]) => (
+          {NAV_LINKS.map(({ id, label }) => (
             <li key={id}>
               <button className="vx-nav-link" onClick={() => scrollTo(id)}>
                 {label}
@@ -42,15 +71,43 @@ export default function VexioNav() {
           ))}
         </ul>
 
+        {/* Acciones */}
         <div className="vx-nav-right">
-          <Link to="/login" className="vx-nav-login">Iniciar sesión</Link>
-          <button className="vx-nav-cta" onClick={() => scrollTo('vx-pricing')}>
-            Empezar gratis
-          </button>
+          {loggedIn ? (
+            <>
+              <button
+                className="vx-nav-login"
+                onClick={() => navigate('/market')}
+              >
+                Explorar mercado
+              </button>
+              <button className="vx-nav-cta" onClick={handleLogout}>
+                Cerrar sesión
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="vx-nav-login"
+                onClick={() => navigate('/login')}
+              >
+                Iniciar sesión
+              </button>
+              <button
+                className="vx-nav-cta"
+                onClick={() => navigate('/registro')}
+              >
+                Comenzar ahora
+              </button>
+            </>
+          )}
+
+          {/* Hamburger */}
           <button
             className={`vx-hamburger${menuOpen ? ' open' : ''}`}
             onClick={() => setMenuOpen(o => !o)}
-            aria-label="Menú"
+            aria-label="Abrir menú"
+            aria-expanded={menuOpen}
           >
             <span /><span /><span />
           </button>

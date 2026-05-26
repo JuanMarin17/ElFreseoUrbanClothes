@@ -164,22 +164,33 @@ export default function Login({ mode }) {
   };
 
   /* ─── OTP paso 2 ─── */
-  const handleVerify = async (code) => {
-    try {
-      const fn     = mode === 'login' ? verifyLoginOTP : verifyRegisterOTP;
-      const result = await fn({ email: emailForOTP, code });
-      if (result.success) {
-        const route = getRouteByRol(result.user?.rolId);
-        showToast(
-          mode === 'login' ? '¡Bienvenido de vuelta!' : '¡Cuenta creada exitosamente!',
-          'success'
-        );
-        setTimeout(() => navigate(route), 1200);
+const handleVerify = async (code) => {
+  try {
+    const fn     = mode === 'login' ? verifyLoginOTP : verifyRegisterOTP;
+    const result = await fn({ email: emailForOTP, code });
+
+    if (result.success) {
+      showToast(
+        mode === 'login' ? '¡Bienvenido de vuelta!' : '¡Cuenta creada exitosamente!',
+        'success'
+      );
+
+      const pendingPlan = sessionStorage.getItem('pendingPlan');
+      console.log('pendingPlan al hacer login:', pendingPlan);
+
+      if (pendingPlan) {
+        sessionStorage.removeItem('pendingPlan');
+        setTimeout(() => navigate('/crear-tienda/basico'), 1200);
+        return;
       }
-    } catch (err) {
-      showToast(err.message);
+
+      const route = getRouteByRol(result.user?.rolId);
+      setTimeout(() => navigate(route), 1200);
     }
-  };
+  } catch (err) {
+    showToast(err.message);
+  }
+};
 
   /* ─── Render OTP ─── */
   if (step === 'otp') {
