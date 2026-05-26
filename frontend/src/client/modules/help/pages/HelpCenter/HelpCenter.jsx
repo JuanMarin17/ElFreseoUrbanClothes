@@ -5,7 +5,6 @@ import {
   ShieldCheck, CreditCard, RefreshCcw, Package,
   Mail, MapPin, Send
 } from 'lucide-react';
-import Header from "../../../landingPage/components/Header/Header";
 import './HelpCenter.css';
 
 const HelpCenter = () => {
@@ -45,7 +44,6 @@ const HelpCenter = () => {
 
   return (
     <>
-      <Header />
       <div className="help-container">
 
         <header className="help-header">

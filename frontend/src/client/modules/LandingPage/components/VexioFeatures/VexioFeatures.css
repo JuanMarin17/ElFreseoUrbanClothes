@@ -1,0 +1,82 @@
+/* ============================================================
+   VexioFeatures.css — Cards de características
+   ============================================================ */
+
+.vx-features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* ── Card base ── */
+.vx-feat-card {
+  background: var(--vx-card);
+  border: 1px solid var(--vx-border);
+  border-radius: 16px;
+  padding: 28px 26px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .28s, transform .28s, box-shadow .28s;
+}
+
+.vx-feat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--vx-accent1), transparent);
+  opacity: 0;
+  transition: opacity .28s;
+}
+
+.vx-feat-card:hover {
+  border-color: rgba(37,99,255,.30);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(37,99,255,.08);
+}
+.vx-feat-card:hover::before { opacity: 1; }
+
+/* ── Íconos ── */
+.vx-feat-icon {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  margin-bottom: 18px;
+}
+
+.vx-feat-icon--purple,
+.vx-feat-icon--blue   { background: rgba(37,99,255,.10); border: 1px solid rgba(37,99,255,.20); }
+.vx-feat-icon--cyan   { background: rgba(59,130,246,.10); border: 1px solid rgba(59,130,246,.20); }
+.vx-feat-icon--amber  { background: rgba(234,179,8,.10);  border: 1px solid rgba(234,179,8,.20); }
+.vx-feat-icon--green  { background: rgba(34,197,94,.10);  border: 1px solid rgba(34,197,94,.20); }
+.vx-feat-icon--rose   { background: rgba(239,68,68,.10);  border: 1px solid rgba(239,68,68,.20); }
+
+/* ── Textos — usan variables de VexioLanding.css ── */
+.vx-feat-title {
+  font-family: var(--vx-font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 9px;
+  color: var(--vx-text);
+  letter-spacing: -.02em;
+}
+
+.vx-feat-desc {
+  font-size: .845rem;
+  color: var(--vx-muted);
+  line-height: 1.75;
+}
+
+/* ── Reveal ── */
+.vx-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.vx-reveal.vx-visible {
+  opacity: 1;
+  transform: translateY(0);
+}

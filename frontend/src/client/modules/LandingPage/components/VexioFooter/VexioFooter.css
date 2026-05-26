@@ -1,0 +1,85 @@
+/* ============================================================
+   VexioFooter.css
+   ============================================================ */
+
+.vx-footer {
+  background: #050505;
+  border-top: 1px solid #1A1A1A;
+  padding: 64px 6% 30px;
+  position: relative;
+  z-index: 1;
+}
+
+.vx-footer-top {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 52px;
+}
+
+/* Logo */
+.vx-footer-logo { height: 32px; width: auto; object-fit: contain; margin-bottom: 14px; display: block; }
+
+.vx-footer-tagline {
+  font-size: .83rem;
+  color: #6B7280;
+  line-height: 1.75;
+  max-width: 260px;
+  margin-bottom: 20px;
+}
+
+.vx-footer-socials { display: flex; gap: 8px; }
+.vx-footer-social {
+  width: 32px; height: 32px;
+  border-radius: 7px;
+  background: transparent;
+  border: 1px solid #2A2A2A;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem; font-weight: 700;
+  text-transform: uppercase;
+  color: #6B7280;
+  text-decoration: none;
+  transition: background .2s, border-color .2s, color .2s;
+}
+.vx-footer-social:hover {
+  background: rgba(37,99,255,.10);
+  border-color: rgba(37,99,255,.30);
+  color: #FFFFFF;
+}
+
+/* Columnas */
+.vx-footer-col-title {
+  font-family: 'Syne', sans-serif;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: #374151;
+  margin-bottom: 16px;
+}
+.vx-footer-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.vx-footer-col a { color: #6B7280; text-decoration: none; font-size: .84rem; transition: color .18s; }
+.vx-footer-col a:hover { color: #FFFFFF; }
+
+/* Bottom */
+.vx-footer-bottom {
+  padding-top: 24px;
+  border-top: 1px solid #1A1A1A;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.vx-footer-copy { font-size: .77rem; color: #374151; }
+.vx-footer-legal { display: flex; gap: 18px; }
+.vx-footer-legal a { font-size: .77rem; color: #374151; text-decoration: none; transition: color .18s; }
+.vx-footer-legal a:hover { color: #9CA3AF; }
+
+@media (max-width: 900px) {
+  .vx-footer-top { grid-template-columns: 1fr 1fr; }
+  .vx-footer-brand { grid-column: 1 / -1; }
+}
+@media (max-width: 480px) {
+  .vx-footer-top { grid-template-columns: 1fr; }
+}

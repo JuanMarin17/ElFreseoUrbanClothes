@@ -1,110 +1,119 @@
-import {
-  useState,
-  useCallback,
-  createContext,
-  useContext,
-  useEffect,
-} from "react";
-import authService, { AuthError } from "../../services/Authservice";
+﻿import { useState, createContext, useContext } from 'react';
+import authService from '../../services/Authservice';
 
-// ── Contexto ──────────────────────────────────────────────────
 const AuthContext = createContext(null);
 
+const DEFAULT_AVATAR = 'https://res.cloudinary.com/dz8vfcha2/image/upload/v1778672888/iconoPerfil_ixkd2j.png';
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [user, setUser]       = useState(() => authService.getCurrentUser());
 
-  const clearError = useCallback(() => setError(null), []);
+  const extractError = (err) =>
+    err?.response?.data?.message || err?.message || 'Ocurrió un error inesperado';
 
-  // 🔥 SINCRONIZAR USUARIO AL INICIAR APP
-  useEffect(() => {
-    const storedUser = authService.getUser();
-    setUser(storedUser);
-  }, []);
-
-  // ── Login ───────────────────────────────────────────────
-  const login = useCallback(async (credentials) => {
+  /* ── LOGIN PASO 1 ── */
+  const login = async ({ email, password }) => {
     setLoading(true);
-    setError(null);
-
     try {
-      const data = await authService.login(credentials);
-      setUser(data.user);
-
-      return { success: true, user: data.user };
+      await authService.login({ email, password });
+      return { success: true, email };
     } catch (err) {
-      const msg =
-        err instanceof AuthError ? err.message : "Error al iniciar sesión.";
-      setError({ message: msg });
-
-      return { success: false };
+      throw new Error(extractError(err));
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
-  // ── Register ────────────────────────────────────────────
-  const register = useCallback(async (info) => {
+  /* ── LOGIN PASO 2 ── */
+  const verifyLoginOTP = async ({ email, code }) => {
     setLoading(true);
-    setError(null);
-
     try {
-      const data = await authService.register(info);
-      setUser(data.user);
-
-      return { success: true, user: data.user };
+      const { user: userData } = await authService.loginSecondStep({ email, code });
+      setUser(userData);
+      return { success: true, user: userData };
     } catch (err) {
-      const msg =
-        err instanceof AuthError ? err.message : "Error al crear la cuenta.";
-      setError({ message: msg });
-
-      return { success: false };
+      throw new Error(extractError(err));
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
-  // ── Logout ──────────────────────────────────────────────
-  const logout = useCallback(async () => {
-    await authService.logout();
-    setUser(null);
-  }, []);
+  /* ── REGISTER PASO 1 ── */
+  const register = async ({ userName, email, password, phone, avatarFile }) => {
+    setLoading(true);
+    try {
+      let imageProfile = import.meta.env.VITE_DEFAULT_AVATAR || DEFAULT_AVATAR;
 
-  // 🔥 ESCUCHAR LOGOUT AUTOMÁTICO (IMPORTANTE)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const token = localStorage.getItem("freseo_access_token");
-
-      if (!token) {
-        setUser(null);
+      if (avatarFile) {
+        imageProfile = await authService.uploadAvatar(avatarFile);
       }
-    }, 1000);
 
-    return () => clearInterval(interval);
-  }, []);
+      await authService.register({ userName, email, password, phone, imageProfile });
+      return { success: true, email };
+    } catch (err) {
+      throw new Error(extractError(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ── REGISTER PASO 2 ── */
+  const verifyRegisterOTP = async ({ email, code }) => {
+    setLoading(true);
+    try {
+      const { user: userData } = await authService.registerSecondStep({ email, code });
+      setUser(userData);
+      return { success: true, user: userData };
+    } catch (err) {
+      throw new Error(extractError(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ── REENVIAR CÓDIGO ── */
+  const resendCode = async (email) => {
+    setLoading(true);
+    try {
+      const data = await authService.resendCode({ email });
+      return { success: true, message: data?.message };
+    } catch (err) {
+      throw new Error(extractError(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ── LOGOUT ── */
+  const logout = () => {
+    authService.logout();
+    setUser(null);
+  };
+
+  const value = {
+    login,
+    verifyLoginOTP,
+    register,
+    verifyRegisterOTP,
+    resendCode,
+    logout,
+    loading,
+    user,
+    isAuthenticated: !!user,
+  };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        error,
-        clearError,
-        login,
-        register,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth debe usarse dentro de <AuthProvider>");
-  return ctx;
+  return useContext(AuthContext);
 }
 
-
+export function useAuthContext() {
+  return useContext(AuthContext);
+}

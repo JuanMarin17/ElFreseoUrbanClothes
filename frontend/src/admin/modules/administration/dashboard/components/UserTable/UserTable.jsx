@@ -2,7 +2,7 @@ import React from 'react';
 import { Edit2, Slash, RotateCcw } from 'lucide-react';
 import './UserTable.css';
 
-const UserTable = ({ users }) => {
+const UserTable = ({ users, onEdit, onToggleStatus }) => {
   return (
     <div className="table-container">
       <table className="terminal-table">
@@ -16,24 +16,40 @@ const UserTable = ({ users }) => {
           </tr>
         </thead>
         <tbody>
-          {users.map((u, i) => (
-            <tr key={i}>
+          {users.map((user) => (
+            <tr key={user.id}>
               <td className="user-cell">
                 <div className="avatar-circle" />
                 <div>
-                  <p className="name">{u.name}</p>
-                  <p className="email">{u.email}</p>
+                  <p className="name">{user.name}</p>
+                  <p className="email">{user.email}</p>
                 </div>
               </td>
-              <td><span className={`role-badge ${u.role.toLowerCase()}`}>{u.role}</span></td>
-              <td><span className={`status-dot ${u.status.toLowerCase()}`}>{u.status}</span></td>
-              <td>{u.date}</td>
+              <td>
+                <span className={`role-badge ${user.role.toLowerCase()}`}>
+                  {user.role}
+                </span>
+              </td>
+              <td>
+                <span className={`status-dot ${user.status.toLowerCase()}`}>
+                  {user.status}
+                </span>
+              </td>
+              <td>{user.date}</td>
               <td className="actions-cell">
-                <button title="Editar"><Edit2 size={16} /></button>
-                {u.status === 'BANEADO' ? 
-                  <button className="green" title="Restaurar"><RotateCcw size={16}/></button> : 
-                  <button title="Banear"><Slash size={16}/></button>
-                }
+                {/* BOTÓN EDITAR: Llama a la función onEdit pasando el objeto del usuario */}
+                <button onClick={() => onEdit(user)} title="Editar">
+                  <Edit2 size={16} />
+                </button>
+                
+                {/* BOTÓN SUSPENDER/ACTIVAR: Llama a onToggleStatus con el ID */}
+                <button 
+                  onClick={() => onToggleStatus(user.id)} 
+                  className={user.status === 'BANEADO' ? 'green' : ''}
+                  title={user.status === 'BANEADO' ? 'Activar' : 'Suspender'}
+                >
+                  {user.status === 'BANEADO' ? <RotateCcw size={16}/> : <Slash size={16}/>}
+                </button>
               </td>
             </tr>
           ))}

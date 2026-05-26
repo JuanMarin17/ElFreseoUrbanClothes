@@ -8,31 +8,36 @@ import "./animations.css";
 import AdminLayout from "./admin/modules/administration/components/AdminLayout/AdminLayout.jsx";
 import Dashboard from "./admin/modules/administration/dashboard/Dashboard.jsx";
 import UploadProduct from "./admin/modules/administration/pages/UploadProduct/UploadProduct.jsx";
-import Login from "./admin/modules/auth/pages/Login/Login.jsx";
 import InventaryStock from "./admin/modules/administration/pages/Inventary/InventaryStock.jsx";
 
-// --- IMPORTS DE CLIENTE ---
-import LandingPage from "./client/modules/landingPage/LandingPage.jsx";
-import LoadingScreen from "./client/modules/landingPage/LoadingScreen/LoadingScreen.jsx";
-import HelpCenter from "./client/modules/help/pages/HelpCenter/HelpCenter.jsx";
-import MainPage from "./client/modules/MainPage/pages/MainPage/MainPage.jsx";
+// // --- IMPORTS DE CLIENTE ---
+// import LandingPage from "./client/modules/landingPage/LandingPage.jsx";
+// import LoadingScreen from "./client/modules/landingPage/LoadingScreen/LoadingScreen.jsx";
+// import MainPage from "./client/modules/MainPage/pages/MainPage/MainPage.jsx";
 
-// eslint-disable-next-line no-unused-vars
+/* ─── Auth ─── */
+import Login from './admin/modules/auth/pages/Login/Login.jsx';
+import ForgotPassword from './admin/modules/auth/pages/ForgotPassword/ForgotPassword.jsx';
+import NewPassword from './admin/modules/auth/pages/NewPassword.jsx';
+import VerificationPage from './admin/modules/auth/pages/VerificationPage.jsx';
+import VerifyCode from './admin/modules/auth/pages/VerifyCode/VerifyCode.jsx';
 
-import DetailsProduct from "./client/modules/MainPage/components/ProductDetail/ProductDetail.jsx";
+/* ─── Cliente ─── */
+import VexioLanding from './client/modules/landingPage/pages/VexioLanding/VexioLanding.jsx';
+import HelpCenter from './client/modules/help/pages/HelpCenter/HelpCenter.jsx';
+import SessionClosed from './client/modules/MainPage/pages/SessionClosed.jsx';
 
-// --- HOOKS Y PROVIDERS ---
-import { useScrollAnimation } from "./hooks/UsescrollAnimation.jsx";
-import { AuthProvider } from "./admin/modules/auth/pages/hook/Useauth.jsx";
-import NewPassword from "./admin/modules/auth/pages/NewPassword.jsx";
-import VerificationPage from "./admin/modules/auth/pages/VerificationPage.jsx";
-import SessionClosed from "./client/modules/MainPage/pages/SessionClosed.jsx";
+/* ─── Vexio Market (Nueva Vista Principal) ─── */
+import MarketPage from './client/modules/MarketPage/Pages/MarketPage/MarketPage.jsx';
+
+/* ─── Account ─── */
+import AccountPage from './client/modules/account/pages/AccountPage/AccountPage.jsx';
 
 // // --- IMPORTS MULTI-TENANT ---
 // import CreateStore from "../multi-tenant/pages/CreateStore.jsx";
 
 // --- IMPORTAR LA PÁGINA DEL CARRITO ---
-import Cart from "./client/modules/landingPage/Cart/pages/Cart.jsx";
+// import Cart from "./client/modules/landingPage/Cart/pages/Cart.jsx";
 // --- MULTI-TENANT ---
 import CreateStore from "./multi-tenant/pages/CreateStore.jsx";
 import StepBasicPage from "./multi-tenant/pages/StepBasicPage.jsx";
@@ -51,11 +56,12 @@ import MyStore from "./multi-tenant/pages/MyStore.jsx";
 import ProtectedStep from "./multi-tenant/components/ProtectStep.jsx";
 import { StoreProvider } from "./multi-tenant/pages/StoreContext.jsx";
 import StoreResult from "./multi-tenant/pages/StoreResult.jsx";
+import { AuthProvider } from "./admin/modules/auth/pages/hook/Useauth.jsx";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  useScrollAnimation();
+  // useScrollAnimation();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -69,25 +75,23 @@ function App() {
       <StoreProvider>
         <div className="main-container">
           <AnimatePresence mode="wait">
-            {isLoading ? (
-              <LoadingScreen key="loading" />
-            ) : (
               <Routes key="main-content">
                 {/* --- RUTAS PÚBLICAS CLIENTE --- */}
                 <Route
                   path="/"
                   element={
                     <div className="ayuda">
-                      <LandingPage />
+                      <VexioLanding />
                     </div>
                   }
                 />
-                <Route path="/landing" element={<LandingPage />} />
-                {/* Ruta para visualizar el carrito de compras */}
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/catalogo" element={<MainPage />} />
 
-                <Route path="/plan" element={<SelectPlan />} />
+                <Route path="/landing" element={<VexioLanding />} />
+                {/* Ruta para visualizar el carrito de compras */}
+                {/* <Route path="/cart" element={<Cart />} /> */}
+                <Route path="/catalogo" element={<MarketPage />} />
+
+                <Route path="/plan" element={<SelectPlan showComponents={true} />} />
 
                 {/* Paso 2a – Información básica */}
                 <Route
@@ -235,7 +239,6 @@ function App() {
                 {/* Redirección para rutas no encontradas */}
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
-            )}
           </AnimatePresence>
         </div>
       </StoreProvider>

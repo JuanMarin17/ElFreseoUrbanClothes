@@ -1,0 +1,148 @@
+/* ============================================================
+   VexioNav.css — Navbar dark modern / SaaS premium
+   Fuente: Bricolage Grotesque + Plus Jakarta Sans
+   ============================================================ */
+
+.vx-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 0 6%;
+  display: flex;
+  align-items: center;
+  height: 60px;
+  background: rgba(10,10,10, 0.70);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid transparent;
+  transition: background .3s, border-color .3s, box-shadow .3s;
+}
+
+.vx-nav--scrolled {
+  background: rgba(10,10,10, 0.97);
+  border-bottom-color: #2A2A2A;
+  box-shadow: 0 1px 0 0 #1A1A1A;
+}
+
+.vx-nav-inner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+/* ── Logo ── */
+.vx-nav-brand { display: flex; align-items: center; }
+.vx-nav-logo-img { height: 9vh; width: 13vw; object-fit: contain; }
+
+/* ── Links de navegación ── */
+.vx-nav-links {
+  display: flex;
+  gap: 0;
+  list-style: none;
+  margin: 0; padding: 0;
+}
+
+.vx-nav-link {
+  background: none;
+  border: none;
+  color: var(--vx-muted);
+  font-family: var(--vx-font-body);
+  font-size: .84rem;
+  font-weight: 500;
+  padding: 6px 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color .18s, background .18s;
+  letter-spacing: .01em;
+}
+.vx-nav-link:hover {
+  color: var(--vx-text);
+  background: rgba(255,255,255,.05);
+}
+
+/* ── Derecha: login + CTA ── */
+.vx-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Login */
+.vx-nav-login {
+  color: var(--vx-muted);
+  text-decoration: none;
+  font-family: var(--vx-font-body);
+  font-size: .84rem;
+  font-weight: 500;
+  padding: 7px 13px;
+  border-radius: 6px;
+  transition: color .18s, background .18s;
+}
+.vx-nav-login:hover {
+  color: var(--vx-text);
+  background: rgba(255,255,255,.05);
+}
+
+/* CTA — azul eléctrico compacto */
+.vx-nav-cta {
+  background: var(--vx-accent1);
+  border: none;
+  color: #FFFFFF;
+  padding: 8px 18px;
+  border-radius: 7px;
+  font-family: var(--vx-font-body);
+  font-weight: 600;
+  font-size: .82rem;
+  cursor: pointer;
+  letter-spacing: .01em;
+  transition: background .2s, box-shadow .2s, transform .15s;
+  box-shadow: none;
+  white-space: nowrap;
+}
+.vx-nav-cta:hover {
+  background: var(--vx-accent1-hov);
+  box-shadow: 0 2px 14px var(--vx-accent1-glow);
+  transform: translateY(-1px);
+}
+.vx-nav-cta:active { transform: translateY(0); box-shadow: none; }
+
+/* ── Hamburguesa móvil ── */
+.vx-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+}
+.vx-hamburger span {
+  display: block;
+  width: 20px; height: 1.5px;
+  background: var(--vx-muted);
+  border-radius: 2px;
+  transition: transform .28s, opacity .28s;
+}
+.vx-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.vx-hamburger.open span:nth-child(2) { opacity: 0; }
+.vx-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .vx-nav-links {
+    position: fixed;
+    top: 60px; left: 0; right: 0;
+    flex-direction: column;
+    background: #0A0A0A;
+    border-bottom: 1px solid var(--vx-border);
+    padding: 12px 6%;
+    display: none;
+    gap: 2px;
+  }
+  .vx-nav-links.open { display: flex; }
+  .vx-nav-link { text-align: left; width: 100%; padding: 11px 13px; font-size: .92rem; }
+  .vx-hamburger { display: flex; }
+  .vx-nav-login { display: none; }
+}

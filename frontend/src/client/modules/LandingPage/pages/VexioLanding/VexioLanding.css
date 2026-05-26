@@ -1,0 +1,242 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap');
+
+/* ============================================================
+   VEXIO LANDING — Design System v2
+   Dark Modern / Futurista Premium — Enfoque en el COMPRADOR
+   Paleta: Negro profundo + Azul eléctrico principal
+   Tipografía: Bricolage Grotesque (display) + Plus Jakarta Sans (body)
+   ============================================================ */
+.vx-landing {
+  /* ── Fondos ── */
+  --vx-bg:           #0A0A0A;
+  --vx-bg2:          #111111;
+  --vx-card:         #181818;
+  --vx-card2:        #1E1E1E;
+
+  /* ── Bordes ── */
+  --vx-border:       #2A2A2A;
+  --vx-border2:      #333333;
+
+  /* ── Azul eléctrico — COLOR PRINCIPAL ── */
+  --vx-accent1:      #2563FF;
+  --vx-accent1-hov:  #3B82F6;
+  --vx-accent1-dim:  rgba(37, 99, 255, 0.10);
+  --vx-accent1-mid:  rgba(37, 99, 255, 0.22);
+  --vx-accent1-glow: rgba(37, 99, 255, 0.38);
+
+  /* ── Apoyo puntual ── */
+  --vx-green:        #22C55E;
+  --vx-amber:        #EAB308;
+
+  /* ── Texto ── */
+  --vx-text:         #FFFFFF;
+  --vx-muted:        #9CA3AF;
+  --vx-muted2:       rgba(156, 163, 175, 0.50);
+
+  /* ── Tipografía v2 ── */
+  --vx-font-display: 'Bricolage Grotesque', sans-serif;
+  --vx-font-body:    'Plus Jakarta Sans', sans-serif;
+
+  background:  var(--vx-bg);
+  color:       var(--vx-text);
+  font-family: var(--vx-font-body);
+  overflow-x:  hidden;
+  line-height: 1.6;
+  position:    relative;
+}
+
+/* Textura noise muy sutil */
+.vx-landing::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+/* Scrollbar */
+.vx-landing ::-webkit-scrollbar       { width: 4px; }
+.vx-landing ::-webkit-scrollbar-track { background: var(--vx-bg2); }
+.vx-landing ::-webkit-scrollbar-thumb { background: var(--vx-accent1-mid); border-radius: 99px; }
+
+/* ── Secciones ── */
+.vx-section        { padding: 100px 6%; position: relative; }
+.vx-section--dark  { background: var(--vx-bg); }
+.vx-section--dark2 { background: var(--vx-bg2); }
+
+/* ── Encabezados de sección ── */
+.vx-section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--vx-accent1);
+  margin-bottom: 14px;
+}
+.vx-section-label::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 1px;
+  background: var(--vx-accent1);
+  opacity: .7;
+}
+
+.vx-section-title {
+  font-family: var(--vx-font-display);
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.08;
+  margin-bottom: 16px;
+  letter-spacing: -.03em;
+  color: var(--vx-text);
+}
+
+.vx-section-sub {
+  font-size: .97rem;
+  color: var(--vx-muted);
+  max-width: 520px;
+  font-weight: 300;
+  line-height: 1.75;
+}
+
+.vx-section-head         { margin-bottom: 60px; }
+.vx-section-head--center { text-align: center; }
+.vx-section-head--center .vx-section-label,
+.vx-section-head--center .vx-section-sub { margin-left: auto; margin-right: auto; }
+.vx-section-head--center .vx-section-label { justify-content: center; }
+
+/* ══════════════════════════════════════
+   BOTONES — Compactos, jerarquía clara
+   ══════════════════════════════════════ */
+
+/* Primario — azul eléctrico sólido */
+.vx-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--vx-accent1);
+  border: none;
+  color: #FFFFFF;
+  padding: 10px 22px;
+  border-radius: 7px;
+  font-family: var(--vx-font-body);
+  font-weight: 600;
+  font-size: 0.84rem;
+  cursor: pointer;
+  letter-spacing: .01em;
+  transition: background .2s, transform .18s, box-shadow .2s;
+  box-shadow: none;
+  white-space: nowrap;
+}
+.vx-btn-primary:hover {
+  background: var(--vx-accent1-hov);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 18px var(--vx-accent1-glow);
+}
+.vx-btn-primary:active { transform: translateY(0); box-shadow: none; }
+
+/* Ghost — borde sutil, hover azul */
+.vx-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: 1px solid var(--vx-border2);
+  color: var(--vx-muted);
+  padding: 10px 22px;
+  border-radius: 7px;
+  font-family: var(--vx-font-body);
+  font-weight: 500;
+  font-size: 0.84rem;
+  cursor: pointer;
+  transition: border-color .2s, color .2s, background .2s;
+  white-space: nowrap;
+}
+.vx-btn-ghost:hover {
+  border-color: var(--vx-accent1);
+  color: var(--vx-accent1);
+  background: var(--vx-accent1-dim);
+}
+
+/* ── Skeleton ── */
+.vx-skeleton {
+  background: linear-gradient(90deg, var(--vx-card) 25%, var(--vx-card2) 50%, var(--vx-card) 75%);
+  background-size: 200% 100%;
+  animation: vx-shimmer 1.4s infinite;
+  border-radius: 10px;
+}
+@keyframes vx-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes vx-fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Reveal global ── */
+.vx-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.vx-reveal.vx-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── CTA Section ── */
+.vx-cta-section { padding: 80px 6%; background: var(--vx-bg); }
+.vx-cta-inner {
+  background: linear-gradient(135deg, rgba(37,99,255,.07) 0%, transparent 100%);
+  border: 1px solid rgba(37,99,255,.2);
+  border-radius: 20px;
+  padding: 72px 48px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.vx-cta-orb {
+  position: absolute;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(37,99,255,.10), transparent 65%);
+  top: -150px; right: -100px;
+  pointer-events: none;
+  border-radius: 50%;
+}
+.vx-cta-title {
+  font-family: var(--vx-font-display);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 800;
+  margin-bottom: 14px;
+  position: relative; z-index: 1;
+  letter-spacing: -.03em;
+}
+.vx-cta-sub {
+  color: var(--vx-muted);
+  margin-bottom: 36px;
+  font-size: .97rem;
+  position: relative; z-index: 1;
+}
+.vx-cta-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative; z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .vx-section     { padding: 70px 5%; }
+  .vx-cta-inner   { padding: 40px 24px; }
+  .vx-cta-actions { flex-direction: column; align-items: stretch; }
+  .vx-cta-actions .vx-btn-primary,
+  .vx-cta-actions .vx-btn-ghost   { justify-content: center; width: 100%; }
+}

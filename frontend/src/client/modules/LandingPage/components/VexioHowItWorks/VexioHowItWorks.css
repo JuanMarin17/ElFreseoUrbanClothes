@@ -1,0 +1,150 @@
+/* ============================================================
+   VexioHowItWorks.css — Cómo funciona con tabs comprador/vendedor
+   ============================================================ */
+
+/* ── Tabs ── */
+.vx-how-tabs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 64px;
+  background: var(--vx-card);
+  border: 1px solid var(--vx-border);
+  border-radius: 10px;
+  padding: 5px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.vx-how-tab {
+  background: transparent;
+  border: none;
+  color: var(--vx-muted);
+  font-family: var(--vx-font-body);
+  font-size: .84rem;
+  font-weight: 500;
+  padding: 9px 22px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+  white-space: nowrap;
+}
+.vx-how-tab:hover {
+  color: var(--vx-text);
+  background: rgba(255,255,255,.04);
+}
+.vx-how-tab.active {
+  background: var(--vx-accent1);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+/* ── Steps grid ── */
+.vx-how-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  position: relative;
+}
+
+/* Línea conectora */
+.vx-how-line {
+  position: absolute;
+  top: 44px;
+  left: 12%; right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #2563FF 30%, #2563FF 70%, transparent);
+  opacity: .18;
+  pointer-events: none;
+}
+
+.vx-how-step {
+  text-align: center;
+  padding: 20px 14px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Número / ícono */
+.vx-how-num {
+  width: 72px; height: 72px;
+  border-radius: 14px;
+  background: var(--vx-card);
+  border: 1px solid var(--vx-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 22px;
+  transition: border-color .28s, box-shadow .28s, background .28s;
+  position: relative;
+}
+
+.vx-how-num-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* Badge numérico en esquina */
+.vx-how-num-badge {
+  position: absolute;
+  top: -8px; right: -8px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--vx-accent1);
+  color: #fff;
+  font-family: var(--vx-font-display);
+  font-size: .6rem;
+  font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--vx-bg);
+}
+
+.vx-how-step:hover .vx-how-num {
+  border-color: rgba(37,99,255,.4);
+  background: rgba(37,99,255,.06);
+  box-shadow: 0 0 24px rgba(37,99,255,.15);
+}
+
+.vx-how-title {
+  font-family: var(--vx-font-display);
+  font-size: .95rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--vx-text);
+  letter-spacing: -.02em;
+}
+
+.vx-how-desc {
+  font-size: .83rem;
+  color: var(--vx-muted);
+  line-height: 1.75;
+}
+
+/* ── CTA contextual ── */
+.vx-how-cta {
+  text-align: center;
+  margin-top: 48px;
+}
+
+/* ── Reveal ── */
+.vx-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.vx-reveal.vx-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .vx-how-steps { grid-template-columns: repeat(2, 1fr); }
+  .vx-how-line  { display: none; }
+  .vx-how-tabs  { width: 100%; }
+  .vx-how-tab   { flex: 1; text-align: center; font-size: .8rem; padding: 9px 12px; }
+}
+@media (max-width: 480px) {
+  .vx-how-steps { grid-template-columns: 1fr; }
+}

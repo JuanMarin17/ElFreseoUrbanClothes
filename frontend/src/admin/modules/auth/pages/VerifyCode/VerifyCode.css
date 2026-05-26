@@ -1,0 +1,34 @@
+/* ─── OTP inputs verificación código ─── */
+.vc-otp-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.vc-otp-input {
+  width: 48px;
+  height: 56px;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: 'Rajdhani', sans-serif;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  color: #e8e8f0;
+  outline: none;
+  transition: all 0.2s;
+  caret-color: #4f6ef7;
+}
+
+.vc-otp-input:focus {
+  border-color: #4f6ef7;
+  background: rgba(79,110,247,0.06);
+  box-shadow: 0 0 0 4px rgba(79,110,247,0.1);
+}
+
+.vc-otp-input--filled {
+  border-color: rgba(79,110,247,0.4);
+  background: rgba(79,110,247,0.05);
+}
