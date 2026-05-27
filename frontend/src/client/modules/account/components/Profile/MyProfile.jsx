@@ -77,10 +77,10 @@ export default function MyProfile({ onNavigate }) {
   if (loading) {
     return (
       <div className="profile-section">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#444' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#fffdfd' }}>
           <Loader2 size={20} className="spin" />
           <span style={{ fontSize: '0.8rem', fontWeight: 800, letterSpacing: 2 }}>
-            CARGANDO_DATOS...
+            CARGANDO DATOS...
           </span>
         </div>
       </div>
@@ -133,7 +133,7 @@ export default function MyProfile({ onNavigate }) {
           <div className="form-group-row">
 
             <div className="field-box">
-              <label><User size={14} /> USER_NAME</label>
+              <label><User size={14} /> USER NAME</label>
               <input
                 name="userName"
                 value={form.userName}
@@ -143,7 +143,7 @@ export default function MyProfile({ onNavigate }) {
             </div>
 
             <div className="field-box">
-              <label><Mail size={14} /> EMAIL_ADDRESS</label>
+              <label><Mail size={14} /> EMAIL</label>
               <input
                 name="email"
                 value={form.userEmail}
@@ -154,7 +154,7 @@ export default function MyProfile({ onNavigate }) {
             </div>
 
             <div className="field-box">
-              <label><Phone size={14} /> PHONE_LINK</label>
+              <label><Phone size={14} /> TELEFONO</label>
               <input
                 name="phone"
                 value={form.phone}

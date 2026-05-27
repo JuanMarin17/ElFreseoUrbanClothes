@@ -20,7 +20,6 @@ html, body {
   display: flex;
   flex: 1; /* Ocupa el resto del espacio después del Header */
   width: 100%;
-  padding-top: 70px; /* Ajusta según el alto de tu Header real */
   overflow: hidden; /* Mantiene el sidebar y contenido en su sitio */
 }
 
