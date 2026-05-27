@@ -16,7 +16,7 @@ import { ROLES } from "../context/AuthContext"; // ajusta la ruta según tu estr
 // ─── Sub-vistas por rol ────────────────────────────────────────────────────────
 
 /** SUPERADMIN: todo visible incluyendo ID interno */
-const SuperAdminCard = ({ store, onClick }) => (
+const SuperAdminCard = ({ store, onClick, logoUrl, bannerUrl }) => (
   <div
     className="store-card"
     onClick={onClick}
@@ -24,8 +24,27 @@ const SuperAdminCard = ({ store, onClick }) => (
   >
     <div
       className="store-img"
-      style={{ backgroundImage: `url(https://via.placeholder.com/150)` }}
-    />
+      style={{
+        backgroundImage: `url(${bannerUrl || "https://via.placeholder.com/150"})`,
+      }}
+    >
+      {logoUrl && (
+        <img
+          src={logoUrl}
+          alt="Logo"
+          className="store-logo"
+          style={{
+            maxWidth: 40,
+            maxHeight: 40,
+            borderRadius: "50%",
+            position: "absolute",
+            top: 8,
+            left: 8,
+            background: "#fff",
+          }}
+        />
+      )}
+    </div>
     <div className="store-info">
       <h3>{store.name}</h3>
       <p className="store-url">{store.slug}.freseo.com</p>
@@ -43,7 +62,7 @@ const SuperAdminCard = ({ store, onClick }) => (
 );
 
 /** OWNER: nombre, slug, descripción y estado — sin ID interno */
-const OwnerCard = ({ store, onClick }) => (
+const OwnerCard = ({ store, onClick, logoUrl, bannerUrl }) => (
   <div
     className="store-card"
     onClick={onClick}
@@ -51,8 +70,27 @@ const OwnerCard = ({ store, onClick }) => (
   >
     <div
       className="store-img"
-      style={{ backgroundImage: `url(https://via.placeholder.com/150)` }}
-    />
+      style={{
+        backgroundImage: `url(${bannerUrl || "https://via.placeholder.com/150"})`,
+      }}
+    >
+      {logoUrl && (
+        <img
+          src={logoUrl}
+          alt="Logo"
+          className="store-logo"
+          style={{
+            maxWidth: 40,
+            maxHeight: 40,
+            borderRadius: "50%",
+            position: "absolute",
+            top: 8,
+            left: 8,
+            background: "#fff",
+          }}
+        />
+      )}
+    </div>
     <div className="store-info">
       <h3>{store.name}</h3>
       <p className="store-url">{store.slug}.freseo.com</p>
@@ -65,7 +103,7 @@ const OwnerCard = ({ store, onClick }) => (
 );
 
 /** ADMIN: nombre, slug y descripción — sin estado técnico */
-const AdminCard = ({ store, onClick }) => (
+const AdminCard = ({ store, onClick, logoUrl, bannerUrl }) => (
   <div
     className="store-card"
     onClick={onClick}
@@ -73,8 +111,27 @@ const AdminCard = ({ store, onClick }) => (
   >
     <div
       className="store-img"
-      style={{ backgroundImage: `url(https://via.placeholder.com/150)` }}
-    />
+      style={{
+        backgroundImage: `url(${bannerUrl || "https://via.placeholder.com/150"})`,
+      }}
+    >
+      {logoUrl && (
+        <img
+          src={logoUrl}
+          alt="Logo"
+          className="store-logo"
+          style={{
+            maxWidth: 40,
+            maxHeight: 40,
+            borderRadius: "50%",
+            position: "absolute",
+            top: 8,
+            left: 8,
+            background: "#fff",
+          }}
+        />
+      )}
+    </div>
     <div className="store-info">
       <h3>{store.name}</h3>
       <p className="store-url">{store.slug}.freseo.com</p>
@@ -84,12 +141,31 @@ const AdminCard = ({ store, onClick }) => (
 );
 
 /** STAFF: solo nombre y URL — solo lectura, sin onClick */
-const StaffCard = ({ store }) => (
+const StaffCard = ({ store, logoUrl, bannerUrl }) => (
   <div className="store-card store-card--readonly">
     <div
       className="store-img"
-      style={{ backgroundImage: `url(https://via.placeholder.com/150)` }}
-    />
+      style={{
+        backgroundImage: `url(${bannerUrl || "https://via.placeholder.com/150"})`,
+      }}
+    >
+      {logoUrl && (
+        <img
+          src={logoUrl}
+          alt="Logo"
+          className="store-logo"
+          style={{
+            maxWidth: 40,
+            maxHeight: 40,
+            borderRadius: "50%",
+            position: "absolute",
+            top: 8,
+            left: 8,
+            background: "#fff",
+          }}
+        />
+      )}
+    </div>
     <div className="store-info">
       <h3>{store.name}</h3>
       <p className="store-url">{store.slug}.freseo.com</p>
@@ -103,19 +179,43 @@ const StaffCard = ({ store }) => (
 /**
  * @param {{ store: object, role: string, onClick?: () => void }} props
  */
-const StoreCard = ({ store, role, onClick }) => {
+const StoreCard = ({ store, role, onClick, logoUrl, bannerUrl }) => {
   switch (role) {
     case ROLES.SUPERADMIN:
-      return <SuperAdminCard store={store} onClick={onClick} />;
+      return (
+        <SuperAdminCard
+          store={store}
+          onClick={onClick}
+          logoUrl={logoUrl}
+          bannerUrl={bannerUrl}
+        />
+      );
     case ROLES.OWNER:
-      return <OwnerCard store={store} onClick={onClick} />;
+      return (
+        <OwnerCard
+          store={store}
+          onClick={onClick}
+          logoUrl={logoUrl}
+          bannerUrl={bannerUrl}
+        />
+      );
     case ROLES.ADMIN:
-      return <AdminCard store={store} onClick={onClick} />;
+      return (
+        <AdminCard
+          store={store}
+          onClick={onClick}
+          logoUrl={logoUrl}
+          bannerUrl={bannerUrl}
+        />
+      );
     case ROLES.STAFF:
-      return <StaffCard store={store} />;
+      return (
+        <StaffCard store={store} logoUrl={logoUrl} bannerUrl={bannerUrl} />
+      );
     default:
-      // Rol desconocido → vista más restrictiva por seguridad
-      return <StaffCard store={store} />;
+      return (
+        <StaffCard store={store} logoUrl={logoUrl} bannerUrl={bannerUrl} />
+      );
   }
 };
 

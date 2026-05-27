@@ -1,13 +1,14 @@
 /**
- * ComponentCustomizer.jsx  ← REEMPLAZA multi-tenant/components/ComponentCustomizer.jsx
+ * ComponentCustomizer.jsx
  *
  * Paso 5 – Componentes (header, banner, footer)
  * Path: /component
  *
- * Cambios vs original:
- *  ✅ Lee state.components al montar → pre-carga lo que el usuario puso antes
- *  ✅ handleBack: guarda con saveProgress(5) y vuelve a /customer
- *  ✅ handleFinish: guarda con completeStep(5) y navega a /resultado
+ * ✅ image del banner es string (URL Cloudinary) — compatible con BannerSettingsDTO
+ * ✅ addBannerImage sin duplicados, sube a Cloudinary y guarda secure_url
+ * ✅ handleBack guarda con saveProgress(5) y vuelve a /customer
+ * ✅ handleSave guarda con completeStep(5) y navega a /widgets
+ * ✅ Pre-carga state.components al montar
  */
 
 import React, { useState } from "react";
@@ -43,7 +44,7 @@ const ComponentCustomizer = () => {
         size: 60,
         color: "#ffffff",
         bg: "#111111",
-        images: [],
+        image: "", // ✅ string simple — igual que BannerSettingsDTO
       },
       footer: {
         text: `© ${state.store?.name ?? "Mi Tienda"} 2026`,
@@ -54,6 +55,7 @@ const ComponentCustomizer = () => {
       },
     },
   );
+
   const cleanFont = (f = "Inter") => {
     const match = f.match(/['"]([^'"]+)['"]/);
     return match ? match[1] : f;
@@ -76,10 +78,8 @@ const ComponentCustomizer = () => {
 
   const productoDesc = styles.textoCuerpo ?? "Streetwear essentials.";
 
-  // ── layoutClass debe declararse ANTES de usarse ─────────────────────
   const layoutClass = layout.id ?? "minimalista";
 
-  // ── Colores derivados de los estilos guardados ──────────────────────
   const accentColor = styles.colorBoton ?? "#8b3cf7";
   const titleColor =
     layoutClass === "urbano"
@@ -110,33 +110,26 @@ const ComponentCustomizer = () => {
     updateSection("items", newItems);
   };
 
-  const addBannerImage = (e) => {
+  // ✅ Una sola función, limpia — sube a Cloudinary y guarda URL como string
+  const addBannerImage = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Convertir a base64 para que persista en localStorage y entre navegaciones
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      updateSection("images", [
-        ...design.banner.images,
-        {
-          id: Date.now(),
-          url: ev.target.result,   // base64 — persiste siempre
-          width: 300,
-          radius: 20,
-        },
-      ]);
-    };
-    reader.readAsDataURL(file);
-  };
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "preset"); // ⚠️ CAMBIAR
 
-  const updateImgStyle = (id, field, value) => {
-    updateSection(
-      "images",
-      design.banner.images.map((img) =>
-        img.id === id ? { ...img, [field]: value } : img,
-      ),
-    );
+    try {
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/dcwyyoe7c/image/upload", // ⚠️ CAMBIAR
+        { method: "POST", body: formData },
+      );
+      const data = await res.json();
+      // ✅ Guarda solo la URL como string — compatible con BannerSettingsDTO.image
+      updateSection("image", data.secure_url);
+    } catch (error) {
+      console.error("Error subiendo imagen a Cloudinary:", error);
+    }
   };
 
   const getStyle = (comp) => ({
@@ -147,15 +140,14 @@ const ComponentCustomizer = () => {
     transition: "0.3s ease",
   });
 
-  // ← Guarda lo que lleva y vuelve al paso 4
+  // ← Guarda el progreso y vuelve al paso 4
   const handleBack = () => {
     saveProgress(5, design);
     navigate("/customer");
   };
 
-  // ✓ Guarda y va a la pantalla de widgets
+  // ✓ Guarda y navega al siguiente paso
   const handleSave = () => {
-    // Las imágenes ya son base64 — se serializan correctamente en localStorage
     completeStep(5, design);
     navigate("/widgets");
   };
@@ -165,7 +157,6 @@ const ComponentCustomizer = () => {
       {!isFullscreen && (
         <>
           <header className="admin-nav">
-            {/* ← Vuelve al paso anterior guardando el progreso */}
             <button
               onClick={handleBack}
               className="btn-back-arrow"
@@ -199,6 +190,7 @@ const ComponentCustomizer = () => {
                   VISTA FINAL
                 </button>
               </div>
+
               <div className="comp-nav-bottom">
                 {["HEADER", "BANNER", "FOOTER"].map((c) => (
                   <button
@@ -210,6 +202,7 @@ const ComponentCustomizer = () => {
                   </button>
                 ))}
               </div>
+
               <div className="scroll-fields-container">
                 {/* 1. TEXTO PRINCIPAL */}
                 <div className="field-group">
@@ -237,7 +230,7 @@ const ComponentCustomizer = () => {
                   />
                 </div>
 
-                {/* 2. ITEMS DEL MENÚ (HEADER) */}
+                {/* 2. ITEMS DEL MENÚ — solo en HEADER */}
                 {activeComponent === "HEADER" && (
                   <div className="field-group">
                     <label>Items del Menú</label>
@@ -282,66 +275,45 @@ const ComponentCustomizer = () => {
                   </div>
                 )}
 
-                {/* 3. GALERÍA (BANNER) */}
+                {/* 3. IMAGEN DEL BANNER — solo en BANNER */}
                 {activeComponent === "BANNER" && (
                   <div className="field-group">
-                    <label>Galería de Imágenes</label>
+                    <label>Imagen del Banner</label>
                     <input
                       type="file"
                       id="banner-up"
                       hidden
+                      accept="image/*"
                       onChange={addBannerImage}
                     />
                     <label htmlFor="banner-up" className="btn-add-media">
                       + Cargar Imagen
                     </label>
-                    <div className="images-controls-list">
-                      {design.banner.images.map((img) => (
-                        <div key={img.id} className="img-control-card">
-                          <div className="img-control-header">
-                            <span>Imagen Activa</span>
-                            <button
-                              onClick={() =>
-                                updateSection(
-                                  "images",
-                                  design.banner.images.filter(
-                                    (i) => i.id !== img.id,
-                                  ),
-                                )
-                              }
-                            >
-                              Eliminar
-                            </button>
-                          </div>
-                          <div className="control-row">
-                            <label>Ancho: {img.width}px</label>
-                            <input
-                              type="range"
-                              min="50"
-                              max="800"
-                              value={img.width}
-                              onChange={(e) =>
-                                updateImgStyle(img.id, "width", e.target.value)
-                              }
-                              className="f-range"
-                            />
-                          </div>
-                          <div className="control-row">
-                            <label>Borde: {img.radius}px</label>
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              value={img.radius}
-                              onChange={(e) =>
-                                updateImgStyle(img.id, "radius", e.target.value)
-                              }
-                              className="f-range"
-                            />
-                          </div>
+
+                    {/* Vista previa de la imagen activa */}
+                    {design.banner.image && (
+                      <div className="img-control-card">
+                        <div className="img-control-header">
+                          <span>Imagen activa</span>
+                          <button
+                            onClick={() => updateSection("image", "")}
+                          >
+                            Eliminar
+                          </button>
                         </div>
-                      ))}
-                    </div>
+                        <img
+                          src={design.banner.image}
+                          alt="banner preview"
+                          style={{
+                            width: "100%",
+                            borderRadius: 8,
+                            marginTop: 8,
+                            objectFit: "cover",
+                            maxHeight: 160,
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -358,7 +330,11 @@ const ComponentCustomizer = () => {
                     ].map((f) => (
                       <button
                         key={f}
-                        className={`f-tag ${design[activeComponent.toLowerCase()].font === f ? "active" : ""}`}
+                        className={`f-tag ${
+                          design[activeComponent.toLowerCase()].font === f
+                            ? "active"
+                            : ""
+                        }`}
                         onClick={() => updateSection("font", f)}
                       >
                         {f}
@@ -367,7 +343,7 @@ const ComponentCustomizer = () => {
                   </div>
                 </div>
 
-                {/* 5. COLORES */}
+                {/* 5. COLORES DE TEXTO Y FONDO */}
                 <div className="field-group">
                   <label>Paleta de Colores</label>
                   <div className="color-row">
@@ -390,7 +366,7 @@ const ComponentCustomizer = () => {
                   </div>
                 </div>
 
-                {/* 5.1. COLORES DE BORDE */}
+                {/* 5.1. COLORES DE BORDE DE LA CARTA */}
                 <div className="field-group">
                   <label>Colores del borde de la carta</label>
                   <div className="color-row">
@@ -398,13 +374,13 @@ const ComponentCustomizer = () => {
                       <input
                         type="color"
                         value={styles.cardBorderColor1 ?? "#8b3cf7"}
-                        onChange={(e) => {
+                        onChange={(e) =>
                           saveProgress(
                             5,
                             { ...state.components },
                             { ...styles, cardBorderColor1: e.target.value },
-                          );
-                        }}
+                          )
+                        }
                       />
                       <span>Borde 1</span>
                     </div>
@@ -412,13 +388,13 @@ const ComponentCustomizer = () => {
                       <input
                         type="color"
                         value={styles.cardBorderColor2 ?? "#f5c842"}
-                        onChange={(e) => {
+                        onChange={(e) =>
                           saveProgress(
                             5,
                             { ...state.components },
                             { ...styles, cardBorderColor2: e.target.value },
-                          );
-                        }}
+                          )
+                        }
                       />
                       <span>Borde 2</span>
                     </div>
@@ -429,7 +405,7 @@ const ComponentCustomizer = () => {
                   </small>
                 </div>
 
-                {/* 6. TAMAÑO */}
+                {/* 6. TAMAÑO DE FUENTE */}
                 <div className="field-group">
                   <label>
                     Tamaño:{" "}
@@ -462,7 +438,7 @@ const ComponentCustomizer = () => {
           )}
 
           <div className={`store-preview ${layoutClass}`}>
-            {/* HEADER */}
+            {/* ── HEADER ── */}
             <header
               style={{
                 display: "flex",
@@ -475,21 +451,11 @@ const ComponentCustomizer = () => {
                 fontSize: `${design.header.size}px`,
               }}
             >
-              <div
-                style={{
-                  fontWeight: 800,
-                  letterSpacing: "3px",
-                }}
-              >
+              <div style={{ fontWeight: 800, letterSpacing: "3px" }}>
                 {design.header.logo}
               </div>
 
-              <nav
-                style={{
-                  display: "flex",
-                  gap: "24px",
-                }}
-              >
+              <nav style={{ display: "flex", gap: "24px" }}>
                 {design.header.items.map((it, i) => (
                   <span
                     key={i}
@@ -519,12 +485,13 @@ const ComponentCustomizer = () => {
               </button>
             </header>
 
-            {/* BANNER */}
+            {/* ── BANNER ── */}
             <section
               style={{
                 backgroundColor: design.banner.bg,
-                backgroundImage: design.banner.images?.[0]?.url
-                  ? `linear-gradient(rgba(0,0,0,0.45),rgba(0,0,0,0.45)),url(${design.banner.images[0].url})`
+                // ✅ Usa design.banner.image (string) directamente
+                backgroundImage: design.banner.image
+                  ? `linear-gradient(rgba(0,0,0,0.45),rgba(0,0,0,0.45)),url(${design.banner.image})`
                   : undefined,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
@@ -575,37 +542,9 @@ const ComponentCustomizer = () => {
               >
                 COMPRAR AHORA
               </button>
-
-              {/* IMÁGENES */}
-              {design.banner.images.length > 0 && (
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "16px",
-                    flexWrap: "wrap",
-                    justifyContent: "center",
-                    marginTop: "20px",
-                  }}
-                >
-                  {design.banner.images.map((img) => (
-                    <img
-                      key={img.id}
-                      src={img.url}
-                      alt=""
-                      style={{
-                        width: `${img.width}px`,
-                        borderRadius: `${img.radius}px`,
-                        objectFit: "cover",
-                        maxHeight: "220px",
-                        boxShadow: cardShadow,
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
             </section>
 
-            {/* CATÁLOGO */}
+            {/* ── CATÁLOGO ── */}
             <section
               style={{
                 padding: "48px 40px",
@@ -637,7 +576,6 @@ const ComponentCustomizer = () => {
                 }}
               >
                 {[1, 2, 3, 4].map((i) => (
-                  // Wrapper = gradiente visible como borde
                   <div
                     key={i}
                     style={{
@@ -648,7 +586,6 @@ const ComponentCustomizer = () => {
                       transition: "0.3s",
                     }}
                   >
-                    {/* Inner = fondo real de la carta */}
                     <div
                       style={{
                         background: cardBg,
@@ -657,71 +594,66 @@ const ComponentCustomizer = () => {
                         height: "100%",
                       }}
                     >
-                    <div
-                      style={{
-                        height: "180px",
-                        background: `${accentColor}22`,
-                      }}
-                    />
-
-                    <div style={{ padding: "16px" }}>
-                      <h3
-                        style={{
-                          color: titleColor,
-                          fontFamily: `"${fontTitle}", sans-serif`,
-                        }}
-                      >
-                        {design.banner.title}
-                      </h3>
-
-                      <p
-                        style={{
-                          color: paraColor,
-                          fontSize: "13px",
-                          lineHeight: 1.5,
-                        }}
-                      >
-                        {productoDesc}
-                      </p>
-
                       <div
                         style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          marginTop: "14px",
+                          height: "180px",
+                          background: `${accentColor}22`,
                         }}
-                      >
-                        <span
-                          style={{
-                            color: accentColor,
-                            fontWeight: 700,
-                          }}
-                        >
-                          $120.00
-                        </span>
+                      />
 
-                        <button
+                      <div style={{ padding: "16px" }}>
+                        <h3
                           style={{
-                            background: accentColor,
-                            border: "none",
-                            color: "#fff",
-                            padding: "8px 16px",
-                            borderRadius: btnRadius,
-                            cursor: "pointer",
+                            color: titleColor,
+                            fontFamily: `"${fontTitle}", sans-serif`,
                           }}
                         >
-                          COMPRAR
-                        </button>
+                          {design.banner.title}
+                        </h3>
+
+                        <p
+                          style={{
+                            color: paraColor,
+                            fontSize: "13px",
+                            lineHeight: 1.5,
+                          }}
+                        >
+                          {productoDesc}
+                        </p>
+
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            marginTop: "14px",
+                          }}
+                        >
+                          <span style={{ color: accentColor, fontWeight: 700 }}>
+                            $120.00
+                          </span>
+
+                          <button
+                            style={{
+                              background: accentColor,
+                              border: "none",
+                              color: "#fff",
+                              padding: "8px 16px",
+                              borderRadius: btnRadius,
+                              cursor: "pointer",
+                            }}
+                          >
+                            COMPRAR
+                          </button>
+                        </div>
                       </div>
-                    </div>
                     </div>
                   </div>
                 ))}
               </div>
             </section>
 
-            {/* FOOTER */}
+            {/* ── FOOTER ── */}
             <footer
               style={{
                 backgroundColor: design.footer.bg,
@@ -736,18 +668,10 @@ const ComponentCustomizer = () => {
               }}
             >
               <p>{design.footer.text}</p>
-
-              <div
-                style={{
-                  display: "flex",
-                  gap: "18px",
-                }}
-              >
-              </div>
             </footer>
           </div>
 
-          {/* Botones también en fullscreen */}
+          {/* Botones flotantes en modo fullscreen */}
           {isFullscreen && (
             <div
               style={{

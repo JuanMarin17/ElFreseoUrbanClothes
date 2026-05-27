@@ -30,7 +30,7 @@ const StoreCreatedCard = ({ store, styles, components, status, onClick }) => {
           fontWeight: 800,
           boxShadow: `
            0 0 0 3px ${styles.cardBorderColor2 ?? "#ffffff15"},
-          ${cardShadow}
+          ${styles.cardShadow}
            `,
           fontSize: header.size,
           letterSpacing: 2,
