@@ -1,9 +1,3 @@
-/**
- * StepProgress.jsx
- * Barra de progreso visual para el flujo de creación de tienda.
- * Los pasos completados son clickeables y navegan directamente.
- */
-
 import { useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "../pages/StoreContext";
 import "./styles/StepProgress.css";

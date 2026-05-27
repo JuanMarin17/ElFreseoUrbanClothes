@@ -10,79 +10,57 @@ const plans = [
     id: "basico",
     name: "BÁSICO",
     price: "$19",
-    features: [
-      "1 Tienda",
-      "Productos ilimitados",
-      "Plantillas básicas",
-      "Soporte por email",
-    ],
+    features: ["1 Tienda", "Productos ilimitados", "Plantillas básicas", "Soporte por email"],
   },
   {
     id: "pro",
     name: "PRO",
     price: "$39",
     popular: true,
-    features: [
-      "Tiendas ilimitadas",
-      "Productos ilimitados",
-      "Plantillas premium",
-      "Dominio personalizado",
-      "Soporte prioritario",
-    ],
+    features: ["Tiendas ilimitadas", "Productos ilimitados", "Plantillas premium", "Dominio personalizado", "Soporte prioritario"],
   },
   {
     id: "premium",
     name: "PREMIUM",
     price: "$79",
-    features: [
-      "Todo en Pro",
-      "Analíticas avanzadas",
-      "Integraciones",
-      "Soporte 24/7",
-      "Acceso API",
-    ],
+    features: ["Todo en Pro", "Analíticas avanzadas", "Integraciones", "Soporte 24/7", "Acceso API"],
   },
 ];
 
-export default function SelectPlan({showComponents}) {
+const isAuthenticated = () => !!localStorage.getItem('jwt');
+
+export default function SelectPlan({ showComponents }) {
   const { state, completeStep, resetStep } = useStore();
   const nav = useNavigate();
-
-  // ✅ Pre-carga el plan guardado si el usuario regresa
   const [selectedId, setSelectedId] = useState(state.plan?.id ?? null);
 
   const handleSelect = (plan) => {
+    if (!isAuthenticated()) {
+      sessionStorage.setItem('pendingPlan', plan.id);
+      nav('/login');
+      return;
+    }
     setSelectedId(plan.id);
-    // ✅ Guarda inmediatamente en localStorage al elegir
     completeStep(1, plan);
+    nav("/crear-tienda/basico");
   };
 
-  // ✅ Reinicia SOLO este paso (y borra los siguientes)
-  const handleReset = () => {
-    resetStep(1);
-    setSelectedId(null);
+  const handleBack = () => {
+    nav('/market'); // ← siempre va al inicio
   };
 
   return (
     <div className="plan-container">
-      {
-        showComponents && (
-          <StepProgress />
-        )
-      }
+      {showComponents && <StepProgress />}
+
       <div className="header-plan">
-        {
-          showComponents && (
-            <button className="back-btn" onClick={() => nav(-1)}>
-              ←
-            </button>
-          )
-        }
+        {showComponents && (
+          <button className="back-btn" onClick={handleBack}>←</button>
+        )}
         <div className="title-plan">
           <h1>Crear nueva tienda</h1>
           <p className="subtitle-plan">Elige un plan para comenzar</p>
         </div>
-        {/* ✅ Botón reiniciar solo este paso */}
       </div>
 
       <div className="plans-grid">
@@ -97,21 +75,13 @@ export default function SelectPlan({showComponents}) {
           >
             {plan.popular && <span className="badge">MÁS POPULAR</span>}
             <h2>{plan.name}</h2>
-            <h3>
-              {plan.price} <span>/mes</span>
-            </h3>
+            <h3>{plan.price} <span>/mes</span></h3>
             <ul>
               {plan.features.map((f, idx) => (
                 <li key={idx}>✔ {f}</li>
               ))}
             </ul>
-            {/* ✅ Al seleccionar guarda y navega al paso 2 */}
-            <button
-              onClick={() => {
-                handleSelect(plan);
-                nav("/crear-tienda/basico");
-              }}
-            >
+            <button onClick={() => handleSelect(plan)}>
               Seleccionar
             </button>
           </motion.div>
