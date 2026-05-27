@@ -148,3 +148,26 @@
   .vx-cstore-bottom { flex-direction: column; align-items: flex-start; padding: 24px 22px; }
   .vx-cstore-perks  { grid-template-columns: 1fr; }
 }
+.vx-cstore-header,
+.vx-cstore-bottom {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.vx-cstore-header.vx-visible,
+.vx-cstore-bottom.vx-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.vx-cstore-perk {
+  opacity: 0;
+  transform: translateY(20px);
+  /* mantén las transition que ya tenías y agrégales estas: */
+  transition: opacity .4s ease, transform .4s ease,
+              border-color .25s, box-shadow .25s;
+}
+.vx-cstore-perk.vx-visible {
+  opacity: 1;
+  transform: translateY(0);
+}

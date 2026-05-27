@@ -195,3 +195,17 @@
 @media (max-width: 768px) {
   .hero-main-card { padding: 36px 26px 32px; }
 }
+/* ── Agrega al final de HeroPromo.css ── */
+@keyframes vx-fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-eyebrow   { animation: vx-fadeUp .7s 0s    ease both; }
+.hero-title     { animation: vx-fadeUp .7s .10s  ease both; }
+.hero-subtitle  { animation: vx-fadeUp .7s .18s  ease both; }
+.hero-ctas      { animation: vx-fadeUp .7s .26s  ease both; }
+.hero-features-bar { animation: vx-fadeUp .7s .38s ease both; }
+
+/* Banners laterales entran juntos con un delay mayor */
+.hero-side-banners { animation: vx-fadeUp .7s .20s ease both; }

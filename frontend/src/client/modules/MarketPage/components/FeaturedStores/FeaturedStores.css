@@ -163,3 +163,14 @@
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+.vx-store-card {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .5s ease, transform .5s ease,
+              border-color .25s, box-shadow .25s; /* mantén las que ya tenías */
+}
+.vx-store-card.vx-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* El hover translateY(-4px) sigue funcionando porque .vx-visible lo permite */

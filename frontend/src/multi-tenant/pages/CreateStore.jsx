@@ -7,10 +7,6 @@ import VexioTermsPage from "../components/VexioTermsPage";
 import StepProgress from "../components/StepProgress";
 import useCreateStore from "../hooks/useCreateStore";
 
-/**
- * ⚠️  INTEGRACIÓN AUTH:
- * Reemplaza HARDCODED_OWNER_ID por el UUID real del usuario autenticado.
- */
 const HARDCODED_OWNER_ID = "00000000-0000-0000-0000-000000000001"; // ← reemplazar
 
 export default function CreateStore() {

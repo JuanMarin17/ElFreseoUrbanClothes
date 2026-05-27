@@ -10,11 +10,6 @@ import Dashboard from "./admin/modules/administration/dashboard/Dashboard.jsx";
 import UploadProduct from "./admin/modules/administration/pages/UploadProduct/UploadProduct.jsx";
 import InventaryStock from "./admin/modules/administration/pages/Inventary/InventaryStock.jsx";
 
-// // --- IMPORTS DE CLIENTE ---
-// import LandingPage from "./client/modules/landingPage/LandingPage.jsx";
-// import LoadingScreen from "./client/modules/landingPage/LoadingScreen/LoadingScreen.jsx";
-// import MainPage from "./client/modules/MainPage/pages/MainPage/MainPage.jsx";
-
 /* ─── Auth ─── */
 import Login from './admin/modules/auth/pages/Login/Login.jsx';
 import ForgotPassword from './admin/modules/auth/pages/ForgotPassword/ForgotPassword.jsx';
@@ -57,6 +52,7 @@ import ProtectedStep from "./multi-tenant/components/ProtectStep.jsx";
 import { StoreProvider } from "./multi-tenant/pages/StoreContext.jsx";
 import StoreResult from "./multi-tenant/pages/StoreResult.jsx";
 import { AuthProvider } from "./admin/modules/auth/pages/hook/Useauth.jsx";
+import { AuthProvider as MultiTenantAuthProvider } from "./multi-tenant/context/AuthContext.jsx";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -72,7 +68,8 @@ function App() {
 
   return (
     <AuthProvider>
-      <StoreProvider>
+      <MultiTenantAuthProvider>
+        <StoreProvider>
         <div className="main-container">
           <AnimatePresence mode="wait">
               <Routes key="main-content">
@@ -242,6 +239,7 @@ function App() {
           </AnimatePresence>
         </div>
       </StoreProvider>
+      </MultiTenantAuthProvider>
     </AuthProvider>
   );
 }

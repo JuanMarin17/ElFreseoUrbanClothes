@@ -31,7 +31,19 @@ export default function FeaturedStores() {
     //   .then(data => setStores(data.stores))
     //   .catch(console.error)
     //   .finally(() => setLoading(false));
-  }, []);
+    const cards = document.querySelectorAll('.vx-store-card');
+      const obs = new IntersectionObserver(
+        (entries) => entries.forEach((e, i) => {
+          if (e.isIntersecting) {
+            setTimeout(() => e.target.classList.add('vx-visible'), i * 80);
+            obs.unobserve(e.target);
+          }
+        }),
+        { threshold: 0.1 }
+      );
+      cards.forEach(el => obs.observe(el));
+      return () => obs.disconnect();
+    }, [stores]);
 
   return (
     <section className="vx-fstores-root">

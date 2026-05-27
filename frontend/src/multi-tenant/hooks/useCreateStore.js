@@ -149,7 +149,9 @@ function buildSettingsPayload(state, storeForm) {
                 size: String(state.components.banner.size ?? "60"),
                 color: state.components.banner.color ?? "#ffffff",
                 bg: state.components.banner.bg ?? "#000000",
-                images: state.components.banner.images ?? [],
+                // El backend espera un solo String "image"
+                // state.components.banner.image ya es string (URL Cloudinary)
+                image: state.components.banner.image ?? null,
               }
             : undefined,
           header: state.components.header
