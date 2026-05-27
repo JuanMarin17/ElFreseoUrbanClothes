@@ -42,11 +42,9 @@ const MyStore = () => {
       role === "SUPERADMIN" ? getAllStores : () => getStoresByUser(userId);
     fetchStores()
       .then(async (data) => {
-        console.log("✅ getStoresByUser response:", data);
         const tiendas = Array.isArray(data)
           ? data
           : (data?.content ?? data?.stores ?? data?.data ?? []);
-        console.log("📦 tiendas parseadas:", tiendas);
         setStores(tiendas);
         const settingsObj = {};
         await Promise.all(
@@ -55,7 +53,6 @@ const MyStore = () => {
               settingsObj[store.storeId] = await getStoreSettingsByHeader(
                 store.storeId,
               );
-              console.log(settingsObj);
             } catch {
               settingsObj[store.storeId] = {};
             }
@@ -88,7 +85,7 @@ const MyStore = () => {
       {/* ── Sidebar ─────────────────────────────────────────────────────── */}
       <aside className="ms-sidebar">
         <div className="ms-brand">
-          <span className="ms-brand-name">EL FRESEO</span>
+          <span className="ms-brand-name">VEXIO</span>
           <span className="ms-brand-sub">ADMIN</span>
         </div>
 
@@ -179,7 +176,7 @@ const MyStore = () => {
           {/* Grid */}
           <div className="ms-grid">
             {/* Tienda del wizard */}
-            {hasCreatedStore && (
+            {/* {hasCreatedStore && (
               <div
                 className="ms-store-card"
                 onClick={() => navigate("/resultado")}
@@ -235,7 +232,7 @@ const MyStore = () => {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Tiendas del backend */}
             {!loadingStores &&
@@ -261,8 +258,22 @@ const MyStore = () => {
                     >
                       {store.isActive ? "ACTIVA" : "BORRADOR"}
                     </span>
+
+                    {/* Logo superpuesto — position absolute lado derecho */}
+                    {storeSettings[store.storeId]?.basic?.logoPreview ? (
+                      <img
+                        src={storeSettings[store.storeId].basic.logoPreview}
+                        alt={`Logo ${store.name}`}
+                        className="ms-store-logo"
+                      />
+                    ) : (
+                      <div className="ms-store-logo ms-store-logo--placeholder">
+                        {store.name?.[0]?.toUpperCase() ?? "T"}
+                      </div>
+                    )}
                   </div>
                   <div className="ms-store-body">
+                    {/* quitamos el logo-wrap anterior */}
                     <h3 className="ms-store-name">{store.name}</h3>
                     <p className="ms-store-url">{store.slug}.freseo.com</p>
 

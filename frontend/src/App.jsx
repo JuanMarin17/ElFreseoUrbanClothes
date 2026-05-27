@@ -33,19 +33,6 @@ import AccountPage from './client/modules/account/pages/AccountPage/AccountPage.
 
 // --- IMPORTAR LA PÁGINA DEL CARRITO ---
 // import Cart from "./client/modules/landingPage/Cart/pages/Cart.jsx";
-// --- MULTI-TENANT ---
-import CreateStore from "./multi-tenant/pages/CreateStore.jsx";
-import StepBasicPage from "./multi-tenant/pages/StepBasicPage.jsx";
-import StepLegalPage from "./multi-tenant/pages/StepLegalPage.jsx";
-import StepPaymentPage from "./multi-tenant/pages/StepPaymentPage.jsx";
-import SelectPlan from "./multi-tenant/pages/SelectPlan.jsx";
-import LayoutSelect from "./multi-tenant/components/SelectLayout/LayoutSelect.jsx";
-import CustomizationPanel from "./multi-tenant/components/CustomizationPanel.jsx";
-import ComponentCustomizer from "./multi-tenant/components/ComponentCustomizer.jsx";
-import WidgetsCustomizer from "./multi-tenant/components/WidgetsCustomizer.jsx";
-import InventaryDashboard from "./multi-tenant/components/InventaryDashboard.jsx";
-import OrdersDashboard from "./multi-tenant/components/OrdersDashboard.jsx";
-import MyStore from "./multi-tenant/pages/MyStore.jsx";
 
 // ✅ NUEVO: guard de rutas
 import ProtectedStep from "./multi-tenant/components/ProtectStep.jsx";
@@ -67,10 +54,6 @@ import WidgetsCustomizer    from "./multi-tenant/components/WidgetsCustomizer.js
 import InventaryDashboard   from "./multi-tenant/components/InventaryDashboard.jsx";
 import OrdersDashboard      from "./multi-tenant/components/OrdersDashboard.jsx";
 import MyStore              from "./multi-tenant/pages/MyStore.jsx";
-import ProtectedStep        from "./multi-tenant/components/ProtectStep.jsx";
-import { StoreProvider }    from "./multi-tenant/pages/StoreContext.jsx";
-import StoreResult          from "./multi-tenant/pages/StoreResult.jsx";
-import { AuthProvider }     from "./admin/modules/auth/pages/hook/Useauth.jsx";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
