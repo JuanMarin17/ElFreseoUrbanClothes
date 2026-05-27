@@ -240,8 +240,7 @@ const MyStore = () => {
                 <div
                   key={store.storeId}
                   className="ms-store-card"
-                  // No navegamos a detalle, solo mostramos la tarjeta
-                  style={{ cursor: "default" }}
+                  onClick={() => navigate(`/tienda/${store.slug}`)}
                 >
                   <div
                     className="ms-store-banner"
@@ -304,8 +303,10 @@ const MyStore = () => {
                       </span>
                       <button
                         className="ms-store-link"
-                        disabled
-                        style={{ opacity: 0.5, pointerEvents: "none" }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/tienda/${store.slug}`);
+                        }}
                       >
                         Ver tienda <FiExternalLink size={11} />
                       </button>

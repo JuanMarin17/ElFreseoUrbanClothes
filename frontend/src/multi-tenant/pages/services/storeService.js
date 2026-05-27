@@ -65,6 +65,11 @@ export async function getStoreById(storeId) {
   return request(`${BASE_URL}/${storeId}`);
 }
 
+/** GET localhost:8080/api/v1/stores/getBySlug/:slug — Obtiene una tienda por su slug */
+export async function getStoreBySlug(slug) {
+  return request(`http://localhost:8080/api/v1/stores/getBySlug/${slug}`);
+}
+
 /** GET /api/v1/stores — Todas las tiendas (solo superadmin) */
 export async function getAllStores() {
   console.log("Settings: " + request(`${BASE_URL}`))

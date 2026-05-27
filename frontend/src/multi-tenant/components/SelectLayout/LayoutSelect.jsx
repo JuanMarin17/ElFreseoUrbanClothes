@@ -45,11 +45,9 @@ const LayoutSelect = () => {
     setShowPreview(true);
   };
 
-  // Flecha atrás — guarda progreso y vuelve al paso 2
+  // Flecha atrás — guarda progreso y vuelve al paso anterior (pagos)
   const handleBack = () => {
-    const layoutData = layouts.find((l) => l.id === selected);
-    completeStep(3, layoutData);
-    navigate("/crear-tienda");
+    navigate("/crear-tienda/pagos");
   };
 
   // Continuar — guarda layout y avanza al paso 4

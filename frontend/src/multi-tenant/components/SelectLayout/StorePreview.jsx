@@ -51,11 +51,17 @@ function GCard({ b1, b2, bw, br, sh, bg, children }) {
 export default function StorePreview({ layoutType = "minimalista", data = {} }) {
   /* ── datos con fallback a demo ── */
   const header   = data.header   ?? DEMO.header;
-  const banner   = data.banner   ?? DEMO.banner;
   const footer   = data.footer   ?? DEMO.footer;
   const products = data.products ?? DEMO.products;
   const styles   = data.styles   ?? DEMO.styles;
   const widgets  = data.widgets  ?? null;
+
+  // Normaliza banner: soporta tanto { image: string } como { images: [] }
+  const rawBanner = data.banner ?? DEMO.banner;
+  const bannerImageUrl = rawBanner.image
+    || rawBanner.images?.[0]?.url
+    || null;
+  const banner = { ...rawBanner, _imageUrl: bannerImageUrl };
 
   const isMin = layoutType === "minimalista";
   const isUrb = layoutType === "urbano";
@@ -225,15 +231,15 @@ export default function StorePreview({ layoutType = "minimalista", data = {} }) 
             <p style={{ fontSize: 13, color: "#888", lineHeight: 1.7, maxWidth: 320, margin: 0 }}>{desc}</p>
             <button style={{ alignSelf: "flex-start", background: accent, border: "none", color: "#fff", padding: "11px 28px", borderRadius: btnR, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, cursor: "pointer" }}>VER COLECCIÓN</button>
           </div>
-          <div style={{ background: banner.images?.[0]?.url ? `url(${banner.images[0].url}) center/cover` : `${accent}12`, minHeight: 220, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {!banner.images?.[0]?.url && <span style={{ fontSize: 11, color: "#ccc", letterSpacing: 3 }}>IMAGEN</span>}
+          <div style={{ background: banner._imageUrl ? `url(${banner._imageUrl}) center/cover` : `${accent}12`, minHeight: 220, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {!banner._imageUrl && <span style={{ fontSize: 11, color: "#ccc", letterSpacing: 3 }}>IMAGEN</span>}
           </div>
         </section>
       )}
 
       {isUrb && (
         /* Urbano: full-bleed con texto gigante */
-        <section style={{ position: "relative", minHeight: "clamp(260px,45vw,460px)", background: banner.images?.[0]?.url ? `linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)) center/cover, url(${banner.images[0].url}) center/cover` : banner.bg ?? "#0a0a0a", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "0 clamp(16px,3vw,40px) clamp(24px,4vw,44px)", overflow: "hidden" }}>
+        <section style={{ position: "relative", minHeight: "clamp(260px,45vw,460px)", background: banner._imageUrl ? `linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)) center/cover, url(${banner._imageUrl}) center/cover` : banner.bg ?? "#0a0a0a", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "0 clamp(16px,3vw,40px) clamp(24px,4vw,44px)", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: 0, left: "clamp(16px,3vw,40px)", width: 1, height: "100%", background: "#1a1a1a" }} />
           <span style={{ fontSize: 10, letterSpacing: 5, color: accent, textTransform: "uppercase", marginBottom: 12, fontWeight: 700 }}>— DROP 2026</span>
           <h1 style={{ fontFamily: `"${cf(banner.font)}",sans-serif`, fontSize: "clamp(2.5rem,8vw,6.5rem)", color: banner.color ?? "#fff", lineHeight: 0.9, margin: "0 0 20px", textTransform: "uppercase", letterSpacing: -2, wordBreak: "break-word" }}>{banner.title}</h1>
@@ -246,7 +252,7 @@ export default function StorePreview({ layoutType = "minimalista", data = {} }) 
 
       {isCls && (
         /* Clásico: banner horizontal con oferta */
-        <section style={{ background: banner.images?.[0]?.url ? `linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,.4)), url(${banner.images[0].url}) center/cover` : `linear-gradient(135deg, ${banner.bg ?? "#1a1a2e"}, ${accent}cc)`, padding: "clamp(20px,4vw,40px) clamp(16px,3vw,32px)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, minHeight: 160, flexWrap: "wrap" }}>
+        <section style={{ background: banner._imageUrl ? `linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,.4)), url(${banner._imageUrl}) center/cover` : `linear-gradient(135deg, ${banner.bg ?? "#1a1a2e"}, ${accent}cc)`, padding: "clamp(20px,4vw,40px) clamp(16px,3vw,32px)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, minHeight: 160, flexWrap: "wrap" }}>
           <div style={{ flex: 1, minWidth: 180 }}>
             <span style={{ background: accent, color: "#fff", fontSize: 10, fontWeight: 800, padding: "3px 9px", borderRadius: 4, letterSpacing: 1, marginBottom: 10, display: "inline-block" }}>OFERTA ESPECIAL</span>
             <h1 style={{ fontFamily: `"${cf(banner.font)}",sans-serif`, fontSize: "clamp(1.4rem,3vw,2.4rem)", color: "#fff", margin: "8px 0 8px", lineHeight: 1.1, wordBreak: "break-word" }}>{banner.title}</h1>

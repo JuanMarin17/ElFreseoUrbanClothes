@@ -20,7 +20,7 @@ import StepProgress from "./StepProgress";
 const ComponentCustomizer = () => {
   const [activeComponent, setActiveComponent] = useState("BANNER");
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const { state, completeStep, saveProgress } = useStore();
+  const { state, completeStep, saveProgress, saveDraft } = useStore();
 
   const navigate = useNavigate();
 
@@ -140,9 +140,9 @@ const ComponentCustomizer = () => {
     transition: "0.3s ease",
   });
 
-  // ← Guarda el progreso y vuelve al paso 4
+  // ← Guarda en memoria (no localStorage) y vuelve al paso anterior
   const handleBack = () => {
-    saveProgress(5, design);
+    saveDraft("components", design);
     navigate("/customer");
   };
 

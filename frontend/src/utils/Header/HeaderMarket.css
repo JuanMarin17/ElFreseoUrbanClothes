@@ -11,7 +11,8 @@
   top: 0;
   left: 0;
   width: 100%;
-  height:6vh;
+  padding-top: 5px;
+  height:9vh;
   z-index: 1000;
   transition: top 0.3s ease-in-out;
   
@@ -40,23 +41,30 @@
 
 /* Bloque Logo */
 .logo-market-link {
-  text-decoration: none;
-  color: inherit;
+  height: 9vh;
   display: flex;
+  justify-content: center;
   align-items: center;
-  cursor: pointer;
 }
 
 .logo-image {
   height: 10vh; /* Altura estilizada para no romper proporciones */
   width: 13vw;
   object-fit: contain;
+  display: flex;
+  justify-content: center ;
+  
+}
+
+.logo-image-img{
+  height: 100%;
+  width: 90%;
 }
 
 /* Menú de Navegación del Centro */
 .nav-menu {
   display: flex;
-  gap: 40px; /* Excelente espacio de respiro entre enlaces */
+  gap: 15px; /* Excelente espacio de respiro entre enlaces */
 }
 
 .nav-link {
@@ -65,6 +73,7 @@
    color: var(--vx-muted);
   font-family: var(--vx-font-body);
   font-weight: 600;
+  font-size: 11px;
   letter-spacing: 1.5px;
   transition: var(--transition);
   position: relative;

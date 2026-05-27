@@ -54,6 +54,7 @@ import WidgetsCustomizer    from "./multi-tenant/components/WidgetsCustomizer.js
 import InventaryDashboard   from "./multi-tenant/components/InventaryDashboard.jsx";
 import OrdersDashboard      from "./multi-tenant/components/OrdersDashboard.jsx";
 import MyStore              from "./multi-tenant/pages/MyStore.jsx";
+import StorePage            from "./multi-tenant/pages/StorePage.jsx";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -111,6 +112,7 @@ function App() {
               <Route path="/inventario"   element={<InventaryDashboard />} />
               <Route path="/ordenes"      element={<OrdersDashboard />} />
               <Route path="/tiendas"      element={<MyStore />} />
+              <Route path="/tienda/:slug" element={<StorePage />} />
 
               {/* ─── Admin ─── */}
               <Route path="/admin" element={<AdminLayout />}>

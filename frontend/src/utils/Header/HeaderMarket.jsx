@@ -39,7 +39,10 @@ const HeaderMarket = () => {
 
         {/* Bloque Logo Izquierda Extrema */}
         <Link to="/" className="logo-market-link">
-          <img src={Logo} alt="Vexio Logo" className="logo-image" />
+          <div className="logo-image">
+          
+          <img src={Logo} alt="Vexio Logo" className="logo-image-img" />
+          </div>
         </Link>
 
         {/* Centro: Navegación Espaciada */}

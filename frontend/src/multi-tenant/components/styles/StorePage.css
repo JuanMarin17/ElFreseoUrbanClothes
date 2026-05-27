@@ -1,0 +1,128 @@
+/* ── StorePage ─────────────────────────────── */
+.sp-root {
+  min-height: 100vh;
+  background: #080c14;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Topbar mínimo */
+.sp-topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 20px;
+  height: 52px;
+  background: #060a10;
+  border-bottom: 1px solid #1a2535;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+.sp-back {
+  background: transparent;
+  border: 1px solid #1a2535;
+  color: #5a7a9a;
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.sp-back:hover { border-color: #3e78ff; color: #fff; transform: none; }
+
+.sp-store-name {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.sp-url {
+  font-size: 11px;
+  color: #3a5a7a;
+  font-family: monospace;
+  margin-left: auto;
+}
+
+/* Loading */
+.sp-loading {
+  min-height: 100vh;
+  background: #080c14;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: #5a7a9a;
+  font-size: 14px;
+  font-family: "Inter", sans-serif;
+}
+
+.sp-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #1a2535;
+  border-top-color: #3e78ff;
+  border-radius: 50%;
+  animation: sp-spin 0.7s linear infinite;
+}
+
+@keyframes sp-spin { to { transform: rotate(360deg); } }
+
+/* Error */
+.sp-error {
+  min-height: 100vh;
+  background: #080c14;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 40px 20px;
+  font-family: "Inter", sans-serif;
+  color: #d0dde8;
+}
+
+.sp-error-icon { font-size: 40px; opacity: 0.4; }
+
+.sp-error h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.sp-error p {
+  font-size: 13px;
+  color: #5a7a9a;
+  margin: 0;
+  max-width: 360px;
+}
+
+.sp-error button {
+  background: #3e78ff;
+  border: none;
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  margin: 8px 0 0;
+  transition: background 0.2s;
+}
+
+.sp-error button:hover { background: #2d66ee; transform: none; }

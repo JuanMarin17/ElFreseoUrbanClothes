@@ -110,6 +110,17 @@ export const StoreProvider = ({ children }) => {
   }, []);
 
   /**
+   * Guarda progreso parcial SIN avanzar el paso y SIN persistir en localStorage.
+   * Úsalo al retroceder para no perder lo escrito, pero que se limpie al salir.
+   */
+  const saveDraft = useCallback((key, data = {}) => {
+    const field = resolveField(key);
+    if (!field) return;
+    // Solo actualiza el estado en memoria, NO llama a persist()
+    setState((prev) => ({ ...prev, [field]: data }));
+  }, []);
+
+  /**
    * Guarda progreso parcial SIN avanzar el paso.
    */
   const saveProgress = useCallback((key, data = {}) => {
@@ -158,6 +169,7 @@ export const StoreProvider = ({ children }) => {
         update,
         completeStep,
         saveProgress,
+        saveDraft,
         resetAll,
         resetStep,
       }}

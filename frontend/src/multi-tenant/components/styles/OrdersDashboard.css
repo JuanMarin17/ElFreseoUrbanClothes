@@ -36,7 +36,6 @@
 .brand-section h2 { font-size: 1.1rem; font-weight: 900; margin: 0; }
 .brand-section p { font-size: 0.6rem; color: var(--text-secondary); margin: 0; letter-spacing: 1px; }
 
-.nav-menu { flex: 1; }
 .menu-item {
   padding: 14px 30px;
   font-size: 0.75rem;
