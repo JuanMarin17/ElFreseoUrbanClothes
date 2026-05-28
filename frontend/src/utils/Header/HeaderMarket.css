@@ -8,6 +8,7 @@
 .header {
   position: fixed;
   display: flex;  
+  justify-content: space-between;
   top: 0;
   left: 0;
   width: 100%;
@@ -65,6 +66,8 @@
 .nav-menu {
   display: flex;
   gap: 15px; /* Excelente espacio de respiro entre enlaces */
+  border: 1px solid white;
+  width: 40vw;
 }
 
 .nav-link {

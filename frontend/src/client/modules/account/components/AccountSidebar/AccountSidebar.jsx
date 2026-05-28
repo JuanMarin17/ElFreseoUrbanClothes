@@ -19,15 +19,10 @@ export default function AccountSidebar({ active, onSelect }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // 1. Limpiar rastro de sesión
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     sessionStorage.clear();
-
-    // 2. Redirigir al inicio o landing
     navigate('/');
-    
-    // 3. Forzar refresco si es necesario para limpiar estados globales de React
     window.location.reload();
   };
 
@@ -41,7 +36,7 @@ export default function AccountSidebar({ active, onSelect }) {
           <div className="online-indicator" />
         </div>
         <div className="avatar-info">
-          <span className="info-tag">SISTEMA_ACTIVO</span>
+          <span className="info-tag">SISTEMA</span>
           <p className="avatar-name">MI CUENTA</p>
         </div>
       </div>
