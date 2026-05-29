@@ -16,6 +16,7 @@ import "../components/styles/ComponentCustomizer.css";
 import { useStore } from "../pages/StoreContext";
 import { useNavigate } from "react-router-dom";
 import StepProgress from "./StepProgress";
+import { uploadFile } from "../../utils/uploadService";
 
 const ComponentCustomizer = () => {
   const [activeComponent, setActiveComponent] = useState("BANNER");
@@ -110,25 +111,14 @@ const ComponentCustomizer = () => {
     updateSection("items", newItems);
   };
 
-  // ✅ Una sola función, limpia — sube a Cloudinary y guarda URL como string
   const addBannerImage = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "preset"); // ⚠️ CAMBIAR
-
     try {
-      const res = await fetch(
-        "https://api.cloudinary.com/v1_1/dcwyyoe7c/image/upload", // ⚠️ CAMBIAR
-        { method: "POST", body: formData },
-      );
-      const data = await res.json();
-      // ✅ Guarda solo la URL como string — compatible con BannerSettingsDTO.image
-      updateSection("image", data.secure_url);
+      const url = await uploadFile(file);
+      updateSection("image", url);
     } catch (error) {
-      console.error("Error subiendo imagen a Cloudinary:", error);
+      console.error("Error subiendo imagen:", error);
     }
   };
 

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "./StoreContext";
 import "../components/styles/StoreResult.css";
-import StorePreview from "../components/SelectLayout/StorePreview";
+import StoreFront from "../components/Store/StoreFront.jsx";
 
 const cleanFont = (f = "Inter") => {
   const m = f.match(/['"]([^'"]+)['"]/);
@@ -146,7 +146,7 @@ const StoreResult = () => {
       {/* ── Preview con layout real del usuario ─ */}
       <div className="result-preview-container">
         <div className="store-preview">
-          <StorePreview layoutType={layoutClass} data={previewData} />
+          <StoreFront layoutType={layoutClass} data={previewData} />
         </div>
       </div>
     </div>

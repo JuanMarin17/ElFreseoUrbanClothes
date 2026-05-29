@@ -4,12 +4,11 @@ import { getCategories, createCategory } from "../../services/categoryService";
 import { createProduct } from "../../services/productService";
 import { getBrands, createBrand } from "../../services/BrandService";
 import InventaryStock from "../Inventary/InventaryStock";
+import { uploadFile } from "../../../../../utils/uploadService";
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 const TALLAS_DISPONIBLES = ["S", "M", "L", "XL", "XXL"];
 const MAX_IMAGENES = 4;
-const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dcwyyoe7c/image/upload";
-const CLOUDINARY_PRESET = "preset";
 
 // ─── Estado inicial ───────────────────────────────────────────────────────────
 const estadoInicial = {
@@ -27,16 +26,6 @@ const estadoInicial = {
 // ─── Utilidades ───────────────────────────────────────────────────────────────
 const revocarURLs = (imagenes) =>
   imagenes.forEach(({ previewUrl }) => URL.revokeObjectURL(previewUrl));
-
-const subirACloudinary = async (file) => {
-  const fd = new FormData();
-  fd.append("file", file);
-  fd.append("upload_preset", CLOUDINARY_PRESET);
-  const res = await fetch(CLOUDINARY_URL, { method: "POST", body: fd });
-  if (!res.ok) throw new Error(`Cloudinary error: ${res.status}`);
-  const data = await res.json();
-  return data.secure_url;
-};
 
 // ─── SlotImagen ───────────────────────────────────────────────────────────────
 const SlotImagen = ({
@@ -365,7 +354,7 @@ const UploadProduct = () => {
       return { ...prev, imagenes: nuevas };
     });
     try {
-      const cloudinaryUrl = await subirACloudinary(file);
+      const cloudinaryUrl = await uploadFile(file);
       setProducto((prev) => {
         const nuevas = [...prev.imagenes];
         if (nuevas[indice]) nuevas[indice] = { ...nuevas[indice], cloudinaryUrl, uploading: false };
@@ -378,7 +367,7 @@ const UploadProduct = () => {
         nuevas.splice(indice, 1);
         return { ...prev, imagenes: nuevas };
       });
-      setError("Error al subir imagen a Cloudinary. Intenta de nuevo.");
+      setError("Error al subir la imagen. Intenta de nuevo.");
     }
   };
 
@@ -413,7 +402,7 @@ const UploadProduct = () => {
     if (producto.imagenes.some((img) => img.uploading))
       return setError("Espera a que terminen de subirse todas las imágenes.");
     if (producto.imagenes.some((img) => !img.cloudinaryUrl))
-      return setError("Algunas imágenes no se subieron correctamente.");
+      return setError("Algunas imágenes no se subieron correctamente. Intenta de nuevo.");
 
     setLoading(true);
     try {

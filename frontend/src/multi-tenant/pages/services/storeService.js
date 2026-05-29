@@ -12,8 +12,9 @@
  *  POST   /api/v1/store/settings/createSettings   → guardar settings
  */
 
-const BASE_URL = "http://localhost:8080/api/v1/stores";
-const SETTINGS_URL = "http://localhost:8080/api/v1/stores/settings";
+const API_ROOT = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
+const BASE_URL = `${API_ROOT}/stores`;
+const SETTINGS_URL = `${API_ROOT}/stores/settings`;
 
 // ─── Utilidad interna ─────────────────────────────────────────────────────────
 
@@ -34,8 +35,8 @@ async function request(url, options = {}) {
   }
 
   if (!res.ok) {
-    if (res.status === 404 && res.message.includes("no tiene configuración")) {
-      return null; // o {}
+    if (res.status === 404) {
+      return null;
     }
     const message =
       typeof body === "object"
@@ -70,10 +71,11 @@ export async function getStoreBySlug(slug) {
   return request(`http://localhost:8080/api/v1/stores/getBySlug/${slug}`);
 }
 
-/** GET /api/v1/stores — Todas las tiendas (solo superadmin) */
+/** GET /api/v1/stores — Todas las tiendas */
 export async function getAllStores() {
-  console.log("Settings: " + request(`${BASE_URL}`))
-  return request(`${BASE_URL}`);
+  const jwt = localStorage.getItem("jwt");
+  const headers = jwt ? { Authorization: `Bearer ${jwt}` } : {};
+  return request(`${BASE_URL}`, { headers });
 }
 
 // ─── StoreUserController ──────────────────────────────────────────────────────

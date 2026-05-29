@@ -124,6 +124,7 @@
 
 /* CTA button dentro de card */
 .vx-store-btn {
+  margin: 0px;
   background: transparent;
   border: 1px solid var(--vx-border);
   color: var(--vx-muted);

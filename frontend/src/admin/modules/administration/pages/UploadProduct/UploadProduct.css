@@ -26,8 +26,6 @@
   font-family: 'Inter', sans-serif;
 }
 
-<<<<<<< HEAD
-=======
 /* SIDEBAR */
 .sidebar {
   width: 240px;
@@ -82,18 +80,12 @@
   color: var(--text-muted);
 }
 
-/* MAIN CONTENT */
->>>>>>> sprint3/feature-login
 .mainContent {
   flex: 1;
   padding: 0 40px;
 }
 
-<<<<<<< HEAD
-/* ─────────────────────────────────────────────────────────────────────────────
-   CABECERA
-   ───────────────────────────────────────────────────────────────────────────── */
-=======
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -155,7 +147,7 @@
 }
 
 /* PAGE TITLE */
->>>>>>> sprint3/feature-login
+
 .pageTitleRow {
   display: flex;
   justify-content: space-between;
@@ -286,12 +278,8 @@
 .inputGroup textarea,
 .inputGroup select {
   background: #000;
-<<<<<<< HEAD
   border: 1px solid var(--accent-blue);
-=======
-  border: 1px solid #2e6ff2;
   box-shadow: 5px solid #2e6ff2;
->>>>>>> sprint3/feature-login
   padding: 12px;
   color: white;
   font-size: 13px;
@@ -492,13 +480,8 @@
 
 .sizeBtnU,
 .sizeBtnActive {
-<<<<<<< HEAD
-  width: 42px;
-  height: 42px;
-=======
   width: 40px;
   height: 40px;
->>>>>>> sprint3/feature-login
   background: #000;
   border: 1px solid var(--accent-blue);
   color: var(--text-muted);
@@ -581,12 +564,10 @@
   font-size: 9px;
   padding: 4px 10px;
   font-weight: bold;
-<<<<<<< HEAD
   letter-spacing: 1px;
   border-radius: var(--radius-sm);
   pointer-events: none;
   z-index: 2;
-=======
 }
 
 .mainImagePlaceholder {
@@ -607,7 +588,6 @@
   font-weight: bold;
   letter-spacing: 5px;
   color: #888;
->>>>>>> sprint3/feature-login
 }
 
 .floatingActions {

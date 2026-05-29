@@ -36,6 +36,7 @@ import AccountPage from './client/modules/account/pages/AccountPage/AccountPage.
 
 // ✅ NUEVO: guard de rutas
 import ProtectedStep from "./multi-tenant/components/ProtectStep.jsx";
+import { ProtectedRoute } from "./admin/modules/auth/pages/hook/ProtectedRoute.jsx";
 import { StoreProvider } from "./multi-tenant/pages/StoreContext.jsx";
 import StoreResult from "./multi-tenant/pages/StoreResult.jsx";
 import { AuthProvider } from "./admin/modules/auth/pages/hook/Useauth.jsx";
@@ -109,9 +110,13 @@ function App() {
               <Route path="/widgets"  element={<ProtectedStep requiredStep={6}><WidgetsCustomizer /></ProtectedStep>} />
               <Route path="/crear-tienda" element={<ProtectedStep requiredStep={7}><CreateStore /></ProtectedStep>} />
               <Route path="/resultado"    element={<ProtectedStep requiredStep={8}><StoreResult /></ProtectedStep>} />
-              <Route path="/inventario"   element={<InventaryDashboard />} />
-              <Route path="/ordenes"      element={<OrdersDashboard />} />
-              <Route path="/tiendas"      element={<MyStore />} />
+              {/* Rutas que requieren sesión iniciada */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/inventario" element={<InventaryDashboard />} />
+                <Route path="/ordenes"    element={<OrdersDashboard />} />
+                <Route path="/tiendas"    element={<MyStore />} />
+              </Route>
+
               <Route path="/tienda/:slug" element={<StorePage />} />
 
               {/* ─── Admin ─── */}

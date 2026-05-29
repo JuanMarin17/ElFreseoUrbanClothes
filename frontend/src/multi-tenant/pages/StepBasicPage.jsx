@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "./StoreContext";
 import StepProgress from "../components/StepProgress";
+import { uploadFile } from "../../utils/uploadService";
 import "../components/styles/StepPages.css";
 
 export default function StepBasicPage() {
@@ -28,32 +29,12 @@ const handleFile = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
-  // Muestra preview local mientras sube
   const localPreview = URL.createObjectURL(file);
   setForm((prev) => ({ ...prev, logoPreview: localPreview, uploading: true }));
 
   try {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append(
-      "upload_preset",
-      "preset",
-    );
-
-    const res = await fetch(
-      `https://api.cloudinary.com/v1_1/dcwyyoe7c/image/upload`,
-      { method: "POST", body: formData },
-    );
-
-    const data = await res.json();
-    console.log("Cloudinary response:", data);
-
-    // Guarda la URL real de Cloudinary (no el base64)
-    setForm((prev) => ({
-      ...prev,
-      logoPreview: data.secure_url, // ← URL permanente de Cloudinary
-      uploading: false,
-    }));
+    const url = await uploadFile(file);
+    setForm((prev) => ({ ...prev, logoPreview: url, uploading: false }));
   } catch (err) {
     console.error("Error subiendo imagen:", err);
     setForm((prev) => ({ ...prev, uploading: false }));
