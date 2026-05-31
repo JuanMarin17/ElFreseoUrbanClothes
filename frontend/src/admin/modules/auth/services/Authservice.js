@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { uploadFile } from '../../../../utils/uploadService';
 
+const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api/v1';
+
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api/v1',
+  baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -11,6 +13,69 @@ API.interceptors.request.use((config) => {
   if (jwt) config.headers.Authorization = `Bearer ${jwt}`;
   return config;
 });
+
+// ─── Interceptor de respuesta: refresca el token automáticamente en 401 ───────
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(({ resolve, reject }) =>
+    error ? reject(error) : resolve(token)
+  );
+  failedQueue = [];
+};
+
+API.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const original = error.config;
+
+    // Solo interceptar 401 y evitar bucle infinito
+    if (error.response?.status !== 401 || original._retry) {
+      return Promise.reject(error);
+    }
+
+    // Si ya hay un refresh en curso, encolar esta petición
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      }).then((token) => {
+        original.headers['Authorization'] = `Bearer ${token}`;
+        return API(original);
+      });
+    }
+
+    original._retry = true;
+    isRefreshing = true;
+
+    const oldToken = localStorage.getItem('jwt');
+
+    try {
+      // Usar axios directo (no API) para evitar que este request pase por el interceptor
+      const { data } = await axios.post(
+        `${BASE_URL}/auth/refresh-token`,
+        {},
+        { headers: { Authorization: `Bearer ${oldToken}` } }
+      );
+
+      if (!data.jwt) throw new Error('No se recibió el token renovado');
+
+      localStorage.setItem('jwt', data.jwt);
+      API.defaults.headers.common['Authorization'] = `Bearer ${data.jwt}`;
+      original.headers['Authorization'] = `Bearer ${data.jwt}`;
+      processQueue(null, data.jwt);
+
+      return API(original); // reintenta la petición original con el nuevo token
+    } catch (refreshError) {
+      processQueue(refreshError, null);
+      localStorage.removeItem('jwt');
+      window.location.href = '/login';
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
+  }
+);
 
 function parseJwt(jwt) {
   try {
@@ -153,6 +218,24 @@ const authService = {
       return data;
     } catch (err) {
       throw new Error(extractBackendError(err));
+    }
+  },
+
+  /* ─── Refresh token (llamada proactiva desde el hook de 3 minutos) ─── */
+  async refreshToken() {
+    const oldToken = localStorage.getItem('jwt');
+    if (!oldToken) return null;
+    try {
+      const { data } = await axios.post(
+        `${BASE_URL}/auth/refresh-token`,
+        {},
+        { headers: { Authorization: `Bearer ${oldToken}` } }
+      );
+      if (!data.jwt) return null;
+      localStorage.setItem('jwt', data.jwt);
+      return parseJwt(data.jwt);
+    } catch {
+      return null;
     }
   },
 

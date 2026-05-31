@@ -12,10 +12,19 @@ export default function StoreProductCard({ product, index, theme, isJustAdded, o
           height: isUrb ? "clamp(120px,18vw,200px)" : 155,
           background: cardGradients[index % cardGradients.length],
           display: "flex", alignItems: "center", justifyContent: "center",
+          overflow: "hidden",
         }}>
-          <span style={{ fontSize: 9, color: isUrb ? "#1a1a1a" : "#ddd", letterSpacing: 2, opacity: 0.6 }}>
-            IMAGEN
-          </span>
+          {product.images?.[0]?.url ? (
+            <img
+              src={product.images[0].url}
+              alt={product.name}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          ) : (
+            <span style={{ fontSize: 9, color: isUrb ? "#1a1a1a" : "#ddd", letterSpacing: 2, opacity: 0.6 }}>
+              IMAGEN
+            </span>
+          )}
         </div>
 
         {/* Badges */}

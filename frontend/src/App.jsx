@@ -8,7 +8,9 @@ import "./animations.css";
 import AdminLayout from "./admin/modules/administration/components/AdminLayout/AdminLayout.jsx";
 import Dashboard from "./admin/modules/administration/dashboard/Dashboard.jsx";
 import UploadProduct from "./admin/modules/administration/pages/UploadProduct/UploadProduct.jsx";
+import EditProduct from "./admin/modules/administration/pages/EditProduct/EditProduct.jsx";
 import InventaryStock from "./admin/modules/administration/pages/Inventary/InventaryStock.jsx";
+import StoreProductsAdmin from "./multi-tenant/pages/StoreProductsAdmin/StoreProductsAdmin.jsx";
 
 /* ─── Auth ─── */
 import Login            from './admin/modules/auth/pages/Login/Login.jsx';
@@ -37,6 +39,7 @@ import AccountPage from './client/modules/account/pages/AccountPage/AccountPage.
 // ✅ NUEVO: guard de rutas
 import ProtectedStep from "./multi-tenant/components/ProtectStep.jsx";
 import { ProtectedRoute } from "./admin/modules/auth/pages/hook/ProtectedRoute.jsx";
+import { TokenGuard } from "./admin/modules/auth/pages/hook/TokenGuard.jsx";
 import { StoreProvider } from "./multi-tenant/pages/StoreContext.jsx";
 import StoreResult from "./multi-tenant/pages/StoreResult.jsx";
 import { AuthProvider } from "./admin/modules/auth/pages/hook/Useauth.jsx";
@@ -69,6 +72,7 @@ function App() {
     <AuthProvider>
       <MultiTenantAuthProvider>
         <StoreProvider>
+        <TokenGuard />
         <div className="main-container">
           <AnimatePresence mode="wait">
             <Routes key="main-content">
@@ -121,11 +125,17 @@ function App() {
 
               {/* ─── Admin ─── */}
               <Route path="/admin" element={<AdminLayout />}>
-                <Route index               element={<Navigate to="dashboard" replace />} />
-                <Route path="dashboard"    element={<Dashboard />} />
-                <Route path="subir-producto" element={<UploadProduct />} />
-                <Route path="inventario"   element={<InventaryStock />} />
-                <Route path="usuarios"     element={<Dashboard />} />
+                <Route index                  element={<Navigate to="dashboard" replace />} />
+                <Route path="dashboard"       element={<Dashboard />} />
+                <Route path="subir-producto"  element={<UploadProduct />} />
+                <Route path="editar-producto/:id" element={<EditProduct />} />
+                <Route path="inventario"      element={<InventaryStock />} />
+                <Route path="usuarios"        element={<Dashboard />} />
+              </Route>
+
+              {/* ─── Tienda Admin ─── */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/mi-tienda/productos" element={<StoreProductsAdmin />} />
               </Route>
 
               {/* ─── Fallback ─── */}

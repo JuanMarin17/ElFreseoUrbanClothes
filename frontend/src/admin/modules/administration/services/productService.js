@@ -1,197 +1,176 @@
-import axios from "axios";
+/**
+ * productService.js
+ * Integración con el microservicio de productos.
+ */
 
-// ─── Cliente Axios base ───────────────────────────────────────────────────────
-// El API Gateway en :8080 enruta /api/v1/* → microservicios correspondientes.
-const api = axios.create({
-  baseURL: "http://localhost:8080",
-  timeout: 15_000,
-  headers: {
+const BASE = "http://localhost:8080/api/v1";
+
+// ─── Headers ─────────────────────────────────────────────────────────────────
+const buildHeaders = (extra = {}) => {
+  const h = {
     "Content-Type": "application/json",
     Accept: "application/json",
-  },
-});
+  };
 
-// ─── Helper: inyectar headers de contexto por petición ───────────────────────
-// El backend (ProductService) exige X-Store-Id y X-User-Role en CADA petición.
-// Se leen de localStorage (o donde los guarde tu auth) y se adjuntan aquí
-// para no repetir esta lógica en cada llamada.
-const authHeaders = () => {
+  const jwt     = localStorage.getItem("jwt");
   const storeId = localStorage.getItem("storeId");
-  const role = localStorage.getItem("userRole"); // "ADMIN" | "OWNER"
 
-  if (!storeId)
-    throw new Error("No se encontró el storeId. Por favor inicia sesión.");
-  if (!role)
-    throw new Error(
-      "No se encontró el rol de usuario. Por favor inicia sesión.",
-    );
+  if (jwt     && jwt     !== "null") h["Authorization"] = `Bearer ${jwt}`;
+  if (storeId && storeId !== "null") h["X-Store-Id"]    = storeId;
 
-  return {
-    "X-Store-Id": storeId,
-    "X-User-Role": role,
-  };
+  return { ...h, ...extra };
 };
 
-// ─── Interceptor global de errores ───────────────────────────────────────────
-// Extrae el mensaje legible del ApiResponseDTO que devuelve Spring.
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (
-      error.code === "ERR_NETWORK" ||
-      error.code === "ERR_CONNECTION_REFUSED"
-    ) {
-      return Promise.reject(
-        new Error(
-          "No se puede conectar al servidor. " +
-            "Verifica que el API Gateway esté corriendo en el puerto 8080.",
-        ),
-      );
-    }
+// ─── Fetch base ───────────────────────────────────────────────────────────────
+async function request(method, path, { body, params, extraHeaders } = {}) {
+  let url = `${BASE}${path}`;
+  if (params) {
+    const qs = new URLSearchParams(params).toString();
+    if (qs) url += `?${qs}`;
+  }
 
-    if (error.response) {
-      // El backend devuelve { message, status, data, timestamp }
-      const mensaje =
-        error.response.data?.message ??
-        `Error del servidor (${error.response.status})`;
-      return Promise.reject(new Error(mensaje));
-    }
+  const options = { method, headers: buildHeaders(extraHeaders) };
+  if (body !== undefined) options.body = JSON.stringify(body);
 
-    return Promise.reject(error);
-  },
-);
+  const res = await fetch(url, options);
 
-// ─── Helper: extraer .data del ApiResponseDTO ────────────────────────────────
-// Spring devuelve siempre { message, status, data: <payload>, timestamp }.
-// Esta función extrae el payload para que los llamadores reciban los datos
-// directamente, sin tener que hacer response.data.data en cada sitio.
-const extractData = (response) => response.data?.data ?? response.data;
+  if (res.status === 204) return [];
 
-// ═════════════════════════════════════════════════════════════════════════════
-// PRODUCTS
-// ═════════════════════════════════════════════════════════════════════════════
+  let data;
+  try { data = await res.json(); } catch { data = {}; }
 
-// ─── GET /api/v1/products?page=0&size=10 ─────────────────────────────────────
-export const getProducts = async (page = 0, size = 10) => {
-  const { data } = await api.get("/api/v1/products", {
-    params: { page, size },
-    headers: authHeaders(),
+  if (!res.ok) {
+    const msg = data?.message ?? data?.error ?? `Error ${res.status}`;
+    const err = new Error(msg);
+    err.status = res.status;
+    err.errors = data?.errors ?? null;
+    throw err;
+  }
+
+  return data?.data ?? data;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PRODUCTOS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const getProducts          = (page = 0, size = 10) =>
+  request("GET", "/products", { params: { page, size } });
+
+export const getActiveProducts    = (page = 0, size = 10) =>
+  request("GET", "/products/active", { params: { page, size } });
+
+export const getAllProducts        = () => request("GET", "/products/all");
+export const getAllActiveProducts  = () => request("GET", "/products/all/active");
+export const getNewProducts       = () => request("GET", "/products/new");
+export const getNewActiveProducts = () => request("GET", "/products/new/active");
+export const getProductById       = (id) => request("GET", `/products/${id}`);
+
+export const getPublicActiveProducts = (storeId) => {
+  const id = storeId ?? localStorage.getItem("storeId");
+  if (!id || id === "null") throw new Error("Se requiere el storeId.");
+  return request("GET", "/products/all/active", {
+    extraHeaders: { "X-Store-Id": id },
   });
-  return extractData({ data });
 };
 
-// ─── GET /api/v1/products/all ────────────────────────────────────────────────
-export const getAllProducts = async () => {
-  const { data } = await api.get("/api/v1/products/all", {
-    headers: authHeaders(),
-  });
-  return extractData({ data });
-};
+export const createProduct     = (data) =>
+  request("POST", "/products", { body: buildProductPayload(data) });
 
-// ─── GET /api/v1/products/all/active ─────────────────────────────────────────
-export const getAllActiveProducts = async () => {
-  const { data } = await api.get("/api/v1/products/all/active", {
-    headers: authHeaders(),
-  });
-  return extractData({ data });
-};
+export const updateProduct     = (id, data) =>
+  request("PUT", `/products/${id}`, { body: buildProductPayload(data) });
 
-// ─── GET /api/v1/products/active?page=0&size=10 ──────────────────────────────
-export const getActiveProducts = async (page = 0, size = 10) => {
-  const { data } = await api.get("/api/v1/products/active", {
-    params: { page, size },
-    headers: authHeaders(),
-  });
-  return extractData({ data });
-};
+export const inactivateProduct = (id) =>
+  request("PUT", `/products/inactive/${id}`);
 
-// ─── GET /api/v1/products/new ────────────────────────────────────────────────
-export const getNewProducts = async () => {
-  const { data } = await api.get("/api/v1/products/new", {
-    headers: authHeaders(),
-  });
-  return extractData({ data });
-};
+export const activateProduct   = (id) =>
+  request("PUT", `/products/active/${id}`);
 
-// ─── GET /api/v1/products/:id ────────────────────────────────────────────────
-export const getProductById = async (id) => {
-  const { data } = await api.get(`/api/v1/products/${id}`, {
-    headers: authHeaders(),
-  });
-  return extractData({ data });
-};
+// ═══════════════════════════════════════════════════════════════════════════════
+// CATEGORÍAS
+// ═══════════════════════════════════════════════════════════════════════════════
 
-// ─── POST /api/v1/products ───────────────────────────────────────────────────
+export const getActiveCategories  = () =>
+  request("GET", "/categories/active");
+
+export const getAllCategories      = () =>
+  request("GET", "/categories/getAllCategories");
+
+export const createCategory       = (name) =>
+  request("POST", "/categories/createCategory", { body: { name } });
+
+export const updateCategory       = (id, name) =>
+  request("PUT", `/categories/${id}`, { body: { name } });
+
+export const activateCategory     = (id) => request("PUT",    `/categories/active/${id}`);
+export const deactivateCategory   = (id) => request("DELETE", `/categories/${id}`);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MARCAS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const getActiveBrands  = () =>
+  request("GET", "/brands/active");
+
+export const getAllBrands      = () =>
+  request("GET", "/brands/getAllBrands");
+
+export const createBrand      = (name) =>
+  request("POST", "/brands/createBrand", { body: { name } });
+
+export const updateBrand      = (id, name) =>
+  request("PUT", `/brands/${id}`, { body: { name } });
+
+export const activateBrand    = (id) => request("PUT", `/brands/active/${id}`);
+export const inactivateBrand  = (id) => request("PUT", `/brands/inactive/${id}`);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// VARIANTES — stock
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const increaseStock  = (variantId, quantity) =>
+  request("PATCH", `/variants/${variantId}/stock/increase`, { body: { quantity } });
+
+export const decreaseStock  = (variantId, quantity) =>
+  request("PATCH", `/variants/${variantId}/stock/decrease`, { body: { quantity } });
+
+export const updateMinStock = (variantId, minStock) =>
+  request("PATCH", `/variants/${variantId}/min-stock`, { body: { minStock } });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ALERTAS DE STOCK — SSE (no requiere JWT)
+// ═══════════════════════════════════════════════════════════════════════════════
+
 /**
- * Crea un producto nuevo.
- *
- * El backend espera:
- * {
- *   name:        string           — obligatorio
- *   description: string           — opcional
- *   brandId:     string | null    — UUID como string, null si no aplica
- *   categoryIds: string[]         — array de UUIDs como string
- *   images:      string[]         — URLs de Cloudinary (máx. 6)
- *   variants: [{
- *     sku:      string
- *     price:    number
- *     stock:    number
- *     minStock: number
- *   }]
- * }
- *
- * FIX:
- * - brandId vacío ("") → null  (evita UUID.fromString("") en Spring)
- * - categoryIds se garantiza como array vacío si no viene
- * - Se adjuntan headers X-Store-Id y X-User-Role requeridos por el Service
+ * Uso:
+ *   const close = subscribeStockAlerts((alert) => console.log(alert));
+ *   // Para desconectar: close();
  */
-export const createProduct = async (productData) => {
-  const payload = {
-    name: productData.name,
-    description: productData.description ?? "",
-    brandId: productData.brandId || null, // "" → null
-    categoryIds: productData.categoryIds ?? [],
-    images: productData.images ?? [],
-    variants: productData.variants ?? [],
+export const subscribeStockAlerts = (onAlert, onError) => {
+  const source = new EventSource(`${BASE}/alerts/stock/stream`);
+
+  source.onmessage = (e) => {
+    try { onAlert(JSON.parse(e.data)); } catch { /* ignorar */ }
   };
 
-  const { data } = await api.post("/api/v1/products", payload, {
-    headers: authHeaders(),
-  });
+  if (onError) source.onerror = onError;
 
-  return extractData({ data });
+  return () => source.close();
 };
 
-// ─── PUT /api/v1/products/:id ────────────────────────────────────────────────
-export const updateProduct = async (id, productData) => {
-  const payload = {
-    name: productData.name,
-    description: productData.description ?? "",
-    brandId: productData.brandId || null,
-    categoryIds: productData.categoryIds ?? [],
-    images: productData.images ?? [],
-    variants: productData.variants ?? [],
+// ─── Builder interno ──────────────────────────────────────────────────────────
+function buildProductPayload(data) {
+  return {
+    name:        data.name,
+    description: data.description ?? "",
+    brandId:     data.brandId     || null,
+    categoryIds: data.categoryIds ?? [],
+    images:      data.images      ?? [],
+    variants:    data.variants    ?? [],
   };
+}
 
-  const { data } = await api.put(`/api/v1/products/${id}`, payload, {
-    headers: authHeaders(),
-  });
-
-  return extractData({ data });
-};
-
-// ─── PUT /api/v1/products/inactive/:id ───────────────────────────────────────
-export const inactivateProduct = async (id) => {
-  const { data } = await api.put(`/api/v1/products/inactive/${id}`, null, {
-    headers: authHeaders(),
-  });
-  return extractData({ data });
-};
-
-// ─── PUT /api/v1/products/active/:id ─────────────────────────────────────────
-export const activateProduct = async (id) => {
-  const { data } = await api.put(`/api/v1/products/active/${id}`, null, {
-    headers: authHeaders(),
-  });
-  return extractData({ data });
-};
+// ─── Aliases de compatibilidad ────────────────────────────────────────────────
+export const syncApiContext = () => {};
+export const authHeaders    = () => ({});
+export const extractData    = (r) => r?.data ?? r;

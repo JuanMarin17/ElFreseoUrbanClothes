@@ -16,7 +16,7 @@ import "../components/styles/ComponentCustomizer.css";
 import { useStore } from "../pages/StoreContext";
 import { useNavigate } from "react-router-dom";
 import StepProgress from "./StepProgress";
-import { uploadFile } from "../../utils/uploadService";
+import { uploadStoreImage } from "../../utils/uploadService";
 
 const ComponentCustomizer = () => {
   const [activeComponent, setActiveComponent] = useState("BANNER");
@@ -115,7 +115,7 @@ const ComponentCustomizer = () => {
     const file = e.target.files[0];
     if (!file) return;
     try {
-      const url = await uploadFile(file);
+      const url = await uploadStoreImage(file, 'stores/banners');
       updateSection("image", url);
     } catch (error) {
       console.error("Error subiendo imagen:", error);

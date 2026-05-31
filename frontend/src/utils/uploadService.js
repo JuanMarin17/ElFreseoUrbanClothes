@@ -1,33 +1,50 @@
-const API_ROOT = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api/v1';
+const API_ROOT = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
 
-/**
- * Sube un archivo al backend como multipart/form-data.
- * El backend se encarga de subirlo a Cloudinary y devuelve la URL.
- * @param {File} file
- * @returns {Promise<string>} URL del archivo subido
- */
-export async function uploadFile(file) {
-  if (!navigator.onLine) throw new Error('Sin conexión a internet');
+// ─── Utilidad interna ─────────────────────────────────────────────────────────
+async function postImage(folder, file) {
+  if (!navigator.onLine) throw new Error("Sin conexión a internet");
 
   const formData = new FormData();
-  formData.append('file', file);
+  formData.append("image", file); // el campo siempre se llama "image"
 
-  const jwt = localStorage.getItem('jwt');
+  const jwt     = localStorage.getItem("jwt");
   const headers = jwt ? { Authorization: `Bearer ${jwt}` } : {};
 
-  const res = await fetch(`${API_ROOT}/upload`, {
-    method: 'POST',
-    headers,
-    body: formData,
-  });
+  const res = await fetch(
+    `${API_ROOT}/upload?folder=${folder}`,
+    { method: "POST", headers, body: formData }
+  );
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.message ?? `Error al subir archivo: ${res.status}`);
+    throw new Error(body.message ?? `Error al subir imagen: ${res.status}`);
   }
 
-  const data = await res.json();
-  const url = data.url ?? data.imageUrl ?? data.secure_url ?? data.fileUrl ?? null;
-  if (!url) throw new Error('El servidor no devolvió una URL válida');
+  const body = await res.json();
+  // Soporta respuesta plana { url } y wrapper { data: { url } }
+  const url = body?.url ?? body?.data?.url ?? body?.secure_url ?? null;
+  if (!url) throw new Error("El servidor no devolvió una URL válida");
   return url;
+}
+
+/**
+ * Sube una imagen de PRODUCTO.
+ * POST /upload?folder=productos
+ * @param {File} file
+ * @returns {Promise<string>} URL de Cloudinary
+ */
+export async function uploadFile(file) {
+  return postImage("productos", file);
+}
+
+/**
+ * Sube una imagen de TIENDA (logo, banner, etc.).
+ * POST /upload?folder=<folder>
+ * Carpetas disponibles: "stores/logos" | "stores/banners" | "general"
+ * @param {File} file
+ * @param {string} folder
+ * @returns {Promise<string>} URL de Cloudinary
+ */
+export async function uploadStoreImage(file, folder = "general") {
+  return postImage(folder, file);
 }

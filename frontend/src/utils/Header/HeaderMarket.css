@@ -1,79 +1,70 @@
 :root {
-  --primary-color:#2563FF; /* Cian futurista de Vexio */
+  --primary-color: #2563FF;
   --bg-dark: #0a0a0a;
   --text-white: #ffffff;
   --transition: all 0.3s ease;
+  --vx-font-body: 'Plus Jakarta Sans', sans-serif;
 }
 
 .header {
   position: fixed;
-  display: flex;  
+  display: flex;
   justify-content: space-between;
   top: 0;
   left: 0;
   width: 100%;
   padding-top: 5px;
-  height:9vh;
+  height: 9vh;
   z-index: 1000;
   transition: top 0.3s ease-in-out;
-  
-  /* Efecto Esmerilado (Cristal Oscuro) */
   background: rgba(4, 5, 7, 0.7);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Estado dinámico al hacer Scroll */
 .header.scrolled {
   background: rgba(6, 8, 16, 0.95);
   border-bottom: 1px solid rgba(6, 182, 212, 0.2);
 }
 
-/* ── CONTENEDOR ESQUINADO TOTAL (Sin límites de ancho) ── */
 .header-container {
-  padding: 0 40px; /* Generoso espacio de separación en cada esquina */
+  padding: 0 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%; /* Toma el ancho completo de cualquier pantalla */
+  width: 100%;
 }
 
-/* Bloque Logo */
 .logo-market-link {
-  height: 9vh;
+  height: 7vh;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .logo-image {
-  height: 10vh; /* Altura estilizada para no romper proporciones */
+  height: 10vh;
   width: 13vw;
   object-fit: contain;
   display: flex;
-  justify-content: center ;
-  
+  justify-content: center;
 }
 
-.logo-image-img{
-  height: 100%;
-  width: 90%;
+.logo-image-img {
+  height: 90%;
+  width: 60%;
 }
 
-/* Menú de Navegación del Centro */
 .nav-menu {
   display: flex;
-  gap: 15px; /* Excelente espacio de respiro entre enlaces */
-  border: 1px solid white;
+  gap: 15px;
   width: 40vw;
 }
 
 .nav-link {
   color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
-   color: var(--vx-muted);
   font-family: var(--vx-font-body);
   font-weight: 600;
   font-size: 11px;
@@ -86,7 +77,6 @@
   color: var(--text-white);
 }
 
-/* Efecto de línea inferior al hacer Hover */
 .nav-link::after {
   content: '';
   position: absolute;
@@ -102,7 +92,6 @@
   width: 100%;
 }
 
-/* Enlace Destacado: VENDER AQUÍ */
 .nav-link--accent {
   color: var(--primary-color);
   font-weight: 700;
@@ -111,7 +100,7 @@
   background: linear-gradient(90deg, #06b6d4, #a855f7);
 }
 
-/* Botones de Acciones del Extremo Derecho */
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -134,7 +123,6 @@
   transform: translateY(-2px);
 }
 
-/* Badges flotantes */
 .cart-btn {
   position: relative;
 }
@@ -151,7 +139,6 @@
   font-weight: bold;
 }
 
-/* Inicial del avatar */
 .user-avatar-init {
   width: 24px;
   height: 24px;
@@ -166,7 +153,6 @@
   border: 1px solid rgba(6, 182, 212, 0.4);
 }
 
-/* ── MENÚ DROPDOWN DE USUARIO ── */
 .user-menu-wrapper {
   position: relative;
   display: flex;
@@ -185,7 +171,6 @@
   padding: 10px 0;
   margin-top: 15px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-  
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px);
@@ -193,7 +178,6 @@
   z-index: 1100;
 }
 
-/* Triángulo de Dropdown */
 .user-dropdown::before {
   content: '';
   position: absolute;
@@ -225,7 +209,7 @@
   padding: 5px 0;
 }
 
-.dropdown-list li a, 
+.dropdown-list li a,
 .login-action-btn,
 .logout-action-btn {
   display: flex;
@@ -256,10 +240,10 @@
 }
 
 .logout-action-btn {
-  color: #ff4d4d; 
+  color: #ff4d4d;
 }
 
-.dropdown-list li a:hover, 
+.dropdown-list li a:hover,
 .login-action-btn:hover,
 .logout-action-btn:hover {
   background: rgba(255, 255, 255, 0.05);
@@ -278,7 +262,6 @@
   opacity: 0.9;
 }
 
-/* Ocultamiento de barra en scroll */
 .header-scroll-hidden {
   top: -10vh !important;
 }
@@ -313,7 +296,6 @@
   font-weight: 500;
 }
 
-/* ── RESPONSIVO ── */
 .menu-mobile {
   display: none;
   background: none;

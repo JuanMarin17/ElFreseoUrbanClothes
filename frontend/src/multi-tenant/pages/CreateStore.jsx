@@ -2,16 +2,17 @@ import "../components/styles/Store.css";
 import "../components/styles/StepPages.css";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "./StoreContext";
+import { useAuth } from "../../admin/modules/auth/pages/hook/Useauth";
 import { useState } from "react";
 import VexioTermsPage from "../components/VexioTermsPage";
 import StepProgress from "../components/StepProgress";
 import useCreateStore from "../hooks/useCreateStore";
 
-const HARDCODED_OWNER_ID = "00000000-0000-0000-0000-000000000001"; // ← reemplazar
-
 export default function CreateStore() {
   const nav = useNavigate();
   const { state, completeStep } = useStore();
+  const { user } = useAuth();
+  const ownerId = user?.userId ?? user?.id ?? "";
 
   // ── Estado local del formulario ─────────────────────────────────────────────
   const [form, setForm] = useState({
@@ -23,7 +24,7 @@ export default function CreateStore() {
   // ── Hook de integración API ─────────────────────────────────────────────────
   const { loading, error, submit, clearError } = useCreateStore(
     state,
-    HARDCODED_OWNER_ID,
+    ownerId,
   );
 
   // ── Handlers ────────────────────────────────────────────────────────────────
