@@ -15,36 +15,39 @@ import './Sidebar.css';
 const Sidebar = () => {
   const navigate = useNavigate();
 
+  // ⚠️ Cada "path" debe coincidir EXACTAMENTE con la ruta definida en App.jsx
+  // Si en App.jsx tienes:  <Route path="report" element={<Report />} />
+  // Aquí debes poner:       path: 'report'
   const menuItems = [
-    { path: 'dashboard', label: 'DASHBOARD', icon: LayoutDashboard },
-    { path: 'subir-productos', label: 'SUBIR PRODUCTOS', icon: PackagePlus },
-    { path: 'usuarios', label: 'GESTIONAR USUARIOS', icon: Users },
-    { path: 'pedidos', label: 'VER PEDIDOS', icon: ShoppingCart },
-    { path: 'informes', label: 'INFORMES', icon: BarChart3 },
-    { path: 'carrusel', label: 'CARRUSEL', icon: ImageIcon },
-    { path: 'alertas', label: 'ALERTAS DE STOCK', icon: AlertTriangle },
+    { path: 'dashboard',        label: 'DASHBOARD',          icon: LayoutDashboard },
+    { path: 'subir-producto',   label: 'SUBIR PRODUCTOS',    icon: PackagePlus },
+    { path: 'usuarios',         label: 'GESTIONAR USUARIOS', icon: Users },
+    { path: 'pedidos',          label: 'VER PEDIDOS',        icon: ShoppingCart },
+    { path: 'report',           label: 'INFORMES',           icon: BarChart3 },
+    { path: 'carrusel',         label: 'CARRUSEL',           icon: ImageIcon },
+    { path: 'alertas',          label: 'ALERTAS DE STOCK',   icon: AlertTriangle },
   ];
 
   const handleLogout = () => {
-    // Aquí puedes añadir la lógica para limpiar LocalStorage o Cookies
+    // Limpia token si lo usas:
     // localStorage.removeItem('token');
     console.log("Cerrando sesión...");
-    navigate('/login'); 
+    navigate('/login');
   };
 
   return (
     <aside className="sidebar-container">
       <div className="sidebar-brand">
-        <h2>EL FRESEO</h2>
+        <h2>Nombre</h2>
         <span className="brand-subtitle">ADMIN TERMINAL</span>
       </div>
 
       <nav className="sidebar-nav">
         <div className="nav-group">
           {menuItems.map((item) => (
-            <NavLink 
-              key={item.path} 
-              to={`/admin/${item.path}`} 
+            <NavLink
+              key={item.path}
+              to={`/admin/${item.path}`}
               className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
             >
               <item.icon size={18} />
@@ -53,7 +56,6 @@ const Sidebar = () => {
           ))}
         </div>
 
-        {/* Opción de Cerrar Sesión separada */}
         <div className="nav-footer">
           <button onClick={handleLogout} className="nav-link logout-btn">
             <LogOut size={18} />
@@ -61,14 +63,6 @@ const Sidebar = () => {
           </button>
         </div>
       </nav>
-
-      <div className="sidebar-user-pill">
-        <div className="user-avatar" />
-        <div className="user-info">
-          <p className="user-name">ADMIN USER</p>
-          <p className="user-role">SUPER ADMIN</p>
-        </div>
-      </div>
     </aside>
   );
 };
