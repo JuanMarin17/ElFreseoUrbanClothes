@@ -1,6 +1,7 @@
+import { Link } from 'react-router-dom';
 import StoreSearchBar from './StoreSearchBar.jsx';
 
-export default function StoreHeader({ header, theme, searchCfg, searchQuery, onSearchChange, cartCount }) {
+export default function StoreHeader({ header, theme, searchCfg, searchQuery, onSearchChange, cartCount, isOwner = false }) {
   const { accent, btnR, hBg, hColor, hFont, isMin, isUrb, isCls } = theme;
 
   return (
@@ -95,6 +96,33 @@ export default function StoreHeader({ header, theme, searchCfg, searchQuery, onS
           </>
         )}
       </button>
+
+      {/* Panel de Administración — solo visible para el dueño */}
+      {isOwner && (
+        <Link to="/mi-tienda/productos" style={{
+          background: "transparent",
+          border: `1.5px solid ${isUrb ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)"}`,
+          color: hColor,
+          padding: "5px 12px",
+          borderRadius: btnR,
+          fontSize: 10,
+          fontWeight: 700,
+          letterSpacing: 1.5,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: 5,
+          flexShrink: 0,
+          textDecoration: "none",
+          opacity: 0.75,
+          transition: "opacity 0.2s",
+        }}
+        onMouseEnter={e => e.currentTarget.style.opacity = 1}
+        onMouseLeave={e => e.currentTarget.style.opacity = 0.75}
+        >
+          ⚙ PANEL ADMIN
+        </Link>
+      )}
 
     </header>
   );

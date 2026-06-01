@@ -295,7 +295,7 @@ const UploadProduct = () => {
         setCategories(Array.isArray(cats) ? cats : []);
         setBrands(Array.isArray(brnds) ? brnds : []);
       } catch (err) {
-        setError("Error al cargar categorías y marcas.");
+        setError("Error al cargar categorías y marcas. " + err);
       } finally {
         setLoadingMeta(false);
       }

@@ -13,7 +13,7 @@ import StoreFooter from './StoreFooter.jsx';
      layoutType: "minimalista" | "urbano" | "clasico"
      data: { header, banner, footer, products, styles, widgets }
 ══════════════════════════════════════════ */
-export default function StoreFront({ layoutType = "minimalista", data = {} }) {
+export default function StoreFront({ layoutType = "minimalista", data = {}, isOwner = false }) {
   const header   = data.header   ?? DEMO.header;
   const footer   = data.footer   ?? DEMO.footer;
   const products = data.products ?? DEMO.products;
@@ -129,6 +129,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {} }) {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         cartCount={cartCount}
+        isOwner={isOwner}
       />
 
       <StoreHero banner={banner} theme={theme} />

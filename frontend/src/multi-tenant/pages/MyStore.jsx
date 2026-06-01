@@ -100,14 +100,14 @@ const MyStore = () => {
           </button>
           <button
             className="ms-nav-item"
-            onClick={() => navigate("/inventario")}
+            onClick={() => navigate("/mi-tienda/productos")}
           >
             <span className="ms-nav-icon">📦</span>
-            Inventario
+            Mis productos
           </button>
-          <button className="ms-nav-item" onClick={() => navigate("/ordenes")}>
+          <button className="ms-nav-item" onClick={() => navigate("/admin/inventario")}>
             <span className="ms-nav-icon">📋</span>
-            Pedidos
+            Inventario
           </button>
         </nav>
 
