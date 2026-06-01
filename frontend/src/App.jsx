@@ -11,6 +11,7 @@ import UploadProduct from "./admin/modules/administration/pages/UploadProduct/Up
 import EditProduct from "./admin/modules/administration/pages/EditProduct/EditProduct.jsx";
 import InventaryStock from "./admin/modules/administration/pages/Inventary/InventaryStock.jsx";
 import StoreProductsAdmin from "./multi-tenant/pages/StoreProductsAdmin/StoreProductsAdmin.jsx";
+import Report from "./admin/modules/administration/pages/Report/Report.jsx";
 
 /* ─── Auth ─── */
 import Login            from './admin/modules/auth/pages/Login/Login.jsx';
@@ -124,14 +125,15 @@ function App() {
               <Route path="/tienda/:slug" element={<StorePage />} />
 
               {/* ─── Admin ─── */}
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index                  element={<Navigate to="dashboard" replace />} />
-                <Route path="dashboard"       element={<Dashboard />} />
-                <Route path="subir-producto"  element={<UploadProduct />} />
-                <Route path="editar-producto/:id" element={<EditProduct />} />
-                <Route path="inventario"      element={<InventaryStock />} />
-                <Route path="usuarios"        element={<Dashboard />} />
-              </Route>
+           <Route path="/admin" element={<AdminLayout />}>
+           <Route index                      element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard"           element={<Dashboard />} />
+            <Route path="subir-producto"      element={<UploadProduct />} />
+          <Route path="editar-producto/:id" element={<EditProduct />} />
+          <Route path="inventario"          element={<InventaryStock />} />
+          <Route path="usuarios"            element={<Dashboard />} />
+          <Route path="report"              element={<Report />} />  
+          </Route>
 
               {/* ─── Tienda Admin ─── */}
               <Route element={<ProtectedRoute />}>

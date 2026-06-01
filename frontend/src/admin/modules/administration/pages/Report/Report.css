@@ -1,0 +1,234 @@
+/* ============================================================
+   Report.css
+   ⚠️  NO define sidebar ni layout raíz — eso lo hace AdminLayout
+   Solo estiliza el contenido interno de la página de informes
+   ============================================================ */
+
+/* ── Fuentes — pega esto en tu index.html si no lo tienes ───
+   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+   <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+   ─────────────────────────────────────────────────────────── */
+
+/* ── Contenedor raíz de la página ───────────────────────── */
+.rp-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;                    /* ocupa el espacio que AdminLayout le deja */
+  min-height: 100vh;
+  background: #0d0d0d;
+  font-family: 'Rajdhani', sans-serif;
+  color: #e0e0e0;
+  overflow: hidden;
+}
+
+/* ── TOPBAR ──────────────────────────────────────────────── */
+.rp-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.5rem;
+  border-bottom: 1px solid #1c1c1c;
+  background: #0d0d0d;
+  flex-shrink: 0;
+}
+.rp-search {
+  background: #181818;
+  border: 1px solid #222;
+  border-radius: 6px;
+  padding: 0.4rem 0.9rem;
+  color: #aaa;
+  font-size: 13px;
+  font-family: 'Rajdhani', sans-serif;
+  width: 220px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.rp-search:focus { border-color: #4f8ef7; }
+.rp-topbar-right { display: flex; align-items: center; gap: 16px; cursor: pointer; }
+
+/* ── ÁREA DE CONTENIDO ───────────────────────────────────── */
+.rp-content {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ── CABECERA + BOTONES DE PERÍODO ───────────────────────── */
+.rp-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.rp-title {
+  font-size: 26px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 1px;
+}
+.rp-subtitle {
+  font-size: 11px;
+  color: #555;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.rp-period-btns { display: flex; gap: 6px; }
+.rp-period-btn {
+  background: #181818;
+  border: 1px solid #222;
+  border-radius: 5px;
+  color: #888;
+  font-size: 12px;
+  padding: 5px 14px;
+  cursor: pointer;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 1px;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.rp-period-btn:hover,
+.rp-period-btn.active {
+  background: #4f8ef7;
+  color: #fff;
+  border-color: #4f8ef7;
+}
+
+/* ── KPI ROW ─────────────────────────────────────────────── */
+.rp-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+.rp-kpi-card {
+  background: #141414;
+  border: 1px solid #1e1e1e;
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  position: relative;
+  overflow: hidden;
+}
+.rp-kpi-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 6px;
+}
+.rp-kpi-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  font-family: 'Space Mono', monospace;
+  line-height: 1;
+}
+.rp-kpi-change {
+  font-size: 12px;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.rp-kpi-change.up   { color: #27ae60; }
+.rp-kpi-change.down { color: #e74c3c; }
+.rp-kpi-bar {
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 3px;
+  animation: rpBarGrow 1s ease forwards;
+}
+@keyframes rpBarGrow {
+  from { width: 0; }
+  to   { width: var(--bar-w); }
+}
+
+/* ── CARD GENÉRICA ───────────────────────────────────────── */
+.rp-card {
+  background: #141414;
+  border: 1px solid #1e1e1e;
+  border-radius: 8px;
+  padding: 1.1rem;
+}
+.rp-card-title {
+  font-size: 15px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #eceaea;
+  margin-bottom: 1rem;
+}
+
+/* ── FILAS DE GRÁFICAS ───────────────────────────────────── */
+.rp-charts-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 14px;
+  margin-bottom: 1.5rem;
+}
+.rp-charts-row2 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 1.5rem;
+}
+.rp-bottom-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 14px;
+}
+
+/* ── DONUT LEYENDA ───────────────────────────────────────── */
+.rp-donut-legend { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.rp-legend-item  { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+.rp-legend-left  { display: flex; align-items: center; color: #999; }
+.rp-legend-dot   { width: 10px; height: 10px; border-radius: 50%; margin-right: 7px; flex-shrink: 0; }
+.rp-legend-right { color: #ccc; font-family: 'Space Mono', monospace; font-size: 11px; }
+
+/* ── SPARK BAR ───────────────────────────────────────────── */
+.rp-spark-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.rp-spark-label { font-size: 12px; color: #888; width: 80px; flex-shrink: 0; letter-spacing: 1px; }
+.rp-spark-bg    { flex: 1; height: 6px; background: #1e1e1e; border-radius: 3px; overflow: hidden; }
+.rp-spark-fill  { height: 100%; border-radius: 3px; animation: rpBarGrow 1.2s ease forwards; }
+.rp-spark-val   { font-size: 12px; color: #aaa; width: 36px; text-align: right; font-family: 'Space Mono', monospace; }
+
+/* ── ACTIVIDAD ───────────────────────────────────────────── */
+.rp-activity-list { display: flex; flex-direction: column; }
+.rp-activity-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #1a1a1a;
+}
+.rp-activity-item:last-child { border-bottom: none; }
+.rp-activity-dot  { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.rp-activity-text { font-size: 12px; color: #aaa; line-height: 1.5; }
+.rp-activity-time { font-size: 11px; color: #444; margin-top: 2px; font-family: 'Space Mono', monospace; }
+
+/* ── TABLA ───────────────────────────────────────────────── */
+.rp-table-wrap { overflow-x: auto; }
+.rp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rp-table th {
+  color: #555; font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; padding: 6px 8px;
+  border-bottom: 1px solid #1e1e1e; text-align: left;
+}
+.rp-table td { padding: 9px 8px; border-bottom: 1px solid #1a1a1a; color: #ccc; }
+.rp-table tr:hover td { background: #181818; }
+
+.rp-badge        { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; letter-spacing: 1px; }
+.rp-badge-green  { background: #0d2a1a; color: #27ae60; }
+.rp-badge-red    { background: #2a0d0d; color: #e74c3c; }
+.rp-badge-yellow { background: #2a220d; color: #f39c12; }
+
+/* ── GAUGE ───────────────────────────────────────────────── */
+.rp-gauge-wrap { display: flex; justify-content: center; margin-bottom: 0.5rem; }
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .rp-kpi-row     { grid-template-columns: repeat(2, 1fr); }
+  .rp-charts-row  { grid-template-columns: 1fr; }
+  .rp-charts-row2 { grid-template-columns: 1fr 1fr; }
+  .rp-bottom-row  { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+  .rp-kpi-row     { grid-template-columns: 1fr 1fr; }
+  .rp-charts-row2 { grid-template-columns: 1fr; }
+}
