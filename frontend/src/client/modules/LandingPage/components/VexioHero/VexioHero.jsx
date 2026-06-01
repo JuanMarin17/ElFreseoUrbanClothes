@@ -46,7 +46,7 @@ export default function VexioHero() {
             ))}
           </div>
           <p className="vx-hero-sp-text">
-            Más de <strong>12,000 compradores</strong> ya descubren nuevas tiendas cada día
+            Descubre tiendas únicas y conecta con una comunidad en constante crecimiento
           </p>
         </div>
 

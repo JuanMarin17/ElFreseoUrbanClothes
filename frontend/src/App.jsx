@@ -12,6 +12,7 @@ import EditProduct from "./admin/modules/administration/pages/EditProduct/EditPr
 import InventaryStock from "./admin/modules/administration/pages/Inventary/InventaryStock.jsx";
 import StoreProductsAdmin from "./multi-tenant/pages/StoreProductsAdmin/StoreProductsAdmin.jsx";
 import Report from "./admin/modules/administration/pages/Report/Report.jsx";
+import IAAdmin from "./admin/modules/administration/pages/IAAdmin/AIAdmin.jsx";
 
 /* ─── Auth ─── */
 import Login            from './admin/modules/auth/pages/Login/Login.jsx';
@@ -127,6 +128,7 @@ function App() {
               {/* ─── Admin ─── */}
            <Route path="/admin" element={<AdminLayout />}>
            <Route index                      element={<Navigate to="dashboard" replace />} />
+           <Route path="IA" element={<IAAdmin />} />
             <Route path="dashboard"           element={<Dashboard />} />
             <Route path="subir-producto"      element={<UploadProduct />} />
           <Route path="editar-producto/:id" element={<EditProduct />} />

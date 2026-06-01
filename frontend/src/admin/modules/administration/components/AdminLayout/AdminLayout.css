@@ -9,16 +9,29 @@
 .admin-main-section {
   flex: 1; /* Esto hace que el contenido ocupe todo el resto de la pantalla */
   display: flex;
-  flex-direction: column; /* El header arriba y el contenido abajo */
+  flex-direction: column; /* El header arriba y el espacio de trabajo abajo */
   height: 100vh;
   overflow: hidden;
 }
 
-.admin-page-body {
-  flex: 1;
-  padding: 30px;
-  overflow-y: auto; /* Solo esta parte tiene scroll si el contenido es largo */
+/* ── NUEVA CLASE: El contenedor divisor horizontal ── */
+.admin-workspace-split {
+  display: flex;
+  flex-direction: row; /* Forzamos que el contenido y la IA se pongan lado a lado */
+  flex: 1;            /* Ocupa todo el alto restante debajo del Header */
+  width: 100%;
+  overflow: hidden;
+  position: relative;
   background-color: #080808;
+}
+
+.admin-page-body {
+  flex: 1;            /* Se encogerá automáticamente cuando la IA se abra */
+  padding: 30px;
+  overflow-y: auto;   /* Solo esta parte tiene scroll si el contenido es largo */
+  background-color: #080808;
+  min-width: 0;       /* ¡IMPORTANTE! Evita que las tablas grandes rompan el Flexbox */
+  transition: flex 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Transición suave de encogimiento */
 }
 
 /* Scrollbar estilo terminal para el contenido */
