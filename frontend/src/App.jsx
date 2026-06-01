@@ -13,6 +13,7 @@ import InventaryStock from "./admin/modules/administration/pages/Inventary/Inven
 import StoreProductsAdmin from "./multi-tenant/pages/StoreProductsAdmin/StoreProductsAdmin.jsx";
 import Report from "./admin/modules/administration/pages/Report/Report.jsx";
 import IAAdmin from "./admin/modules/administration/pages/IAAdmin/AIAdmin.jsx";
+import OrdersManagement from "./admin/modules/administration/pages/OrdersManagement/OrdersManagement.jsx";
 
 /* ─── Auth ─── */
 import Login            from './admin/modules/auth/pages/Login/Login.jsx';
@@ -135,6 +136,7 @@ function App() {
           <Route path="inventario"          element={<InventaryStock />} />
           <Route path="usuarios"            element={<Dashboard />} />
           <Route path="report"              element={<Report />} />  
+          <Route path="pedidos"              element={<OrdersManagement />} />
           </Route>
 
               {/* ─── Tienda Admin ─── */}
