@@ -14,6 +14,7 @@ import StoreProductsAdmin from "./multi-tenant/pages/StoreProductsAdmin/StorePro
 import Report from "./admin/modules/administration/pages/Report/Report.jsx";
 import IAAdmin from "./admin/modules/administration/pages/IAAdmin/AIAdmin.jsx";
 import OrdersManagement from "./admin/modules/administration/pages/OrdersManagement/OrdersManagement.jsx";
+import ShockAlerts from "./admin/modules/administration/pages/StockAlerts/StockAlert.jsx";
 
 /* ─── Auth ─── */
 import Login            from './admin/modules/auth/pages/Login/Login.jsx';
@@ -137,6 +138,7 @@ function App() {
           <Route path="usuarios"            element={<Dashboard />} />
           <Route path="report"              element={<Report />} />  
           <Route path="pedidos"              element={<OrdersManagement />} />
+          <Route path="alertas"            element={<ShockAlerts />} />
           </Route>
 
               {/* ─── Tienda Admin ─── */}
