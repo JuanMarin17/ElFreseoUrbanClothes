@@ -4,9 +4,9 @@ import Logo from '../../../../../assets/LogoVexios/banervexio.png';
 import './VexioFooter.css';
 
 const LINKS = {
-  Producto:  ['Características', 'Precios', 'Integraciones', 'Changelog', 'Roadmap'],
-  Empresa:   ['Sobre nosotros', 'Blog', 'Casos de éxito', 'Prensa', 'Trabaja con nosotros'],
-  Soporte:   ['Centro de ayuda', 'Documentación API', 'Comunidad', 'Estado del sistema', 'Contacto'],
+  Producto:  ['Características', 'Precios', 'Integraciones',],
+  Empresa:   ['Sobre nosotros', 'Trabaja con nosotros'],
+  Soporte:   ['Centro de ayuda', 'Contacto'],
 };
 
 export default function VexioFooter() {
@@ -41,7 +41,7 @@ export default function VexioFooter() {
 
       <div className="vx-footer-bottom">
         <span className="vx-footer-copy">
-          © 2025 Vexio. Todos los derechos reservados. Hecho con ♥ en Colombia.
+          © 2025 Vexio. Todos los derechos reservados
         </span>
         <div className="vx-footer-legal">
           <a href="#">Términos</a>
