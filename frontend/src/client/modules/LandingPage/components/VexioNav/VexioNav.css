@@ -38,12 +38,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* ✓ eliminado border: 1px solid white (era de prueba) */
   height: 10vh;
   width: 13vw;
 }
 
 .vx-nav-logo-img {
+  top: 2px;
   height: 100%;
   width: 60%;                        /* ✓ corregido de 70% a 60% */
   object-fit: contain;

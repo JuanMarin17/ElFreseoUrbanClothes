@@ -81,7 +81,7 @@ function App() {
             <Routes key="main-content">
 
               {/* ─── Públicas cliente ─── */}
-              <Route path="/"       element={<div className="ayuda"><VexioLanding /></div>} />
+              <Route path="/"       element={<VexioLanding />} />
               <Route path="/landing" element={<VexioLanding />} />
               <Route path="/market" element={<MarketPage />} />
 

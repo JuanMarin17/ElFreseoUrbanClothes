@@ -4,7 +4,7 @@
 ══════════════════════════════════════════════ */
 
 .plan-container {
-  min-height: 100vh;
+  min-height: 70vh;
   background: #080c14;
   color: #fff;
   display: flex;
