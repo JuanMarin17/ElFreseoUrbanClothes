@@ -8,6 +8,35 @@ import { useStore } from "./StoreContext";
 import StepProgress from "../components/StepProgress";
 import { uploadStoreImage } from "../../utils/uploadService";
 import "../components/styles/StepPages.css";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Upload,
+  Loader2,
+  ArrowLeft,
+  ArrowRight,
+  Store,
+} from "lucide-react";
+
+// ── Alerta reutilizable ────────────────────────────────────────────────────────
+function Alert({ type = "error", title, children }) {
+  const cfg = {
+    error:   { icon: <AlertCircle  size={16} />, cls: "error"   },
+    success: { icon: <CheckCircle2 size={16} />, cls: "success" },
+    warning: { icon: <AlertCircle  size={16} />, cls: "warning" },
+    info:    { icon: <CheckCircle2 size={16} />, cls: "info"    },
+  };
+  const { icon, cls } = cfg[type] ?? cfg.error;
+  return (
+    <div className={`alert ${cls}`} role="alert">
+      <span className="alert-icon">{icon}</span>
+      <div className="alert-content">
+        {title && <p className="alert-title">{title}</p>}
+        {children && <p className="alert-body">{children}</p>}
+      </div>
+    </div>
+  );
+}
 
 // Solo restaurar la preview si es una URL real de Cloudinary (no un blob: de sesión anterior)
 const safeLogoUrl = (url) =>
@@ -25,42 +54,63 @@ export default function StepBasicPage() {
     uploadError: null,
   });
 
+  // Errores de validación inline (solo se muestran tras intentar continuar)
+  const [errors, setErrors] = useState({});
+
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    // Limpiar error del campo cuando el usuario escribe
+    if (errors[e.target.name]) {
+      setErrors((prev) => ({ ...prev, [e.target.name]: null }));
+    }
   };
 
   const handleFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Mostrar preview local inmediata mientras sube
     const localPreview = URL.createObjectURL(file);
-    setForm((prev) => ({ ...prev, logoPreview: localPreview, uploading: true, uploadError: null }));
+    setForm((prev) => ({
+      ...prev,
+      logoPreview: localPreview,
+      uploading: true,
+      uploadError: null,
+    }));
 
     try {
-      const cloudUrl = await uploadStoreImage(file, 'stores/logos');
-      // Liberar blob local y reemplazar con la URL permanente de Cloudinary
+      const cloudUrl = await uploadStoreImage(file, "stores/logos");
       URL.revokeObjectURL(localPreview);
       setForm((prev) => ({ ...prev, logoPreview: cloudUrl, uploading: false }));
     } catch (err) {
       URL.revokeObjectURL(localPreview);
       setForm((prev) => ({
         ...prev,
-        logoPreview: safeLogoUrl(state.basic?.logoPreview), // volver al logo anterior si existía
+        logoPreview: safeLogoUrl(state.basic?.logoPreview),
         uploading: false,
-        uploadError: err.message ?? "Error al subir el logo",
+        uploadError: err.message ?? "No se pudo subir el logo. Intenta de nuevo.",
       }));
     }
   };
 
   const handleBack = () => {
-    saveProgress("basic", { name: form.name, description: form.description, logoPreview: form.logoPreview });
+    saveProgress("basic", {
+      name: form.name,
+      description: form.description,
+      logoPreview: form.logoPreview,
+    });
     navigate("/plan");
   };
 
   const handleNext = () => {
-    if (!form.name.trim()) return alert("El nombre de la tienda es obligatorio");
-    if (form.uploading) return alert("Espera a que el logo termine de subirse");
+    const newErrors = {};
+    if (!form.name.trim()) newErrors.name = "El nombre de la tienda es obligatorio";
+    if (form.uploading)    newErrors.logo = "Espera a que el logo termine de subirse";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     completeStep("basic", {
       name:        form.name,
       description: form.description,
@@ -75,7 +125,9 @@ export default function StepBasicPage() {
 
       <div className="step-card">
         <div className="step-header">
-          <button className="btn-back" onClick={handleBack}>←</button>
+          <button className="btn-back" onClick={handleBack} aria-label="Volver">
+            <ArrowLeft size={16} />
+          </button>
           <div>
             <h1 className="step-title">Información básica</h1>
             <p className="step-subtitle">Cuéntanos sobre tu tienda</p>
@@ -83,19 +135,34 @@ export default function StepBasicPage() {
         </div>
 
         <div className="step-body">
+
+          {/* Nombre */}
           <div className="field-block">
-            <label>Nombre de la tienda *</label>
+            <label htmlFor="sb-name">
+              <Store size={11} style={{ marginRight: 5, verticalAlign: "middle" }} />
+              Nombre de la tienda *
+            </label>
             <input
+              id="sb-name"
               name="name"
               placeholder="Ej: Mi Tienda Urbana"
               value={form.name}
               onChange={handleChange}
+              autoComplete="off"
+              className={errors.name ? "field-error" : form.name.trim() ? "field-success" : ""}
             />
+            {errors.name && (
+              <span className="field-hint hint-error">
+                <AlertCircle size={11} /> {errors.name}
+              </span>
+            )}
           </div>
 
+          {/* Descripción */}
           <div className="field-block">
-            <label>Descripción</label>
+            <label htmlFor="sb-description">Descripción</label>
             <textarea
+              id="sb-description"
               name="description"
               placeholder="Describe tu tienda en pocas palabras..."
               value={form.description}
@@ -104,9 +171,13 @@ export default function StepBasicPage() {
             />
           </div>
 
+          {/* Logo */}
           <div className="field-block">
             <label>Logo de la tienda</label>
-            <label className="upload-area" style={{ cursor: form.uploading ? "not-allowed" : "pointer" }}>
+            <label
+              className="upload-area"
+              style={{ cursor: form.uploading ? "not-allowed" : "pointer" }}
+            >
               <input
                 type="file"
                 accept="image/*"
@@ -114,33 +185,73 @@ export default function StepBasicPage() {
                 disabled={form.uploading}
                 hidden
               />
-              <span>{form.uploading ? "⏳ Subiendo..." : "📁 Subir logo"}</span>
+              {form.uploading ? (
+                <>
+                  <Loader2 size={16} style={{ animation: "spin 0.7s linear infinite" }} />
+                  <span>Subiendo logo…</span>
+                </>
+              ) : (
+                <>
+                  <Upload size={16} />
+                  <span>Subir logo</span>
+                </>
+              )}
             </label>
 
+            {/* Error de upload */}
             {form.uploadError && (
-              <p style={{ color: "#ef4444", fontSize: 12, marginTop: 6 }}>
-                ⚠ {form.uploadError}
-              </p>
+              <Alert type="error" title="Error al subir el logo">
+                {form.uploadError}
+              </Alert>
             )}
 
+            {/* Error de validación del logo (subiendo) */}
+            {errors.logo && (
+              <Alert type="warning" title="Logo en proceso">
+                {errors.logo}
+              </Alert>
+            )}
+
+            {/* Preview */}
             {form.logoPreview && !form.uploading && (
               <img
                 src={form.logoPreview}
                 className="logo-preview"
-                alt="Logo preview"
+                alt="Vista previa del logo"
               />
             )}
           </div>
+
+          {/* Error general si hay múltiples errores */}
+          {errors.name && errors.logo && (
+            <Alert type="error" title="Completa los campos requeridos">
+              Revisa los campos marcados antes de continuar.
+            </Alert>
+          )}
+
         </div>
 
         <div className="step-actions">
-          <button className="btn-secondary" onClick={handleBack}>Atrás</button>
+          <button className="btn-secondary" onClick={handleBack}>
+            <ArrowLeft size={14} />
+            Atrás
+          </button>
           <button
             className="btn-primary"
             onClick={handleNext}
             disabled={form.uploading}
           >
-            Continuar →
+            {form.uploading ? (
+              <>
+                <span className="spinner" />
+                Subiendo…
+              </>
+            ) : (
+              <>
+                Continuar
+                <ArrowRight size={14} />
+              </>
+            )}
           </button>
         </div>
       </div>

@@ -1,90 +1,64 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import "./Report.css";
 
 // ============================================================
 //  CONFIGURACIÓN DE API
-//  Cambia BASE_URL por la URL de tu backend
 // ============================================================
-const API_BASE_URL = "https://tu-api.com/api";
+const BASE = "http://localhost:8080/api/v1";
 
-async function fetchAPI(endpoint) {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    headers: {
-      "Content-Type": "application/json",
-      // "Authorization": `Bearer ${localStorage.getItem("token")}`
-    },
-  });
-  if (!response.ok) throw new Error(`Error ${response.status}`);
-  return response.json();
+const buildHeaders = () => ({
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+  "X-Store-Id": localStorage.getItem("storeId"),
+});
+
+async function apiFetch(path) {
+  const res = await fetch(`${BASE}${path}`, { headers: buildHeaders() });
+  if (res.status === 401) throw new Error("UNAUTHORIZED");
+  if (res.status === 400) throw new Error("STORE_ID_MISSING");
+  if (!res.ok) throw new Error(`HTTP_${res.status}`);
+  return res.json();
 }
 
+const getDashboard    = ()           => apiFetch("/reports/dashboard");
+const getStockReport  = ()           => apiFetch("/reports/stock");
+const getOrdersReport = (days = 30)  => apiFetch(`/reports/orders?days=${days}`);
+const getSalesReport  = (days = 30)  => apiFetch(`/reports/sales?days=${days}`);
+
 // ============================================================
-//  DATOS MOCK — reemplaza con fetchAPI() cuando tengas backend
+//  UTILIDADES
 // ============================================================
-const MOCK_KPIS = {
-  ventas: 124830,
-  pedidos: 1847,
-  ticketPromedio: 67,
-  usuariosActivos: 3290,
-  ventasCambio: "+18.4%",
-  pedidosCambio: "+9.2%",
-  ticketCambio: "-2.1%",
-  usuariosCambio: "+31.7%",
+const formatCOP = (v) =>
+  new Intl.NumberFormat("es-CO", {
+    style: "currency", currency: "COP",
+    minimumFractionDigits: 0, maximumFractionDigits: 0,
+  }).format(v ?? 0);
+
+const periodToDays = (p) => ({ "7D": 7, "30D": 30, "90D": 90, "ALL": 0 }[p] ?? 30);
+
+const ORDER_STATUS_COLORS = {
+  pendingOrders:    "#f59e0b",
+  confirmedOrders:  "#3b82f6",
+  processingOrders: "#6366f1",
+  shippedOrders:    "#0ea5e9",
+  deliveredOrders:  "#22c55e",
+  cancelledOrders:  "#ef4444",
+  refundedOrders:   "#f43f5e",
 };
-
-const MOCK_INGRESOS    = [42000,55000,48000,67000,72000,61000,83000,91000,78000,95000,102000,124000];
-const MOCK_META        = [50000,55000,60000,65000,70000,75000,80000,85000,90000,95000,100000,110000];
-const MOCK_PEDIDOS_DIA = [84, 127, 98, 142, 189, 234, 76];
-
-const MOCK_CATEGORIAS = [
-  { label: "Electrónica", valor: 38, color: "#4f8ef7" },
-  { label: "Ropa",        valor: 24, color: "#27ae60" },
-  { label: "Hogar",       valor: 21, color: "#f39c12" },
-  { label: "Otros",       valor: 17, color: "#9b59b6" },
-];
-
-const MOCK_CANALES = [
-  { label: "Web",         pct: 68, color: "#4f8ef7" },
-  { label: "App móvil",   pct: 21, color: "#27ae60" },
-  { label: "Marketplace", pct: 11, color: "#f39c12" },
-];
-
-const MOCK_CONVERSION = [
-  { label: "Visitas", pct: 100, color: "#555" },
-  { label: "Carrito", pct: 34,  color: "#9b59b6" },
-  { label: "Compra",  pct: 12,  color: "#e74c3c" },
-];
-
-const MOCK_ACTIVIDAD = [
-  { color: "#27ae60", texto: "Nuevo pedido #4821 — $342.00", tiempo: "hace 3 min" },
-  { color: "#4f8ef7", texto: "Usuario nuevo registrado",      tiempo: "hace 12 min" },
-  { color: "#f39c12", texto: "Stock bajo: Auriculares BT",   tiempo: "hace 28 min" },
-  { color: "#e74c3c", texto: "Pedido #4817 cancelado",       tiempo: "hace 41 min" },
-  { color: "#27ae60", texto: "Pago confirmado #4815",        tiempo: "hace 1h 02min" },
-];
-
-const MOCK_PRODUCTOS = [
-  { nombre: "Auriculares BT Pro", unidades: 482, ingresos: "$38,560", estado: "Activo" },
-  { nombre: "Smartwatch X2",      unidades: 319, ingresos: "$47,850", estado: "Activo" },
-  { nombre: "Teclado Mecánico",   unidades: 274, ingresos: "$21,920", estado: "Stock bajo" },
-  { nombre: 'Monitor 27" 4K',     unidades: 198, ingresos: "$79,200", estado: "Activo" },
-  { nombre: "Cámara Web HD",      unidades: 155, ingresos: "$12,400", estado: "Sin stock" },
-];
-
-const MOCK_SATISFACCION = {
-  porcentaje: 87,
-  estrellas: [
-    { label: "★★★★★", pct: 62, color: "#27ae60" },
-    { label: "★★★★",  pct: 24, color: "#4f8ef7" },
-    { label: "★★★",   pct: 9,  color: "#f39c12" },
-    { label: "≤ ★★",  pct: 5,  color: "#e74c3c" },
-  ],
+const ORDER_STATUS_LABELS = {
+  pendingOrders:    "Pendiente",
+  confirmedOrders:  "Confirmada",
+  processingOrders: "En proceso",
+  shippedOrders:    "Enviada",
+  deliveredOrders:  "Entregada",
+  cancelledOrders:  "Cancelada",
+  refundedOrders:   "Reembolsada",
 };
 
 // ============================================================
 //  HOOK: useAnimatedCount
 // ============================================================
-function useAnimatedCount(target, duration = 1200) {
+function useAnimatedCount(target, duration = 1000) {
   const [value, setValue] = useState(0);
   useEffect(() => {
     let start = 0;
@@ -100,158 +74,126 @@ function useAnimatedCount(target, duration = 1200) {
 }
 
 // ============================================================
-//  SUBCOMPONENTE: KpiCard
+//  SUBCOMPONENTE: StatCard
 // ============================================================
-function KpiCard({ label, value, prefix = "", suffix = "", cambio, barColor, barWidth }) {
-  const animado = useAnimatedCount(value);
-  const esPositivo = cambio?.startsWith("+");
+function StatCard({ label, value, prefix = "", suffix = "", color = "#4f8ef7", icon }) {
+  const anim = useAnimatedCount(typeof value === "number" ? value : 0);
   return (
-    <div className="rp-kpi-card">
-      <div className="rp-kpi-label">{label}</div>
-      <div className="rp-kpi-value">{prefix}{animado.toLocaleString()}{suffix}</div>
-      <div className={`rp-kpi-change ${esPositivo ? "up" : "down"}`}>
-        <span>{esPositivo ? "▲" : "▼"}</span> {cambio} vs mes anterior
+    <div className="rp-stat-card">
+      {icon && <i className={`ti ti-${icon} rp-stat-icon`} style={{ color }} aria-hidden="true" />}
+      <div className="rp-stat-label">{label}</div>
+      <div className="rp-stat-value" style={{ color }}>
+        {prefix}{anim.toLocaleString("es-CO")}{suffix}
       </div>
-      <div className="rp-kpi-bar" style={{ background: barColor, "--bar-w": barWidth }} />
     </div>
   );
 }
 
 // ============================================================
-//  SUBCOMPONENTE: SparkBar
+//  SUBCOMPONENTE: AlertBanner
 // ============================================================
-function SparkBar({ label, pct, color }) {
+function AlertBanner({ type, message }) {
+  if (!message) return null;
+  const styles = {
+    error:   { bg: "#fef2f2", border: "#fca5a5", color: "#991b1b", icon: "alert-circle" },
+    warning: { bg: "#fffbeb", border: "#fcd34d", color: "#92400e", icon: "alert-triangle" },
+    info:    { bg: "#eff6ff", border: "#93c5fd", color: "#1e40af", icon: "info-circle" },
+  };
+  const s = styles[type] || styles.info;
   return (
-    <div className="rp-spark-item">
-      <span className="rp-spark-label">{label}</span>
-      <div className="rp-spark-bg">
-        <div className="rp-spark-fill" style={{ background: color, "--bar-w": `${pct}%` }} />
-      </div>
-      <span className="rp-spark-val">{pct}%</span>
+    <div className="rp-alert" style={{ background: s.bg, borderColor: s.border, color: s.color }}>
+      <i className={`ti ti-${s.icon}`} aria-hidden="true" />
+      {message}
     </div>
-  );
-}
-
-// ============================================================
-//  SUBCOMPONENTE: GaugeSVG
-// ============================================================
-function GaugeSVG({ porcentaje }) {
-  const animado = useAnimatedCount(porcentaje, 1500);
-  const total  = 251;
-  const filled = (animado / 100) * total;
-  return (
-    <svg viewBox="0 0 200 120" width="100%" style={{ maxWidth: 200 }}>
-      <defs>
-        <linearGradient id="rpGaugeFill" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%"   stopColor="#e74c3c" />
-          <stop offset="50%"  stopColor="#f39c12" />
-          <stop offset="100%" stopColor="#27ae60" />
-        </linearGradient>
-      </defs>
-      <path d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="#1e1e1e" strokeWidth="14" strokeLinecap="round" />
-      <path
-        d="M20,100 A80,80 0 0,1 180,100"
-        fill="none" stroke="url(#rpGaugeFill)"
-        strokeWidth="14" strokeLinecap="round"
-        strokeDasharray={`${filled} ${total}`}
-      />
-      <text x="100" y="88" textAnchor="middle" fontSize="28" fontWeight="700" fill="#fff" fontFamily="'Space Mono',monospace">
-        {animado}%
-      </text>
-      <text x="100" y="105" textAnchor="middle" fontSize="10" fill="#555" letterSpacing="2">SATISFACCIÓN</text>
-      <text x="22"  y="116" fontSize="9" fill="#666">0</text>
-      <text x="172" y="116" fontSize="9" fill="#666">100</text>
-    </svg>
   );
 }
 
 // ============================================================
 //  SUBCOMPONENTE: DonutChart
 // ============================================================
-function DonutChart({ categorias }) {
+function DonutChart({ slices, size = 140 }) {
   const canvasRef = useRef(null);
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !slices?.length) return;
     const ctx = canvas.getContext("2d");
     const cx = canvas.width / 2, cy = canvas.height / 2;
-    const R = 58, r = 38;
-    let startAngle = -Math.PI / 2;
+    const R = 54, r = 36;
+    let angle = -Math.PI / 2;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    categorias.forEach(({ valor, color }) => {
-      const slice = (valor / 100) * 2 * Math.PI;
+    const total = slices.reduce((s, x) => s + (x.value || 0), 0) || 1;
+    slices.forEach(({ value, color }) => {
+      const slice = (value / total) * 2 * Math.PI;
       ctx.beginPath();
       ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, R, startAngle, startAngle + slice);
+      ctx.arc(cx, cy, R, angle, angle + slice);
       ctx.closePath();
       ctx.fillStyle = color;
       ctx.fill();
-      startAngle += slice;
+      angle += slice;
     });
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, 2 * Math.PI);
-    ctx.fillStyle = "#141414";
+    ctx.fillStyle = "var(--rp-card-bg, #1a1a2e)";
     ctx.fill();
-  }, [categorias]);
-  return <canvas ref={canvasRef} width={140} height={140} style={{ display: "block", margin: "0 auto" }} />;
+  }, [slices]);
+  return (
+    <canvas
+      ref={canvasRef}
+      width={size}
+      height={size}
+      style={{ display: "block", margin: "0 auto" }}
+      role="img"
+      aria-label="Gráfico de dona"
+    />
+  );
 }
 
 // ============================================================
-//  SUBCOMPONENTE: BarChart — barras crecen desde abajo con RAF
+//  SUBCOMPONENTE: BarChart — pedidos / ventas por día
 // ============================================================
-function BarChart({ datos, labels }) {
+function MiniBarChart({ data, labelKey = "date", valueKey = "orderCount", color = "#4f8ef7" }) {
   const canvasRef = useRef(null);
-
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx      = canvas.getContext("2d");
-    const W        = canvas.width;
-    const H        = canvas.height;
-    const pad      = { top: 10, bottom: 24, left: 10, right: 10 };
-    const max      = Math.max(...datos) * 1.1;
-    const barW     = (W - pad.left - pad.right) / datos.length - 6;
-    const DURATION = 900;
-    let startTime  = null;
-    let rafId      = null;
+    if (!canvas || !data?.length) return;
+    const ctx  = canvas.getContext("2d");
+    const W    = canvas.width, H = canvas.height;
+    const padB = 24, padT = 8, padL = 8, padR = 8;
+    const max  = Math.max(...data.map((d) => d[valueKey])) * 1.1 || 1;
+    const bw   = (W - padL - padR) / data.length - 4;
+    const DURATION = 800;
+    let start = null, raf;
 
-    function easeOutCubic(t) {
-      return 1 - Math.pow(1 - t, 3);
-    }
+    const ease = (t) => 1 - Math.pow(1 - t, 3);
 
-    function draw(timestamp) {
-      if (!startTime) startTime = timestamp;
-      const elapsed  = timestamp - startTime;
-      const progress = Math.min(elapsed / DURATION, 1);
-      const eased    = easeOutCubic(progress);
-
+    function draw(ts) {
+      if (!start) start = ts;
+      const p = Math.min((ts - start) / DURATION, 1);
+      const e = ease(p);
       ctx.clearRect(0, 0, W, H);
-
-      datos.forEach((val, i) => {
-        const x     = pad.left + i * ((W - pad.left - pad.right) / datos.length) + 3;
-        const fullH = (val / max) * (H - pad.top - pad.bottom);
-        const animH = fullH * eased;
-        const y     = H - pad.bottom - animH;
-
-        ctx.fillStyle = i === 5 ? "#4f8ef7" : "rgba(79,142,247,0.35)";
+      data.forEach((d, i) => {
+        const x    = padL + i * ((W - padL - padR) / data.length) + 2;
+        const fullH = (d[valueKey] / max) * (H - padT - padB);
+        const h    = fullH * e;
+        const y    = H - padB - h;
+        ctx.fillStyle = color + "55";
         ctx.beginPath();
-        ctx.roundRect(x, y, barW, animH, 4);
+        if (ctx.roundRect) ctx.roundRect(x, y, bw, h, 3);
+        else ctx.rect(x, y, bw, h);
         ctx.fill();
-
-        ctx.fillStyle = "#555";
-        ctx.font      = "10px 'Rajdhani',sans-serif";
+        // label
+        ctx.fillStyle = "#666";
+        ctx.font = "9px sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText(labels[i], x + barW / 2, H - 6);
+        const lbl = String(d[labelKey]).slice(8) || String(d[labelKey]).slice(-2);
+        ctx.fillText(lbl, x + bw / 2, H - 6);
       });
-
-      if (progress < 1) {
-        rafId = requestAnimationFrame(draw);
-      }
+      if (p < 1) raf = requestAnimationFrame(draw);
     }
-
-    rafId = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(rafId);
-  }, [datos, labels]);
+    raf = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(raf);
+  }, [data, valueKey, color]);
 
   return (
     <canvas
@@ -259,343 +201,675 @@ function BarChart({ datos, labels }) {
       width={320}
       height={140}
       style={{ width: "100%", height: 140 }}
+      role="img"
+      aria-label="Gráfico de barras"
     />
   );
 }
 
 // ============================================================
-//  SUBCOMPONENTE: LineChart — línea se traza de izq. a der. con RAF
+//  SUBCOMPONENTE: LineAreaChart — ingresos por día
 // ============================================================
-function LineChart({ datos, meta }) {
+function LineAreaChart({ data, dateKey = "date", valueKey = "revenue", color = "#22c55e" }) {
   const canvasRef = useRef(null);
-  const meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
-
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx      = canvas.getContext("2d");
-    const W        = canvas.width;
-    const H        = canvas.height;
-    const pad      = { top: 16, bottom: 28, left: 44, right: 16 };
-    const max      = Math.max(...datos, ...meta) * 1.1;
-    const DURATION = 1100;
-    let startTime  = null;
-    let rafId      = null;
+    if (!canvas || !data?.length) return;
+    const ctx = canvas.getContext("2d");
+    const W   = canvas.width, H = canvas.height;
+    const pad = { t: 12, b: 28, l: 8, r: 8 };
+    const max = Math.max(...data.map((d) => d[valueKey])) * 1.1 || 1;
+    const DURATION = 1000;
+    let start = null, raf;
 
-    const xPos = (i) => pad.left + i * ((W - pad.left - pad.right) / (datos.length - 1));
-    const yPos = (v)  => H - pad.bottom - (v / max) * (H - pad.top - pad.bottom);
+    const xP = (i) => pad.l + i * ((W - pad.l - pad.r) / Math.max(data.length - 1, 1));
+    const yP = (v) => H - pad.b - (v / max) * (H - pad.t - pad.b);
+    const ease = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 
-    function easeInOutQuad(t) {
-      return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-    }
-
-    function draw(timestamp) {
-      if (!startTime) startTime = timestamp;
-      const elapsed       = timestamp - startTime;
-      const progress      = Math.min(elapsed / DURATION, 1);
-      const eased         = easeInOutQuad(progress);
-      const totalSegments = datos.length - 1;
-      const revealed      = eased * totalSegments;
-      const fullSegments  = Math.floor(revealed);
-      const partial       = revealed - fullSegments;
+    function draw(ts) {
+      if (!start) start = ts;
+      const p    = Math.min((ts - start) / DURATION, 1);
+      const ep   = ease(p);
+      const seg  = (data.length - 1) * ep;
+      const full = Math.floor(seg);
+      const frac = seg - full;
 
       ctx.clearRect(0, 0, W, H);
 
-      // ── Grid (visible desde el inicio) ─────────────────
-      [0.25, 0.5, 0.75, 1].forEach((f) => {
-        const y = yPos(max * f);
-        ctx.strokeStyle = "#1a1a1a";
-        ctx.lineWidth   = 1;
-        ctx.beginPath();
-        ctx.moveTo(pad.left, y);
-        ctx.lineTo(W - pad.right, y);
-        ctx.stroke();
-        ctx.fillStyle  = "#555";
-        ctx.font       = "10px 'Space Mono',monospace";
-        ctx.textAlign  = "right";
-        ctx.fillText("$" + Math.round((max * f) / 1000) + "k", pad.left - 4, y + 4);
-      });
-
-      // ── Meta dashed (visible desde el inicio) ──────────
-      ctx.strokeStyle = "#333";
-      ctx.lineWidth   = 1;
-      ctx.setLineDash([4, 4]);
-      ctx.beginPath();
-      meta.forEach((v, i) =>
-        i === 0 ? ctx.moveTo(xPos(i), yPos(v)) : ctx.lineTo(xPos(i), yPos(v))
-      );
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      // ── Puntos a dibujar según progreso ────────────────
-      const drawPoints = datos.slice(0, fullSegments + 1).map((v, i) => ({
-        x: xPos(i),
-        y: yPos(v),
-      }));
-
-      if (fullSegments < totalSegments) {
-        const x1 = xPos(fullSegments);
-        const y1 = yPos(datos[fullSegments]);
-        const x2 = xPos(fullSegments + 1);
-        const y2 = yPos(datos[fullSegments + 1]);
-        drawPoints.push({
-          x: x1 + (x2 - x1) * partial,
-          y: y1 + (y2 - y1) * partial,
+      const pts = data.slice(0, full + 1).map((d, i) => ({ x: xP(i), y: yP(d[valueKey]) }));
+      if (full < data.length - 1) {
+        pts.push({
+          x: xP(full) + (xP(full + 1) - xP(full)) * frac,
+          y: yP(data[full][valueKey]) + (yP(data[full + 1][valueKey]) - yP(data[full][valueKey])) * frac,
         });
       }
 
-      if (drawPoints.length >= 2) {
-        const lastPt = drawPoints[drawPoints.length - 1];
-
-        // ── Area fill ────────────────────────────────────
+      if (pts.length >= 2) {
+        const last = pts[pts.length - 1];
         ctx.beginPath();
-        drawPoints.forEach((pt, i) =>
-          i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y)
-        );
-        ctx.lineTo(lastPt.x, H - pad.bottom);
-        ctx.lineTo(xPos(0),  H - pad.bottom);
+        pts.forEach((pt, i) => i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y));
+        ctx.lineTo(last.x, H - pad.b);
+        ctx.lineTo(xP(0), H - pad.b);
         ctx.closePath();
-        ctx.fillStyle = "rgba(79,142,247,0.08)";
+        ctx.fillStyle = color + "22";
         ctx.fill();
 
-        // ── Línea principal ───────────────────────────────
-        ctx.strokeStyle = "#4f8ef7";
-        ctx.lineWidth   = 2;
-        ctx.lineJoin    = "round";
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.lineJoin = "round";
         ctx.beginPath();
-        drawPoints.forEach((pt, i) =>
-          i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y)
-        );
+        pts.forEach((pt, i) => i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y));
         ctx.stroke();
       }
 
-      // ── Dots + labels eje X (segmentos ya completados) ─
-      datos.slice(0, fullSegments + 1).forEach((v, i) => {
-        ctx.beginPath();
-        ctx.arc(xPos(i), yPos(v), 3, 0, 2 * Math.PI);
-        ctx.fillStyle = "#4f8ef7";
-        ctx.fill();
-
-        ctx.fillStyle  = "#555";
-        ctx.font       = "10px 'Rajdhani',sans-serif";
-        ctx.textAlign  = "center";
-        ctx.fillText(meses[i], xPos(i), H - 8);
+      data.slice(0, full + 1).forEach((d, i) => {
+        ctx.fillStyle = "#666";
+        ctx.font = "9px sans-serif";
+        ctx.textAlign = "center";
+        const lbl = String(d[dateKey]).slice(8);
+        ctx.fillText(lbl, xP(i), H - 6);
       });
 
-      if (progress < 1) {
-        rafId = requestAnimationFrame(draw);
-      }
+      if (p < 1) raf = requestAnimationFrame(draw);
     }
-
-    rafId = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(rafId);
-  }, [datos, meta]);
+    raf = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(raf);
+  }, [data, valueKey, dateKey, color]);
 
   return (
     <canvas
       ref={canvasRef}
       width={600}
-      height={200}
-      style={{ width: "100%", height: 200 }}
+      height={160}
+      style={{ width: "100%", height: 160 }}
+      role="img"
+      aria-label="Gráfico de área de ingresos"
     />
   );
 }
 
 // ============================================================
+//  SUBCOMPONENTE: ProgressBar
+// ============================================================
+function ProgressBar({ current, max, color = "#f59e0b" }) {
+  const pct = Math.min((current / max) * 100, 100);
+  return (
+    <div className="rp-progress-bg">
+      <div className="rp-progress-fill" style={{ width: `${pct}%`, background: color }} />
+    </div>
+  );
+}
+
+// ============================================================
+//  SUBCOMPONENTE: OrderStatusBadge
+// ============================================================
+function StatusBadge({ status }) {
+  const map = {
+    PENDING:    { label: "Pendiente",  color: "#f59e0b" },
+    CONFIRMED:  { label: "Confirmada", color: "#3b82f6" },
+    PROCESSING: { label: "En proceso", color: "#6366f1" },
+    SHIPPED:    { label: "Enviada",    color: "#0ea5e9" },
+    DELIVERED:  { label: "Entregada",  color: "#22c55e" },
+    CANCELLED:  { label: "Cancelada",  color: "#ef4444" },
+    REFUNDED:   { label: "Reembolso",  color: "#f43f5e" },
+  };
+  const s = map[status] || { label: status, color: "#888" };
+  return (
+    <span className="rp-badge" style={{ background: s.color + "22", color: s.color, borderColor: s.color + "44" }}>
+      {s.label}
+    </span>
+  );
+}
+
+// ============================================================
+//  SUBCOMPONENTE: PeriodSelector
+// ============================================================
+function PeriodSelector({ value, onChange }) {
+  return (
+    <div className="rp-period-btns">
+      {[["7D", "7 días"], ["30D", "30 días"], ["90D", "90 días"], ["ALL", "Todo"]].map(([k, lbl]) => (
+        <button
+          key={k}
+          className={`rp-period-btn ${value === k ? "active" : ""}`}
+          onClick={() => onChange(k)}
+        >
+          {lbl}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ============================================================
+//  SUBCOMPONENTE: LoadingSpinner
+// ============================================================
+function Loader({ text = "Cargando..." }) {
+  return (
+    <div className="rp-loader">
+      <div className="rp-spinner" />
+      <span>{text}</span>
+    </div>
+  );
+}
+
+// ============================================================
+//  SECCIÓN: Dashboard Principal
+// ============================================================
+function DashboardSection({ data, loading, error }) {
+  if (loading) return <Loader text="Cargando panel principal..." />;
+  if (error)   return <AlertBanner type="error" message={`Error al cargar el panel: ${error}`} />;
+  if (!data)   return null;
+
+  const orderStatusKeys = [
+    "pendingOrders", "confirmedOrders", "processingOrders",
+    "shippedOrders", "deliveredOrders", "cancelledOrders", "refundedOrders",
+  ];
+
+  const donutSlices = orderStatusKeys
+    .filter((k) => data[k] > 0)
+    .map((k) => ({ label: ORDER_STATUS_LABELS[k], value: data[k], color: ORDER_STATUS_COLORS[k] }));
+
+  return (
+    <div className="rp-section">
+      {/* Alertas de stock */}
+      {data.outOfStockVariants > 0 && (
+        <AlertBanner type="error"
+          message={`⚠️ ${data.outOfStockVariants} variante(s) sin stock. Revisa el inventario.`} />
+      )}
+      {data.lowStockVariants > 0 && (
+        <AlertBanner type="warning"
+          message={`${data.lowStockVariants} variante(s) con stock bajo.`} />
+      )}
+
+      {/* KPI Cards — Ingresos */}
+      <div className="rp-section-title">Ingresos</div>
+      <div className="rp-kpi-row">
+        <StatCard label="Hoy"         value={data.todayRevenue}  prefix="$" color="#22c55e" icon="currency-dollar" />
+        <StatCard label="Esta semana" value={data.weekRevenue}   prefix="$" color="#3b82f6" icon="trending-up" />
+        <StatCard label="Este mes"    value={data.monthRevenue}  prefix="$" color="#8b5cf6" icon="chart-bar" />
+        <StatCard label="Total"       value={data.totalRevenue}  prefix="$" color="#f59e0b" icon="coins" />
+      </div>
+
+      {/* KPI Cards — Productos */}
+      <div className="rp-section-title">Productos</div>
+      <div className="rp-kpi-row">
+        <StatCard label="Activos"      value={data.activeProducts}    color="#22c55e" icon="package" />
+        <StatCard label="Inactivos"    value={data.inactiveProducts}  color="#6b7280" icon="package-off" />
+        <StatCard label="Stock bajo"   value={data.lowStockVariants}  color="#f59e0b" icon="alert-triangle" />
+        <StatCard label="Sin stock"    value={data.outOfStockVariants} color="#ef4444" icon="package-import" />
+      </div>
+
+      {/* KPI Cards — Órdenes */}
+      <div className="rp-section-title">Órdenes</div>
+      <div className="rp-kpi-row">
+        <StatCard label="Pendientes"  value={data.pendingOrders}   color="#f59e0b" icon="clock" />
+        <StatCard label="Entregadas"  value={data.deliveredOrders} color="#22c55e" icon="check" />
+        <StatCard label="Total"       value={data.totalOrders}     color="#3b82f6" icon="shopping-cart" />
+        <StatCard label="Canceladas"  value={data.cancelledOrders} color="#ef4444" icon="x" />
+      </div>
+
+      {/* Distribución de órdenes + Top productos */}
+      <div className="rp-charts-row">
+        <div className="rp-card">
+          <div className="rp-card-title">Distribución de órdenes</div>
+          <DonutChart slices={donutSlices} size={130} />
+          <div className="rp-donut-legend">
+            {donutSlices.map((s) => (
+              <div key={s.label} className="rp-legend-item">
+                <span className="rp-legend-dot" style={{ background: s.color }} />
+                <span className="rp-legend-label">{s.label}</span>
+                <span className="rp-legend-val">{s.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rp-card">
+          <div className="rp-card-title">Top productos más vendidos</div>
+          <div className="rp-table-wrap">
+            <table className="rp-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Producto</th>
+                  <th>Unidades</th>
+                  <th>Ingresos</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(data.topProducts || []).slice(0, 5).map((p, i) => (
+                  <tr key={p.productId || i}>
+                    <td className="rp-rank">#{i + 1}</td>
+                    <td>{p.productName}</td>
+                    <td>{p.unitsSold.toLocaleString("es-CO")}</td>
+                    <td>{formatCOP(p.revenue)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+//  SECCIÓN: Inventario
+// ============================================================
+function StockSection({ data, loading, error }) {
+  if (loading) return <Loader text="Cargando inventario..." />;
+  if (error)   return <AlertBanner type="error" message={`Error al cargar inventario: ${error}`} />;
+  if (!data)   return null;
+
+  const { summary, lowStockItems, outOfStockItems, byCategory } = data;
+
+  return (
+    <div className="rp-section">
+      {/* Resumen */}
+      <div className="rp-kpi-row">
+        <StatCard label="Variantes sanas"  value={summary.healthyStockVariants} color="#22c55e" icon="circle-check" />
+        <StatCard label="Stock bajo"       value={summary.lowStockVariants}     color="#f59e0b" icon="alert-triangle" />
+        <StatCard label="Sin stock"        value={summary.outOfStockVariants}   color="#ef4444" icon="circle-x" />
+        <StatCard label="Valor del stock"  value={summary.totalStockValue}      prefix="$" color="#3b82f6" icon="coins" />
+      </div>
+
+      {/* Sin stock */}
+      {outOfStockItems?.length > 0 && (
+        <div className="rp-card">
+          <div className="rp-card-title" style={{ color: "#ef4444" }}>
+            <i className="ti ti-circle-x" aria-hidden="true" /> Sin stock ({outOfStockItems.length})
+          </div>
+          <div className="rp-table-wrap">
+            <table className="rp-table">
+              <thead>
+                <tr><th>Producto</th><th>SKU</th><th>Precio</th><th>Stock mín.</th></tr>
+              </thead>
+              <tbody>
+                {outOfStockItems.map((item) => (
+                  <tr key={item.sku}>
+                    <td>{item.productName}</td>
+                    <td><code className="rp-sku">{item.sku}</code></td>
+                    <td>{formatCOP(item.price)}</td>
+                    <td>{item.minStock}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Stock bajo */}
+      {lowStockItems?.length > 0 && (
+        <div className="rp-card">
+          <div className="rp-card-title" style={{ color: "#f59e0b" }}>
+            <i className="ti ti-alert-triangle" aria-hidden="true" /> Stock bajo ({lowStockItems.length})
+          </div>
+          <div className="rp-table-wrap">
+            <table className="rp-table">
+              <thead>
+                <tr><th>Producto</th><th>SKU</th><th>Actual / Mín.</th><th>Nivel</th></tr>
+              </thead>
+              <tbody>
+                {lowStockItems.map((item) => (
+                  <tr key={item.sku}>
+                    <td>{item.productName}</td>
+                    <td><code className="rp-sku">{item.sku}</code></td>
+                    <td>{item.currentStock} / {item.minStock}</td>
+                    <td style={{ minWidth: 120 }}>
+                      <ProgressBar current={item.currentStock} max={item.minStock} color="#f59e0b" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Por categoría */}
+      {byCategory?.length > 0 && (
+        <div className="rp-card">
+          <div className="rp-card-title">Por categoría</div>
+          <div className="rp-table-wrap">
+            <table className="rp-table">
+              <thead>
+                <tr>
+                  <th>Categoría</th>
+                  <th>Productos</th>
+                  <th>Stock total</th>
+                  <th>Stock bajo</th>
+                  <th>Sin stock</th>
+                </tr>
+              </thead>
+              <tbody>
+                {byCategory.map((cat) => (
+                  <tr key={cat.categoryName}>
+                    <td>{cat.categoryName}</td>
+                    <td>{cat.productCount}</td>
+                    <td>{cat.totalStock.toLocaleString("es-CO")}</td>
+                    <td>
+                      {cat.lowStockCount > 0
+                        ? <span style={{ color: "#f59e0b" }}>{cat.lowStockCount}</span>
+                        : <span style={{ color: "#22c55e" }}>0</span>}
+                    </td>
+                    <td>
+                      {cat.outOfStockCount > 0
+                        ? <span style={{ color: "#ef4444" }}>{cat.outOfStockCount}</span>
+                        : <span style={{ color: "#22c55e" }}>0</span>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+//  SECCIÓN: Órdenes
+// ============================================================
+function OrdersSection({ data, loading, error, period, onPeriodChange }) {
+  if (loading) return <Loader text="Cargando órdenes..." />;
+  if (error)   return <AlertBanner type="error" message={`Error al cargar órdenes: ${error}`} />;
+
+  return (
+    <div className="rp-section">
+      <div className="rp-section-header">
+        <span className="rp-section-title">Órdenes</span>
+        <PeriodSelector value={period} onChange={onPeriodChange} />
+      </div>
+
+      {!data ? <Loader text="Selecciona un período..." /> : (
+        <>
+          <div className="rp-kpi-row">
+            <StatCard label="Total"       value={data.summary.total}             color="#3b82f6" icon="shopping-cart" />
+            <StatCard label="Pendientes"  value={data.summary.pending}           color="#f59e0b" icon="clock" />
+            <StatCard label="Entregadas"  value={data.summary.delivered}         color="#22c55e" icon="check" />
+            <StatCard label="Ticket prom." value={data.summary.averageOrderValue} prefix="$" color="#8b5cf6" icon="receipt" />
+          </div>
+
+          {/* Conteos por estado */}
+          <div className="rp-status-grid">
+            {[
+              { key: "confirmed",  label: "Confirmadas",  color: "#3b82f6" },
+              { key: "processing", label: "En proceso",   color: "#6366f1" },
+              { key: "shipped",    label: "Enviadas",     color: "#0ea5e9" },
+              { key: "cancelled",  label: "Canceladas",   color: "#ef4444" },
+              { key: "refunded",   label: "Reembolsadas", color: "#f43f5e" },
+            ].map(({ key, label, color }) => (
+              <div key={key} className="rp-status-chip" style={{ borderColor: color + "44", color }}>
+                <span className="rp-status-count">{data.summary[key]}</span>
+                <span className="rp-status-lbl">{label}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Gráfico órdenes por día */}
+          {data.dailyBreakdown?.length > 0 && (
+            <div className="rp-card">
+              <div className="rp-card-title">Órdenes por día</div>
+              <MiniBarChart data={data.dailyBreakdown} labelKey="date" valueKey="orderCount" color="#3b82f6" />
+            </div>
+          )}
+
+          {/* Top productos */}
+          {data.topProducts?.length > 0 && (
+            <div className="rp-card">
+              <div className="rp-card-title">Productos más pedidos</div>
+              <div className="rp-table-wrap">
+                <table className="rp-table">
+                  <thead>
+                    <tr><th>#</th><th>Producto</th><th>Unidades</th><th>Ingresos</th></tr>
+                  </thead>
+                  <tbody>
+                    {data.topProducts.slice(0, 5).map((p, i) => (
+                      <tr key={i}>
+                        <td className="rp-rank">#{i + 1}</td>
+                        <td>{p.productName}</td>
+                        <td>{p.unitsSold}</td>
+                        <td>{formatCOP(p.revenue)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+//  SECCIÓN: Ventas
+// ============================================================
+function SalesSection({ data, loading, error, period, onPeriodChange }) {
+  if (loading) return <Loader text="Cargando ventas..." />;
+  if (error)   return <AlertBanner type="error" message={`Error al cargar ventas: ${error}`} />;
+
+  return (
+    <div className="rp-section">
+      <div className="rp-section-header">
+        <span className="rp-section-title">Ventas</span>
+        <PeriodSelector value={period} onChange={onPeriodChange} />
+      </div>
+
+      {!data ? <Loader text="Selecciona un período..." /> : (
+        <>
+          <div className="rp-kpi-row">
+            <StatCard label="Hoy"          value={data.summary.todayRevenue}   prefix="$" color="#22c55e" icon="currency-dollar" />
+            <StatCard label="Esta semana"  value={data.summary.weekRevenue}    prefix="$" color="#3b82f6" icon="trending-up" />
+            <StatCard label="Este mes"     value={data.summary.monthRevenue}   prefix="$" color="#8b5cf6" icon="chart-bar" />
+            <StatCard label="Ticket prom." value={data.summary.averageTicket}  prefix="$" color="#f59e0b" icon="receipt" />
+          </div>
+
+          {/* Gráfico de ingresos por día */}
+          {data.dailyBreakdown?.length > 0 && (
+            <div className="rp-card">
+              <div className="rp-card-title">Ingresos por día</div>
+              <LineAreaChart data={data.dailyBreakdown} dateKey="date" valueKey="revenue" color="#22c55e" />
+            </div>
+          )}
+
+          <div className="rp-charts-row">
+            {/* Métodos de pago */}
+            {data.byPaymentMethod?.length > 0 && (
+              <div className="rp-card">
+                <div className="rp-card-title">Por método de pago</div>
+                <DonutChart
+                  slices={data.byPaymentMethod.map((m, i) => ({
+                    label: m.method,
+                    value: m.count,
+                    color: ["#3b82f6", "#22c55e", "#f59e0b", "#8b5cf6", "#ef4444"][i % 5],
+                  }))}
+                  size={130}
+                />
+                <div className="rp-donut-legend" style={{ marginTop: "0.75rem" }}>
+                  {data.byPaymentMethod.map((m, i) => (
+                    <div key={m.method} className="rp-legend-item">
+                      <span className="rp-legend-dot"
+                        style={{ background: ["#3b82f6","#22c55e","#f59e0b","#8b5cf6","#ef4444"][i % 5] }} />
+                      <span className="rp-legend-label">{m.method}</span>
+                      <span className="rp-legend-val">{m.percentage.toFixed(1)}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Top productos por revenue */}
+            {data.topProductsByRevenue?.length > 0 && (
+              <div className="rp-card">
+                <div className="rp-card-title">Top productos por ingreso</div>
+                <div className="rp-table-wrap">
+                  <table className="rp-table">
+                    <thead>
+                      <tr><th>#</th><th>Producto</th><th>Uds.</th><th>Ingresos</th></tr>
+                    </thead>
+                    <tbody>
+                      {data.topProductsByRevenue.slice(0, 5).map((p, i) => (
+                        <tr key={i}>
+                          <td className="rp-rank">#{i + 1}</td>
+                          <td>{p.productName}</td>
+                          <td>{p.unitsSold}</td>
+                          <td>{formatCOP(p.revenue)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
 //  COMPONENTE PRINCIPAL: Report
-//  ⚠️  NO tiene sidebar propio — lo hereda de AdminLayout
 // ============================================================
 export default function Report() {
-  const [periodo,      setPeriodo]      = useState("30D");
-  const [kpis,         setKpis]         = useState(MOCK_KPIS);
-  const [ingresos,     setIngresos]     = useState(MOCK_INGRESOS);
-  const [metaIngresos, setMetaIngresos] = useState(MOCK_META);
-  const [pedidosDia,   setPedidosDia]   = useState(MOCK_PEDIDOS_DIA);
-  const [categorias,   setCategorias]   = useState(MOCK_CATEGORIAS);
-  const [canales,      setCanales]      = useState(MOCK_CANALES);
-  const [conversion,   setConversion]   = useState(MOCK_CONVERSION);
-  const [actividad,    setActividad]    = useState(MOCK_ACTIVIDAD);
-  const [productos,    setProductos]    = useState(MOCK_PRODUCTOS);
-  const [satisfaccion, setSatisfaccion] = useState(MOCK_SATISFACCION);
-  const [cargando,     setCargando]     = useState(false);
+  // Tab activo: "dashboard" | "stock" | "orders" | "sales"
+  const [activeTab, setActiveTab] = useState("dashboard");
 
-  // ── Conectar API — descomenta cuando tengas backend ────────
-  // useEffect(() => {
-  //   async function cargarDatos() {
-  //     setCargando(true);
-  //     try {
-  //       const [
-  //         kpisData, ingresosData, pedidosData, categoriasData,
-  //         canalesData, conversionData, actividadData, productosData, satisfaccionData
-  //       ] = await Promise.all([
-  //         fetchAPI(`/kpis?periodo=${periodo}`),
-  //         fetchAPI(`/ingresos?periodo=${periodo}`),
-  //         fetchAPI(`/pedidos-por-dia?periodo=${periodo}`),
-  //         fetchAPI(`/categorias?periodo=${periodo}`),
-  //         fetchAPI(`/canales?periodo=${periodo}`),
-  //         fetchAPI(`/conversion?periodo=${periodo}`),
-  //         fetchAPI(`/actividad-reciente`),
-  //         fetchAPI(`/productos-top?periodo=${periodo}`),
-  //         fetchAPI(`/satisfaccion?periodo=${periodo}`),
-  //       ]);
-  //       setKpis(kpisData);
-  //       setIngresos(ingresosData.valores);
-  //       setMetaIngresos(ingresosData.meta);
-  //       setPedidosDia(pedidosData);
-  //       setCategorias(categoriasData);
-  //       setCanales(canalesData);
-  //       setConversion(conversionData);
-  //       setActividad(actividadData);
-  //       setProductos(productosData);
-  //       setSatisfaccion(satisfaccionData);
-  //     } catch (err) {
-  //       console.error("Error cargando datos:", err);
-  //     } finally {
-  //       setCargando(false);
-  //     }
-  //   }
-  //   cargarDatos();
-  // }, [periodo]);
+  // Períodos independientes por sección
+  const [ordersPeriod, setOrdersPeriod] = useState("30D");
+  const [salesPeriod,  setSalesPeriod]  = useState("30D");
 
-  const badgeClass = (estado) => {
-    if (estado === "Activo")    return "rp-badge-green";
-    if (estado === "Sin stock") return "rp-badge-red";
-    return "rp-badge-yellow";
-  };
+  // Datos y estados por sección
+  const [dashboardData, setDashboardData] = useState(null);
+  const [stockData,     setStockData]     = useState(null);
+  const [ordersData,    setOrdersData]    = useState(null);
+  const [salesData,     setSalesData]     = useState(null);
+
+  const [loading, setLoading] = useState({});
+  const [errors,  setErrors]  = useState({});
+
+  const setLoad  = (key, val) => setLoading((p) => ({ ...p, [key]: val }));
+  const setError = (key, val) => setErrors((p)  => ({ ...p, [key]: val }));
+
+  const handleAuthError = useCallback((err) => {
+    if (err.message === "UNAUTHORIZED") {
+      window.location.href = "/login";
+    }
+  }, []);
+
+  // ── Carga de datos por sección ──────────────────────────────
+  useEffect(() => {
+    if (activeTab === "dashboard" && !dashboardData) {
+      setLoad("dashboard", true);
+      getDashboard()
+        .then(setDashboardData)
+        .catch((e) => { handleAuthError(e); setError("dashboard", e.message); })
+        .finally(() => setLoad("dashboard", false));
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === "stock" && !stockData) {
+      setLoad("stock", true);
+      getStockReport()
+        .then(setStockData)
+        .catch((e) => { handleAuthError(e); setError("stock", e.message); })
+        .finally(() => setLoad("stock", false));
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab !== "orders") return;
+    setLoad("orders", true);
+    setOrdersData(null);
+    getOrdersReport(periodToDays(ordersPeriod))
+      .then(setOrdersData)
+      .catch((e) => { handleAuthError(e); setError("orders", e.message); })
+      .finally(() => setLoad("orders", false));
+  }, [activeTab, ordersPeriod]);
+
+  useEffect(() => {
+    if (activeTab !== "sales") return;
+    setLoad("sales", true);
+    setSalesData(null);
+    getSalesReport(periodToDays(salesPeriod))
+      .then(setSalesData)
+      .catch((e) => { handleAuthError(e); setError("sales", e.message); })
+      .finally(() => setLoad("sales", false));
+  }, [activeTab, salesPeriod]);
+
+  const tabs = [
+    { key: "dashboard", label: "Panel",       icon: "layout-dashboard" },
+    { key: "stock",     label: "Inventario",  icon: "package" },
+    { key: "orders",    label: "Órdenes",     icon: "shopping-cart" },
+    { key: "sales",     label: "Ventas",      icon: "chart-line" },
+  ];
 
   return (
     <div className="rp-page">
 
       {/* TOPBAR */}
       <div className="rp-topbar">
-        <input className="rp-search" placeholder="Buscar informes..." />
+        <h1 className="rp-title">Reportes</h1>
         <div className="rp-topbar-right">
-          <i className="ti ti-bell"     style={{ fontSize: 18, color: "#555" }} aria-hidden="true" />
-          <i className="ti ti-settings" style={{ fontSize: 18, color: "#555" }} aria-hidden="true" />
+          <i className="ti ti-bell"     style={{ fontSize: 18 }} aria-hidden="true" />
+          <i className="ti ti-settings" style={{ fontSize: 18 }} aria-hidden="true" />
         </div>
+      </div>
+
+      {/* TABS */}
+      <div className="rp-tabs">
+        {tabs.map((t) => (
+          <button
+            key={t.key}
+            className={`rp-tab ${activeTab === t.key ? "active" : ""}`}
+            onClick={() => setActiveTab(t.key)}
+          >
+            <i className={`ti ti-${t.icon}`} aria-hidden="true" />
+            {t.label}
+          </button>
+        ))}
       </div>
 
       {/* CONTENIDO */}
       <div className="rp-content">
-
-        {/* Cabecera */}
-        <div className="rp-header-row">
-          <div>
-            <h1 className="rp-title">Informes &amp; Estadísticas</h1>
-            <p className="rp-subtitle">
-              Panel de rendimiento · {cargando ? "Cargando..." : "Actualizado hace 5 min"}
-            </p>
-          </div>
-          <div className="rp-period-btns">
-            {["7D","30D","90D","12M"].map((p) => (
-              <button
-                key={p}
-                className={`rp-period-btn ${periodo === p ? "active" : ""}`}
-                onClick={() => setPeriodo(p)}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* KPIs */}
-        <div className="rp-kpi-row">
-          <KpiCard label="Ventas Totales"   value={kpis.ventas}          prefix="$" cambio={kpis.ventasCambio}   barColor="#4f8ef7" barWidth="72%" />
-          <KpiCard label="Pedidos"          value={kpis.pedidos}                    cambio={kpis.pedidosCambio}  barColor="#27ae60" barWidth="55%" />
-          <KpiCard label="Ticket Promedio"  value={kpis.ticketPromedio}  prefix="$" cambio={kpis.ticketCambio}   barColor="#f39c12" barWidth="42%" />
-          <KpiCard label="Usuarios Activos" value={kpis.usuariosActivos}            cambio={kpis.usuariosCambio} barColor="#9b59b6" barWidth="88%" />
-        </div>
-
-        {/* Gráficas principales */}
-        <div className="rp-charts-row">
-          <div className="rp-card">
-            <div className="rp-card-title">Ingresos Mensuales</div>
-            <LineChart datos={ingresos} meta={metaIngresos} />
-          </div>
-          <div className="rp-card">
-            <div className="rp-card-title">Ventas por Categoría</div>
-            <DonutChart categorias={categorias} />
-            <div className="rp-donut-legend">
-              {categorias.map((c) => (
-                <div key={c.label} className="rp-legend-item">
-                  <div className="rp-legend-left">
-                    <span className="rp-legend-dot" style={{ background: c.color }} />
-                    {c.label}
-                  </div>
-                  <span className="rp-legend-right">{c.valor}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Gráficas secundarias */}
-        <div className="rp-charts-row2">
-          <div className="rp-card">
-            <div className="rp-card-title">Pedidos por Día</div>
-            <BarChart datos={pedidosDia} labels={["L","M","X","J","V","S","D"]} />
-          </div>
-          <div className="rp-card">
-            <div className="rp-card-title">Canales de Venta</div>
-            {canales.map((c) => <SparkBar key={c.label} {...c} />)}
-            <div className="rp-card-title" style={{ marginTop: "1rem" }}>Tasa de Conversión</div>
-            {conversion.map((c) => <SparkBar key={c.label} {...c} />)}
-          </div>
-          <div className="rp-card">
-            <div className="rp-card-title">Actividad Reciente</div>
-            <div className="rp-activity-list">
-              {actividad.map((a, i) => (
-                <div key={i} className="rp-activity-item">
-                  <span className="rp-activity-dot" style={{ background: a.color }} />
-                  <div>
-                    <div className="rp-activity-text">{a.texto}</div>
-                    <div className="rp-activity-time">{a.tiempo}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Tabla + Gauge */}
-        <div className="rp-bottom-row">
-          <div className="rp-card">
-            <div className="rp-card-title">Productos más vendidos</div>
-            <div className="rp-table-wrap">
-              <table className="rp-table">
-                <thead>
-                  <tr>
-                    <th>Producto</th>
-                    <th>Unidades</th>
-                    <th>Ingresos</th>
-                    <th>Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {productos.map((p) => (
-                    <tr key={p.nombre}>
-                      <td>{p.nombre}</td>
-                      <td>{p.unidades}</td>
-                      <td>{p.ingresos}</td>
-                      <td><span className={`rp-badge ${badgeClass(p.estado)}`}>{p.estado}</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div className="rp-card">
-            <div className="rp-card-title">Satisfacción del Cliente</div>
-            <div className="rp-gauge-wrap">
-              <GaugeSVG porcentaje={satisfaccion.porcentaje} />
-            </div>
-            {satisfaccion.estrellas.map((e) => (
-              <SparkBar key={e.label} label={e.label} pct={e.pct} color={e.color} />
-            ))}
-          </div>
-        </div>
-
+        {activeTab === "dashboard" && (
+          <DashboardSection
+            data={dashboardData}
+            loading={loading.dashboard}
+            error={errors.dashboard}
+          />
+        )}
+        {activeTab === "stock" && (
+          <StockSection
+            data={stockData}
+            loading={loading.stock}
+            error={errors.stock}
+          />
+        )}
+        {activeTab === "orders" && (
+          <OrdersSection
+            data={ordersData}
+            loading={loading.orders}
+            error={errors.orders}
+            period={ordersPeriod}
+            onPeriodChange={setOrdersPeriod}
+          />
+        )}
+        {activeTab === "sales" && (
+          <SalesSection
+            data={salesData}
+            loading={loading.sales}
+            error={errors.sales}
+            period={salesPeriod}
+            onPeriodChange={setSalesPeriod}
+          />
+        )}
       </div>
     </div>
   );
