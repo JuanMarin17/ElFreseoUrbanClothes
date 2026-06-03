@@ -118,12 +118,13 @@ function App() {
               <Route path="/widgets"  element={<ProtectedStep requiredStep={6}><WidgetsCustomizer /></ProtectedStep>} />
               <Route path="/crear-tienda" element={<ProtectedStep requiredStep={7}><CreateStore /></ProtectedStep>} />
               <Route path="/resultado"    element={<ProtectedStep requiredStep={8}><StoreResult /></ProtectedStep>} />
+              <Route path="/mis-tiendas" element={<MyStore />} />
+              <Route path="/transacciones" element={<MyStore />} /> 
+              
 
               {/* Rutas que requieren sesión iniciada */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/inventario" element={<Navigate to="/admin/inventario" replace />} />
-              <Route path="/mis-tiendas" element={<MyStore />} />
-              <Route path="/transacciones" element={<MyStore />} /> 
                 <Route path="/ordenes"    element={<OrdersDashboard />} />
               </Route>
 
