@@ -1,147 +1,245 @@
 import { cf } from './storeUtils.jsx';
 
 export default function StoreHero({ banner, theme }) {
-  const { accent, btnR, fT, desc, isMin, isUrb, isCls } = theme;
+  const { accent, btnR, fT, desc, titleC, paraC, pageBg, isDark, isMin, isUrb, isCls } = theme;
   const bannerImageUrl = banner._imageUrl ?? null;
 
+  /* ── MINIMALISTA ─────────────────────────────────────────── */
   if (isMin) return (
     <section style={{
-      display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px,1fr))",
-      minHeight: 320, overflow: "hidden",
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(280px,1fr))",
+      minHeight: 340,
+      overflow: "hidden",
     }}>
+      {/* Panel de texto */}
       <div style={{
-        padding: "clamp(32px,5vw,64px) clamp(20px,4vw,52px)",
-        display: "flex", flexDirection: "column", justifyContent: "center", gap: 18,
-        background: "#fff",
+        padding: "clamp(36px,6vw,72px) clamp(24px,4vw,56px)",
+        display: "flex", flexDirection: "column", justifyContent: "center", gap: 20,
+        background: pageBg,
+        borderRight: `1px solid ${isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.06)"}`,
+        transition: "background 0.3s ease",
       }}>
-        <span style={{ fontSize: 10, letterSpacing: 4, color: accent, textTransform: "uppercase", fontWeight: 700 }}>
-          ✦ Nueva colección
+        <span style={{
+          fontSize: 10, letterSpacing: 4, color: accent,
+          textTransform: "uppercase", fontWeight: 700,
+          display: "flex", alignItems: "center", gap: 6,
+        }}>
+          <span style={{ display: "inline-block", width: 20, height: 1, background: accent }} />
+          Nueva colección
         </span>
+
         <h1 style={{
           fontFamily: `"${cf(banner.font)}",sans-serif`,
-          fontSize: "clamp(2rem,4.5vw,3.2rem)",
-          color: "#111", lineHeight: 1.05, margin: 0, letterSpacing: -0.5,
+          fontSize: "clamp(2.2rem,5vw,3.6rem)",
+          color: titleC ?? "#f1f5f9",
+          lineHeight: 1.0,
+          margin: 0,
+          letterSpacing: -1,
+          fontWeight: 900,
         }}>
           {banner.title}
         </h1>
-        <p style={{ fontSize: 13, color: "#888", lineHeight: 1.8, maxWidth: 340, margin: 0 }}>
+
+        <p style={{
+          fontSize: 13,
+          color: paraC ?? "#64748b",
+          lineHeight: 1.75,
+          maxWidth: 360,
+          margin: 0,
+        }}>
           {desc}
         </p>
+
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 4 }}>
           <button style={{
             background: accent, border: "none", color: "#fff",
-            padding: "12px 32px", borderRadius: btnR, fontSize: 11,
-            fontWeight: 700, letterSpacing: 1.5, cursor: "pointer",
+            padding: "12px 32px", borderRadius: btnR,
+            fontSize: 11, fontWeight: 700, letterSpacing: 1.5,
+            cursor: "pointer", textTransform: "uppercase",
           }}>
-            VER COLECCIÓN
+            Ver colección
           </button>
           <button style={{
-            background: "transparent", border: "1.5px solid #ddd", color: "#666",
-            padding: "12px 22px", borderRadius: btnR, fontSize: 11,
-            fontWeight: 600, letterSpacing: 0.5, cursor: "pointer",
+            background: "transparent",
+            border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.15)"}`,
+            color: isDark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.45)",
+            padding: "12px 22px", borderRadius: btnR,
+            fontSize: 11, fontWeight: 600, letterSpacing: 0.5,
+            cursor: "pointer",
           }}>
             Ver todo
           </button>
         </div>
       </div>
+
+      {/* Panel de imagen */}
       <div style={{
         background: bannerImageUrl
           ? `url(${bannerImageUrl}) center/cover`
-          : `linear-gradient(135deg, ${accent}18, ${accent}06)`,
-        minHeight: 260,
+          : `linear-gradient(135deg, ${accent}14 0%, transparent 60%)`,
+        minHeight: 280,
         display: "flex", alignItems: "center", justifyContent: "center",
         position: "relative", overflow: "hidden",
+        backgroundColor: isDark ? "#0d1020" : "#e8eef8",
+        transition: "background-color 0.3s ease",
       }}>
         {!bannerImageUrl && (
           <>
-            <div style={{ position: "absolute", inset: 0, background: `repeating-linear-gradient(45deg, ${accent}08 0px, ${accent}08 1px, transparent 1px, transparent 24px)` }} />
-            <span style={{ fontSize: 11, color: accent, letterSpacing: 4, opacity: 0.5, fontWeight: 700 }}>IMAGEN</span>
+            <div style={{
+              position: "absolute", inset: 0,
+              background: `radial-gradient(ellipse at center, ${accent}12 0%, transparent 70%)`,
+            }} />
+            <div style={{
+              position: "absolute", inset: 0,
+              backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px), repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px)`,
+            }} />
+            <span style={{ fontSize: 10, color: accent, letterSpacing: 6, opacity: 0.3, fontWeight: 700, position: "relative" }}>
+              IMAGEN
+            </span>
           </>
         )}
       </div>
     </section>
   );
 
+  /* ── URBANO (dark fullscreen) ────────────────────────────── */
   if (isUrb) return (
     <section style={{
       position: "relative",
-      minHeight: "clamp(280px,48vw,500px)",
+      minHeight: "clamp(320px,52vw,580px)",
       background: bannerImageUrl
-        ? `linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.55)) center/cover, url(${bannerImageUrl}) center/cover`
+        ? `linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.75) 100%), url(${bannerImageUrl}) center/cover`
         : banner.bg ?? "#050505",
       display: "flex", flexDirection: "column", justifyContent: "flex-end",
-      padding: "0 clamp(18px,3vw,48px) clamp(28px,5vw,52px)",
+      padding: "0 clamp(20px,4vw,56px) clamp(32px,6vw,60px)",
       overflow: "hidden",
     }}>
-      <div style={{ position: "absolute", top: 0, left: "clamp(18px,3vw,48px)", width: 1, height: "60%", background: "rgba(255,255,255,0.08)" }} />
       {!bannerImageUrl && (
-        <div style={{ position: "absolute", inset: 0, background: `repeating-linear-gradient(-45deg, transparent 0px, transparent 40px, ${accent}06 40px, ${accent}06 41px)` }} />
+        <>
+          <div style={{
+            position: "absolute", inset: 0,
+            background: `repeating-linear-gradient(-45deg, transparent 0px, transparent 60px, rgba(255,255,255,0.015) 60px, rgba(255,255,255,0.015) 61px)`,
+          }} />
+          <div style={{
+            position: "absolute", bottom: 0, left: 0, right: 0, height: "50%",
+            background: "linear-gradient(to top, #000, transparent)",
+          }} />
+        </>
       )}
-      <span style={{ fontSize: 10, letterSpacing: 5, color: accent, textTransform: "uppercase", marginBottom: 14, fontWeight: 700, position: "relative" }}>— DROP 2026</span>
-      <h1 style={{
-        fontFamily: `"${cf(banner.font)}",sans-serif`,
-        fontSize: "clamp(3rem,9vw,7rem)",
-        color: banner.color ?? "#fff", lineHeight: 0.88, margin: "0 0 24px",
-        textTransform: "uppercase", letterSpacing: -3, wordBreak: "break-word", position: "relative",
-      }}>
-        {banner.title}
-      </h1>
-      <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap", position: "relative" }}>
-        <button style={{
-          background: accent, border: "none", color: "#000",
-          padding: "13px 36px", borderRadius: btnR, fontSize: 11,
-          fontWeight: 900, letterSpacing: 3, cursor: "pointer", textTransform: "uppercase",
+
+      <div style={{ position: "relative" }}>
+        <span style={{
+          fontSize: 10, letterSpacing: 6, color: accent,
+          textTransform: "uppercase", marginBottom: 16, fontWeight: 700,
+          display: "flex", alignItems: "center", gap: 8,
         }}>
-          SHOP NOW
-        </button>
-        <button style={{
-          background: "transparent", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.6)",
-          padding: "13px 24px", borderRadius: btnR, fontSize: 11,
-          fontWeight: 600, letterSpacing: 2, cursor: "pointer", textTransform: "uppercase",
+          <span style={{ display: "inline-block", width: 28, height: 1, background: accent }} />
+          DROP 2026
+        </span>
+
+        <h1 style={{
+          fontFamily: `"${cf(banner.font)}",sans-serif`,
+          fontSize: "clamp(3.5rem,10vw,8rem)",
+          color: banner.color ?? "#fff",
+          lineHeight: 0.88,
+          margin: "0 0 28px",
+          textTransform: "uppercase",
+          letterSpacing: -2,
+          wordBreak: "break-word",
+          fontWeight: 900,
         }}>
-          LOOKBOOK
-        </button>
+          {banner.title}
+        </h1>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+          <button style={{
+            background: accent, border: "none",
+            color: accent === "#ffffff" ? "#000" : "#000",
+            padding: "14px 40px", borderRadius: btnR,
+            fontSize: 11, fontWeight: 900, letterSpacing: 3,
+            cursor: "pointer", textTransform: "uppercase",
+          }}>
+            SHOP NOW
+          </button>
+          <button style={{
+            background: "transparent",
+            border: "1px solid rgba(255,255,255,0.12)",
+            color: "rgba(255,255,255,0.5)",
+            padding: "14px 28px", borderRadius: btnR,
+            fontSize: 11, fontWeight: 600, letterSpacing: 2,
+            cursor: "pointer", textTransform: "uppercase",
+          }}>
+            LOOKBOOK
+          </button>
+        </div>
       </div>
     </section>
   );
 
-  /* clásico */
+  /* ── CLÁSICO (dark premium) ──────────────────────────────── */
   return (
     <section style={{
       background: bannerImageUrl
-        ? `linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)), url(${bannerImageUrl}) center/cover`
-        : `linear-gradient(135deg, ${banner.bg ?? "#1a1a2e"}, ${accent}cc)`,
-      padding: "clamp(28px,5vw,56px) clamp(18px,3vw,48px)",
+        ? `linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.55)), url(${bannerImageUrl}) center/cover`
+        : `linear-gradient(135deg, #0d1020 0%, ${accent}44 100%)`,
+      padding: "clamp(40px,6vw,72px) clamp(20px,4vw,56px)",
       display: "flex", alignItems: "center", justifyContent: "space-between",
-      gap: 24, minHeight: 180, flexWrap: "wrap",
+      gap: 28, minHeight: 220, flexWrap: "wrap",
+      position: "relative", overflow: "hidden",
     }}>
-      <div style={{ flex: 1, minWidth: 200 }}>
+      {!bannerImageUrl && (
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "radial-gradient(ellipse at 70% 50%, rgba(255,255,255,0.03) 0%, transparent 60%)",
+        }} />
+      )}
+
+      <div style={{ flex: 1, minWidth: 220, position: "relative" }}>
         <span style={{
-          background: "rgba(255,255,255,0.15)", color: "#fff", backdropFilter: "blur(4px)",
-          fontSize: 10, fontWeight: 800, padding: "4px 10px", borderRadius: 20,
-          letterSpacing: 1.5, marginBottom: 12, display: "inline-block",
+          background: "rgba(255,255,255,0.08)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          backdropFilter: "blur(4px)",
+          color: "rgba(255,255,255,0.8)",
+          fontSize: 10, fontWeight: 800,
+          padding: "5px 12px", borderRadius: 20,
+          letterSpacing: 1.5, marginBottom: 14,
+          display: "inline-flex", alignItems: "center", gap: 5,
         }}>
-          ✦ OFERTA ESPECIAL
+          <span style={{ color: accent }}>✦</span> Oferta especial
         </span>
+
         <h1 style={{
           fontFamily: `"${cf(banner.font)}",sans-serif`,
-          fontSize: "clamp(1.5rem,3.5vw,2.6rem)", color: "#fff", margin: "10px 0 10px", lineHeight: 1.1,
+          fontSize: "clamp(1.8rem,4vw,3rem)",
+          color: "#fff", margin: "10px 0 12px", lineHeight: 1.1,
+          fontWeight: 900, letterSpacing: -0.5,
         }}>
           {banner.title}
         </h1>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,.75)", maxWidth: 360, lineHeight: 1.7 }}>
+
+        <p style={{
+          fontSize: 13,
+          color: "rgba(255,255,255,0.55)",
+          maxWidth: 380, lineHeight: 1.75, margin: 0,
+        }}>
           {desc}
         </p>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "flex-end" }}>
+
+      <div style={{
+        display: "flex", flexDirection: "column",
+        gap: 10, alignItems: "flex-end", position: "relative",
+      }}>
         <button style={{
-          background: "#fff", border: "none", color: accent,
-          padding: "13px 28px", borderRadius: btnR, fontSize: 13,
-          fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap",
+          background: accent, border: "none", color: "#fff",
+          padding: "14px 32px", borderRadius: btnR,
+          fontSize: 12, fontWeight: 800, cursor: "pointer",
+          whiteSpace: "nowrap", letterSpacing: 0.5,
         }}>
-          COMPRAR AHORA →
+          Comprar ahora →
         </button>
-        <span style={{ fontSize: 11, color: "rgba(255,255,255,.5)", letterSpacing: 1 }}>
+        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", letterSpacing: 1 }}>
           Válido hasta agotar stock
         </span>
       </div>

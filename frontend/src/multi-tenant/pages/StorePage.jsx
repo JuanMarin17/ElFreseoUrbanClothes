@@ -154,7 +154,7 @@ export default function StorePage() {
         <span className="sp-store-name">{storeName}</span>
       </div>
 
-      <StoreFront layoutType={layoutType} data={previewData} isOwner={isOwner} />
+      <StoreFront layoutType={layoutType} data={previewData} isOwner={isOwner} storeId={storeId} />
     </div>
   );
 }

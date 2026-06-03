@@ -37,11 +37,14 @@
 .tool-btn {
   background: transparent;
   border: none;
+  outline: none;
   color: #555;
   cursor: pointer;
   position: relative;
   transition: 0.2s;
 }
+
+.tool-btn:focus { outline: none; }
 
 .tool-btn:hover { color: #fff; }
 

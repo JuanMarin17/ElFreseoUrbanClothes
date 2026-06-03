@@ -1,55 +1,62 @@
 import { cf } from './storeUtils.jsx';
 
 export default function StoreFooter({ footer, header, theme }) {
-  const { footerBg, hFont, fT, fB, desc, isMin, isUrb } = theme;
+  const { footerBg, hFont, fB, desc, accent, isMin, isUrb, isCls } = theme;
+
+  const { isDark } = theme;
+  const textPrimary = isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.55)";
+  const textMuted   = isDark ? "rgba(255,255,255,0.22)" : "rgba(0,0,0,0.35)";
+  const borderColor = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.07)";
 
   return (
     <footer style={{
       background: footerBg,
-      borderTop: isMin ? "1px solid rgba(0,0,0,0.06)" : isUrb ? "1px solid #0d0d0d" : "none",
-      padding: "clamp(24px,4vw,40px) clamp(16px,3vw,48px) clamp(16px,3vw,28px)",
+      borderTop: `1px solid ${borderColor}`,
+      padding: "clamp(32px,5vw,52px) clamp(20px,4vw,56px) clamp(20px,3vw,32px)",
+      fontFamily: `"${fB}",sans-serif`,
     }}>
+
+      {/* Top row */}
       <div style={{
-        display: "flex", justifyContent: "space-between", alignItems: "flex-start",
-        flexWrap: "wrap", gap: 24, marginBottom: 24,
+        display: "flex", justifyContent: "space-between",
+        alignItems: "flex-start", flexWrap: "wrap", gap: 32, marginBottom: 36,
       }}>
+
         {/* Marca */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 220 }}>
           <span style={{
             fontFamily: `"${hFont}",sans-serif`,
-            fontWeight: 900, fontSize: 15, letterSpacing: 3,
-            color: isUrb ? "#222" : isMin ? "#111" : "#fff",
+            fontWeight: 900, fontSize: 14, letterSpacing: isUrb ? 5 : 2,
+            color: textPrimary,
             textTransform: "uppercase",
           }}>
             {header.logo}
           </span>
           <p style={{
-            fontSize: 11.5,
-            color: isUrb ? "#2a2a2a" : isMin ? "#999" : "rgba(255,255,255,0.5)",
-            maxWidth: 200, lineHeight: 1.6, margin: 0,
+            fontSize: 12, color: textMuted, lineHeight: 1.7, margin: 0,
           }}>
             {desc}
           </p>
         </div>
 
         {/* Columnas de links */}
-        <div style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 40, flexWrap: "wrap" }}>
           {["Tienda", "Nosotros", "Contacto"].map((col, ci) => (
-            <div key={ci} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div key={ci} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <span style={{
-                fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase",
-                color: isUrb ? "#222" : isMin ? "#888" : "rgba(255,255,255,0.5)",
+                fontSize: 9, fontWeight: 700, letterSpacing: 2,
+                textTransform: "uppercase", color: "rgba(255,255,255,0.25)",
                 marginBottom: 2,
               }}>
                 {col}
               </span>
-              {(header.items ?? []).slice(0, 2).map((it, i) => (
+              {(header.items ?? []).slice(0, 3).map((it, i) => (
                 <span key={i} style={{
-                  fontSize: 12,
-                  color: isUrb ? "#2a2a2a" : isMin ? "#bbb" : "rgba(255,255,255,0.4)",
-                  cursor: "pointer",
-                  letterSpacing: isUrb ? 1.5 : 0.3,
+                  fontSize: 12, color: textMuted, cursor: "pointer",
+                  letterSpacing: isUrb ? 1.5 : 0.2,
                   textTransform: isUrb ? "uppercase" : "none",
+                  transition: "color 0.15s",
+                  fontWeight: 400,
                 }}>
                   {it}
                 </span>
@@ -59,28 +66,25 @@ export default function StoreFooter({ footer, header, theme }) {
         </div>
       </div>
 
-      {/* Bottom */}
+      {/* Bottom row */}
       <div style={{
-        borderTop: `1px solid ${isUrb ? "#111" : isMin ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.06)"}`,
-        paddingTop: 16,
-        display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8,
+        borderTop: `1px solid ${borderColor}`,
+        paddingTop: 18,
+        display: "flex", justifyContent: "space-between",
+        alignItems: "center", flexWrap: "wrap", gap: 10,
       }}>
         <span style={{
           fontFamily: `"${cf(footer.font)}",sans-serif`,
-          fontSize: 11.5,
-          color: footer.color ?? (isUrb ? "#222" : isMin ? "#ccc" : "rgba(255,255,255,0.35)"),
-          letterSpacing: isUrb ? 2 : 0.3,
-          textTransform: isUrb ? "uppercase" : "none",
+          fontSize: 11, color: textMuted, letterSpacing: 0.3,
         }}>
           {footer.text}
         </span>
-        <div style={{ display: "flex", gap: 12 }}>
-          {["Privacidad", "Términos"].map((t, i) => (
+
+        <div style={{ display: "flex", gap: 20 }}>
+          {["Privacidad", "Términos", "Cookies"].map((t, i) => (
             <span key={i} style={{
-              fontSize: 10.5,
-              color: isUrb ? "#222" : isMin ? "#ccc" : "rgba(255,255,255,0.3)",
-              cursor: "pointer",
-              letterSpacing: isUrb ? 1.5 : 0.3,
+              fontSize: 10.5, color: textMuted, cursor: "pointer",
+              letterSpacing: isUrb ? 1.2 : 0.3,
               textTransform: isUrb ? "uppercase" : "none",
             }}>
               {t}
@@ -88,6 +92,7 @@ export default function StoreFooter({ footer, header, theme }) {
           ))}
         </div>
       </div>
+
     </footer>
   );
 }

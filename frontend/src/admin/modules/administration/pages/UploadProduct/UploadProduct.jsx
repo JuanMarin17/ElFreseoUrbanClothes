@@ -3,88 +3,29 @@ import "./UploadProduct.css";
 import { getCategories, createCategory } from "../../services/categoryService";
 import { createProduct } from "../../services/productService";
 import { getBrands, createBrand } from "../../services/BrandService";
-import InventaryStock from "../Inventary/InventaryStock";
 import { uploadFile } from "../../../../../utils/uploadService";
 
-// ─── Constantes ───────────────────────────────────────────────────────────────
-const TALLAS_DISPONIBLES = ["S", "M", "L", "XL", "XXL"];
-const MAX_IMAGENES = 4;
+const TALLAS = ["XS", "S", "M", "L", "XL", "XXL"];
+const COLORES = ["Negro", "Blanco", "Gris", "Rojo", "Azul", "Verde", "Amarillo", "Naranja", "Morado", "Rosa"];
+const MAX_IMAGENES = 6;
 
-// ─── Estado inicial ───────────────────────────────────────────────────────────
-const estadoInicial = {
+let _varId = 0;
+const newVariante = () => ({
+  _id: ++_varId,
+  sku: "", precio: "", stock: "", stockMin: "", talla: "", color: "",
+});
+
+const estadoInicial = () => ({
   name: "",
   description: "",
-  precioVenta: "",
-  categoryIds: [],   // ← ahora es array (multi-categoría)
+  categoryIds: [],
   brandId: "",
-  tallas: [],
-  stock: {},
-  minStock: {},
   imagenes: [],
-};
+  tiposVariante: { talla: true, color: true },
+  variantes: [newVariante()],
+});
 
-// ─── Utilidades ───────────────────────────────────────────────────────────────
-const revocarURLs = (imagenes) =>
-  imagenes.forEach(({ previewUrl }) => URL.revokeObjectURL(previewUrl));
-
-// ─── SlotImagen ───────────────────────────────────────────────────────────────
-const SlotImagen = ({
-  imagen, indice, esPrincipal, onAgregar, onEliminar,
-  dragging, onDragOver, onDragLeave, onDrop,
-}) => {
-  const inputRef = useRef(null);
-  const handleClick = () => { if (!imagen) inputRef.current?.click(); };
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) onAgregar(indice, file);
-    e.target.value = "";
-  };
-
-  return (
-    <div
-      className={[esPrincipal ? "mainPreview" : "thumb", dragging ? "draggingOver" : ""].filter(Boolean).join(" ")}
-      onClick={handleClick}
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={(e) => onDrop(e, indice)}
-      role="button"
-      aria-label={imagen ? `Imagen ${indice + 1}` : `Añadir imagen ${indice + 1}`}
-      tabIndex={0}
-      onKeyDown={(e) => e.key === "Enter" && handleClick()}
-    >
-      <input ref={inputRef} type="file" accept="image/*" className="hiddenInput"
-        onChange={handleFileChange} aria-hidden="true" tabIndex={-1} />
-      {imagen ? (
-        <>
-          <img src={imagen.previewUrl} alt={`Vista ${indice + 1}`}
-            className={esPrincipal ? "mainImage" : "thumbImage"}
-            style={{ opacity: imagen.uploading ? 0.5 : 1, transition: "opacity 0.3s" }} />
-          {imagen.uploading && <div className="uploadingOverlay"><span>Subiendo…</span></div>}
-          {!imagen.uploading && imagen.cloudinaryUrl && esPrincipal && (
-            <div className="primaryTag">✅ Subida</div>
-          )}
-          {esPrincipal && !imagen.uploading && (
-            <div className="floatingActions">
-              <button className="roundBtn" aria-label="Eliminar imagen"
-                onClick={(e) => { e.stopPropagation(); onEliminar(indice); }}>✕</button>
-            </div>
-          )}
-          {!esPrincipal && !imagen.uploading && (
-            <button className="thumbRemoveBtn" aria-label="Eliminar miniatura"
-              onClick={(e) => { e.stopPropagation(); onEliminar(indice); }}>✕</button>
-          )}
-        </>
-      ) : (
-        <div className="slotVacio">
-          <span className="slotIcon">{esPrincipal ? "🖼️" : "📷"}</span>
-          <small>{esPrincipal ? "Arrastra o haz click" : "Añadir vista"}</small>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ─── BrandSelector (con creación inline) ─────────────────────────────────────
+// ─── BrandSelector ────────────────────────────────────────────────────────────
 const BrandSelector = ({ brands = [], value, onChange, onBrandCreated, disabled }) => {
   const [showNew, setShowNew] = useState(false);
   const [newName, setNewName] = useState("");
@@ -94,14 +35,12 @@ const BrandSelector = ({ brands = [], value, onChange, onBrandCreated, disabled 
   const handleCreate = async () => {
     const name = newName.trim();
     if (!name) return;
-    setCreating(true);
-    setCreateErr(null);
+    setCreating(true); setCreateErr(null);
     try {
       const created = await createBrand(name);
       onBrandCreated(created);
       onChange({ target: { name: "brandId", value: created.brandId } });
-      setNewName("");
-      setShowNew(false);
+      setNewName(""); setShowNew(false);
     } catch (e) {
       setCreateErr(e.message ?? "Error al crear marca.");
     } finally {
@@ -110,83 +49,59 @@ const BrandSelector = ({ brands = [], value, onChange, onBrandCreated, disabled 
   };
 
   return (
-    <div className="inputGroup">
-      <label>Marca</label>
-      <div className="categoryRow">
-        <div className="selectWrapper" style={{ flex: 1 }}>
-          <span className="selectIcon">◈</span>
-          <select
-            name="brandId"
-            value={value}
-            onChange={onChange}
-            disabled={disabled}
-            className="selectWithIcon"
-          >
-            <option value="">— Sin marca —</option>
-            {Array.isArray(brands) &&
-              brands.map((b) => (
-                <option key={b.brandId} value={b.brandId}>{b.name}</option>
-              ))}
-          </select>
-        </div>
-        <button
-          type="button"
-          className={`btnNewCategory ${showNew ? "btnNewCategoryActive" : ""}`}
-          onClick={() => { setShowNew((p) => !p); setCreateErr(null); }}
-          disabled={disabled}
-          title="Crear nueva marca"
-        >
-          {showNew ? "✕" : "+ Nueva"}
-        </button>
+    <div className="up-field">
+      <label className="up-label">Marca <span className="up-opt">(opcional)</span></label>
+      <div className="up-select-wrap">
+        <select name="brandId" value={value} onChange={onChange} disabled={disabled} className="up-select">
+          <option value="">Seleccionar marca</option>
+          {brands.map((b) => <option key={b.brandId} value={b.brandId}>{b.name}</option>)}
+        </select>
+        <span className="up-select-arrow">▾</span>
       </div>
-
+      <button type="button" className="up-link-btn" onClick={() => { setShowNew(p => !p); setCreateErr(null); }} disabled={disabled}>
+        {showNew ? "✕ Cancelar" : "+ Nueva marca"}
+      </button>
       {showNew && (
-        <div className="newCategoryBox">
-          <input
-            type="text"
-            placeholder="Nombre de la marca…"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-            disabled={creating}
-            className="newCategoryInput"
-            autoFocus
-          />
-          <button
-            type="button"
-            className="btnConfirmCategory"
-            onClick={handleCreate}
-            disabled={creating || !newName.trim()}
-          >
+        <div className="up-inline-create">
+          <input type="text" placeholder="Nombre de la marca…" value={newName}
+            onChange={e => setNewName(e.target.value)} onKeyDown={e => e.key === "Enter" && handleCreate()}
+            disabled={creating} className="up-input" autoFocus />
+          <button type="button" className="up-btn-accent" onClick={handleCreate} disabled={creating || !newName.trim()}>
             {creating ? "…" : "Guardar"}
           </button>
-          {createErr && <span className="createCatError">{createErr}</span>}
+          {createErr && <span className="up-field-error">{createErr}</span>}
         </div>
       )}
     </div>
   );
 };
 
-// ─── CategorySelector (multi-selección con creación inline) ──────────────────
-const CategorySelector = ({
-  categories, selectedIds, onToggle, onCategoryCreated, disabled,
-}) => {
+// ─── CategoryChips ────────────────────────────────────────────────────────────
+const CategoryChips = ({ categories, selectedIds, onToggle, onCategoryCreated, disabled }) => {
+  const [open, setOpen] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [newName, setNewName] = useState("");
   const [creating, setCreating] = useState(false);
   const [createErr, setCreateErr] = useState(null);
+  const dropRef = useRef(null);
+
+  useEffect(() => {
+    const handleOutside = (e) => {
+      if (dropRef.current && !dropRef.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, []);
 
   const handleCreate = async () => {
     const name = newName.trim();
     if (!name) return;
-    setCreating(true);
-    setCreateErr(null);
+    setCreating(true); setCreateErr(null);
     try {
       const created = await createCategory(name);
       onCategoryCreated(created);
-      onToggle(created.categoryId); // seleccionarla automáticamente
-      setNewName("");
-      setShowNew(false);
+      onToggle(created.categoryId);
+      setNewName(""); setShowNew(false); setOpen(false);
     } catch (e) {
       setCreateErr(e.message ?? "Error al crear categoría.");
     } finally {
@@ -194,82 +109,116 @@ const CategorySelector = ({
     }
   };
 
+  const available = categories.filter(c => !selectedIds.includes(c.categoryId));
+
   return (
-    <div className="inputGroup">
-      <label>Categorías</label>
-
-      {/* Pills de categorías seleccionadas */}
-      {selectedIds.length > 0 && (
-        <div className="selectedCategoryPills">
-          {selectedIds.map((id) => {
-            const cat = categories.find((c) => c.categoryId === id);
-            return cat ? (
-              <span key={id} className="categoryPill">
-                {cat.name}
-                <button
-                  type="button"
-                  className="pillRemove"
-                  onClick={() => onToggle(id)}
-                  disabled={disabled}
-                  aria-label={`Quitar ${cat.name}`}
-                >
-                  ✕
+    <div className="up-field">
+      <label className="up-label">Categorías <span className="up-opt">(opcional)</span></label>
+      <div className="up-chips-field" ref={dropRef}>
+        {selectedIds.map(id => {
+          const cat = categories.find(c => c.categoryId === id);
+          return cat ? (
+            <span key={id} className="up-chip">
+              {cat.name}
+              <button type="button" className="up-chip-remove" onClick={() => onToggle(id)} disabled={disabled}>×</button>
+            </span>
+          ) : null;
+        })}
+        <button type="button" className="up-add-cat-btn" onClick={() => setOpen(p => !p)} disabled={disabled}>
+          + Agregar categoría
+        </button>
+        {open && (
+          <div className="up-cat-dropdown">
+            {available.map(c => (
+              <button key={c.categoryId} type="button" className="up-cat-option"
+                onClick={() => { onToggle(c.categoryId); setOpen(false); }}>
+                {c.name}
+              </button>
+            ))}
+            {!showNew ? (
+              <button type="button" className="up-cat-option up-cat-option--new" onClick={() => setShowNew(true)}>
+                + Crear categoría nueva
+              </button>
+            ) : (
+              <div className="up-cat-create">
+                <input type="text" placeholder="Nombre…" value={newName} className="up-input-sm"
+                  onChange={e => setNewName(e.target.value)} onKeyDown={e => e.key === "Enter" && handleCreate()}
+                  disabled={creating} autoFocus />
+                <button type="button" className="up-btn-accent-sm" onClick={handleCreate} disabled={creating || !newName.trim()}>
+                  {creating ? "…" : "OK"}
                 </button>
-              </span>
-            ) : null;
-          })}
-        </div>
-      )}
+                {createErr && <span className="up-field-error">{createErr}</span>}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
-      <div className="categoryRow">
-        <div className="selectWrapper" style={{ flex: 1 }}>
-          <span className="selectIcon">◇</span>
-          <select
-            value=""
-            onChange={(e) => { if (e.target.value) onToggle(e.target.value); }}
-            disabled={disabled}
-            className="selectWithIcon"
-          >
-            <option value="">— Añadir categoría —</option>
-            {categories
-              .filter((c) => !selectedIds.includes(c.categoryId))
-              .map((c) => (
-                <option key={c.categoryId} value={c.categoryId}>{c.name}</option>
-              ))}
-          </select>
-        </div>
-        <button
-          type="button"
-          className={`btnNewCategory ${showNew ? "btnNewCategoryActive" : ""}`}
-          onClick={() => { setShowNew((p) => !p); setCreateErr(null); }}
-          disabled={disabled}
-          title="Crear nueva categoría"
-        >
-          {showNew ? "✕" : "+ Nueva"}
+// ─── VarianteCard ─────────────────────────────────────────────────────────────
+const VarianteCard = ({ variante, index, mostrarTalla, mostrarColor, onChange, onEliminar, disabled }) => {
+  const set = (field, value) => onChange(variante._id, field, value);
+
+  return (
+    <div className="up-variante-card">
+      <div className="up-variante-header">
+        <span className="up-variante-title">Variante #{index + 1}</span>
+        <button type="button" className="up-btn-eliminar" onClick={() => onEliminar(variante._id)} disabled={disabled}>
+          🗑 Eliminar
         </button>
       </div>
-
-      {showNew && (
-        <div className="newCategoryBox">
-          <input
-            type="text"
-            placeholder="Nombre de la categoría…"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-            disabled={creating}
-            className="newCategoryInput"
-            autoFocus
-          />
-          <button
-            type="button"
-            className="btnConfirmCategory"
-            onClick={handleCreate}
-            disabled={creating || !newName.trim()}
-          >
-            {creating ? "…" : "Guardar"}
-          </button>
-          {createErr && <span className="createCatError">{createErr}</span>}
+      <div className="up-variante-row4">
+        <div className="up-field">
+          <label className="up-label">SKU <span className="up-req">*</span></label>
+          <input type="text" value={variante.sku} onChange={e => set("sku", e.target.value)}
+            placeholder="CAM-URBAN-NEG-S" disabled={disabled} className="up-input" />
+        </div>
+        <div className="up-field">
+          <label className="up-label">Precio <span className="up-req">*</span></label>
+          <input type="number" value={variante.precio} onChange={e => set("precio", e.target.value)}
+            placeholder="45000" min="0" disabled={disabled} className="up-input" />
+        </div>
+        <div className="up-field">
+          <label className="up-label">Stock <span className="up-req">*</span></label>
+          <input type="number" value={variante.stock} onChange={e => set("stock", e.target.value)}
+            placeholder="0" min="0" disabled={disabled} className="up-input" />
+        </div>
+        <div className="up-field">
+          <label className="up-label">Stock mín. <span className="up-req">*</span></label>
+          <input type="number" value={variante.stockMin} onChange={e => set("stockMin", e.target.value)}
+            placeholder="0" min="0" disabled={disabled} className="up-input" />
+        </div>
+      </div>
+      {(mostrarTalla || mostrarColor) && (
+        <div className="up-variante-row2">
+          {mostrarTalla && (
+            <div className="up-field">
+              <label className="up-label">Talla</label>
+              <div className="up-select-wrap">
+                <select value={variante.talla} onChange={e => set("talla", e.target.value)}
+                  disabled={disabled} className="up-select">
+                  <option value="">Seleccionar</option>
+                  {TALLAS.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <span className="up-select-arrow">▾</span>
+              </div>
+            </div>
+          )}
+          {mostrarColor && (
+            <div className="up-field">
+              <label className="up-label">Color</label>
+              <div className="up-select-wrap">
+                <select value={variante.color} onChange={e => set("color", e.target.value)}
+                  disabled={disabled} className="up-select">
+                  <option value="">Seleccionar</option>
+                  {COLORES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <span className="up-select-arrow">▾</span>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -281,14 +230,15 @@ const UploadProduct = () => {
   const [producto, setProducto] = useState(estadoInicial);
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
-  const [draggingIndice, setDraggingIndice] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingMeta, setLoadingMeta] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [dragging, setDragging] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
-    const fetchMeta = async () => {
+    (async () => {
       setLoadingMeta(true);
       try {
         const [cats, brnds] = await Promise.all([getCategories(), getBrands()]);
@@ -299,270 +249,285 @@ const UploadProduct = () => {
       } finally {
         setLoadingMeta(false);
       }
-    };
-    fetchMeta();
+    })();
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProducto((prev) => ({ ...prev, [name]: value }));
+    setProducto(prev => ({ ...prev, [name]: value }));
   };
 
-  // ── Marca: agregar nueva a la lista local ──
-  const handleBrandCreated = (brand) => {
-    setBrands((prev) => [...prev, brand]);
-  };
-
-  // ── Categoría: agregar nueva a la lista local ──
-  const handleCategoryCreated = (cat) => {
-    setCategories((prev) => [...prev, cat]);
-  };
-
-  // ── Categoría: toggle multi-selección ──
+  const handleBrandCreated = (brand) => setBrands(prev => [...prev, brand]);
+  const handleCategoryCreated = (cat) => setCategories(prev => [...prev, cat]);
   const handleCategoryToggle = (categoryId) => {
-    setProducto((prev) => ({
+    setProducto(prev => ({
       ...prev,
       categoryIds: prev.categoryIds.includes(categoryId)
-        ? prev.categoryIds.filter((id) => id !== categoryId)
+        ? prev.categoryIds.filter(id => id !== categoryId)
         : [...prev.categoryIds, categoryId],
     }));
   };
 
-  // ── Tallas ──
-  const toggleTalla = (talla) => {
-    setProducto((prev) => ({
-      ...prev,
-      tallas: prev.tallas.includes(talla)
-        ? prev.tallas.filter((t) => t !== talla)
-        : [...prev.tallas, talla],
-    }));
-  };
-
-  const handleStockChange = (talla, cantidad) =>
-    setProducto((prev) => ({ ...prev, stock: { ...prev.stock, [talla]: cantidad } }));
-
-  const handleMinStockChange = (talla, valor) =>
-    setProducto((prev) => ({ ...prev, minStock: { ...prev.minStock, [talla]: Number(valor) } }));
-
   // ── Imágenes ──
-  const agregarImagen = async (indice, file) => {
+  const agregarImagen = async (file) => {
+    if (!file?.type.startsWith("image/")) return;
     const previewUrl = URL.createObjectURL(file);
-    setProducto((prev) => {
-      const nuevas = [...prev.imagenes];
-      if (nuevas[indice]?.previewUrl) URL.revokeObjectURL(nuevas[indice].previewUrl);
-      nuevas[indice] = { file, previewUrl, cloudinaryUrl: null, uploading: true };
-      return { ...prev, imagenes: nuevas };
+    setProducto(prev => {
+      if (prev.imagenes.length >= MAX_IMAGENES) {
+        URL.revokeObjectURL(previewUrl);
+        return prev;
+      }
+      return { ...prev, imagenes: [...prev.imagenes, { previewUrl, cloudinaryUrl: null, uploading: true }] };
     });
     try {
       const cloudinaryUrl = await uploadFile(file);
-      setProducto((prev) => {
-        const nuevas = [...prev.imagenes];
-        if (nuevas[indice]) nuevas[indice] = { ...nuevas[indice], cloudinaryUrl, uploading: false };
-        return { ...prev, imagenes: nuevas };
-      });
+      setProducto(prev => ({
+        ...prev,
+        imagenes: prev.imagenes.map(img =>
+          img.previewUrl === previewUrl ? { ...img, cloudinaryUrl, uploading: false } : img
+        ),
+      }));
     } catch {
-      setProducto((prev) => {
-        const nuevas = [...prev.imagenes];
-        if (nuevas[indice]?.previewUrl) URL.revokeObjectURL(nuevas[indice].previewUrl);
-        nuevas.splice(indice, 1);
-        return { ...prev, imagenes: nuevas };
-      });
+      URL.revokeObjectURL(previewUrl);
+      setProducto(prev => ({ ...prev, imagenes: prev.imagenes.filter(img => img.previewUrl !== previewUrl) }));
       setError("Error al subir la imagen. Intenta de nuevo.");
     }
   };
 
-  const eliminarImagen = (indice) => {
-    setProducto((prev) => {
-      const nuevas = [...prev.imagenes];
-      if (nuevas[indice]?.previewUrl) URL.revokeObjectURL(nuevas[indice].previewUrl);
-      nuevas.splice(indice, 1);
-      return { ...prev, imagenes: nuevas };
-    });
+  const eliminarImagen = (previewUrl) => {
+    URL.revokeObjectURL(previewUrl);
+    setProducto(prev => ({ ...prev, imagenes: prev.imagenes.filter(img => img.previewUrl !== previewUrl) }));
   };
 
-  const handleDragOver = (e, indice) => { e.preventDefault(); setDraggingIndice(indice); };
-  const handleDragLeave = () => setDraggingIndice(null);
-  const handleDrop = (e, indice) => {
-    e.preventDefault();
-    setDraggingIndice(null);
-    const file = e.dataTransfer.files?.[0];
-    if (file?.type.startsWith("image/")) agregarImagen(indice, file);
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files ?? []);
+    const slots = MAX_IMAGENES - producto.imagenes.length;
+    files.slice(0, slots).forEach(f => agregarImagen(f));
+    e.target.value = "";
   };
+
+  const handleDrop = (e) => {
+    e.preventDefault(); setDragging(false);
+    const files = Array.from(e.dataTransfer.files ?? []);
+    const slots = MAX_IMAGENES - producto.imagenes.length;
+    files.slice(0, slots).forEach(f => agregarImagen(f));
+  };
+
+  // ── Variantes ──
+  const handleVarianteChange = (varId, field, value) => {
+    setProducto(prev => ({
+      ...prev,
+      variantes: prev.variantes.map(v => v._id === varId ? { ...v, [field]: value } : v),
+    }));
+  };
+
+  const agregarVariante = () => setProducto(prev => ({ ...prev, variantes: [...prev.variantes, newVariante()] }));
+  const eliminarVariante = (varId) => setProducto(prev => ({
+    ...prev,
+    variantes: prev.variantes.filter(v => v._id !== varId),
+  }));
 
   // ── Submit ──
   const handleSubmit = async () => {
-    setError(null);
-    setSuccess(null);
-
+    setError(null); setSuccess(null);
     if (!producto.name.trim()) return setError("El nombre del producto es obligatorio.");
-    if (producto.tallas.length === 0) return setError("Selecciona al menos una talla.");
-    if (!producto.precioVenta || Number(producto.precioVenta) <= 0)
-      return setError("El precio debe ser mayor que 0.");
     if (producto.imagenes.length === 0) return setError("Agrega al menos una imagen.");
-    if (producto.imagenes.some((img) => img.uploading))
-      return setError("Espera a que terminen de subirse todas las imágenes.");
-    if (producto.imagenes.some((img) => !img.cloudinaryUrl))
-      return setError("Algunas imágenes no se subieron correctamente. Intenta de nuevo.");
+    if (producto.imagenes.some(img => img.uploading)) return setError("Espera a que terminen de subirse todas las imágenes.");
+    if (producto.imagenes.some(img => !img.cloudinaryUrl)) return setError("Algunas imágenes no se subieron correctamente.");
+    if (producto.variantes.length === 0) return setError("Agrega al menos una variante.");
+    for (const v of producto.variantes) {
+      if (!v.sku.trim()) return setError("Todos los SKUs son obligatorios.");
+      if (!v.precio || Number(v.precio) <= 0) return setError("El precio de cada variante debe ser mayor que 0.");
+      if (Number(v.stock) < 0) return setError("El stock no puede ser negativo.");
+      if (Number(v.stockMin) < 0) return setError("El stock mínimo no puede ser negativo.");
+    }
 
     setLoading(true);
     try {
-      const imageUrls = producto.imagenes.map((img) => img.cloudinaryUrl);
-      const variants = producto.tallas.map((talla) => ({
-        sku: `${producto.name.trim().toUpperCase().replace(/\s+/g, "_")}-${talla}`,
-        price: Number(producto.precioVenta),
-        stock: producto.stock[talla] ?? 0,
-        minStock: producto.minStock[talla] ?? 0,
+      const imageUrls = producto.imagenes.map(img => img.cloudinaryUrl);
+      const variants = producto.variantes.map(v => ({
+        sku: v.sku.trim(),
+        price: Number(v.precio),
+        stock: Number(v.stock) || 0,
+        minStock: Number(v.stockMin) || 0,
+        ...(v.talla && { size: v.talla }),
+        ...(v.color && { color: v.color }),
       }));
 
       await createProduct({
         name: producto.name.trim(),
         description: producto.description ?? "",
         brandId: producto.brandId || null,
-        categoryIds: producto.categoryIds,          // ← array completo
+        categoryIds: producto.categoryIds,
         images: imageUrls,
         variants,
       });
 
-      setSuccess("✅ Producto subido correctamente.");
-      revocarURLs(producto.imagenes);
-      setProducto(estadoInicial);
+      setSuccess("✅ Producto guardado correctamente.");
+      producto.imagenes.forEach(img => URL.revokeObjectURL(img.previewUrl));
+      setProducto(estadoInicial());
     } catch (err) {
-      setError(err.message ?? "Error al subir el producto.");
+      setError(err.message ?? "Error al guardar el producto.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEliminar = () => {
-    revocarURLs(producto.imagenes);
-    setProducto(estadoInicial);
-    setError(null);
-    setSuccess(null);
+  const handleCancelar = () => {
+    producto.imagenes.forEach(img => URL.revokeObjectURL(img.previewUrl));
+    setProducto(estadoInicial());
+    setError(null); setSuccess(null);
   };
 
   return (
-    <div className="adminContainer">
-      <main className="mainContent">
-        <div className="pageTitleRow">
-          <h2 className="pageTitle">SUBIR PRODUCTO</h2>
-          <div className="topButtons">
-            <button className="btnDiscard" onClick={handleEliminar} disabled={loading}>
-              ELIMINAR
-            </button>
-            <button className="btnUpload" onClick={handleSubmit} disabled={loading || loadingMeta}>
-              {loading ? "Subiendo..." : "SUBIR PRODUCTO ⇡"}
-            </button>
+    <div className="up-wrapper">
+      {/* ── Header ── */}
+      <div className="up-header">
+        <div className="up-header-left">
+          <button type="button" className="up-back-btn" onClick={handleCancelar} title="Volver">←</button>
+          <div>
+            <h1 className="up-page-title">Crear producto</h1>
+            <nav className="up-breadcrumb">Productos › Crear nuevo producto</nav>
           </div>
         </div>
+        <div className="up-header-actions">
+          <button type="button" className="up-btn-cancel" onClick={handleCancelar} disabled={loading}>
+            Cancelar
+          </button>
+          <button type="button" className="up-btn-save" onClick={handleSubmit} disabled={loading || loadingMeta}>
+            {loading ? "Guardando…" : "Guardar producto"}
+          </button>
+        </div>
+      </div>
 
-        {error && <div className="errorMsg">{error}</div>}
-        {success && <div className="successMsg">{success}</div>}
-        {loadingMeta && <div className="metaLoading">Cargando marcas y categorías…</div>}
+      <div className="up-body">
+        {error   && <div className="up-alert up-alert--error">{error}</div>}
+        {success && <div className="up-alert up-alert--success">{success}</div>}
+        {loadingMeta && <div className="up-alert up-alert--info">Cargando datos…</div>}
 
-        <section className="gridContainer">
-          <div className="formColumn">
-            <div className="card">
-              <h3 className="cardTitle"><span className="iconBlue">✎</span> Información General</h3>
+        {/* ── Sección 1: Información básica ── */}
+        <section className="up-section">
+          <div className="up-section-head">
+            <h2 className="up-section-title">1. Información básica</h2>
+            <p className="up-section-desc">Completa los datos principales de tu producto.</p>
+          </div>
 
-              <div className="inputGroup">
-                <label>Nombre producto</label>
-                <input type="text" name="name" value={producto.name} onChange={handleChange}
-                  placeholder="e.g. NEON_VAPOR HOODIE" disabled={loading} />
-              </div>
+          <div className="up-two-col">
+            <div className="up-field">
+              <label className="up-label">Nombre del producto <span className="up-req">*</span></label>
+              <input type="text" name="name" value={producto.name} onChange={handleChange}
+                placeholder="Camiseta Urban Classic" disabled={loading} className="up-input" />
+              <small className="up-hint">El nombre debe ser único dentro de tu tienda</small>
+            </div>
+            <BrandSelector brands={brands} value={producto.brandId} onChange={handleChange}
+              onBrandCreated={handleBrandCreated} disabled={loading || loadingMeta} />
+          </div>
 
-              <div className="inputGroup">
-                <label>Descripción</label>
-                <textarea name="description" value={producto.description} onChange={handleChange}
-                  placeholder="Especificaciones técnicas y filosofía de diseño..." disabled={loading} />
-              </div>
+          <div className="up-field">
+            <label className="up-label">Descripción <span className="up-opt">(opcional)</span></label>
+            <textarea name="description" value={producto.description} onChange={handleChange}
+              placeholder="Camiseta de algodón 100% unisex" disabled={loading} className="up-textarea" />
+          </div>
 
-              <div className="row">
-                <div className="inputGroup">
-                  <label>Precio (COL $)</label>
-                  <div className="priceInput">
-                    <span>$</span>
-                    <input type="number" name="precioVenta" value={producto.precioVenta}
-                      onChange={handleChange} placeholder="0" min="0" disabled={loading} />
-                  </div>
-                </div>
+          <CategoryChips categories={categories} selectedIds={producto.categoryIds}
+            onToggle={handleCategoryToggle} onCategoryCreated={handleCategoryCreated}
+            disabled={loading || loadingMeta} />
+        </section>
 
-                {/* ─── Marca con creación inline ─── */}
-                <BrandSelector
-                  brands={brands}
-                  value={producto.brandId}
-                  onChange={handleChange}
-                  onBrandCreated={handleBrandCreated}
-                  disabled={loading || loadingMeta}
-                />
-              </div>
+        {/* ── Sección 2: Imágenes ── */}
+        <section className="up-section">
+          <div className="up-section-head">
+            <h2 className="up-section-title">2. Imágenes del producto</h2>
+            <p className="up-section-desc">Sube hasta 6 imágenes. Solo se permiten URLs de Cloudinary.</p>
+          </div>
 
-              {/* ─── Categorías multi-selección con creación inline ─── */}
-              <CategorySelector
-                categories={categories}
-                selectedIds={producto.categoryIds}
-                onToggle={handleCategoryToggle}
-                onCategoryCreated={handleCategoryCreated}
-                disabled={loading || loadingMeta}
-              />
+          <div
+            className={`up-drop-zone${dragging ? " up-drop-zone--active" : ""}`}
+            onClick={() => producto.imagenes.length < MAX_IMAGENES && fileInputRef.current?.click()}
+            onDragOver={e => { e.preventDefault(); setDragging(true); }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={handleDrop}
+            role="button" tabIndex={0}
+            onKeyDown={e => e.key === "Enter" && fileInputRef.current?.click()}
+          >
+            <input ref={fileInputRef} type="file" accept="image/*" multiple className="up-hidden-input"
+              onChange={handleFileChange} tabIndex={-1} aria-hidden="true" />
+            <span className="up-drop-icon">⬆</span>
+            <span className="up-drop-text">+ Subir imagen</span>
+            <small className="up-drop-hint">PNG / JPG · Máx {MAX_IMAGENES} imágenes · Cloudinary</small>
+          </div>
 
-              <div className="sizeSection">
-                <label>Tallas</label>
-                <div className="sizeGrid">
-                  {TALLAS_DISPONIBLES.map((t) => (
-                    <button key={t} type="button" onClick={() => toggleTalla(t)}
-                      className={producto.tallas.includes(t) ? "sizeBtnActive" : "sizeBtnU"}
-                      disabled={loading}>
-                      {t}
+          {producto.imagenes.length > 0 && (
+            <div className="up-image-grid">
+              {producto.imagenes.map((img, i) => (
+                <div key={img.previewUrl} className="up-thumb">
+                  <img src={img.previewUrl} alt={`Imagen ${i + 1}`} className="up-thumb-img"
+                    style={{ opacity: img.uploading ? 0.5 : 1 }} />
+                  {img.uploading && <div className="up-thumb-overlay">Subiendo…</div>}
+                  {!img.uploading && (
+                    <button type="button" className="up-thumb-delete"
+                      onClick={() => eliminarImagen(img.previewUrl)} aria-label="Eliminar imagen">
+                      🗑
                     </button>
-                  ))}
+                  )}
                 </div>
-              </div>
-
-              {producto.tallas.length > 0 && (
-                <div className="inputGroup" style={{ marginTop: 16 }}>
-                  <label>Stock mínimo por talla</label>
-                  <div className="sizeGrid">
-                    {producto.tallas.map((t) => (
-                      <div key={t} className="minStockItem">
-                        <span>{t}</span>
-                        <input type="number" min="0" value={producto.minStock[t] ?? 0}
-                          onChange={(e) => handleMinStockChange(t, e.target.value)}
-                          disabled={loading} style={{ width: 50, marginLeft: 6 }} />
-                      </div>
-                    ))}
-                  </div>
+              ))}
+              {producto.imagenes.length < MAX_IMAGENES && (
+                <div className="up-image-add" role="button" tabIndex={0}
+                  onClick={() => fileInputRef.current?.click()}
+                  onKeyDown={e => e.key === "Enter" && fileInputRef.current?.click()}>
+                  <span className="up-image-add-icon">+</span>
+                  <span className="up-image-add-text">Agregar imagen</span>
+                  <span className="up-image-add-count">{producto.imagenes.length} / {MAX_IMAGENES}</span>
                 </div>
               )}
             </div>
+          )}
+        </section>
 
-            <div className="card">
-              <h3 className="cardTitle"><span className="iconBlue">📋</span> Inventario</h3>
-              <InventaryStock tallas={producto.tallas} stock={producto.stock}
-                onStockChange={handleStockChange} />
+        {/* ── Sección 3: Variantes ── */}
+        <section className="up-section">
+          <div className="up-section-head">
+            <h2 className="up-section-title">3. Variantes del producto <span className="up-req">*</span></h2>
+            <p className="up-section-desc">Todo producto necesita al menos una variante con SKU, precio y stock.</p>
+          </div>
+
+          <div className="up-variant-config">
+            <div className="up-config-row">
+              <span className="up-config-label">¿Este producto maneja tallas o colores?</span>
+              <label className="up-check-label">
+                <input type="checkbox" checked={producto.tiposVariante.talla}
+                  onChange={e => setProducto(prev => ({ ...prev, tiposVariante: { ...prev.tiposVariante, talla: e.target.checked } }))} />
+                Talla
+              </label>
+              <label className="up-check-label">
+                <input type="checkbox" checked={producto.tiposVariante.color}
+                  onChange={e => setProducto(prev => ({ ...prev, tiposVariante: { ...prev.tiposVariante, color: e.target.checked } }))} />
+                Color
+              </label>
+              <button type="button" className="up-btn-add-variant" onClick={agregarVariante} disabled={loading}>
+                + Agregar variante
+              </button>
             </div>
           </div>
 
-          <div className="previewColumn">
-            <SlotImagen indice={0} esPrincipal imagen={producto.imagenes[0] ?? null}
-              onAgregar={agregarImagen} onEliminar={eliminarImagen}
-              dragging={draggingIndice === 0} onDragOver={(e) => handleDragOver(e, 0)}
-              onDragLeave={handleDragLeave} onDrop={handleDrop} />
-            <div className="thumbnailRow">
-              {[1, 2, 3].map((idx) => (
-                <SlotImagen key={idx} indice={idx} esPrincipal={false}
-                  imagen={producto.imagenes[idx] ?? null}
-                  onAgregar={agregarImagen} onEliminar={eliminarImagen}
-                  dragging={draggingIndice === idx} onDragOver={(e) => handleDragOver(e, idx)}
-                  onDragLeave={handleDragLeave} onDrop={handleDrop} />
-              ))}
-              <div className="thumbCount">
-                <span>{producto.imagenes.length}</span>
-                <small>/ {MAX_IMAGENES}</small>
-              </div>
-            </div>
+          {producto.variantes.map((v, i) => (
+            <VarianteCard key={v._id} variante={v} index={i}
+              mostrarTalla={producto.tiposVariante.talla} mostrarColor={producto.tiposVariante.color}
+              onChange={handleVarianteChange} onEliminar={eliminarVariante} disabled={loading} />
+          ))}
+
+          <div className="up-add-variant-bottom">
+            <button type="button" className="up-btn-add-variant" onClick={agregarVariante} disabled={loading}>
+              + Agregar variante
+            </button>
           </div>
         </section>
-      </main>
+
+        <div className="up-footer-note">
+          ℹ Al guardar, recibirás los IDs de cada variante. Úsalos para agregar productos al carrito y gestionar pedidos.
+        </div>
+      </div>
     </div>
   );
 };
