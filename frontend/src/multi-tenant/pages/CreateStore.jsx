@@ -4,10 +4,41 @@ import { useNavigate } from "react-router-dom";
 import { useStore } from "./StoreContext";
 import { useAuth } from "../../admin/modules/auth/pages/hook/Useauth";
 import { useState } from "react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  ArrowLeft,
+  ArrowRight,
+  Info,
+  Store,
+  Globe,
+} from "lucide-react";
 import VexioTermsPage from "../components/VexioTermsPage";
 import StepProgress from "../components/StepProgress";
 import useCreateStore from "../hooks/useCreateStore";
 
+/* ── Componente de alerta reutilizable ─────────────────────────────────────── */
+function Alert({ type = "error", title, children }) {
+  const cfg = {
+    error:   { icon: <AlertCircle  size={16} />, cls: "error"   },
+    success: { icon: <CheckCircle2 size={16} />, cls: "success" },
+    warning: { icon: <AlertCircle  size={16} />, cls: "warning" },
+    info:    { icon: <Info         size={16} />, cls: "info"    },
+  };
+  const { icon, cls } = cfg[type] ?? cfg.error;
+
+  return (
+    <div className={`alert ${cls}`} role="alert">
+      <span className="alert-icon">{icon}</span>
+      <div className="alert-content">
+        {title && <p className="alert-title">{title}</p>}
+        {children && <p className="alert-body">{children}</p>}
+      </div>
+    </div>
+  );
+}
+
+/* ── Página principal ──────────────────────────────────────────────────────── */
 export default function CreateStore() {
   const nav = useNavigate();
   const { state, completeStep } = useStore();
@@ -16,19 +47,21 @@ export default function CreateStore() {
 
   // ── Estado local del formulario ─────────────────────────────────────────────
   const [form, setForm] = useState({
-    name: state.basic?.name ?? state.store?.name ?? "",
+    name:      state.basic?.name ?? state.store?.name ?? "",
     subdomain: state.store?.subdomain ?? "",
-    accepted: state.store?.accepted ?? false,
+    accepted:  state.store?.accepted ?? false,
   });
 
+  const [touched, setTouched] = useState({ name: false, subdomain: false });
+
   // ── Hook de integración API ─────────────────────────────────────────────────
-  const { loading, error, submit, clearError } = useCreateStore(
-    state,
-    ownerId,
-  );
+  const { loading, error, submit, clearError } = useCreateStore(state, ownerId);
+
+  // ── Validaciones inline ─────────────────────────────────────────────────────
+  const subdomainValid = /^[a-z0-9-]{3,}$/.test(form.subdomain);
+  const nameValid      = form.name.trim().length >= 2;
 
   // ── Handlers ────────────────────────────────────────────────────────────────
-
   const handleChange = (e) => {
     clearError();
     const { name, value, type, checked } = e.target;
@@ -38,13 +71,12 @@ export default function CreateStore() {
     }));
   };
 
-  // Genera slug automático a partir del nombre mientras el usuario escribe
   const handleNameChange = (e) => {
     const name = e.target.value;
     const autoSlug = name
       .toLowerCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // elimina tildes
+      .replace(/[\u0300-\u036f]/g, "")
       .trim()
       .replace(/\s+/g, "-")
       .replace(/[^a-z0-9-]/g, "");
@@ -52,84 +84,94 @@ export default function CreateStore() {
     setForm((prev) => ({
       ...prev,
       name,
-      subdomain: prev.subdomain || autoSlug, // solo auto-completa si está vacío
+      subdomain: prev.subdomain || autoSlug,
     }));
   };
 
-  const handleBack = () => {
-    nav("/widgets");
-  };
+  const handleBlur = (field) =>
+    setTouched((prev) => ({ ...prev, [field]: true }));
+
+  const handleBack = () => nav("/widgets");
 
   const handleSubmit = async () => {
     if (!form.name.trim() || !form.subdomain.trim() || !form.accepted) return;
-
     try {
       const createdStoreId = await submit(form);
-
-      // Persiste el paso en el contexto local
       completeStep("store", { ...form, storeId: createdStoreId });
-
-      // Navega al resultado
       nav("/resultado");
     } catch {
-      // El error ya está en el estado del hook
+      // error ya capturado en el hook
     }
   };
 
   // ── Render ──────────────────────────────────────────────────────────────────
-  const isFormValid =
-    form.name.trim() && form.subdomain.trim() && form.accepted;
+  const isFormValid = nameValid && subdomainValid && form.accepted;
 
   return (
     <div className="step-page">
       <StepProgress />
 
       <div className="step-card" style={{ maxWidth: 680 }}>
+
+        {/* Header */}
         <div className="step-header">
-          <button className="btn-back" onClick={handleBack} disabled={loading}>
-            ←
+          <button className="btn-back" onClick={handleBack} disabled={loading} aria-label="Volver">
+            <ArrowLeft size={16} />
           </button>
           <div>
             <h1 className="step-title">Términos y crear tienda</h1>
             <p className="step-subtitle">
-              {state.plan && (
-                <>
-                  Plan: <strong>{state.plan.name}</strong>
-                </>
-              )}
+              {state.plan && <>Plan: <strong>{state.plan.name}</strong></>}
             </p>
           </div>
         </div>
 
+        {/* Cuerpo */}
         <div className="step-body">
+
           {/* Nombre de la tienda */}
           <div className="field-block">
-            <label htmlFor="cs-name">Nombre de la tienda *</label>
+            <label htmlFor="cs-name">
+              <Store size={11} style={{ marginRight: 5, verticalAlign: "middle" }} />
+              Nombre de la tienda *
+            </label>
             <input
               id="cs-name"
               name="name"
               placeholder="Ej: Mi Tienda Urbana"
               value={form.name}
               onChange={handleNameChange}
+              onBlur={() => handleBlur("name")}
               disabled={loading}
               autoComplete="off"
+              className={
+                touched.name
+                  ? nameValid ? "field-success" : "field-error"
+                  : ""
+              }
             />
+            {touched.name && !nameValid && (
+              <span className="field-hint hint-error">
+                <AlertCircle size={11} /> Mínimo 2 caracteres
+              </span>
+            )}
+            {touched.name && nameValid && (
+              <span className="field-hint hint-ok">
+                <CheckCircle2 size={11} /> Se ve bien
+              </span>
+            )}
           </div>
 
           {/* Subdominio */}
           <div className="field-block">
             <label htmlFor="cs-subdomain">
+              <Globe size={11} style={{ marginRight: 5, verticalAlign: "middle" }} />
               Subdominio *
-              <span
-                style={{
-                  color: "#888",
-                  fontWeight: 400,
-                  fontSize: 12,
-                  marginLeft: 8,
-                }}
-              >
-                {form.subdomain ? `${form.subdomain}.freseo.com` : ""}
-              </span>
+              {form.subdomain && (
+                <span style={{ color: "#3e78ff", fontWeight: 400, fontSize: 12, marginLeft: 8, textTransform: "none", letterSpacing: 0 }}>
+                  {form.subdomain}.freseo.com
+                </span>
+              )}
             </label>
             <input
               id="cs-subdomain"
@@ -137,10 +179,26 @@ export default function CreateStore() {
               placeholder="mi-tienda"
               value={form.subdomain}
               onChange={handleChange}
+              onBlur={() => handleBlur("subdomain")}
               disabled={loading}
               autoComplete="off"
               style={{ fontFamily: "monospace" }}
+              className={
+                touched.subdomain
+                  ? subdomainValid ? "field-success" : "field-error"
+                  : ""
+              }
             />
+            {touched.subdomain && !subdomainValid && (
+              <span className="field-hint hint-error">
+                <AlertCircle size={11} /> Solo letras minúsculas, números y guiones. Mínimo 3 caracteres.
+              </span>
+            )}
+            {touched.subdomain && subdomainValid && (
+              <span className="field-hint hint-ok">
+                <CheckCircle2 size={11} /> Subdominio disponible
+              </span>
+            )}
           </div>
 
           {/* Términos y condiciones */}
@@ -153,24 +211,15 @@ export default function CreateStore() {
 
           {/* Checkbox de aceptación */}
           <section className="terms-acceptance">
-            <label
-              className="checkbox-container"
-              style={{
-                display: "flex",
-                gap: 10,
-                alignItems: "flex-start",
-                cursor: "pointer",
-              }}
-            >
+            <label className="checkbox-container">
               <input
                 type="checkbox"
                 name="accepted"
                 checked={form.accepted}
                 onChange={handleChange}
                 disabled={loading}
-                style={{ width: "auto", margin: 0, marginTop: 2 }}
               />
-              <span style={{ fontSize: 13, color: "#aaa", lineHeight: 1.5 }}>
+              <span style={{ fontSize: 13, color: form.accepted ? "#4ade80" : "#aaa", lineHeight: 1.5, transition: "color 0.2s" }}>
                 He leído y acepto los términos y condiciones, políticas de
                 privacidad y normas comerciales establecidas por Vexio.
               </span>
@@ -179,32 +228,43 @@ export default function CreateStore() {
 
           {/* Error de la API */}
           {error && (
-            <div
-              className="alert error"
-              role="alert"
-              style={{ marginBottom: 12 }}
-            >
+            <Alert type="error" title="No se pudo crear la tienda">
               {error}
-            </div>
+            </Alert>
           )}
+
         </div>
 
+        {/* Acciones */}
         <div className="step-actions">
           <button
             className="btn-secondary"
             onClick={handleBack}
             disabled={loading}
           >
+            <ArrowLeft size={14} />
             Atrás
           </button>
+
           <button
             className="btn-primary"
             onClick={handleSubmit}
             disabled={!isFormValid || loading}
           >
-            {loading ? "Creando tienda…" : "Crear tienda →"}
+            {loading ? (
+              <>
+                <span className="spinner" />
+                Creando tienda…
+              </>
+            ) : (
+              <>
+                Crear tienda
+                <ArrowRight size={14} />
+              </>
+            )}
           </button>
         </div>
+
       </div>
     </div>
   );

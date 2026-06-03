@@ -24,7 +24,6 @@ const Sidebar = () => {
     { path: 'usuarios',         label: 'GESTIONAR USUARIOS', icon: Users },
     { path: 'pedidos',          label: 'VER PEDIDOS',        icon: ShoppingCart },
     { path: 'report',           label: 'INFORMES',           icon: BarChart3 },
-    { path: 'carrusel',         label: 'CARRUSEL',           icon: ImageIcon },
     { path: 'alertas',          label: 'ALERTAS DE STOCK',   icon: AlertTriangle },
   ];
 
