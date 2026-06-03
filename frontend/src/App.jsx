@@ -62,6 +62,7 @@ import WidgetsCustomizer    from "./multi-tenant/components/WidgetsCustomizer.js
 import OrdersDashboard      from "./multi-tenant/components/OrdersDashboard.jsx";
 import MyStore              from "./multi-tenant/pages/MyStore.jsx";
 import StorePage            from "./multi-tenant/pages/StorePage.jsx";
+import Transactions         from "./multi-tenant/pages/Transaction/Transaction.jsx";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -117,11 +118,13 @@ function App() {
               <Route path="/widgets"  element={<ProtectedStep requiredStep={6}><WidgetsCustomizer /></ProtectedStep>} />
               <Route path="/crear-tienda" element={<ProtectedStep requiredStep={7}><CreateStore /></ProtectedStep>} />
               <Route path="/resultado"    element={<ProtectedStep requiredStep={8}><StoreResult /></ProtectedStep>} />
+
               {/* Rutas que requieren sesión iniciada */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/inventario" element={<Navigate to="/admin/inventario" replace />} />
+              <Route path="/mis-tiendas" element={<MyStore />} />
+              <Route path="/transacciones" element={<MyStore />} /> 
                 <Route path="/ordenes"    element={<OrdersDashboard />} />
-                <Route path="/tiendas"    element={<MyStore />} />
               </Route>
 
               <Route path="/tienda/:slug" element={<StorePage />} />

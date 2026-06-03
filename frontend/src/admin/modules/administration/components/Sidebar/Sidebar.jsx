@@ -1,44 +1,58 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { 
-  LayoutDashboard, 
-  PackagePlus, 
-  Users, 
-  ShoppingCart, 
-  BarChart3, 
-  ImageIcon, 
-  AlertTriangle, 
-  LogOut 
+  LayoutDashboard, PackagePlus, Users, ShoppingCart, 
+  BarChart3, AlertTriangle, LogOut 
 } from 'lucide-react';
 import './Sidebar.css';
+import defaultLogo from '../../../../../assets/LogoVexios/banervexio.png'; // ← ajusta el path a tu logo
 
-const Sidebar = () => {
+const DEFAULT_MENU_ITEMS = [
+  { path: '/admin/dashboard',        label: 'DASHBOARD',          icon: LayoutDashboard },
+  { path: '/admin/subir-producto',   label: 'SUBIR PRODUCTOS',    icon: PackagePlus     },
+  { path: '/admin/usuarios',         label: 'GESTIONAR USUARIOS', icon: Users           },
+  { path: '/admin/pedidos',          label: 'VER PEDIDOS',        icon: ShoppingCart    },
+  { path: '/admin/report',           label: 'INFORMES',           icon: BarChart3       },
+  { path: '/admin/alertas',          label: 'ALERTAS DE STOCK',   icon: AlertTriangle   },
+];
+
+const Sidebar = ({
+  menuItems  = DEFAULT_MENU_ITEMS,
+  brandName  = "NOMBRE",
+  brandSub   = "ADMIN",
+  onLogout,
+  logoUrl,        // ← URL de Cloudinary para el superadmin
+  useImageLogo,   // ← true = mostrar imagen, false = mostrar texto
+}) => {
   const navigate = useNavigate();
 
-  // ⚠️ Cada "path" debe coincidir EXACTAMENTE con la ruta definida en App.jsx
-  // Si en App.jsx tienes:  <Route path="report" element={<Report />} />
-  // Aquí debes poner:       path: 'report'
-  const menuItems = [
-    { path: 'dashboard',        label: 'DASHBOARD',          icon: LayoutDashboard },
-    { path: 'subir-producto',   label: 'SUBIR PRODUCTOS',    icon: PackagePlus },
-    { path: 'usuarios',         label: 'GESTIONAR USUARIOS', icon: Users },
-    { path: 'pedidos',          label: 'VER PEDIDOS',        icon: ShoppingCart },
-    { path: 'report',           label: 'INFORMES',           icon: BarChart3 },
-    { path: 'alertas',          label: 'ALERTAS DE STOCK',   icon: AlertTriangle },
-  ];
-
   const handleLogout = () => {
-    // Limpia token si lo usas:
-    // localStorage.removeItem('token');
-    console.log("Cerrando sesión...");
-    navigate('/login');
+    if (onLogout) onLogout();
+    else navigate('/login');
   };
 
   return (
     <aside className="sidebar-container">
+
+      {/* ── Brand / Logo ─────────────────────────────────────────────── */}
       <div className="sidebar-brand">
-        <h2>Nombre</h2>
-        <span className="brand-subtitle">ADMIN TERMINAL</span>
+        {useImageLogo ? (
+          // Superadmin → logo de la tienda desde Cloudinary o assets
+          <img
+            src={logoUrl || defaultLogo}
+            alt={brandName}
+            className="sidebar-logo-img"
+            onError={(e) => { e.target.onerror = null; e.target.src = defaultLogo; }} // fallback si falla Cloudinary
+          />
+        ) : (
+          // Admin normal → logo estático desde assets
+          <img
+            src={defaultLogo}
+            alt="Logo"
+            className="sidebar-logo-img"
+          />
+        )}
+        <span className="brand-subtitle">{brandSub}</span>
       </div>
 
       <nav className="sidebar-nav">
@@ -46,7 +60,7 @@ const Sidebar = () => {
           {menuItems.map((item) => (
             <NavLink
               key={item.path}
-              to={`/admin/${item.path}`}
+              to={item.path}
               className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
             >
               <item.icon size={18} />

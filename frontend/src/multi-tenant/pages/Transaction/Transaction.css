@@ -1,0 +1,182 @@
+/* Contenedor General */
+.transactions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  animation: viewFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes viewFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Títulos */
+.txn-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.5px;
+}
+
+.txn-subtitle {
+  font-size: 13px;
+  color: #888888;
+  margin: 0;
+}
+
+/* Grid de Métricas */
+.txn-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.txn-kpi-card {
+  background: #111111;
+  border: 1px solid #1a1a1a;
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.kpi-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+}
+.kpi-icon-container.green { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+.kpi-icon-container.blue { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
+.kpi-icon-container.purple { background: rgba(139, 92, 246, 0.12); color: #8b5cf6; }
+
+.kpi-content { display: flex; flex-direction: column; }
+.kpi-title-label { font-size: 11px; color: #555555; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.kpi-main-number { font-size: 20px; font-weight: 700; color: #ffffff; margin: 2px 0; }
+.kpi-subtext-label { font-size: 11px; color: #666666; }
+.text-green { color: #10b981; }
+
+/* Controles de Filtros */
+.txn-filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.txn-search-box { position: relative; flex: 1; max-width: 360px; }
+.search-icon-inside { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #444444; }
+.txn-input-field {
+  width: 100%;
+  background: #111111;
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+  padding: 8px 12px 8px 34px;
+  font-size: 13px;
+  color: #ffffff;
+  outline: none;
+}
+.txn-input-field:focus { border-color: #2563eb; }
+
+.select-wrapper { position: relative; display: flex; align-items: center; }
+.select-icon { position: absolute; left: 12px; color: #666666; pointer-events: none; }
+.txn-dropdown-select {
+  background: #111111;
+  border: 1px solid #1a1a1a;
+  color: #ffffff;
+  font-size: 13px;
+  padding: 8px 16px 8px 32px;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+}
+
+/* Tabla Estilo Terminal Terminal */
+.txn-table-wrapper {
+  background: #0d0d0d;
+  border: 1px solid #141414;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.txn-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+.txn-table th {
+  background: #111111;
+  padding: 14px 16px;
+  color: #555555;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #1a1a1a;
+  letter-spacing: 0.5px;
+}
+
+.sort-arrow { display: inline-block; vertical-align: middle; margin-left: 4px; color: #444444; }
+.txn-table td { padding: 14px 16px; border-bottom: 1px solid #141414; color: #cccccc; }
+.txn-table tbody tr:hover { background: rgba(255, 255, 255, 0.01); }
+
+/* Formatos de Celda Internos */
+.font-code { font-family: monospace; font-size: 12.5px; }
+.text-cyan { color: #06b6d4; }
+.txn-user-cell { display: flex; flex-direction: column; }
+.user-fullname { color: #ffffff; font-weight: 500; }
+.user-email-address { font-size: 11px; color: #555555; }
+.font-weight-heavy { font-weight: 600; color: #ffffff; }
+.text-gray-dim { color: #777777; }
+.font-sm { font-size: 12px; }
+
+/* Badges Exclusivos de los Planes */
+.plan-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.plan-basico { background: rgba(255, 255, 255, 0.06); color: #aaaaaa; border: 1px solid rgba(255,255,255,0.08); }
+.plan-pro { background: rgba(37, 99, 235, 0.15); color: #3b82f6; border: 1px solid rgba(37, 99, 235, 0.2); }
+.plan-premium { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.2); }
+
+/* Indicadores de Estados de Pasarela */
+.txn-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+.indicator-circle { width: 6px; height: 6px; border-radius: 50%; }
+
+.status-approved { color: #10b981; }
+.status-approved .indicator-circle { background: #10b981; box-shadow: 0 0 8px #10b981; }
+
+.status-dispute { color: #f59e0b; }
+.status-dispute .indicator-circle { background: #f59e0b; }
+
+.status-failed { color: #ef4444; }
+.status-failed .indicator-circle { background: #ef4444; }
+
+/* Botón de Fila */
+.txn-row-actions { display: flex; justify-content: flex-end; }
+.download-btn-table {
+  background: transparent;
+  border: 1px solid #222222;
+  color: #666666;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+}
+.download-btn-table:hover { background: #161616; color: #ffffff; border-color: #444444; }
+
+/* Caja de Estado Vacío */
+.txn-empty-state { text-align: center !important; padding: 40px !important; color: #555555 !important; }
+.empty-state-graphic { margin-bottom: 8px; color: #222222; }
