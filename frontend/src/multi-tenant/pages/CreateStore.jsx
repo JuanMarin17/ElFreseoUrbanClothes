@@ -1,4 +1,4 @@
-import "../components/styles/Store.css";
+﻿import "../components/styles/Store.css";
 import "../components/styles/StepPages.css";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "./StoreContext";
@@ -22,13 +22,13 @@ function getEmailFromJwt() {
 }
 import useCreateStore from "../hooks/useCreateStore";
 
-/* ── Componente de alerta reutilizable ─────────────────────────────────────── */
+/* â”€â”€ Componente de alerta reutilizable â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function Alert({ type = "error", title, children }) {
   const cfg = {
-    error:   { icon: <AlertCircle  size={16} />, cls: "error"   },
+    error: { icon: <AlertCircle size={16} />, cls: "error" },
     success: { icon: <CheckCircle2 size={16} />, cls: "success" },
-    warning: { icon: <AlertCircle  size={16} />, cls: "warning" },
-    info:    { icon: <Info         size={16} />, cls: "info"    },
+    warning: { icon: <AlertCircle size={16} />, cls: "warning" },
+    info: { icon: <Info size={16} />, cls: "info" },
   };
   const { icon, cls } = cfg[type] ?? cfg.error;
 
@@ -43,32 +43,32 @@ function Alert({ type = "error", title, children }) {
   );
 }
 
-/* ── Página principal ──────────────────────────────────────────────────────── */
+/* â”€â”€ PÃ¡gina principal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export default function CreateStore() {
   const nav = useNavigate();
   const { state, completeStep } = useStore();
   const { user } = useAuth();
   const ownerId = user?.userId ?? user?.id ?? "";
 
-  // ── Estado local del formulario ─────────────────────────────────────────────
+  // â”€â”€ Estado local del formulario â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [form, setForm] = useState({
-    name:      state.basic?.name ?? state.store?.name ?? "",
+    name: state.basic?.name ?? state.store?.name ?? "",
     subdomain: state.store?.subdomain ?? "",
-    accepted:  state.store?.accepted ?? false,
+    accepted: state.store?.accepted ?? false,
   });
 
   const [touched,      setTouched]      = useState({ name: false, subdomain: false });
   const [paymentError, setPaymentError] = useState(null);  // msg de error de pago
   const [createdId,    setCreatedId]    = useState(null);  // storeId ya creado
 
-  // ── Hook de integración API ─────────────────────────────────────────────────
+  // â”€â”€ Hook de integraciÃ³n API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const { loading, error, submit, clearError } = useCreateStore(state, ownerId);
 
-  // ── Validaciones inline ─────────────────────────────────────────────────────
+  // â”€â”€ Validaciones inline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const subdomainValid = /^[a-z0-9-]{3,}$/.test(form.subdomain);
-  const nameValid      = form.name.trim().length >= 2;
+  const nameValid = form.name.trim().length >= 2;
 
-  // ── Handlers ────────────────────────────────────────────────────────────────
+  // â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleChange = (e) => {
     clearError();
     const { name, value, type, checked } = e.target;
@@ -122,12 +122,30 @@ export default function CreateStore() {
       localStorage.setItem("storeId", createdStoreId);
       setCreatedId(createdStoreId);
       await retryPayment(createdStoreId);
+
+      // Navega al resultado con datos para mostrar el preview
+      // Pasamos `bypassProtected: true` para evitar la redirecciÃ³n causada
+      // por el guard mientras el estado `completedStep` se actualiza.
+      nav("/resultado", {
+        state: {
+          previewState: {
+            plan: state.plan ?? {},
+            store: { ...form, storeId: createdStoreId },
+            layout: state.layout ?? { id: "minimalista", title: "MINIMALISTA" },
+            styles: state.styles ?? {},
+            components: state.components ?? {},
+            widgets: state.widgets ?? null,
+          },
+          clearStorage: true,
+          bypassProtected: true,
+        },
+      });
     } catch {
       // error de creación ya capturado en el hook
     }
   };
 
-  // ── Render ──────────────────────────────────────────────────────────────────
+  // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const isFormValid = nameValid && subdomainValid && form.accepted;
 
   return (
@@ -135,27 +153,37 @@ export default function CreateStore() {
       <StepProgress />
 
       <div className="step-card" style={{ maxWidth: 680 }}>
-
         {/* Header */}
         <div className="step-header">
-          <button className="btn-back" onClick={handleBack} disabled={loading} aria-label="Volver">
+          <button
+            className="btn-back"
+            onClick={handleBack}
+            disabled={loading}
+            aria-label="Volver"
+          >
             <ArrowLeft size={16} />
           </button>
           <div>
-            <h1 className="step-title">Términos y crear tienda</h1>
+            <h1 className="step-title">TÃ©rminos y crear tienda</h1>
             <p className="step-subtitle">
-              {state.plan && <>Plan: <strong>{state.plan.name}</strong></>}
+              {state.plan && (
+                <>
+                  Plan: <strong>{state.plan.name}</strong>
+                </>
+              )}
             </p>
           </div>
         </div>
 
         {/* Cuerpo */}
         <div className="step-body">
-
           {/* Nombre de la tienda */}
           <div className="field-block">
             <label htmlFor="cs-name">
-              <Store size={11} style={{ marginRight: 5, verticalAlign: "middle" }} />
+              <Store
+                size={11}
+                style={{ marginRight: 5, verticalAlign: "middle" }}
+              />
               Nombre de la tienda *
             </label>
             <input
@@ -169,13 +197,15 @@ export default function CreateStore() {
               autoComplete="off"
               className={
                 touched.name
-                  ? nameValid ? "field-success" : "field-error"
+                  ? nameValid
+                    ? "field-success"
+                    : "field-error"
                   : ""
               }
             />
             {touched.name && !nameValid && (
               <span className="field-hint hint-error">
-                <AlertCircle size={11} /> Mínimo 2 caracteres
+                <AlertCircle size={11} /> MÃ­nimo 2 caracteres
               </span>
             )}
             {touched.name && nameValid && (
@@ -188,10 +218,22 @@ export default function CreateStore() {
           {/* Subdominio */}
           <div className="field-block">
             <label htmlFor="cs-subdomain">
-              <Globe size={11} style={{ marginRight: 5, verticalAlign: "middle" }} />
+              <Globe
+                size={11}
+                style={{ marginRight: 5, verticalAlign: "middle" }}
+              />
               Subdominio *
               {form.subdomain && (
-                <span style={{ color: "#3e78ff", fontWeight: 400, fontSize: 12, marginLeft: 8, textTransform: "none", letterSpacing: 0 }}>
+                <span
+                  style={{
+                    color: "#3e78ff",
+                    fontWeight: 400,
+                    fontSize: 12,
+                    marginLeft: 8,
+                    textTransform: "none",
+                    letterSpacing: 0,
+                  }}
+                >
                   {form.subdomain}.freseo.com
                 </span>
               )}
@@ -208,13 +250,16 @@ export default function CreateStore() {
               style={{ fontFamily: "monospace" }}
               className={
                 touched.subdomain
-                  ? subdomainValid ? "field-success" : "field-error"
+                  ? subdomainValid
+                    ? "field-success"
+                    : "field-error"
                   : ""
               }
             />
             {touched.subdomain && !subdomainValid && (
               <span className="field-hint hint-error">
-                <AlertCircle size={11} /> Solo letras minúsculas, números y guiones. Mínimo 3 caracteres.
+                <AlertCircle size={11} /> Solo letras minÃºsculas, nÃºmeros y
+                guiones. MÃ­nimo 3 caracteres.
               </span>
             )}
             {touched.subdomain && subdomainValid && (
@@ -224,15 +269,15 @@ export default function CreateStore() {
             )}
           </div>
 
-          {/* Términos y condiciones */}
+          {/* TÃ©rminos y condiciones */}
           <div className="field-block">
-            <label>Términos y condiciones</label>
+            <label>TÃ©rminos y condiciones</label>
             <div className="terms-scroll-box">
               <VexioTermsPage />
             </div>
           </div>
 
-          {/* Checkbox de aceptación */}
+          {/* Checkbox de aceptaciÃ³n */}
           <section className="terms-acceptance">
             <label className="checkbox-container">
               <input
@@ -242,8 +287,15 @@ export default function CreateStore() {
                 onChange={handleChange}
                 disabled={loading}
               />
-              <span style={{ fontSize: 13, color: form.accepted ? "#4ade80" : "#aaa", lineHeight: 1.5, transition: "color 0.2s" }}>
-                He leído y acepto los términos y condiciones, políticas de
+              <span
+                style={{
+                  fontSize: 13,
+                  color: form.accepted ? "#4ade80" : "#aaa",
+                  lineHeight: 1.5,
+                  transition: "color 0.2s",
+                }}
+              >
+                He leÃ­do y acepto los tÃ©rminos y condiciones, polÃ­ticas de
                 privacidad y normas comerciales establecidas por Vexio.
               </span>
             </label>
@@ -255,7 +307,6 @@ export default function CreateStore() {
               {error}
             </Alert>
           )}
-
         </div>
 
         {/* ── Modal error de pago ── */}
@@ -330,7 +381,7 @@ export default function CreateStore() {
             disabled={loading}
           >
             <ArrowLeft size={14} />
-            Atrás
+            AtrÃ¡s
           </button>
 
           <button
@@ -341,7 +392,7 @@ export default function CreateStore() {
             {loading ? (
               <>
                 <span className="spinner" />
-                Creando tienda…
+                Creando tiendaâ€¦
               </>
             ) : (
               <>
@@ -351,7 +402,6 @@ export default function CreateStore() {
             )}
           </button>
         </div>
-
       </div>
     </div>
   );

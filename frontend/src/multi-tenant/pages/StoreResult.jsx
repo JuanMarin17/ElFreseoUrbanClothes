@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "./StoreContext";
 import "../components/styles/StoreResult.css";
 import StoreFront from "../components/Store/StoreFront.jsx";
@@ -11,14 +11,25 @@ const cleanFont = (f = "Inter") => {
 
 const StoreResult = () => {
   const { state, resetAll } = useStore();
+  const location = useLocation();
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
 
-  const plan = state.plan ?? {};
-  const store = state.store ?? {};
-  const layout = state.layout ?? { id: "minimalista", title: "MINIMALISTA" };
-  const styles = state.styles ?? {};
-  const components = state.components ?? {};
+  const previewState = location.state?.previewState;
+
+  useEffect(() => {
+    if (location.state?.clearStorage) {
+      resetAll();
+    }
+  }, [location.state, resetAll]);
+
+  const plan = previewState?.plan ?? state.plan ?? {};
+  const store = previewState?.store ?? state.store ?? {};
+  const layout = previewState?.layout ??
+    state.layout ?? { id: "minimalista", title: "MINIMALISTA" };
+  const styles = previewState?.styles ?? state.styles ?? {};
+  const components = previewState?.components ?? state.components ?? {};
+  const widgets = previewState?.widgets ?? state.widgets ?? null;
 
   const accentColor = styles.colorBoton ?? "#3e78ff";
   const fontTitle = cleanFont(styles.fontTitle ?? "Bebas Neue");
@@ -57,8 +68,7 @@ const StoreResult = () => {
   ];
 
   // widgets: usa los del usuario si existen, si no null (Clasico usará defaults con sidebar visible)
-  const widgets = state.widgets ?? null;
-
+ 
   const previewData = { header, banner, footer, products, styles, widgets };
 
   const handleCopyUrl = () => {

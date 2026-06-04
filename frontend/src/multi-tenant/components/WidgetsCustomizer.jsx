@@ -74,7 +74,7 @@ const WidgetsCustomizer = () => {
   // ✓ Guarda y avanza a crear tienda
   const handleFinish = () => {
     completeStep("widgets", design);
-    navigate("/crear-tienda");
+    navigate("/cms");
   };
 
   const sb = design.sidebar;
@@ -156,7 +156,7 @@ const WidgetsCustomizer = () => {
                             <button className="btn-del-link" onClick={() => removeSidebarItem(index)}>×</button>
                           </div>
                         ))}
-                        <button className="btn-add-link" onClick={addSidebarItem}>+ Añadir ítem</button>
+                     
                       </div>
                     </div>
 

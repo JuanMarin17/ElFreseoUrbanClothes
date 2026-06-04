@@ -416,3 +416,23 @@
   accent-color: #3e78ff;
   cursor: pointer;
 }
+/* ── Fix icono btn-back ───────────────────── */
+.btn-back svg {
+  display: block;
+  pointer-events: none;
+}
+.btn-back {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px;
+  min-height: 36px;
+  max-width: 36px;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+.btn-back svg {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0;
+}

@@ -99,7 +99,7 @@ const CustomizationPanel = () => {
               {["colores", "tarjetas", "botones", "tipografía"].map((tab) => (
                 <button
                   key={tab}
-                  className={`tab-link ${activeTab === tab ? "active" : ""}`}
+                  className={`tab-links ${activeTab === tab ? "active" : ""}`}
                   onClick={() => setActiveTab(tab)}
                 >
                   {tab}

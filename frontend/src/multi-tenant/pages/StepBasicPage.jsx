@@ -2,7 +2,7 @@
  * StepBasicPage.jsx — Paso 2: Información básica de la tienda
  * Ruta: /crear-tienda/basico
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "./StoreContext";
 import StepProgress from "../components/StepProgress";
@@ -21,10 +21,10 @@ import {
 // ── Alerta reutilizable ────────────────────────────────────────────────────────
 function Alert({ type = "error", title, children }) {
   const cfg = {
-    error:   { icon: <AlertCircle  size={16} />, cls: "error"   },
+    error: { icon: <AlertCircle size={16} />, cls: "error" },
     success: { icon: <CheckCircle2 size={16} />, cls: "success" },
-    warning: { icon: <AlertCircle  size={16} />, cls: "warning" },
-    info:    { icon: <CheckCircle2 size={16} />, cls: "info"    },
+    warning: { icon: <AlertCircle size={16} />, cls: "warning" },
+    info: { icon: <CheckCircle2 size={16} />, cls: "info" },
   };
   const { icon, cls } = cfg[type] ?? cfg.error;
   return (
@@ -39,18 +39,17 @@ function Alert({ type = "error", title, children }) {
 }
 
 // Solo restaurar la preview si es una URL real de Cloudinary (no un blob: de sesión anterior)
-const safeLogoUrl = (url) =>
-  url && url.startsWith("http") ? url : null;
+const safeLogoUrl = (url) => (url && url.startsWith("http") ? url : null);
 
 export default function StepBasicPage() {
   const navigate = useNavigate();
   const { state, saveProgress, completeStep } = useStore();
 
   const [form, setForm] = useState({
-    name:        state.basic?.name        ?? "",
+    name: state.basic?.name ?? "",
     description: state.basic?.description ?? "",
     logoPreview: safeLogoUrl(state.basic?.logoPreview),
-    uploading:   false,
+    uploading: false,
     uploadError: null,
   });
 
@@ -87,7 +86,8 @@ export default function StepBasicPage() {
         ...prev,
         logoPreview: safeLogoUrl(state.basic?.logoPreview),
         uploading: false,
-        uploadError: err.message ?? "No se pudo subir el logo. Intenta de nuevo.",
+        uploadError:
+          err.message ?? "No se pudo subir el logo. Intenta de nuevo.",
       }));
     }
   };
@@ -103,8 +103,10 @@ export default function StepBasicPage() {
 
   const handleNext = () => {
     const newErrors = {};
-    if (!form.name.trim()) newErrors.name = "El nombre de la tienda es obligatorio";
-    if (form.uploading)    newErrors.logo = "Espera a que el logo termine de subirse";
+    if (!form.name.trim())
+      newErrors.name = "El nombre de la tienda es obligatorio";
+    if (form.uploading)
+      newErrors.logo = "Espera a que el logo termine de subirse";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -112,12 +114,27 @@ export default function StepBasicPage() {
     }
 
     completeStep("basic", {
-      name:        form.name,
+      name: form.name,
       description: form.description,
       logoPreview: form.logoPreview,
     });
     navigate("/crear-tienda/legal");
   };
+
+  // Revocar cualquier ObjectURL temporal al desmontar o cuando cambie preview
+  useEffect(() => {
+    return () => {
+      if (
+        form.logoPreview &&
+        typeof form.logoPreview === "string" &&
+        form.logoPreview.startsWith("blob:")
+      ) {
+        try {
+          URL.revokeObjectURL(form.logoPreview);
+        } catch {}
+      }
+    };
+  }, [form.logoPreview]);
 
   return (
     <div className="step-page">
@@ -135,11 +152,13 @@ export default function StepBasicPage() {
         </div>
 
         <div className="step-body">
-
           {/* Nombre */}
           <div className="field-block">
             <label htmlFor="sb-name">
-              <Store size={11} style={{ marginRight: 5, verticalAlign: "middle" }} />
+              <Store
+                size={11}
+                style={{ marginRight: 5, verticalAlign: "middle" }}
+              />
               Nombre de la tienda *
             </label>
             <input
@@ -149,7 +168,13 @@ export default function StepBasicPage() {
               value={form.name}
               onChange={handleChange}
               autoComplete="off"
-              className={errors.name ? "field-error" : form.name.trim() ? "field-success" : ""}
+              className={
+                errors.name
+                  ? "field-error"
+                  : form.name.trim()
+                    ? "field-success"
+                    : ""
+              }
             />
             {errors.name && (
               <span className="field-hint hint-error">
@@ -187,7 +212,10 @@ export default function StepBasicPage() {
               />
               {form.uploading ? (
                 <>
-                  <Loader2 size={16} style={{ animation: "spin 0.7s linear infinite" }} />
+                  <Loader2
+                    size={16}
+                    style={{ animation: "spin 0.7s linear infinite" }}
+                  />
                   <span>Subiendo logo…</span>
                 </>
               ) : (
@@ -228,7 +256,6 @@ export default function StepBasicPage() {
               Revisa los campos marcados antes de continuar.
             </Alert>
           )}
-
         </div>
 
         <div className="step-actions">

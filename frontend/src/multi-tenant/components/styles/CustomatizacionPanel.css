@@ -122,36 +122,125 @@
   overflow: hidden;
 }
 
-/* Tabs */
+/* ══════════════════════════════════════════════
+   TABS PROFESIONALES RESPONSIVE
+══════════════════════════════════════════════ */
+
+/* CONTENEDOR */
+
 .tabs-header {
-  display: flex;
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  align-items: stretch;
+
+  gap: 6px;
+
+  padding: 8px;
+
   border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
+
+  background: #0a111b;
+
+  overflow: hidden;
 }
 
-.tab-link {
-  flex: 1;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  margin: 0;
-  padding: 14px 8px;
+/* BOTONES */
+
+.tab-links {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
   color: var(--text-muted);
-  text-transform: uppercase;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.8px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease;
 }
 
-.tab-link:hover { color: var(--text-dim); }
+/* HOVER */
 
-.tab-link.active {
-  color: #fff;
-  border-bottom-color: var(--accent);
+.tab-links:hover {
+  background: rgba(255,255,255,0.03);
+
+  color: #dce7f5;
+
+  border-color: rgba(255,255,255,0.05);
 }
 
+/* ACTIVE */
+
+.tab-links.active {
+  background: linear-gradient(
+    180deg,
+    rgba(62,120,255,0.18),
+    rgba(62,120,255,0.08)
+  );
+
+  color: #ffffff;
+
+  border-color: rgba(62,120,255,0.45);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 0 0 1px rgba(62,120,255,0.08);
+}
+
+/* ─────────────────────────────────────────────
+   TABLET
+───────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+
+  .tabs-header {
+    gap: 4px;
+
+    padding: 6px;
+  }
+
+  .tab-links {
+    font-size: 10px;
+
+    padding: 13px 8px;
+
+    letter-spacing: 0.5px;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   MOBILE
+───────────────────────────────────────────── */
+
+@media (max-width: 520px) {
+
+  .tabs-header {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tab-links {
+    font-size: 10px;
+
+    min-height: 25px;
+  }
+}
 /* Controles */
 .controls-container {
   padding: 20px;
@@ -291,6 +380,7 @@ input[type="color"] {
 .product-card-preview {
   width: 100%;
   max-width: 480px;
+  overflow: hidden;
   background: linear-gradient(135deg, var(--card-b1, #3e78ff), var(--card-b2, #6c63ff));
   padding: var(--card-w, 2px);
   border-radius: var(--card-r, 14px);
@@ -359,7 +449,10 @@ input[type="color"] {
   text-transform: uppercase;
 }
 
-.preview-btn-main:hover { filter: brightness(1.1); transform: none; }
+ .preview-btn-main:hover {
+  filter: brightness(1.1);
+  transform: none;
+}
 
 /* ── Animación ────────────────────────────── */
 .animate-fade {
@@ -385,5 +478,238 @@ input[type="color"] {
 
   .preview-panel {
     padding: 24px 16px;
+  }
+}
+/* ══════════════════════════════════════════════
+   FIXES PROFESIONALES UI / UX
+══════════════════════════════════════════════ */
+
+/* ── Reset focus blanco navegador ─────────── */
+
+button,
+input,
+select,
+textarea {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+button:focus,
+button:focus-visible,
+input:focus,
+input:focus-visible,
+select:focus,
+select:focus-visible,
+textarea:focus,
+textarea:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ── Mejor render responsive ───────────────── */
+
+* {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ── Botones más profesionales ────────────── */
+
+.preview-btn-main,
+.btn-save-primary,
+.btn-back-arrow,
+.tab-links,
+select,
+button {
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.preview-btn-main:hover,
+.btn-save-primary:hover {
+  transform: translateY(-2px);
+}
+
+/* ── Tarjeta responsive real ──────────────── */
+
+.product-card-preview {
+  width: 100%;
+  max-width: 480px;
+  min-width: 0;
+}
+
+/* ── Contenido adaptable ─────────────────── */
+
+.card-content {
+  width: 100%;
+}
+
+/* ── Imagen adaptable ────────────────────── */
+
+.img-placeholder {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  min-height: 180px;
+  max-height: 320px;
+}
+
+/* ── Tipografía responsive ───────────────── */
+
+.preview-title {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+}
+
+.preview-text {
+  font-size: clamp(0.82rem, 1vw, 0.95rem);
+}
+
+/* ── Inputs profesionales ────────────────── */
+
+input,
+select,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Select responsive ───────────────────── */
+
+.select-field select {
+  width: 100%;
+  min-width: 0;
+}
+
+/* ── Ranges adaptables ───────────────────── */
+
+.range-field {
+  flex-wrap: wrap;
+}
+
+.range-field input[type=\"range\"] {
+  width: 100%;
+}
+
+/* ── Tabs responsive ─────────────────────── */
+
+.tabs-header {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs-header::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-links {
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+/* ── Panel responsive ────────────────────── */
+
+.control-panel {
+  min-width: 0;
+}
+
+/* ── Grid responsive profesional ─────────── */
+
+.editor-grid {
+  width: 100%;
+  min-width: 0;
+}
+
+/* ── Preview adaptable ───────────────────── */
+
+.preview-panel {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* ── Inputs color ────────────────────────── */
+
+input[type=\"color\"] {
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* ── Hover más limpio ────────────────────── */
+
+.tab-links:hover,
+.btn-back-arrow:hover,
+select:hover {
+  transform: none;
+}
+
+/* ── Mobile optimización ─────────────────── */
+
+@media (max-width: 768px) {
+  .top-header {
+    padding: 0 14px;
+    gap: 10px;
+  }
+
+  .store-name {
+    font-size: 11px;
+  }
+
+  .controls-container {
+    padding: 16px;
+  }
+
+  .preview-panel {
+    padding: 18px;
+  }
+
+  .card-content {
+    padding: 20px;
+  }
+
+  .preview-btn-main {
+    padding: 14px;
+    font-size: 12px;
+  }
+
+  .tabs-header {
+    gap: 6px;
+    padding: 0 6px;
+  }
+
+  .tab-links {
+    font-size: 9px;
+    padding: 14px 12px;
+  }
+}
+
+/* ── Mobile pequeño ──────────────────────── */
+
+@media (max-width: 480px) {
+  .top-header {
+    height: auto;
+    padding: 14px;
+    flex-wrap: wrap;
+  }
+
+  .btn-save-primary {
+    width: 100%;
+  }
+
+  .preview-panel {
+    padding: 14px;
+  }
+
+  .card-content {
+    padding: 16px;
+  }
+
+  .preview-title {
+    line-height: 0.95;
   }
 }

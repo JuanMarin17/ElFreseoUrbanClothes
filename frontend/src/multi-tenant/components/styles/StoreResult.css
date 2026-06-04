@@ -221,23 +221,21 @@ html, body {
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 28px 20px 60px;
+  padding: 0;          /* sin padding para pantalla completa */
   overflow-x: hidden;
 }
 
 /* ── Store preview ────────────────────────── */
 .store-preview {
   width: 100%;
-  max-width: 1100px;
-  border-radius: 20px;
-  overflow: visible;          /* no cortar el contenido */
-  border: 1px solid #1a2535;
+  max-width: 100%;     /* ocupa todo el ancho */
+  border-radius: 0;    /* sin bordes redondeados en pantalla grande */
+  overflow: hidden;
+  border: none;
+  border-top: 1px solid #1a2535;
   background: #0b0f18;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
-  /* Scroll horizontal solo si el contenido interno lo necesita */
-  overflow-x: auto;
+  box-shadow: none;
 }
-
 /* Variantes de layout */
 .store-preview.minimalista { background: #ffffff; color: #111827; border-color: #e5e7eb; }
 .store-preview.clasico     { background: #f3f4f6; color: #111827; border-color: #dfe3e8; }

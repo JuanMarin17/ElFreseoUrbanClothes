@@ -38,7 +38,9 @@ async function request(url, options = {}) {
   body = ct.includes("application/json") ? await res.json() : await res.text();
 
   if (!res.ok) {
-    if (res.status === 404) return null;
+    if (res.status === 404 && res.message.includes("no tiene configuración")) {
+      return null; // o {}
+    }
     const message =
       typeof body === "object"
         ? (body.message ?? `Error ${res.status}`)
