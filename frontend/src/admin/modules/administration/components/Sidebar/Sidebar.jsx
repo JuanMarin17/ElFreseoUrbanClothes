@@ -5,7 +5,7 @@ import {
   BarChart3, AlertTriangle, LogOut 
 } from 'lucide-react';
 import './Sidebar.css';
-import defaultLogo from '../../../../../assets/LogoVexios/banervexio.png'; // ← ajusta el path a tu logo
+import defaultLogo from '../../../../../assets/LogoVexios/banervexio.png';
 
 const DEFAULT_MENU_ITEMS = [
   { path: '/admin/dashboard',        label: 'DASHBOARD',          icon: LayoutDashboard },
@@ -13,16 +13,17 @@ const DEFAULT_MENU_ITEMS = [
   { path: '/admin/usuarios',         label: 'GESTIONAR USUARIOS', icon: Users           },
   { path: '/admin/pedidos',          label: 'VER PEDIDOS',        icon: ShoppingCart    },
   { path: '/admin/report',           label: 'INFORMES',           icon: BarChart3       },
-  { path: '/admin/alertas',          label: 'ALERTAS DE STOCK',   icon: AlertTriangle   },
+  { path: '/admin/alertas',          label: 'ALERTAS DE STOCK',   icon: AlertTriangle, alertKey: 'stock' }, // 👈 marca este item
 ];
 
 const Sidebar = ({
-  menuItems  = DEFAULT_MENU_ITEMS,
-  brandName  = "NOMBRE",
-  brandSub   = "ADMIN",
+  menuItems    = DEFAULT_MENU_ITEMS,
+  brandName    = "NOMBRE",
+  brandSub     = "ADMIN",
   onLogout,
-  logoUrl,        // ← URL de Cloudinary para el superadmin
-  useImageLogo,   // ← true = mostrar imagen, false = mostrar texto
+  logoUrl,
+  useImageLogo,
+  lowStockCount = 0,  // 👈 NUEVA PROP: cuántos productos con stock bajo
 }) => {
   const navigate = useNavigate();
 
@@ -37,15 +38,13 @@ const Sidebar = ({
       {/* ── Brand / Logo ─────────────────────────────────────────────── */}
       <div className="sidebar-brand">
         {useImageLogo ? (
-          // Superadmin → logo de la tienda desde Cloudinary o assets
           <img
             src={logoUrl || defaultLogo}
             alt={brandName}
             className="sidebar-logo-img"
-            onError={(e) => { e.target.onerror = null; e.target.src = defaultLogo; }} // fallback si falla Cloudinary
+            onError={(e) => { e.target.onerror = null; e.target.src = defaultLogo; }}
           />
         ) : (
-          // Admin normal → logo estático desde assets
           <img
             src={defaultLogo}
             alt="Logo"
@@ -57,16 +56,30 @@ const Sidebar = ({
 
       <nav className="sidebar-nav">
         <div className="nav-group">
-          {menuItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
-            >
-              <item.icon size={18} />
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
+          {menuItems.map((item) => {
+            // ¿Este item debe mostrar alerta de stock?
+            const showStockAlert = item.alertKey === 'stock' && lowStockCount > 0;
+
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+              >
+                <span className="nav-icon-wrapper">
+                  <item.icon size={18} />
+                  {showStockAlert && (
+                    <span className="stock-alert-dot" title={`${lowStockCount} productos con stock bajo`} />
+                  )}
+                </span>
+                <span>{item.label}</span>
+                {/* Contador opcional al lado del label */}
+                {showStockAlert && (
+                  <span className="stock-alert-badge">{lowStockCount}</span>
+                )}
+              </NavLink>
+            );
+          })}
         </div>
 
         <div className="nav-footer">

@@ -124,3 +124,49 @@ img .sidebar-logo-img {
   height: 100%;
   object-fit: contain;
 }
+/* Wrapper del ícono para posicionar el dot encima */
+.nav-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Punto rojo vibrando */
+.stock-alert-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+/* Número al lado del label */
+.stock-alert-badge {
+  margin-left: auto;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  line-height: 16px;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* Animación de vibración/pulso */
+@keyframes pulse-dot {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.9;
+    box-shadow: 0 0 0 5px rgba(239, 68, 68, 0);
+  }
+}

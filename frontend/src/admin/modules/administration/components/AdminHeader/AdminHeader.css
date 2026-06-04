@@ -31,6 +31,7 @@
 
 .top-bar-tools {
   display: flex;
+  align-items: center;
   gap: 20px;
 }
 
@@ -42,11 +43,18 @@
   cursor: pointer;
   position: relative;
   transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tool-btn:focus { outline: none; }
-
 .tool-btn:hover { color: #fff; }
+
+.tool-btn.ai-active {
+  color: #3b82f6;
+  filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.6));
+}
 
 .dot-alert {
   position: absolute;
@@ -58,13 +66,8 @@
   border-radius: 50%;
   box-shadow: 0 0 5px #3b82f6;
 }
-/* ── IA active state ─────────────────────────────────────────────────────── */
-.tool-btn.ai-active {
-  color: #3b82f6;
-  filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.6));
-}
 
-/* ── User pill (opcional, para MyStore) ──────────────────────────────────── */
+/* ── User pill ───────────────────────────────────────────────────────────── */
 .top-bar-user {
   display: flex;
   align-items: center;

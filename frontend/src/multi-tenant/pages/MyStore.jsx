@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // ← añadido useLocation
+import { useNavigate, useLocation } from "react-router-dom";
 import { useStore } from "./StoreContext";
 import { useAuth } from "../../admin/modules/auth/pages/hook/Useauth";
 import "../components/styles/MyStore.css";
@@ -9,7 +9,7 @@ import { getStoresByUser, getStoreSettingsByHeader, getAllStores } from "./servi
 import Sidebar from "../../admin/modules/administration/components/Sidebar/Sidebar";
 import AdminHeader from "../../admin/modules/administration/components/AdminHeader/AdminHeader";
 import IAAdmin from "../../admin/modules/administration/pages/IAAdmin/AIAdmin";
-import Transaction from "../../multi-tenant/pages/Transaction/Transaction"; // ← ajusta el path si está en otro lado
+import Transaction from "../../multi-tenant/pages/Transaction/Transaction";
 
 const SUPERADMIN_MENU = [
   { path: "/mis-tiendas",   label: "MIS TIENDAS",   icon: Store      },
@@ -22,25 +22,26 @@ const ADMIN_MENU = [
 ];
 
 const MyStore = () => {
-  const navigate = useNavigate();
-  const location = useLocation(); // ← detecta la ruta actual
+  const navigate  = useNavigate();
+  const location  = useLocation();
   const { state } = useStore();
   const { user, logout } = useAuth();
+
   const userId = user?.id ?? user?.userId ?? null;
   const name   = user?.userName ?? user?.name ?? null;
-  const role   = "SUPERADMIN";
+  const role   = "SUPERADMIN"; // ajusta cuando tengas roles reales
 
-  const menuItems = role === "SUPERADMIN" ? SUPERADMIN_MENU : ADMIN_MENU;
+  const menuItems       = role === "SUPERADMIN" ? SUPERADMIN_MENU : ADMIN_MENU;
+  const isTransacciones = location.pathname === "/transacciones";
 
-  const isTransacciones = location.pathname === "/transacciones"; // ← flag de vista
-
-  const [isAiOpen, setIsAiOpen] = useState(false);
-  const [stores, setStores]               = useState([]);
-  const [storeSettings, setStoreSettings] = useState({});
-  const [loadingStores, setLoadingStores] = useState(false);
-  const [storesError, setStoresError]     = useState(null);
-  const [copiedId, setCopiedId]           = useState(null);
-  const [search, setSearch]               = useState("");
+  // ── Estados ───────────────────────────────────────────────────────────────
+  const [isAiOpen,       setIsAiOpen]       = useState(false);
+  const [stores,         setStores]         = useState([]);
+  const [storeSettings,  setStoreSettings]  = useState({});
+  const [loadingStores,  setLoadingStores]  = useState(false);
+  const [storesError,    setStoresError]    = useState(null);
+  const [copiedId,       setCopiedId]       = useState(null);
+  const [search,         setSearch]         = useState("");
 
   useEffect(() => {
     setLoadingStores(true);
@@ -83,6 +84,7 @@ const MyStore = () => {
   return (
     <div className="admin-terminal-wrapper">
 
+      {/* ── Sidebar ───────────────────────────────────────────────────────── */}
       <Sidebar
         menuItems={menuItems}
         brandName="VEXIO"
@@ -94,22 +96,26 @@ const MyStore = () => {
 
       <div className="admin-main-section">
 
+        {/* ── Header ────────────────────────────────────────────────────── */}
         <AdminHeader
           isAiOpen={isAiOpen}
           setIsAiOpen={setIsAiOpen}
           showAi={true}
+          showBell={true}
+          showSettings={true}
+          isSuperAdmin={role === "SUPERADMIN"}
           searchValue={search}
           onSearchChange={(e) => setSearch(e.target.value)}
           searchPlaceholder={isTransacciones ? "Buscar transacción..." : "Buscar tienda o ID..."}
-          showBell={true}
-          showSettings={true}
+          userName={name ?? "Usuario"}
+          userRole={role}
         />
 
         <div className="admin-workspace-split">
 
           <main className="admin-page-body">
 
-            {/* ── Vista condicional ───────────────────────────────── */}
+            {/* ── Vista condicional ──────────────────────────────────── */}
             {isTransacciones ? (
               <Transaction />
             ) : (
@@ -218,6 +224,7 @@ const MyStore = () => {
 
           </main>
 
+          {/* ── Panel IA ────────────────────────────────────────────── */}
           <IAAdmin isOpen={isAiOpen} setIsOpen={setIsAiOpen} />
 
         </div>
