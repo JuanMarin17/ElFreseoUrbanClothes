@@ -21,10 +21,10 @@ import {
 // ── Alerta reutilizable ────────────────────────────────────────────────────────
 function Alert({ type = "error", title, children }) {
   const cfg = {
-    error:   { icon: <AlertCircle  size={16} />, cls: "error"   },
+    error: { icon: <AlertCircle size={16} />, cls: "error" },
     success: { icon: <CheckCircle2 size={16} />, cls: "success" },
-    warning: { icon: <AlertCircle  size={16} />, cls: "warning" },
-    info:    { icon: <CheckCircle2 size={16} />, cls: "info"    },
+    warning: { icon: <AlertCircle size={16} />, cls: "warning" },
+    info: { icon: <CheckCircle2 size={16} />, cls: "info" },
   };
   const { icon, cls } = cfg[type] ?? cfg.error;
   return (
@@ -39,8 +39,7 @@ function Alert({ type = "error", title, children }) {
 }
 
 // Solo restaurar la preview si es una URL real de Cloudinary (no un blob: de sesión anterior)
-const safeLogoUrl = (url) =>
-  url && url.startsWith("http") ? url : null;
+const safeLogoUrl = (url) => (url && url.startsWith("http") ? url : null);
 
 export default function StepBasicPage() {
   const navigate = useNavigate();
@@ -49,14 +48,8 @@ export default function StepBasicPage() {
   const [form, setForm] = useState({
     name: state.basic?.name ?? "",
     description: state.basic?.description ?? "",
-    logoPreview: state.basic?.logoPreview ?? null,
-    logo: null,
-    uploading: false, // ← nuevo
-  });
-    name:        state.basic?.name        ?? "",
-    description: state.basic?.description ?? "",
     logoPreview: safeLogoUrl(state.basic?.logoPreview),
-    uploading:   false,
+    uploading: false,
     uploadError: null,
   });
 
@@ -72,11 +65,6 @@ export default function StepBasicPage() {
   };
 
   const handleFile = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // Muestra preview local mientras sube
-
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -85,30 +73,6 @@ export default function StepBasicPage() {
       ...prev,
       logoPreview: localPreview,
       uploading: true,
-    }));
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", "preset");
-
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/dcwyyoe7c/image/upload`,
-        { method: "POST", body: formData },
-      );
-
-      const data = await res.json();
-      console.log("Cloudinary response:", data);
-
-      // Guarda la URL real de Cloudinary (no el base64)
-      setForm((prev) => ({
-        ...prev,
-        logoPreview: data.secure_url, // ← URL permanente de Cloudinary
-        uploading: false,
-      }));
-    } catch (err) {
-      console.error("Error subiendo imagen:", err);
-      setForm((prev) => ({ ...prev, uploading: false }));
       uploadError: null,
     }));
 
@@ -122,18 +86,13 @@ export default function StepBasicPage() {
         ...prev,
         logoPreview: safeLogoUrl(state.basic?.logoPreview),
         uploading: false,
-        uploadError: err.message ?? "No se pudo subir el logo. Intenta de nuevo.",
+        uploadError:
+          err.message ?? "No se pudo subir el logo. Intenta de nuevo.",
       }));
     }
   };
 
   const handleBack = () => {
-    // No persistir Blob URLs (solo persistir URL remotas)
-    const safePreview =
-      form.logoPreview && form.logoPreview.startsWith("blob:")
-        ? null
-        : form.logoPreview;
-    saveProgress("basic", { ...form, logoPreview: safePreview });
     saveProgress("basic", {
       name: form.name,
       description: form.description,
@@ -143,23 +102,11 @@ export default function StepBasicPage() {
   };
 
   const handleNext = () => {
-    if (!form.name.trim())
-      return alert("El nombre de la tienda es obligatorio");
-    if (form.uploading)
-      return alert(
-        "Espera a que la imagen termine de subirse antes de continuar.",
-      );
-    const safePreview =
-      form.logoPreview && form.logoPreview.startsWith("blob:")
-        ? null
-        : form.logoPreview;
-    completeStep("basic", {
-      name: form.name,
-      description: form.description,
-      logoPreview: safePreview,
     const newErrors = {};
-    if (!form.name.trim()) newErrors.name = "El nombre de la tienda es obligatorio";
-    if (form.uploading)    newErrors.logo = "Espera a que el logo termine de subirse";
+    if (!form.name.trim())
+      newErrors.name = "El nombre de la tienda es obligatorio";
+    if (form.uploading)
+      newErrors.logo = "Espera a que el logo termine de subirse";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -167,7 +114,7 @@ export default function StepBasicPage() {
     }
 
     completeStep("basic", {
-      name:        form.name,
+      name: form.name,
       description: form.description,
       logoPreview: form.logoPreview,
     });
@@ -205,11 +152,13 @@ export default function StepBasicPage() {
         </div>
 
         <div className="step-body">
-
           {/* Nombre */}
           <div className="field-block">
             <label htmlFor="sb-name">
-              <Store size={11} style={{ marginRight: 5, verticalAlign: "middle" }} />
+              <Store
+                size={11}
+                style={{ marginRight: 5, verticalAlign: "middle" }}
+              />
               Nombre de la tienda *
             </label>
             <input
@@ -219,7 +168,13 @@ export default function StepBasicPage() {
               value={form.name}
               onChange={handleChange}
               autoComplete="off"
-              className={errors.name ? "field-error" : form.name.trim() ? "field-success" : ""}
+              className={
+                errors.name
+                  ? "field-error"
+                  : form.name.trim()
+                    ? "field-success"
+                    : ""
+              }
             />
             {errors.name && (
               <span className="field-hint hint-error">
@@ -257,7 +212,10 @@ export default function StepBasicPage() {
               />
               {form.uploading ? (
                 <>
-                  <Loader2 size={16} style={{ animation: "spin 0.7s linear infinite" }} />
+                  <Loader2
+                    size={16}
+                    style={{ animation: "spin 0.7s linear infinite" }}
+                  />
                   <span>Subiendo logo…</span>
                 </>
               ) : (
@@ -298,7 +256,6 @@ export default function StepBasicPage() {
               Revisa los campos marcados antes de continuar.
             </Alert>
           )}
-
         </div>
 
         <div className="step-actions">

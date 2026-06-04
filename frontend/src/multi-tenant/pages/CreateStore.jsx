@@ -20,10 +20,10 @@ import useCreateStore from "../hooks/useCreateStore";
 /* â”€â”€ Componente de alerta reutilizable â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function Alert({ type = "error", title, children }) {
   const cfg = {
-    error:   { icon: <AlertCircle  size={16} />, cls: "error"   },
+    error: { icon: <AlertCircle size={16} />, cls: "error" },
     success: { icon: <CheckCircle2 size={16} />, cls: "success" },
-    warning: { icon: <AlertCircle  size={16} />, cls: "warning" },
-    info:    { icon: <Info         size={16} />, cls: "info"    },
+    warning: { icon: <AlertCircle size={16} />, cls: "warning" },
+    info: { icon: <Info size={16} />, cls: "info" },
   };
   const { icon, cls } = cfg[type] ?? cfg.error;
 
@@ -47,9 +47,9 @@ export default function CreateStore() {
 
   // â”€â”€ Estado local del formulario â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [form, setForm] = useState({
-    name:      state.basic?.name ?? state.store?.name ?? "",
+    name: state.basic?.name ?? state.store?.name ?? "",
     subdomain: state.store?.subdomain ?? "",
-    accepted:  state.store?.accepted ?? false,
+    accepted: state.store?.accepted ?? false,
   });
 
   const [touched, setTouched] = useState({ name: false, subdomain: false });
@@ -59,7 +59,7 @@ export default function CreateStore() {
 
   // â”€â”€ Validaciones inline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const subdomainValid = /^[a-z0-9-]{3,}$/.test(form.subdomain);
-  const nameValid      = form.name.trim().length >= 2;
+  const nameValid = form.name.trim().length >= 2;
 
   // â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleChange = (e) => {
@@ -129,27 +129,37 @@ export default function CreateStore() {
       <StepProgress />
 
       <div className="step-card" style={{ maxWidth: 680 }}>
-
         {/* Header */}
         <div className="step-header">
-          <button className="btn-back" onClick={handleBack} disabled={loading} aria-label="Volver">
+          <button
+            className="btn-back"
+            onClick={handleBack}
+            disabled={loading}
+            aria-label="Volver"
+          >
             <ArrowLeft size={16} />
           </button>
           <div>
             <h1 className="step-title">TÃ©rminos y crear tienda</h1>
             <p className="step-subtitle">
-              {state.plan && <>Plan: <strong>{state.plan.name}</strong></>}
+              {state.plan && (
+                <>
+                  Plan: <strong>{state.plan.name}</strong>
+                </>
+              )}
             </p>
           </div>
         </div>
 
         {/* Cuerpo */}
         <div className="step-body">
-
           {/* Nombre de la tienda */}
           <div className="field-block">
             <label htmlFor="cs-name">
-              <Store size={11} style={{ marginRight: 5, verticalAlign: "middle" }} />
+              <Store
+                size={11}
+                style={{ marginRight: 5, verticalAlign: "middle" }}
+              />
               Nombre de la tienda *
             </label>
             <input
@@ -163,7 +173,9 @@ export default function CreateStore() {
               autoComplete="off"
               className={
                 touched.name
-                  ? nameValid ? "field-success" : "field-error"
+                  ? nameValid
+                    ? "field-success"
+                    : "field-error"
                   : ""
               }
             />
@@ -182,26 +194,25 @@ export default function CreateStore() {
           {/* Subdominio */}
           <div className="field-block">
             <label htmlFor="cs-subdomain">
-              <Globe size={11} style={{ marginRight: 5, verticalAlign: "middle" }} />
+              <Globe
+                size={11}
+                style={{ marginRight: 5, verticalAlign: "middle" }}
+              />
               Subdominio *
-<<<<<<< HEAD
-              <span
-                style={{
-                  color: "#888",
-                  fontWeight: 400,
-                  fontSize: 12,
-                  marginLeft: 8,
-                }}
-              >
-                {form.subdomain ? `${form.subdomain}.vexio.com` : ""}
-              </span>
-=======
               {form.subdomain && (
-                <span style={{ color: "#3e78ff", fontWeight: 400, fontSize: 12, marginLeft: 8, textTransform: "none", letterSpacing: 0 }}>
+                <span
+                  style={{
+                    color: "#3e78ff",
+                    fontWeight: 400,
+                    fontSize: 12,
+                    marginLeft: 8,
+                    textTransform: "none",
+                    letterSpacing: 0,
+                  }}
+                >
                   {form.subdomain}.freseo.com
                 </span>
               )}
->>>>>>> 6d447d146e9d03f77d48c39d18753110e08177ad
             </label>
             <input
               id="cs-subdomain"
@@ -215,13 +226,16 @@ export default function CreateStore() {
               style={{ fontFamily: "monospace" }}
               className={
                 touched.subdomain
-                  ? subdomainValid ? "field-success" : "field-error"
+                  ? subdomainValid
+                    ? "field-success"
+                    : "field-error"
                   : ""
               }
             />
             {touched.subdomain && !subdomainValid && (
               <span className="field-hint hint-error">
-                <AlertCircle size={11} /> Solo letras minÃºsculas, nÃºmeros y guiones. MÃ­nimo 3 caracteres.
+                <AlertCircle size={11} /> Solo letras minÃºsculas, nÃºmeros y
+                guiones. MÃ­nimo 3 caracteres.
               </span>
             )}
             {touched.subdomain && subdomainValid && (
@@ -249,7 +263,14 @@ export default function CreateStore() {
                 onChange={handleChange}
                 disabled={loading}
               />
-              <span style={{ fontSize: 13, color: form.accepted ? "#4ade80" : "#aaa", lineHeight: 1.5, transition: "color 0.2s" }}>
+              <span
+                style={{
+                  fontSize: 13,
+                  color: form.accepted ? "#4ade80" : "#aaa",
+                  lineHeight: 1.5,
+                  transition: "color 0.2s",
+                }}
+              >
                 He leÃ­do y acepto los tÃ©rminos y condiciones, polÃ­ticas de
                 privacidad y normas comerciales establecidas por Vexio.
               </span>
@@ -262,7 +283,6 @@ export default function CreateStore() {
               {error}
             </Alert>
           )}
-
         </div>
 
         {/* Acciones */}
@@ -294,7 +314,6 @@ export default function CreateStore() {
             )}
           </button>
         </div>
-
       </div>
     </div>
   );

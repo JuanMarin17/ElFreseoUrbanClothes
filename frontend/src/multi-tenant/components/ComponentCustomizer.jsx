@@ -51,10 +51,20 @@ const ComponentCustomizer = () => {
   );
 
   const MENU_ITEMS = [
-    { key: "home",        label: "Home",        path: "/",            icon: "ti-home"        },
-    { key: "nuevo",       label: "Nuevo",       path: "/nuevo",       icon: "ti-sparkles"    },
-    { key: "catalogo",    label: "Catálogo",    path: "/catalogo",    icon: "ti-layout-grid" },
-    { key: "promociones", label: "Promociones", path: "/promociones", icon: "ti-tag"         },
+    { key: "home", label: "Home", path: "/", icon: "ti-home" },
+    { key: "nuevo", label: "Nuevo", path: "/nuevo", icon: "ti-sparkles" },
+    {
+      key: "catalogo",
+      label: "Catálogo",
+      path: "/catalogo",
+      icon: "ti-layout-grid",
+    },
+    {
+      key: "promociones",
+      label: "Promociones",
+      path: "/promociones",
+      icon: "ti-tag",
+    },
   ];
 
   const cleanFont = (f = "Inter") => {
@@ -82,13 +92,13 @@ const ComponentCustomizer = () => {
       ? "#ffffff"
       : layoutClass === "clasico"
         ? "#1a1a1a"
-        : styles.colorTitulo ?? "#ffffff";
+        : (styles.colorTitulo ?? "#ffffff");
   const paraColor =
     layoutClass === "urbano"
       ? "#cccccc"
       : layoutClass === "clasico"
         ? "#444444"
-        : styles.colorCuerpo ?? "#aaaaaa";
+        : (styles.colorCuerpo ?? "#aaaaaa");
 
   const updateSection = (field, value) => {
     setDesign((prev) => ({
@@ -100,23 +110,6 @@ const ComponentCustomizer = () => {
     }));
   };
 
-
-  const addBannerImage = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "preset");
-
-    try {
-      const res = await fetch(
-        "https://api.cloudinary.com/v1_1/dcwyyoe7c/image/upload",
-        { method: "POST", body: formData },
-      );
-      const data = await res.json();
-      updateSection("image", data.secure_url);
-
   const updateHeaderItem = (index, value) => {
     const newItems = [...design.header.items];
     newItems[index] = value;
@@ -127,7 +120,7 @@ const ComponentCustomizer = () => {
     const file = e.target.files[0];
     if (!file) return;
     try {
-      const url = await uploadStoreImage(file, 'stores/banners');
+      const url = await uploadStoreImage(file, "stores/banners");
       updateSection("image", url);
     } catch (error) {
       console.error("Error subiendo imagen:", error);
@@ -149,7 +142,11 @@ const ComponentCustomizer = () => {
       {!isFullscreen && (
         <>
           <header className="admin-nav">
-            <button onClick={handleBack} className="btn-back-arrow" title="Volver">
+            <button
+              onClick={handleBack}
+              className="btn-back-arrow"
+              title="Volver"
+            >
               ←
             </button>
             <div className="brand">
@@ -190,7 +187,6 @@ const ComponentCustomizer = () => {
               </div>
 
               <div className="scroll-fields-container">
-
                 {/* 1. TEXTO PRINCIPAL */}
                 <div className="field-group">
                   <label>Texto Principal</label>
@@ -223,20 +219,28 @@ const ComponentCustomizer = () => {
                     <label>Items del Menú</label>
                     <div className="links-manager">
                       {MENU_ITEMS.map((item) => (
-                        <div key={item.key} className="link-row link-row--fixed">
+                        <div
+                          key={item.key}
+                          className="link-row link-row--fixed"
+                        >
                           <i className={`menu-icon ti ${item.icon}`} />
                           <div className="link-info">
                             <span className="link-label">{item.label}</span>
                             <span className="link-path">{item.path}</span>
                           </div>
-                          <label className="toggle-wrap" aria-label={`Activar ${item.label}`}>
+                          <label
+                            className="toggle-wrap"
+                            aria-label={`Activar ${item.label}`}
+                          >
                             <input
                               type="checkbox"
                               checked={design.header.items.includes(item.key)}
                               onChange={(e) => {
                                 const next = e.target.checked
                                   ? [...design.header.items, item.key]
-                                  : design.header.items.filter((k) => k !== item.key);
+                                  : design.header.items.filter(
+                                      (k) => k !== item.key,
+                                    );
                                 updateSection("items", next);
                               }}
                             />
@@ -295,11 +299,19 @@ const ComponentCustomizer = () => {
                 <div className="field-group">
                   <label>Fuente</label>
                   <div className="font-grid-mini">
-                    {["Inter", "Bebas Neue", "Syncopate", "Oswald", "Dancing Script"].map((f) => (
+                    {[
+                      "Inter",
+                      "Bebas Neue",
+                      "Syncopate",
+                      "Oswald",
+                      "Dancing Script",
+                    ].map((f) => (
                       <button
                         key={f}
                         className={`f-tag ${
-                          design[activeComponent.toLowerCase()].font === f ? "active" : ""
+                          design[activeComponent.toLowerCase()].font === f
+                            ? "active"
+                            : ""
                         }`}
                         onClick={() => updateSection("font", f)}
                       >
@@ -366,14 +378,16 @@ const ComponentCustomizer = () => {
                     </div>
                   </div>
                   <small>
-                    Si solo eliges un color, el borde será sólido. Si eliges dos, será gradiente.
+                    Si solo eliges un color, el borde será sólido. Si eliges
+                    dos, será gradiente.
                   </small>
                 </div>
 
                 {/* 6. TAMAÑO DE FUENTE */}
                 <div className="field-group">
                   <label>
-                    Tamaño: <span>{design[activeComponent.toLowerCase()].size}px</span>
+                    Tamaño:{" "}
+                    <span>{design[activeComponent.toLowerCase()].size}px</span>
                   </label>
                   <input
                     type="range"
@@ -384,21 +398,24 @@ const ComponentCustomizer = () => {
                     className="f-range"
                   />
                 </div>
-
               </div>
             </div>
           </aside>
         )}
 
-        <section className={`viewport-area ${isFullscreen ? "fullscreen" : ""}`}>
+        <section
+          className={`viewport-area ${isFullscreen ? "fullscreen" : ""}`}
+        >
           {isFullscreen && (
-            <button className="btn-exit-full" onClick={() => setIsFullscreen(false)}>
+            <button
+              className="btn-exit-full"
+              onClick={() => setIsFullscreen(false)}
+            >
               VOLVER ×
             </button>
           )}
 
           <div className={`store-preview ${layoutClass}`}>
-
             {/* ── HEADER ── */}
             <header
               style={{
@@ -419,7 +436,11 @@ const ComponentCustomizer = () => {
                 {design.header.items.map((it, i) => (
                   <span
                     key={i}
-                    style={{ fontSize: "12px", opacity: 0.85, letterSpacing: "2px" }}
+                    style={{
+                      fontSize: "12px",
+                      opacity: 0.85,
+                      letterSpacing: "2px",
+                    }}
                   >
                     {it}
                   </span>
@@ -581,12 +602,28 @@ const ComponentCustomizer = () => {
                         height: "100%",
                       }}
                     >
-                      <div style={{ height: "180px", background: `${accentColor}22` }} />
+                      <div
+                        style={{
+                          height: "180px",
+                          background: `${accentColor}22`,
+                        }}
+                      />
                       <div style={{ padding: "16px" }}>
-                        <h3 style={{ color: titleColor, fontFamily: `"${fontTitle}", sans-serif` }}>
+                        <h3
+                          style={{
+                            color: titleColor,
+                            fontFamily: `"${fontTitle}", sans-serif`,
+                          }}
+                        >
                           {design.banner.title}
                         </h3>
-                        <p style={{ color: paraColor, fontSize: "13px", lineHeight: 1.5 }}>
+                        <p
+                          style={{
+                            color: paraColor,
+                            fontSize: "13px",
+                            lineHeight: 1.5,
+                          }}
+                        >
                           {productoDesc}
                         </p>
                         <div
@@ -597,7 +634,9 @@ const ComponentCustomizer = () => {
                             marginTop: "14px",
                           }}
                         >
-                          <span style={{ color: accentColor, fontWeight: 700 }}>$120.00</span>
+                          <span style={{ color: accentColor, fontWeight: 700 }}>
+                            $120.00
+                          </span>
                           <button
                             style={{
                               background: accentColor,
@@ -675,6 +714,6 @@ const ComponentCustomizer = () => {
       </main>
     </div>
   );
-}
+};
 
-    export default ComponentCustomizer;
+export default ComponentCustomizer;
