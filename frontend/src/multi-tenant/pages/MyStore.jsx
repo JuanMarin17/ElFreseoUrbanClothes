@@ -1,47 +1,25 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useStore } from "./StoreContext";
 import { useAuth } from "../../admin/modules/auth/pages/hook/Useauth";
 import "../components/styles/MyStore.css";
 import { FiPlus, FiExternalLink, FiCopy, FiCheck } from "react-icons/fi";
-import { Store, CreditCard } from "lucide-react";
 import { getStoresByUser, getStoreSettingsByHeader, getAllStores } from "./services/storeService";
-import Sidebar from "../../admin/modules/administration/components/Sidebar/Sidebar";
-import AdminHeader from "../../admin/modules/administration/components/AdminHeader/AdminHeader";
-import IAAdmin from "../../admin/modules/administration/pages/IAAdmin/AIAdmin";
-import Transaction from "../../multi-tenant/pages/Transaction/Transaction";
-
-const SUPERADMIN_MENU = [
-  { path: "/mis-tiendas",   label: "MIS TIENDAS",   icon: Store      },
-  { path: "/transacciones", label: "TRANSACCIONES", icon: CreditCard },
-];
-
-const ADMIN_MENU = [
-  { path: "/mis-tiendas",   label: "MIS TIENDAS",   icon: Store      },
-  { path: "/transacciones", label: "TRANSACCIONES", icon: CreditCard },
-];
 
 const MyStore = () => {
-  const navigate  = useNavigate();
-  const location  = useLocation();
-  const { state } = useStore();
-  const { user, logout } = useAuth();
+  const navigate        = useNavigate();
+  const { state }       = useStore();
+  const { user }        = useAuth();
 
   const userId = user?.id ?? user?.userId ?? null;
-  const name   = user?.userName ?? user?.name ?? null;
-  const role   = "SUPERADMIN"; // ajusta cuando tengas roles reales
+  const role   = "SUPERADMIN";
 
-  const menuItems       = role === "SUPERADMIN" ? SUPERADMIN_MENU : ADMIN_MENU;
-  const isTransacciones = location.pathname === "/transacciones";
-
-  // ── Estados ───────────────────────────────────────────────────────────────
-  const [isAiOpen,       setIsAiOpen]       = useState(false);
-  const [stores,         setStores]         = useState([]);
-  const [storeSettings,  setStoreSettings]  = useState({});
-  const [loadingStores,  setLoadingStores]  = useState(false);
-  const [storesError,    setStoresError]    = useState(null);
-  const [copiedId,       setCopiedId]       = useState(null);
-  const [search,         setSearch]         = useState("");
+  const [stores,        setStores]        = useState([]);
+  const [storeSettings, setStoreSettings] = useState({});
+  const [loadingStores, setLoadingStores] = useState(false);
+  const [storesError,   setStoresError]   = useState(null);
+  const [copiedId,      setCopiedId]      = useState(null);
+  const [search,        setSearch]        = useState("");
 
   useEffect(() => {
     setLoadingStores(true);
@@ -82,154 +60,107 @@ const MyStore = () => {
   );
 
   return (
-    <div className="admin-terminal-wrapper">
+    <>
+      <div className="ms-section-header">
+        <div>
+          <h1 className="ms-section-title">Mis tiendas</h1>
+          <p className="ms-section-sub">
+            {stores.length} tienda{stores.length !== 1 ? "s" : ""} registrada{stores.length !== 1 ? "s" : ""}
+          </p>
+        </div>
+        <button className="ms-btn-create" onClick={() => navigate("/plan")}>
+          <FiPlus size={14} /> Nueva tienda
+        </button>
+      </div>
 
-      {/* ── Sidebar ───────────────────────────────────────────────────────── */}
-      <Sidebar
-        menuItems={menuItems}
-        brandName="VEXIO"
-        brandSub={role === "SUPERADMIN" ? "SUPER ADMIN" : "ADMIN"}
-        onLogout={logout}
-        useImageLogo={true}
-        logoUrl={storeSettings[stores[0]?.storeId]?.basic?.logoPreview ?? null}
-      />
+      {loadingStores && (
+        <div className="ms-state">
+          <div className="ms-spinner" />
+          <span>Cargando tiendas...</span>
+        </div>
+      )}
 
-      <div className="admin-main-section">
+      {storesError && (
+        <div className="ms-state ms-state--error">
+          <span>⚠ {storesError}</span>
+        </div>
+      )}
 
-        {/* ── Header ────────────────────────────────────────────────────── */}
-        <AdminHeader
-          isAiOpen={isAiOpen}
-          setIsAiOpen={setIsAiOpen}
-          showAi={true}
-          showBell={true}
-          showSettings={true}
-          isSuperAdmin={role === "SUPERADMIN"}
-          searchValue={search}
-          onSearchChange={(e) => setSearch(e.target.value)}
-          searchPlaceholder={isTransacciones ? "Buscar transacción..." : "Buscar tienda o ID..."}
-          userName={name ?? "Usuario"}
-          userRole={role}
-        />
-
-        <div className="admin-workspace-split">
-
-          <main className="admin-page-body">
-
-            {/* ── Vista condicional ──────────────────────────────────── */}
-            {isTransacciones ? (
-              <Transaction />
-            ) : (
-              <>
-                <div className="ms-section-header">
-                  <div>
-                    <h1 className="ms-section-title">Mis tiendas</h1>
-                    <p className="ms-section-sub">
-                      {stores.length} tienda{stores.length !== 1 ? "s" : ""} registrada{stores.length !== 1 ? "s" : ""}
-                    </p>
+      <div className="ms-grid">
+        {!loadingStores &&
+          filtered.map((store) => (
+            <div
+              key={store.storeId}
+              className="ms-store-card"
+              onClick={() => navigate(`/tienda/${store.slug}`)}
+            >
+              <div
+                className="ms-store-banner"
+                style={{
+                  backgroundImage: storeSettings[store.storeId]?.components?.banner?.image
+                    ? `url(${storeSettings[store.storeId].components.banner.image})`
+                    : undefined,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              >
+                <span className={`ms-store-badge ms-store-badge--${store.isActive ? "activa" : "borrador"}`}>
+                  {store.isActive ? "ACTIVA" : "BORRADOR"}
+                </span>
+                {storeSettings[store.storeId]?.basic?.logoPreview ? (
+                  <img
+                    src={storeSettings[store.storeId].basic.logoPreview}
+                    alt={`Logo ${store.name}`}
+                    className="ms-store-logo"
+                  />
+                ) : (
+                  <div className="ms-store-logo ms-store-logo--placeholder">
+                    {store.name?.[0]?.toUpperCase() ?? "T"}
                   </div>
-                  <button className="ms-btn-create" onClick={() => navigate("/plan")}>
-                    <FiPlus size={14} /> Nueva tienda
+                )}
+              </div>
+
+              <div className="ms-store-body">
+                <h3 className="ms-store-name">{store.name}</h3>
+                <p className="ms-store-url">{store.slug}.freseo.com</p>
+                <div className="ms-store-id-row">
+                  <span className="ms-store-id-label">ID</span>
+                  <code className="ms-store-id">{store.storeId}</code>
+                  <button
+                    className="ms-copy-btn"
+                    onClick={(e) => { e.stopPropagation(); handleCopyId(store.storeId); }}
+                    title="Copiar ID"
+                  >
+                    {copiedId === store.storeId ? <FiCheck size={11} /> : <FiCopy size={11} />}
                   </button>
                 </div>
-
-                {loadingStores && (
-                  <div className="ms-state">
-                    <div className="ms-spinner" />
-                    <span>Cargando tiendas...</span>
-                  </div>
-                )}
-
-                {storesError && (
-                  <div className="ms-state ms-state--error">
-                    <span>⚠ {storesError}</span>
-                  </div>
-                )}
-
-                <div className="ms-grid">
-                  {!loadingStores &&
-                    filtered.map((store) => (
-                      <div
-                        key={store.storeId}
-                        className="ms-store-card"
-                        onClick={() => navigate(`/tienda/${store.slug}`)}
-                      >
-                        <div
-                          className="ms-store-banner"
-                          style={{
-                            backgroundImage: storeSettings[store.storeId]?.components?.banner?.image
-                              ? `url(${storeSettings[store.storeId].components.banner.image})`
-                              : undefined,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                          }}
-                        >
-                          <span className={`ms-store-badge ms-store-badge--${store.isActive ? "activa" : "borrador"}`}>
-                            {store.isActive ? "ACTIVA" : "BORRADOR"}
-                          </span>
-                          {storeSettings[store.storeId]?.basic?.logoPreview ? (
-                            <img
-                              src={storeSettings[store.storeId].basic.logoPreview}
-                              alt={`Logo ${store.name}`}
-                              className="ms-store-logo"
-                            />
-                          ) : (
-                            <div className="ms-store-logo ms-store-logo--placeholder">
-                              {store.name?.[0]?.toUpperCase() ?? "T"}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="ms-store-body">
-                          <h3 className="ms-store-name">{store.name}</h3>
-                          <p className="ms-store-url">{store.slug}.freseo.com</p>
-                          <div className="ms-store-id-row">
-                            <span className="ms-store-id-label">ID</span>
-                            <code className="ms-store-id">{store.storeId}</code>
-                            <button
-                              className="ms-copy-btn"
-                              onClick={(e) => { e.stopPropagation(); handleCopyId(store.storeId); }}
-                              title="Copiar ID"
-                            >
-                              {copiedId === store.storeId ? <FiCheck size={11} /> : <FiCopy size={11} />}
-                            </button>
-                          </div>
-                          <div className="ms-store-footer">
-                            <span className="ms-store-plan">
-                              {storeSettings[store.storeId]?.plan?.name ?? "—"}
-                            </span>
-                            <button
-                              className="ms-store-link"
-                              onClick={(e) => { e.stopPropagation(); navigate(`/tienda/${store.slug}`); }}
-                            >
-                              Ver tienda <FiExternalLink size={11} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-
-                  {!loadingStores && !storesError && filtered.length === 0 && (
-                    <div className="ms-empty">
-                      <span className="ms-empty-icon">🏪</span>
-                      <p className="ms-empty-title">Sin tiendas aún</p>
-                      <p className="ms-empty-sub">Crea tu primera tienda para empezar</p>
-                      <button className="ms-btn-create" onClick={() => navigate("/plan")}>
-                        <FiPlus size={14} /> Crear tienda
-                      </button>
-                    </div>
-                  )}
+                <div className="ms-store-footer">
+                  <span className="ms-store-plan">
+                    {storeSettings[store.storeId]?.plan?.name ?? "—"}
+                  </span>
+                  <button
+                    className="ms-store-link"
+                    onClick={(e) => { e.stopPropagation(); navigate(`/tienda/${store.slug}`); }}
+                  >
+                    Ver tienda <FiExternalLink size={11} />
+                  </button>
                 </div>
-              </>
-            )}
+              </div>
+            </div>
+          ))}
 
-          </main>
-
-          {/* ── Panel IA ────────────────────────────────────────────── */}
-          <IAAdmin isOpen={isAiOpen} setIsOpen={setIsAiOpen} />
-
-        </div>
+        {!loadingStores && !storesError && filtered.length === 0 && (
+          <div className="ms-empty">
+            <span className="ms-empty-icon">🏪</span>
+            <p className="ms-empty-title">Sin tiendas aún</p>
+            <p className="ms-empty-sub">Crea tu primera tienda para empezar</p>
+            <button className="ms-btn-create" onClick={() => navigate("/plan")}>
+              <FiPlus size={14} /> Crear tienda
+            </button>
+          </div>
+        )}
       </div>
-    </div>
+    </>
   );
 };
 
