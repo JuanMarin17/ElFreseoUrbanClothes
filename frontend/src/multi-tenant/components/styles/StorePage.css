@@ -6,15 +6,15 @@
   flex-direction: column;
 }
 
-/* Topbar mínimo */
+/* Topbar estilo navegador */
 .sp-topbar {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 0 20px;
-  height: 52px;
-  background: #060a10;
-  border-bottom: 1px solid #1a2535;
+  gap: 10px;
+  padding: 0 14px;
+  height: 48px;
+  background: #0a0e18;
+  border-bottom: 1px solid #151d2e;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -24,37 +24,68 @@
 .sp-back {
   background: transparent;
   border: 1px solid #1a2535;
-  color: #5a7a9a;
-  width: 32px;
-  height: 32px;
+  color: #4a6a8a;
+  width: 30px;
+  height: 30px;
   border-radius: 7px;
-  font-size: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  margin: 0;
   flex-shrink: 0;
   transition: border-color 0.2s, color 0.2s;
 }
+.sp-back:hover { border-color: #3e78ff; color: #fff; }
 
-.sp-back:hover { border-color: #3e78ff; color: #fff; transform: none; }
+/* Barra de dirección */
+.sp-addressbar {
+  flex: 1;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #0f1724;
+  border: 1px solid #1a2535;
+  border-radius: 8px;
+  padding: 0 12px;
+  height: 30px;
+  cursor: default;
+  transition: border-color 0.2s;
+}
+.sp-addressbar:hover { border-color: #2a3a52; }
+
+.sp-addressbar-lock {
+  color: #3d7a5a;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.sp-addressbar-url {
+  font-size: 12px;
+  font-family: "SF Mono", "Consolas", monospace;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.sp-addressbar-domain { color: #c8d8ea; }
+.sp-addressbar-path   { color: #4a6a8a; }
 
 .sp-store-name {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: #fff;
+  color: #3a5a7a;
+  margin-left: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
 }
 
-.sp-url {
-  font-size: 11px;
-  color: #3a5a7a;
-  font-family: monospace;
-  margin-left: auto;
-}
 
 /* Loading */
 .sp-loading {

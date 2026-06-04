@@ -118,11 +118,35 @@
   outline: none;
 }
 
+.field-block input.field-error {
+  border-color: #e05252;
+  box-shadow: 0 0 0 3px rgba(224, 82, 82, 0.1);
+}
+
+.field-block input.field-success {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.08);
+}
+
 .field-block textarea {
   resize: vertical;
   min-height: 80px;
   line-height: 1.5;
 }
+
+/* ── Hint / helper text debajo del campo ─── */
+.field-hint {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #3a5a7a;
+  line-height: 1.4;
+}
+
+.field-hint.hint-error  { color: #e05252; }
+.field-hint.hint-ok     { color: #22c55e; }
+.field-hint svg         { flex-shrink: 0; }
 
 /* ── Upload ───────────────────────────────── */
 .upload-area {
@@ -214,6 +238,9 @@
   letter-spacing: 0.5px;
   transition: background 0.2s, box-shadow 0.2s;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
 
 .btn-primary:hover {
@@ -223,8 +250,9 @@
 }
 
 .btn-primary:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .btn-secondary {
@@ -237,6 +265,9 @@
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
 
 .btn-secondary:hover {
@@ -245,12 +276,93 @@
   transform: none;
 }
 
+/* ── Alerts ───────────────────────────────── */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  animation: alertSlideIn 0.22s ease;
+}
+
+@keyframes alertSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.alert-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-title {
+  font-weight: 700;
+  font-size: 13px;
+  margin: 0 0 2px;
+}
+
+.alert-body {
+  font-size: 12px;
+  opacity: 0.85;
+  margin: 0;
+}
+
+/* variante error */
+.alert.error {
+  background: rgba(224, 82, 82, 0.1);
+  border: 1px solid rgba(224, 82, 82, 0.3);
+  color: #f87171;
+}
+
+/* variante success */
+.alert.success {
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  color: #4ade80;
+}
+
+/* variante warning */
+.alert.warning {
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  color: #fbbf24;
+}
+
+/* variante info */
+.alert.info {
+  background: rgba(62, 120, 255, 0.08);
+  border: 1px solid rgba(62, 120, 255, 0.25);
+  color: #60a5fa;
+}
+
+/* ── Spinner inline ───────────────────────── */
+.spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ── Responsive ───────────────────────────── */
 @media (max-width: 600px) {
-  .step-card   { margin: 16px 8px 32px; border-radius: 12px; }
-  .step-body   { padding: 18px 16px; }
+  .step-card    { margin: 16px 8px 32px; border-radius: 12px; }
+  .step-body    { padding: 18px 16px; }
   .step-actions { padding: 14px 16px; }
-  .step-header { padding: 18px 16px 14px; }
+  .step-header  { padding: 18px 16px 14px; }
 }
 
 /* ── Caja scrollable para términos ───────── */
@@ -272,4 +384,55 @@
 }
 .terms-scroll-box::-webkit-scrollbar-thumb:hover {
   background: #2a3a5a;
+}
+
+/* ── Checkbox de aceptación ──────────────── */
+.terms-acceptance {
+  padding: 14px 16px;
+  background: #060a10;
+  border: 1px solid #1a2535;
+  border-radius: 10px;
+  transition: border-color 0.2s;
+}
+
+.terms-acceptance:has(input:checked) {
+  border-color: rgba(34, 197, 94, 0.3);
+  background: rgba(34, 197, 94, 0.04);
+}
+
+.checkbox-container {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.checkbox-container input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px;
+  margin: 0;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: #3e78ff;
+  cursor: pointer;
+}
+/* ── Fix icono btn-back ───────────────────── */
+.btn-back svg {
+  display: block;
+  pointer-events: none;
+}
+.btn-back {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px;
+  min-height: 36px;
+  max-width: 36px;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+.btn-back svg {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0;
 }

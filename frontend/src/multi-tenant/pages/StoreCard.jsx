@@ -11,7 +11,7 @@
  */
 
 import React from "react";
-import { ROLES } from "../context/AuthContext"; // ajusta la ruta según tu estructura
+import { ROLES } from "../context/authUtils.js";
 
 // ─── Sub-vistas por rol ────────────────────────────────────────────────────────
 

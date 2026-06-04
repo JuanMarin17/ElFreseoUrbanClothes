@@ -1,34 +1,87 @@
-// services/brandService.js
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
+// ══════════════════════════════════════════════════════════════════════════════
+// BrandService.js — /api/v1/brands
+// Requiere: Authorization, X-Store-Id (GET); + X-User-Role (escritura)
+// ══════════════════════════════════════════════════════════════════════════════
 
-/**
- * Obtiene todas las marcas activas.
- * GET /api/v1/brands/active
- */
-export const getBrands = async () => {
-  const res = await fetch(`${BASE_URL}/brands/active`);
+const BASE_URL = "http://localhost:8080/api/v1";
+
+const readHeaders = () => {
+  const jwt     = localStorage.getItem("jwt");
+  const storeId = localStorage.getItem("storeId");
+  const h = {};
+  if (jwt)     h["Authorization"] = `Bearer ${jwt}`;
+  if (storeId) h["X-Store-Id"]    = storeId;
+  return h;
+};
+
+const writeHeaders = () => ({
+  ...readHeaders(),
+  "Content-Type": "application/json",
+  "X-User-Role":  localStorage.getItem("userRole") ?? "OWNER",
+});
+
+const unwrap = async (res) => {
   const text = await res.text();
-  if (!res.ok) throw new Error(`Error ${res.status}: ${text}`);
+  if (res.status === 204 || !text) return [];
+  if (!res.ok) throw new Error(text || `Error ${res.status}`);
   try {
-    return JSON.parse(text);
+    const parsed = JSON.parse(text);
+    return parsed?.data ?? parsed;
   } catch {
-    throw new Error("La respuesta no es JSON válido (probablemente HTML del backend)");
+    throw new Error("Respuesta no válida del servidor");
   }
 };
 
-/**
- * Crea una nueva marca.
- * POST /api/v1/brands   { name }
- */
+// ── Lectura ───────────────────────────────────────────────────────────────────
+
+/** GET /brands/active */
+export const getBrands = async () => {
+  const res = await fetch(`${BASE_URL}/brands/active`, { headers: readHeaders() });
+  return unwrap(res);
+};
+
+/** GET /brands/getAllBrands */
+export const getAllBrands = async () => {
+  const res = await fetch(`${BASE_URL}/brands/getAllBrands`, { headers: readHeaders() });
+  return unwrap(res);
+};
+
+// ── Escritura ─────────────────────────────────────────────────────────────────
+
+/** POST /brands/createBrand  Body: { name } */
 export const createBrand = async (name) => {
-  const res = await fetch(`${BASE_URL}/brands`, {
+  const res = await fetch(`${BASE_URL}/brands/createBrand`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: writeHeaders(),
     body: JSON.stringify({ name }),
   });
-  if (!res.ok) {
-    const msg = await res.text().catch(() => "Error al crear marca.");
-    throw new Error(msg || `Error ${res.status}`);
-  }
-  return res.json(); // Brand creada: { brandId, name, ... }
+  return unwrap(res);
+};
+
+/** PUT /brands/:id  Body: { name } */
+export const updateBrand = async (id, name) => {
+  const res = await fetch(`${BASE_URL}/brands/${id}`, {
+    method: "PUT",
+    headers: writeHeaders(),
+    body: JSON.stringify({ name }),
+  });
+  return unwrap(res);
+};
+
+/** PUT /brands/active/:id */
+export const activateBrand = async (id) => {
+  const res = await fetch(`${BASE_URL}/brands/active/${id}`, {
+    method: "PUT",
+    headers: readHeaders(),
+  });
+  return unwrap(res);
+};
+
+/** PUT /brands/inactive/:id */
+export const inactivateBrand = async (id) => {
+  const res = await fetch(`${BASE_URL}/brands/inactive/${id}`, {
+    method: "PUT",
+    headers: readHeaders(),
+  });
+  return unwrap(res);
 };

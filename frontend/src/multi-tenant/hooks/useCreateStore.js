@@ -76,14 +76,14 @@ export default function useCreateStore(storeContext, ownerId) {
         );
 
         const storeResponse = await createStore(storePayload);
-        // storeResponse: { storeId, name, slug, description, isActive, message, status }
-
-        const createdStoreId = storeResponse.storeId;
+        const createdStoreId = storeResponse.storeId ?? storeResponse.id;
         setStoreId(createdStoreId);
 
+        // Persiste en localStorage para que el header y el admin los lean
+        localStorage.setItem("storeId", createdStoreId);
+        localStorage.setItem("userRole", "OWNER");
+
         // ── Paso 2: Guardar configuración completa del wizard ────────────────
-        // POST /api/stores/:storeId/settings
-        // Mapeamos el StoreContext al DTO que espera el backend
         const settingsPayload = buildSettingsPayload(storeContext, storeForm);
         await saveStoreSettings(createdStoreId, settingsPayload);
 

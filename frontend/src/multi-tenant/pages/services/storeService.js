@@ -1,58 +1,69 @@
 /**
  * storeService.js
- * Capa de servicio para el micro-servicio Store.
- *
- *  POST   /api/v1/stores                          → crear tienda
- *  GET    /api/v1/stores/:storeId                 → obtener tienda
- *  GET    /api/v1/stores/users/:userId            → tiendas de un usuario
- *  POST   /api/v1/stores/:storeId/users           → agregar usuario
- *  GET    /api/v1/stores/:storeId/users           → usuarios de una tienda
- *  GET    /api/v1/stores/:storeId/access/:userId  → verificar acceso
- *  GET    /api/v1/store/settings  (x-store-id)    → obtener settings
- *  POST   /api/v1/store/settings/createSettings   → guardar settings
+ * Integración completa con el Store microservice.
+ * Todas las rutas requieren Authorization: Bearer <jwt>
+ * Los endpoints de settings además requieren X-Store-Id: <uuid>
  */
 
-const BASE_URL = "http://localhost:8080/api/v1/stores";
-const SETTINGS_URL = "http://localhost:8080/api/v1/stores/settings";
+const API_ROOT = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
+const BASE_URL     = `${API_ROOT}/stores`;
+const SETTINGS_URL = `${API_ROOT}/stores/settings`;
 
-// ─── Utilidad interna ─────────────────────────────────────────────────────────
+// ─── Helpers de headers ───────────────────────────────────────────────────────
+
+const authHeader = () => {
+  const jwt = localStorage.getItem("jwt");
+  return jwt ? { Authorization: `Bearer ${jwt}` } : {};
+};
+
+const storeHeader = (storeId) => ({
+  ...authHeader(),
+  "X-Store-Id": storeId,
+});
+
+// ─── Utilidad de fetch ────────────────────────────────────────────────────────
 
 async function request(url, options = {}) {
-  const defaultHeaders = { "Content-Type": "application/json" };
-
   const res = await fetch(url, {
     ...options,
-    headers: { ...defaultHeaders, ...options.headers },
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeader(),        // JWT en todas las peticiones
+      ...options.headers,     // headers extra (ej. X-Store-Id) pueden sobreescribir
+    },
   });
 
   let body;
-  const contentType = res.headers.get("Content-Type") ?? "";
-  if (contentType.includes("application/json")) {
-    body = await res.json();
-  } else {
-    body = await res.text();
-  }
+  const ct = res.headers.get("Content-Type") ?? "";
+  body = ct.includes("application/json") ? await res.json() : await res.text();
 
   if (!res.ok) {
-    if (res.status === 404 && typeof body === "object" && body.message?.includes("no tiene configuración")) {
+    if (res.status === 404 && res.message.includes("no tiene configuración")) {
       return null; // o {}
     }
     const message =
       typeof body === "object"
         ? (body.message ?? `Error ${res.status}`)
         : body || `Error ${res.status}`;
-    const error = new Error(message);
-    error.status = res.status;
-    error.errors = body?.errors ?? null;
-    throw error;
+    const err = new Error(message);
+    err.status = res.status;
+    err.errors = body?.errors ?? null;
+    throw err;
   }
 
-  return body;
+  // Desenvuelve el wrapper { message, status, data, timestamp } si existe
+  return body?.data ?? body;
 }
 
-// ─── StoreController ──────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+// 1. TIENDA — /api/v1/stores
+// ════════════════════════════════════════════════════════════════════════════
 
-/** POST /api/v1/stores — Crea una nueva tienda */
+/**
+ * POST /stores
+ * Body: { ownerId, name, slug, description? }
+ * Respuesta: StoreResponseDTO
+ */
 export async function createStore(payload) {
   return request(`${BASE_URL}`, {
     method: "POST",
@@ -60,82 +71,132 @@ export async function createStore(payload) {
   });
 }
 
-/** GET /api/v1/stores/:storeId — Obtiene una tienda por UUID */
+/**
+ * GET /stores/getByStoreId/:storeId
+ */
 export async function getStoreById(storeId) {
-  return request(`${BASE_URL}/${storeId}`);
+  return request(`${BASE_URL}/getByStoreId/${storeId}`);
 }
 
-/** GET localhost:8080/api/v1/stores/getBySlug/:slug — Obtiene una tienda por su slug */
+/**
+ * GET /stores/getBySlug/:slug  (vista pública — no requiere JWT)
+ */
 export async function getStoreBySlug(slug) {
-  return request(`http://localhost:8080/api/v1/stores/getBySlug/${slug}`);
+  return request(`${BASE_URL}/getBySlug/${slug}`);
 }
 
-/** GET /api/v1/stores — Todas las tiendas (solo superadmin) */
+/**
+ * GET /stores  — Lista todas las tiendas (SUPERADMIN)
+ */
 export async function getAllStores() {
-  console.log("Settings: " + request(`${BASE_URL}`))
   return request(`${BASE_URL}`);
 }
 
-// ─── StoreUserController ──────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+// 2. USUARIOS DE LA TIENDA — /api/v1/stores
+// ════════════════════════════════════════════════════════════════════════════
 
-/** POST /api/v1/stores/:storeId/users — Agrega un usuario a una tienda */
-export async function addUserToStore(storeId, payload) {
-  return request(`${BASE_URL}/${storeId}/users`, {
+/**
+ * POST /stores/users
+ * Body: { userId, storeId, role: "OWNER"|"ADMIN"|"STAFF" }
+ * Respuesta 201: { userId, storeId, role }
+ */
+export async function addUserToStore(userId, storeId, role = "OWNER") {
+  return request(`${BASE_URL}/users`, {
     method: "POST",
-    body: JSON.stringify({ ...payload, storeId }),
+    body: JSON.stringify({ userId, storeId, role }),
   });
 }
 
-/** GET /api/v1/stores/:storeId/users — Lista usuarios de una tienda */
+/**
+ * GET /stores/:storeId/users
+ */
 export async function getUsersByStore(storeId) {
   return request(`${BASE_URL}/${storeId}/users`);
 }
 
-/** GET /api/v1/stores/users/:userId — Tiendas de un usuario */
+/**
+ * GET /stores/users/:userId — Tiendas del usuario
+ * Respuesta: [ { userId, storeId, role } ]
+ */
 export async function getStoresByUser(userId) {
   return request(`${BASE_URL}/users/${userId}`);
 }
 
-/** GET /api/v1/stores/:storeId/access/:userId — Verifica acceso */
+/**
+ * GET /stores/:storeId/access/:userId
+ * Respuesta: { hasAccess: boolean }
+ */
 export async function validateAccess(storeId, userId) {
   return request(`${BASE_URL}/${storeId}/access/${userId}`);
 }
 
-// ─── StoreSettingsController ──────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+// 3. SETTINGS DEL WIZARD — /api/v1/stores/settings
+// (Todos requieren X-Store-Id)
+// ════════════════════════════════════════════════════════════════════════════
 
 /**
- * GET /api/v1/store/settings
- * Header: x-store-id: <storeId>
- * Obtiene la configuración de una tienda.
+ * GET /stores/settings/getSettings
+ * Devuelve null si la tienda aún no tiene settings.
  */
 export async function getStoreSettingsByHeader(storeId) {
   try {
-    return request(`${SETTINGS_URL}/getSettings`, {
-    headers: { "x-store-id": storeId },
-  });
+    return await request(`${SETTINGS_URL}/getSettings`, {
+      headers: storeHeader(storeId),
+    });
   } catch (e) {
-    if (e.status == 404) {
-      console.log("No tiene configuracion la tienda")
-    }
+    if (e.status === 404) return null;
+    throw e;
   }
 }
 
 /**
- * POST /api/v1/store/settings/createSettings
- * Header: x-store-id: <storeId>
- * Guarda la configuración completa del wizard.
+ * POST /stores/settings/createSettings
+ * Semántica PATCH: solo actualiza los campos que vienen en el body.
+ * El campo `completedStep` es obligatorio.
  */
 export async function saveStoreSettings(storeId, payload) {
   return request(`${SETTINGS_URL}/createSettings`, {
     method: "POST",
-    headers: { "x-store-id": storeId },
+    headers: storeHeader(storeId),
     body: JSON.stringify({ storeId, ...payload }),
   });
 }
 
 /**
  * Guarda un paso parcial del wizard.
+ * @param {string} storeId
+ * @param {number} step       — número del paso completado
+ * @param {object} stepData   — datos del paso
  */
 export async function saveWizardStep(storeId, step, stepData) {
   return saveStoreSettings(storeId, { completedStep: step, ...stepData });
+}
+
+/**
+ * POST /stores/settings/logo
+ * Sube el logo y lo guarda en la BD automáticamente.
+ * @returns StoreSettingsResponseDTO con logoUrl actualizado
+ */
+export async function uploadStoreLogo(storeId, file) {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const res = await fetch(`${SETTINGS_URL}/logo`, {
+    method: "POST",
+    headers: storeHeader(storeId), // Authorization + X-Store-Id (sin Content-Type, lo pone el browser)
+    body: formData,
+  });
+
+  let body;
+  const ct = res.headers.get("Content-Type") ?? "";
+  body = ct.includes("application/json") ? await res.json() : await res.text();
+
+  if (!res.ok) {
+    const message = typeof body === "object" ? (body.message ?? `Error ${res.status}`) : body;
+    throw new Error(message || "Error al subir el logo");
+  }
+
+  return body?.data ?? body;
 }

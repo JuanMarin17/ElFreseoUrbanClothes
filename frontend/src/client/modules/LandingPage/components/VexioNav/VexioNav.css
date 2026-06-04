@@ -7,11 +7,11 @@
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  padding: 0 6%;
+  padding: 0;                        /* ✓ eliminado el 0 6% duplicado */
   display: flex;
   align-items: center;
-  height: 60px;
-  background: rgba(10,10,10, 0.70);
+  height: 9vh;
+  background: rgba(10, 10, 10, 0.70);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border-bottom: 1px solid transparent;
@@ -19,7 +19,7 @@
 }
 
 .vx-nav--scrolled {
-  background: rgba(10,10,10, 0.97);
+  background: rgba(10, 10, 10, 0.97);
   border-bottom-color: #2A2A2A;
   box-shadow: 0 1px 0 0 #1A1A1A;
 }
@@ -29,19 +29,33 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 40px;                   /* ✓ único padding, igual a HeaderMarket */
   gap: 24px;
 }
 
 /* ── Logo ── */
-.vx-nav-brand { display: flex; align-items: center; }
-.vx-nav-logo-img { height: 9vh; width: 13vw; object-fit: contain; }
+.vx-nav-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 10vh;
+  width: 13vw;
+}
+
+.vx-nav-logo-img {
+  top: 2px;
+  height: 100%;
+  width: 60%;                        /* ✓ corregido de 70% a 60% */
+  object-fit: contain;
+}
 
 /* ── Links de navegación ── */
 .vx-nav-links {
   display: flex;
-  gap: 0;
+  gap: 15px;                         /* ✓ corregido de 0 a 15px */
   list-style: none;
-  margin: 0; padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .vx-nav-link {
@@ -49,17 +63,18 @@
   border: none;
   color: var(--vx-muted);
   font-family: var(--vx-font-body);
-  font-size: .84rem;
-  font-weight: 500;
+  font-size: 11px;                   /* ✓ corregido de .84rem a 11px */
+  font-weight: 600;                  /* ✓ corregido de 500 a 600 */
+  letter-spacing: 1.5px;            /* ✓ corregido de .01em a 1.5px */
   padding: 6px 13px;
   border-radius: 6px;
   cursor: pointer;
   transition: color .18s, background .18s;
-  letter-spacing: .01em;
 }
+
 .vx-nav-link:hover {
   color: var(--vx-text);
-  background: rgba(255,255,255,.05);
+  background: rgba(255, 255, 255, .05);
 }
 
 /* ── Derecha: login + CTA ── */
@@ -69,23 +84,23 @@
   gap: 8px;
 }
 
-/* Login */
 .vx-nav-login {
   color: var(--vx-muted);
   text-decoration: none;
   font-family: var(--vx-font-body);
-  font-size: .84rem;
-  font-weight: 500;
+  font-size: 11px;                   /* ✓ igualado a 11px */
+  font-weight: 600;                  /* ✓ igualado a 600 */
+  letter-spacing: 1.5px;            /* ✓ igualado a 1.5px */
   padding: 7px 13px;
   border-radius: 6px;
   transition: color .18s, background .18s;
 }
+
 .vx-nav-login:hover {
   color: var(--vx-text);
-  background: rgba(255,255,255,.05);
+  background: rgba(255, 255, 255, .05);
 }
 
-/* CTA — azul eléctrico compacto */
 .vx-nav-cta {
   background: var(--vx-accent1);
   border: none;
@@ -94,19 +109,24 @@
   border-radius: 7px;
   font-family: var(--vx-font-body);
   font-weight: 600;
-  font-size: .82rem;
+  font-size: 11px;                   /* ✓ igualado a 11px */
+  letter-spacing: 1.5px;            /* ✓ igualado a 1.5px */
   cursor: pointer;
-  letter-spacing: .01em;
   transition: background .2s, box-shadow .2s, transform .15s;
   box-shadow: none;
   white-space: nowrap;
 }
+
 .vx-nav-cta:hover {
   background: var(--vx-accent1-hov);
   box-shadow: 0 2px 14px var(--vx-accent1-glow);
   transform: translateY(-1px);
 }
-.vx-nav-cta:active { transform: translateY(0); box-shadow: none; }
+
+.vx-nav-cta:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
 
 /* ── Hamburguesa móvil ── */
 .vx-hamburger {
@@ -118,13 +138,16 @@
   cursor: pointer;
   padding: 6px;
 }
+
 .vx-hamburger span {
   display: block;
-  width: 20px; height: 1.5px;
+  width: 20px;
+  height: 1.5px;
   background: var(--vx-muted);
   border-radius: 2px;
   transition: transform .28s, opacity .28s;
 }
+
 .vx-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
 .vx-hamburger.open span:nth-child(2) { opacity: 0; }
 .vx-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
@@ -142,7 +165,7 @@
     gap: 2px;
   }
   .vx-nav-links.open { display: flex; }
-  .vx-nav-link { text-align: left; width: 100%; padding: 11px 13px; font-size: .92rem; }
+  .vx-nav-link { text-align: left; width: 100%; padding: 11px 13px; font-size: 11px; }
   .vx-hamburger { display: flex; }
   .vx-nav-login { display: none; }
 }

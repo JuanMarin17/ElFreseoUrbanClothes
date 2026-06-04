@@ -13,6 +13,23 @@ export default function MyProfile({ onNavigate }) {
   const fileRef                   = useRef();
 
   useEffect(() => {
+    // Usar cache de sesión para evitar re-fetch al cambiar de tab
+    const cached = sessionStorage.getItem('profile_cache');
+    if (cached) {
+      try {
+        const data = JSON.parse(cached);
+        setForm({
+          userName:     data.userName     || '',
+          phone:        data.phone        || '',
+          imageProfile: data.imageProfile || '',
+          userEmail:    data.userEmail    || '',
+        });
+        if (data.imageProfile) setPreview(data.imageProfile);
+        setLoading(false);
+        return;
+      } catch { /* cache corrupto, refetch */ }
+    }
+
     accountService.getProfile()
       .then(({ data }) => {
         setForm({
@@ -21,8 +38,8 @@ export default function MyProfile({ onNavigate }) {
           imageProfile: data.imageProfile || '',
           userEmail:    data.userEmail    || '',
         });
-        console.log('Perfil cargado:', data);
         if (data.imageProfile) setPreview(data.imageProfile);
+        sessionStorage.setItem('profile_cache', JSON.stringify(data));
       })
       .catch(() => setMsg('ERROR_CARGANDO_PERFIL'))
       .finally(() => setLoading(false));
@@ -62,10 +79,11 @@ export default function MyProfile({ onNavigate }) {
         imageProfile,
       });
 
-      /* 3. Actualizar estado local */
+      /* 3. Actualizar estado local e invalidar cache */
       setForm(f => ({ ...f, imageProfile }));
       setAvatarFile(null);
       setMsg('DATOS_ACTUALIZADOS_EXITO');
+      sessionStorage.removeItem('profile_cache');
     } catch {
       setMsg('ERROR_SISTEMA_FALLIDO');
     } finally {

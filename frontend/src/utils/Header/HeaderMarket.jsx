@@ -37,32 +37,29 @@ const HeaderMarket = () => {
     <header className={`header ${isScrolled ? 'scrolled' : ''} ${isHidden ? 'header-scroll-hidden' : ''}`}>
       <div className="header-container">
 
-        {/* Bloque Logo Izquierda Extrema */}
+        {/* Logo */}
         <Link to="/" className="logo-market-link">
           <div className="logo-image">
-          
-          <img src={Logo} alt="Vexio Logo" className="logo-image-img" />
+            <img src={Logo} alt="Vexio Logo" className="logo-image-img" />
           </div>
         </Link>
 
-        {/* Centro: Navegación Espaciada */}
+        {/* Navegación */}
         <nav className="nav-menu">
-          <Link to="/" className="nav-link">INICIO</Link>
+          <Link to="/" className="nav-link">LANDING</Link>
           <Link to="/catalogo" className="nav-link">CATÁLOGO</Link>
           <Link to="/ayuda" className="nav-link">AYUDA</Link>
-          <Link to="/landing" className="nav-link nav-link--accent">VENDER AQUÍ</Link>
+          <Link to="/market" className="nav-link nav-link--accent">HOME</Link>
         </nav>
 
-        {/* Derecha Extrema: Acciones */}
+        {/* Acciones */}
         <div className="header-actions">
 
-          {/* Carrito */}
           <button className="icon-btn cart-btn" aria-label="Carrito">
             <ShoppingCart size={22} />
             <span className="cart-badge">0</span>
           </button>
 
-          {/* Notificaciones (Solo Autenticado) */}
           {user && (
             <button className="icon-btn notif-btn" aria-label="Notificaciones">
               <Bell size={22} />
@@ -72,7 +69,6 @@ const HeaderMarket = () => {
             </button>
           )}
 
-          {/* Menú de Usuario */}
           <div className="user-menu-wrapper">
             <button className="icon-btn" aria-label="Usuario">
               {user ? (

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { uploadFile } from '../../../../utils/uploadService';
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api/v1';
 
@@ -43,18 +44,7 @@ const accountService = {
     );
   },
 
-  uploadAvatar: async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
-      { method: 'POST', body: formData }
-    );
-    const data = await response.json();
-    if (!data.secure_url) throw new Error('Error al subir la imagen');
-    return data.secure_url;
-  },
+  uploadAvatar: (file) => uploadFile(file),
 
   changePassword:    async () => ({ data: { message: 'Contraseña actualizada' } }),
   getSessions:       async () => ({ data: [] }),

@@ -43,6 +43,8 @@
   overflow-x:  hidden;
   line-height: 1.6;
   position:    relative;
+   display: flex;
+  flex-direction: column;
 }
 
 /* Textura noise muy sutil */
@@ -239,4 +241,9 @@
   .vx-cta-actions { flex-direction: column; align-items: stretch; }
   .vx-cta-actions .vx-btn-primary,
   .vx-cta-actions .vx-btn-ghost   { justify-content: center; width: 100%; }
+}
+.vx-landing main {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }

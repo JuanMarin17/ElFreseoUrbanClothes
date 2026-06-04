@@ -1,21 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../Sidebar/Sidebar';
 import AdminHeader from '../AdminHeader/AdminHeader';
+import IAAdmin from '../../pages/IAAdmin/AIAdmin';
 import './AdminLayout.css';
 
 const AdminLayout = () => {
+  const [isAiOpen, setIsAiOpen] = useState(false);
+
   return (
     <div className="admin-terminal-wrapper">
-      {/* Lado Izquierdo: Menú Fijo */}
       <Sidebar />
-      
-      {/* Lado Derecho: Cabecera + Contenido Dinámico */}
+
       <div className="admin-main-section">
-        <AdminHeader />
-        <main className="admin-page-body">
-          <Outlet />
-        </main>
+        <AdminHeader
+          isAiOpen={isAiOpen}
+          setIsAiOpen={setIsAiOpen}
+          showAi={true}
+          showBell={true}
+          showSettings={true}
+          isSuperAdmin={false}
+        />
+
+        <div className="admin-workspace-split">
+          <main className="admin-page-body">
+            <Outlet />
+          </main>
+
+          <IAAdmin isOpen={isAiOpen} setIsOpen={setIsAiOpen} />
+        </div>
       </div>
     </div>
   );

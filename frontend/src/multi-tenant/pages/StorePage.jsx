@@ -2,26 +2,33 @@
  * StorePage.jsx
  * Página pública de una tienda por su slug.
  * Ruta: /tienda/:slug
- *
- * Carga los datos desde el backend y renderiza StorePreview
- * con el layout y estilos que el dueño configuró.
  */
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import StorePreview from "../components/SelectLayout/StorePreview";
+import StoreFront from "../components/Store/StoreFront.jsx";
 import { getStoreBySlug, getStoreSettingsByHeader } from "./services/storeService";
+import { getPublicActiveProducts } from "../../admin/modules/administration/services/productService";
 import "../components/styles/StorePage.css";
+
+const formatCOP = (price) =>
+  new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    minimumFractionDigits: 0,
+  }).format(price ?? 0);
 
 export default function StorePage() {
   const { slug } = useParams();
   const navigate = useNavigate();
 
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState(null);
+  const [loading, setLoading]         = useState(true);
+  const [error, setError]             = useState(null);
   const [previewData, setPreviewData] = useState(null);
   const [layoutType, setLayoutType]   = useState("minimalista");
   const [storeName, setStoreName]     = useState("");
+  const [storeId, setStoreId]         = useState(null);
+  const [isOwner, setIsOwner]         = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -29,19 +36,31 @@ export default function StorePage() {
     setLoading(true);
     setError(null);
 
-    // 1. Obtener la tienda por slug
     getStoreBySlug(slug)
       .then(async (store) => {
+        if (!store) throw new Error("Tienda no encontrada");
+
+        // El backend puede devolver el ID con distintos nombres de campo
+        const resolvedStoreId = store.storeId ?? store.id ?? store.store_id ?? null;
+
+        console.log("[StorePage] store response:", store);
+        console.log("[StorePage] resolvedStoreId:", resolvedStoreId);
+
+        if (!resolvedStoreId) throw new Error("La tienda no devolvió un ID válido.");
+
         setStoreName(store.name ?? slug);
+        setStoreId(resolvedStoreId);
 
-        // 2. Obtener los settings con el storeId en el header
-        const settings = await getStoreSettingsByHeader(store.storeId);
+        // Verificar si el usuario logueado es dueño de esta tienda
+        const myStoreId = localStorage.getItem("storeId");
+        setIsOwner(!!myStoreId && myStoreId === resolvedStoreId);
 
-        // 3. Construir previewData desde los settings
-        const components = settings.components ?? {};
-        const styles     = settings.styles     ?? {};
-        const widgets    = settings.widgets    ?? null;
-        const layout     = settings.layout     ?? { id: "minimalista" };
+        const settings = await getStoreSettingsByHeader(resolvedStoreId);
+
+        const components = settings?.components ?? {};
+        const styles     = settings?.styles     ?? {};
+        const widgets    = settings?.widgets    ?? null;
+        const layout     = settings?.layout     ?? { id: "minimalista" };
 
         const header = components.header ?? {
           logo: store.name ?? "MI TIENDA",
@@ -49,7 +68,6 @@ export default function StorePage() {
           color: "#fff", bg: "#000", font: "Inter", size: 14,
         };
 
-        // El banner puede tener image (string) o images (array legacy)
         const bannerRaw = components.banner ?? {};
         const banner = {
           title:  bannerRaw.title  ?? styles.textoTitulo ?? "NUEVA COLECCIÓN",
@@ -57,7 +75,6 @@ export default function StorePage() {
           bg:     bannerRaw.bg     ?? "#111",
           font:   bannerRaw.font   ?? "Bebas Neue",
           size:   bannerRaw.size   ?? 60,
-          // Normaliza: si viene como string "image", lo envuelve en array para StorePreview
           images: bannerRaw.image
             ? [{ id: 1, url: bannerRaw.image, width: 300, radius: 0 }]
             : (bannerRaw.images ?? []),
@@ -68,12 +85,21 @@ export default function StorePage() {
           color: "#888", bg: "#080808", font: "Inter", size: 13,
         };
 
-        const products = [
-          { name: styles.textoTitulo ?? "PRODUCTO", price: "$85.00" },
-          { name: styles.textoTitulo ?? "PRODUCTO", price: "$120.00" },
-          { name: styles.textoTitulo ?? "PRODUCTO", price: "$65.00" },
-          { name: styles.textoTitulo ?? "PRODUCTO", price: "$95.00" },
-        ];
+        let products = [];
+        try {
+          const rawProducts = await getPublicActiveProducts(resolvedStoreId);
+          if (Array.isArray(rawProducts) && rawProducts.length > 0) {
+            products = rawProducts.map(p => ({
+              id:          p.productId,
+              name:        p.name,
+              description: p.description ?? "",
+              price:       formatCOP(p.variants?.[0]?.price ?? 0),
+              images:      p.images ?? [],
+            }));
+          }
+        } catch {
+          // La tienda se muestra aunque no carguen productos
+        }
 
         setLayoutType(layout.id ?? "minimalista");
         setPreviewData({ header, banner, footer, products, styles, widgets });
@@ -85,7 +111,6 @@ export default function StorePage() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  /* ── Loading ── */
   if (loading) {
     return (
       <div className="sp-loading">
@@ -95,7 +120,6 @@ export default function StorePage() {
     );
   }
 
-  /* ── Error ── */
   if (error) {
     return (
       <div className="sp-error">
@@ -107,17 +131,30 @@ export default function StorePage() {
     );
   }
 
-  /* ── Tienda ── */
   return (
     <div className="sp-root">
-      {/* Barra mínima con el nombre y botón volver */}
+      {/* Barra de navegador */}
       <div className="sp-topbar">
-        <button className="sp-back" onClick={() => navigate(-1)}>←</button>
+        <button className="sp-back" onClick={() => navigate(-1)}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+        <div className="sp-addressbar">
+          <span className="sp-addressbar-lock">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </span>
+          <span className="sp-addressbar-url">
+            <span className="sp-addressbar-domain">freseo.com</span>
+            <span className="sp-addressbar-path">/{slug}</span>
+          </span>
+        </div>
         <span className="sp-store-name">{storeName}</span>
-        <span className="sp-url">{slug}.freseo.com</span>
       </div>
 
-      <StorePreview layoutType={layoutType} data={previewData} />
+      <StoreFront layoutType={layoutType} data={previewData} isOwner={isOwner} storeId={storeId} />
     </div>
   );
 }

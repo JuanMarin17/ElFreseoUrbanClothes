@@ -1,4 +1,4 @@
-﻿/**
+/**
  * StorePreview.jsx — CORREGIDO COMPLETO
  */
 
@@ -407,3 +407,5 @@ export default function StorePreview({ layoutType = "minimalista", data = {} }) 
     </div>
   );
 }
+
+>>>>>>> 6d447d146e9d03f77d48c39d18753110e08177ad

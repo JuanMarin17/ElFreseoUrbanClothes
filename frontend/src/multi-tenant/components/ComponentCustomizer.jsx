@@ -10,6 +10,7 @@ import "../components/styles/ComponentCustomizer.css";
 import { useStore } from "../pages/StoreContext";
 import { useNavigate } from "react-router-dom";
 import StepProgress from "./StepProgress";
+import { uploadStoreImage } from "../../utils/uploadService";
 
 const ComponentCustomizer = () => {
   const [activeComponent, setActiveComponent] = useState("BANNER");
@@ -99,6 +100,7 @@ const ComponentCustomizer = () => {
     }));
   };
 
+
   const addBannerImage = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -114,8 +116,21 @@ const ComponentCustomizer = () => {
       );
       const data = await res.json();
       updateSection("image", data.secure_url);
+
+  const updateHeaderItem = (index, value) => {
+    const newItems = [...design.header.items];
+    newItems[index] = value;
+    updateSection("items", newItems);
+  };
+
+  const addBannerImage = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const url = await uploadStoreImage(file, 'stores/banners');
+      updateSection("image", url);
     } catch (error) {
-      console.error("Error subiendo imagen a Cloudinary:", error);
+      console.error("Error subiendo imagen:", error);
     }
   };
 
@@ -660,6 +675,6 @@ const ComponentCustomizer = () => {
       </main>
     </div>
   );
-};
+}
 
-export default ComponentCustomizer;
+    export default ComponentCustomizer;
