@@ -1,58 +1,85 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { 
-  LayoutDashboard, 
-  PackagePlus, 
-  Users, 
-  ShoppingCart, 
-  BarChart3, 
-  ImageIcon, 
-  AlertTriangle, 
-  LogOut 
+  LayoutDashboard, PackagePlus, Users, ShoppingCart, 
+  BarChart3, AlertTriangle, LogOut 
 } from 'lucide-react';
 import './Sidebar.css';
+import defaultLogo from '../../../../../assets/LogoVexios/banervexio.png';
 
-const Sidebar = () => {
+const DEFAULT_MENU_ITEMS = [
+  { path: '/admin/dashboard',        label: 'DASHBOARD',          icon: LayoutDashboard },
+  { path: '/admin/subir-producto',   label: 'SUBIR PRODUCTOS',    icon: PackagePlus     },
+  { path: '/admin/usuarios',         label: 'GESTIONAR USUARIOS', icon: Users           },
+  { path: '/admin/pedidos',          label: 'VER PEDIDOS',        icon: ShoppingCart    },
+  { path: '/admin/report',           label: 'INFORMES',           icon: BarChart3       },
+  { path: '/admin/alertas',          label: 'ALERTAS DE STOCK',   icon: AlertTriangle, alertKey: 'stock' }, // 👈 marca este item
+];
+
+const Sidebar = ({
+  menuItems    = DEFAULT_MENU_ITEMS,
+  brandName    = "NOMBRE",
+  brandSub     = "ADMIN",
+  onLogout,
+  logoUrl,
+  useImageLogo,
+  lowStockCount = 0,  // 👈 NUEVA PROP: cuántos productos con stock bajo
+}) => {
   const navigate = useNavigate();
 
-  // ⚠️ Cada "path" debe coincidir EXACTAMENTE con la ruta definida en App.jsx
-  // Si en App.jsx tienes:  <Route path="report" element={<Report />} />
-  // Aquí debes poner:       path: 'report'
-  const menuItems = [
-    { path: 'dashboard',        label: 'DASHBOARD',          icon: LayoutDashboard },
-    { path: 'subir-producto',   label: 'SUBIR PRODUCTOS',    icon: PackagePlus },
-    { path: 'usuarios',         label: 'GESTIONAR USUARIOS', icon: Users },
-    { path: 'pedidos',          label: 'VER PEDIDOS',        icon: ShoppingCart },
-    { path: 'report',           label: 'INFORMES',           icon: BarChart3 },
-    { path: 'alertas',          label: 'ALERTAS DE STOCK',   icon: AlertTriangle },
-  ];
-
   const handleLogout = () => {
-    // Limpia token si lo usas:
-    // localStorage.removeItem('token');
-    console.log("Cerrando sesión...");
-    navigate('/login');
+    if (onLogout) onLogout();
+    else navigate('/login');
   };
 
   return (
     <aside className="sidebar-container">
+
+      {/* ── Brand / Logo ─────────────────────────────────────────────── */}
       <div className="sidebar-brand">
-        <h2>Nombre</h2>
-        <span className="brand-subtitle">ADMIN TERMINAL</span>
+        {useImageLogo ? (
+          <img
+            src={logoUrl || defaultLogo}
+            alt={brandName}
+            className="sidebar-logo-img"
+            onError={(e) => { e.target.onerror = null; e.target.src = defaultLogo; }}
+          />
+        ) : (
+          <img
+            src={defaultLogo}
+            alt="Logo"
+            className="sidebar-logo-img"
+          />
+        )}
+        <span className="brand-subtitle">{brandSub}</span>
       </div>
 
       <nav className="sidebar-nav">
         <div className="nav-group">
-          {menuItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={`/admin/${item.path}`}
-              className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
-            >
-              <item.icon size={18} />
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
+          {menuItems.map((item) => {
+            // ¿Este item debe mostrar alerta de stock?
+            const showStockAlert = item.alertKey === 'stock' && lowStockCount > 0;
+
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+              >
+                <span className="nav-icon-wrapper">
+                  <item.icon size={18} />
+                  {showStockAlert && (
+                    <span className="stock-alert-dot" title={`${lowStockCount} productos con stock bajo`} />
+                  )}
+                </span>
+                <span>{item.label}</span>
+                {/* Contador opcional al lado del label */}
+                {showStockAlert && (
+                  <span className="stock-alert-badge">{lowStockCount}</span>
+                )}
+              </NavLink>
+            );
+          })}
         </div>
 
         <div className="nav-footer">
