@@ -49,7 +49,7 @@ const HeaderMarket = () => {
           <Link to="/" className="nav-link">LANDING</Link>
           <Link to="/catalogo" className="nav-link">CATÁLOGO</Link>
           <Link to="/ayuda" className="nav-link">AYUDA</Link>
-          <Link to="/landing" className="nav-link nav-link--accent">HOME</Link>
+          <Link to="/market" className="nav-link nav-link--accent">HOME</Link>
         </nav>
 
         {/* Acciones */}

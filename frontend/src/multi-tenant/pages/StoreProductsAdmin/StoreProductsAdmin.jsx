@@ -5,7 +5,6 @@ import {
   getAllProducts,
   activateProduct,
   inactivateProduct,
-  syncApiContext,
 } from "../../../admin/modules/administration/services/productService";
 import { getStoresByUser } from "../../pages/services/storeService";
 import StockAlertToast from "../../../admin/modules/administration/components/StockAlertToast/StockAlertToast";
@@ -151,9 +150,8 @@ export default function StoreProductsAdmin() {
     setLoading(true);
     setError(null);
     try {
-      await resolveStoreId();
-      syncApiContext();
-      const data = await getAllProducts();
+      const storeId = await resolveStoreId();
+      const data = await getAllProducts(storeId);
       setProducts(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message ?? "No se pudieron cargar los productos.");

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import "./animations.css";
 
@@ -59,10 +59,10 @@ import LayoutSelect         from "./multi-tenant/components/SelectLayout/LayoutS
 import CustomizationPanel   from "./multi-tenant/components/CustomizationPanel.jsx";
 import ComponentCustomizer  from "./multi-tenant/components/ComponentCustomizer.jsx";
 import WidgetsCustomizer    from "./multi-tenant/components/WidgetsCustomizer.jsx";
-import InventaryDashboard   from "./multi-tenant/components/InventaryDashboard.jsx";
 import OrdersDashboard      from "./multi-tenant/components/OrdersDashboard.jsx";
 import MyStore              from "./multi-tenant/pages/MyStore.jsx";
 import StorePage            from "./multi-tenant/pages/StorePage.jsx";
+import Transactions         from "./multi-tenant/pages/Transaction/Transaction.jsx";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -118,11 +118,14 @@ function App() {
               <Route path="/widgets"  element={<ProtectedStep requiredStep={6}><WidgetsCustomizer /></ProtectedStep>} />
               <Route path="/crear-tienda" element={<ProtectedStep requiredStep={7}><CreateStore /></ProtectedStep>} />
               <Route path="/resultado"    element={<ProtectedStep requiredStep={8}><StoreResult /></ProtectedStep>} />
+              <Route path="/mis-tiendas" element={<MyStore />} />
+              <Route path="/transacciones" element={<MyStore />} /> 
+              
+
               {/* Rutas que requieren sesión iniciada */}
               <Route element={<ProtectedRoute />}>
-                <Route path="/inventario" element={<InventaryDashboard />} />
+                <Route path="/inventario" element={<Navigate to="/admin/inventario" replace />} />
                 <Route path="/ordenes"    element={<OrdersDashboard />} />
-                <Route path="/tiendas"    element={<MyStore />} />
               </Route>
 
               <Route path="/tienda/:slug" element={<StorePage />} />

@@ -5,8 +5,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { Package, Settings, LayoutDashboard, ShoppingBag } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
 import StoreFront from "../components/Store/StoreFront.jsx";
 import { getStoreBySlug, getStoreSettingsByHeader } from "./services/storeService";
 import { getPublicActiveProducts } from "../../admin/modules/administration/services/productService";
@@ -18,36 +17,6 @@ const formatCOP = (price) =>
     currency: "COP",
     minimumFractionDigits: 0,
   }).format(price ?? 0);
-
-/* ── Barra de administración (solo visible para el dueño) ── */
-function StoreAdminBar({ storeId, storeName }) {
-  return (
-    <div className="sp-admin-bar">
-      <div className="sp-admin-bar__left">
-        <span className="sp-admin-bar__badge">MODO ADMIN</span>
-        <span className="sp-admin-bar__name">{storeName}</span>
-      </div>
-      <nav className="sp-admin-bar__nav">
-        <Link to="/mi-tienda/productos" className="sp-admin-link">
-          <Package size={13} />
-          Productos
-        </Link>
-        <Link to="/inventario" className="sp-admin-link">
-          <ShoppingBag size={13} />
-          Pedidos
-        </Link>
-        <Link to="/customer" className="sp-admin-link">
-          <Settings size={13} />
-          Personalizar
-        </Link>
-        <Link to="/tiendas" className="sp-admin-link">
-          <LayoutDashboard size={13} />
-          Mi panel
-        </Link>
-      </nav>
-    </div>
-  );
-}
 
 export default function StorePage() {
   const { slug } = useParams();
@@ -185,12 +154,7 @@ export default function StorePage() {
         <span className="sp-store-name">{storeName}</span>
       </div>
 
-      {/* Barra de admin — solo visible para el dueño */}
-      {isOwner && (
-        <StoreAdminBar storeId={storeId} storeName={storeName} />
-      )}
-
-      <StoreFront layoutType={layoutType} data={previewData} />
+      <StoreFront layoutType={layoutType} data={previewData} isOwner={isOwner} storeId={storeId} />
     </div>
   );
 }

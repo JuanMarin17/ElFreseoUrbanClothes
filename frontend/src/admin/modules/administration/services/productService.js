@@ -60,8 +60,18 @@ export const getProducts          = (page = 0, size = 10) =>
 export const getActiveProducts    = (page = 0, size = 10) =>
   request("GET", "/products/active", { params: { page, size } });
 
-export const getAllProducts        = () => request("GET", "/products/all");
-export const getAllActiveProducts  = () => request("GET", "/products/all/active");
+export const getAllProducts = (storeId) => {
+  const id = storeId ?? localStorage.getItem("storeId");
+  if (!id || id === "null") throw new Error("Se requiere el storeId para obtener productos.");
+  return request("GET", "/products", { extraHeaders: { "X-Store-Id": id } });
+};
+
+export const getAllActiveProducts  = (storeId) => {
+  const id = storeId ?? localStorage.getItem("storeId");
+  return request("GET", "/products/all/active", {
+    ...(id && id !== "null" ? { extraHeaders: { "X-Store-Id": id } } : {}),
+  });
+};
 export const getNewProducts       = () => request("GET", "/products/new");
 export const getNewActiveProducts = () => request("GET", "/products/new/active");
 export const getProductById       = (id) => request("GET", `/products/${id}`);
@@ -69,7 +79,7 @@ export const getProductById       = (id) => request("GET", `/products/${id}`);
 export const getPublicActiveProducts = (storeId) => {
   const id = storeId ?? localStorage.getItem("storeId");
   if (!id || id === "null") throw new Error("Se requiere el storeId.");
-  return request("GET", "/products/all/active", {
+  return request("GET", "/products/active", {
     extraHeaders: { "X-Store-Id": id },
   });
 };

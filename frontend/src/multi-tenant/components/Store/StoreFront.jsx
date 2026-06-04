@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react';
 import { cf, DEMO } from './storeUtils.jsx';
 import { useCart } from './hooks/useCart.js';
 import { useFilters } from './hooks/useFilters.js';
@@ -6,6 +7,7 @@ import StoreHero from './StoreHero.jsx';
 import StoreSidebar from './StoreSidebar.jsx';
 import StoreCatalog from './StoreCatalog.jsx';
 import StoreFooter from './StoreFooter.jsx';
+import CartDrawer from './CartDrawer.jsx';
 
 /* ══════════════════════════════════════════
    StoreFront — Vista pública de la tienda
@@ -13,7 +15,7 @@ import StoreFooter from './StoreFooter.jsx';
      layoutType: "minimalista" | "urbano" | "clasico"
      data: { header, banner, footer, products, styles, widgets }
 ══════════════════════════════════════════ */
-export default function StoreFront({ layoutType = "minimalista", data = {} }) {
+export default function StoreFront({ layoutType = "minimalista", data = {}, isOwner = false, storeId = null }) {
   const header   = data.header   ?? DEMO.header;
   const footer   = data.footer   ?? DEMO.footer;
   const products = data.products ?? DEMO.products;
@@ -28,28 +30,61 @@ export default function StoreFront({ layoutType = "minimalista", data = {} }) {
   const isUrb = layoutType === "urbano";
   const isCls = layoutType === "clasico";
 
-  /* ── Tokens de estilo ── */
-  const accent = styles.colorBoton       ?? (isMin ? "#111" : isUrb ? "#fff" : "#3e78ff");
-  const titleC = styles.colorTitulo      ?? (isMin ? "#111" : isUrb ? "#fff" : "#1a1a1a");
-  const paraC  = styles.colorParrafo     ?? (isMin ? "#666" : isUrb ? "#555" : "#666");
-  const cardBg = styles.cardBg           ?? (isMin ? "#fff" : isUrb ? "#0a0a0a" : "#fff");
-  const b1     = styles.cardBorderColor1 ?? (isMin ? "#e5e5e5" : isUrb ? "#1c1c1c" : "#ddd");
-  const b2     = styles.cardBorderColor2 ?? (isMin ? "#e5e5e5" : isUrb ? "#2a2a2a" : "#ddd");
-  const bw     = `${styles.cardBorderWidth ?? 1}px`;
-  const br     = `${styles.cardRadius     ?? (isMin ? 10 : isUrb ? 0 : 8)}px`;
-  const sh     = styles.cardShadow       ?? (isMin ? "0 2px 16px rgba(0,0,0,0.06)" : isUrb ? "none" : "0 2px 12px rgba(0,0,0,0.08)");
-  const btnR   = `${styles.btnRadius     ?? (isMin ? 6 : isUrb ? 0 : 6)}px`;
-  const fT     = cf(styles.fontTitle ?? (isUrb ? "Bebas Neue" : "Inter"));
-  const fB     = cf(styles.fontBody  ?? "Inter");
-  const desc   = styles.textoCuerpo ?? "Descripción del producto.";
+  const [isDark, setIsDark] = useState(true);
+  const toggleDark = useCallback(() => setIsDark(d => !d), []);
 
-  const hBg    = header.bg    ?? (isMin ? "#ffffff" : isUrb ? "#000000" : "#ffffff");
-  const hColor = header.color ?? (isMin ? "#111111" : isUrb ? "#ffffff" : "#1a1a1a");
-  const hFont  = cf(header.font ?? "Inter");
+  /* ── Tokens de estilo (reaccionan a isDark) ── */
+  const accent = styles.colorBoton ?? (isMin ? "#2563eb" : isUrb ? "#ffffff" : "#2563eb");
 
-  const pageBg    = isMin ? "#fafafa" : isUrb ? "#000" : "#f0f2f5";
-  const catalogBg = isMin ? "#fafafa" : isUrb ? "#000" : "#f0f2f5";
-  const footerBg  = footer.bg ?? (isMin ? "#fff" : isUrb ? "#050505" : "#1a1a1a");
+  const titleC = styles.colorTitulo ?? (isDark
+    ? (isMin ? "#f0f4ff" : isUrb ? "#ffffff"  : "#ecf0ff")
+    : (isMin ? "#0f172a" : isUrb ? "#0f0f0f"  : "#0f172a"));
+
+  const paraC = styles.colorParrafo ?? (isDark
+    ? (isMin ? "#94a3b8" : isUrb ? "#555555"  : "#8898b0")
+    : (isMin ? "#475569" : isUrb ? "#444444"  : "#4b5a72"));
+
+  const cardBg = styles.cardBg ?? (isDark
+    ? (isMin ? "#12151c" : isUrb ? "#0a0a0a"  : "#0e1220")
+    : (isMin ? "#ffffff" : isUrb ? "#f5f5f5"  : "#ffffff"));
+
+  const b1 = styles.cardBorderColor1 ?? (isDark
+    ? (isMin ? "#1d2436" : isUrb ? "#1a1a1a"  : "#1a2540")
+    : (isMin ? "#e2e8f0" : isUrb ? "#d4d4d4"  : "#dde4f0"));
+
+  const b2 = styles.cardBorderColor2 ?? (isDark
+    ? (isMin ? "#252e45" : isUrb ? "#242424"  : "#202d4a")
+    : (isMin ? "#e2e8f0" : isUrb ? "#e4e4e4"  : "#dde4f0"));
+
+  const bw   = `${styles.cardBorderWidth ?? 1}px`;
+  const br   = `${styles.cardRadius     ?? (isMin ? 12 : isUrb ? 2 : 10)}px`;
+  const sh   = styles.cardShadow ?? (isDark
+    ? "0 4px 28px rgba(0,0,0,0.5)"
+    : "0 2px 16px rgba(0,0,0,0.08)");
+  const btnR = `${styles.btnRadius ?? (isMin ? 8 : isUrb ? 0 : 8)}px`;
+  const fT   = cf(styles.fontTitle ?? (isUrb ? "Bebas Neue" : "Inter"));
+  const fB   = cf(styles.fontBody  ?? "Inter");
+  const desc = styles.textoCuerpo ?? "Descripción del producto.";
+
+  const hBg = header.bg ?? (isDark
+    ? (isMin ? "#0c0e14" : isUrb ? "#000000" : "#0c0e18")
+    : (isMin ? "#ffffff" : isUrb ? "#111111" : "#ffffff"));
+
+  const hColor = header.color ?? (isDark
+    ? (isMin ? "#f0f4ff" : isUrb ? "#ffffff" : "#ecf0ff")
+    : (isMin ? "#0f172a" : isUrb ? "#f0f0f0" : "#0f172a"));
+
+  const hFont = cf(header.font ?? "Inter");
+
+  const pageBg = isDark
+    ? (isMin ? "#0c0e14" : isUrb ? "#000000" : "#0d1020")
+    : (isMin ? "#f6f8fc" : isUrb ? "#f2f2f2" : "#eef1f8");
+
+  const catalogBg = pageBg;
+
+  const footerBg = footer.bg ?? (isDark
+    ? (isMin ? "#080a10" : isUrb ? "#040404" : "#080b14")
+    : (isMin ? "#eef2fa" : isUrb ? "#eeeeee" : "#e8edf8"));
 
   const cardGradients = [
     `linear-gradient(135deg, ${accent}20, ${accent}08)`,
@@ -62,7 +97,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {} }) {
 
   /* ── Tema global (se pasa a los hijos) ── */
   const theme = {
-    isMin, isUrb, isCls,
+    isMin, isUrb, isCls, isDark,
     accent, titleC, paraC, cardBg, b1, b2, bw, br, sh, btnR, fT, fB, desc,
     hBg, hColor, hFont, pageBg, catalogBg, footerBg, cardGradients,
   };
@@ -71,9 +106,9 @@ export default function StoreFront({ layoutType = "minimalista", data = {} }) {
   const sb = widgets?.sidebar ?? null;
   const sidebarCfg = {
     visible:     sb !== null ? sb.visible === true : isCls,
-    bg:          sb?.bg          ?? (isMin ? "#fff" : isUrb ? "#0a0a0a" : "#fff"),
-    color:       sb?.color       ?? (isMin ? "#444" : isUrb ? "#aaa" : "#444"),
-    borderColor: sb?.borderColor ?? (isMin ? "#ebebeb" : isUrb ? "#1a1a1a" : "#e0e0e0"),
+    bg:          sb?.bg          ?? (isDark ? (isMin ? "#0e111a" : isUrb ? "#0a0a0a" : "#0e1220") : (isMin ? "#ffffff" : isUrb ? "#f5f5f5" : "#ffffff")),
+    color:       sb?.color       ?? (isDark ? (isMin ? "#94a3b8" : isUrb ? "#888" : "#94a3b8") : (isMin ? "#374151" : isUrb ? "#444" : "#374151")),
+    borderColor: sb?.borderColor ?? (isDark ? (isMin ? "#1d2436" : isUrb ? "#1a1a1a" : "#1a2540") : (isMin ? "#e2e8f0" : isUrb ? "#d4d4d4" : "#dde4f0")),
     borderWidth: sb?.borderWidth ?? 1,
     radius:      sb?.radius      ?? (isMin ? 10 : isUrb ? 0 : 10),
     width:       sb?.width       ?? (isMin ? 210 : isUrb ? 230 : 200),
@@ -98,7 +133,12 @@ export default function StoreFront({ layoutType = "minimalista", data = {} }) {
   };
 
   /* ── Estado: carrito y filtros ── */
-  const { cartCount, addToCart, justAdded } = useCart();
+  const {
+    cart, cartCount, isOpen: cartOpen, loading: cartLoading,
+    itemLoading, error: cartError,
+    openCart, closeCart, addToCart, justAdded,
+    updateQuantity, removeCartItem, emptyCart, clearError,
+  } = useCart(storeId);
   const {
     searchQuery, setSearchQuery,
     activeCategory, setActiveCategory,
@@ -118,7 +158,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {} }) {
   ) : null;
 
   return (
-    <div style={{ background: pageBg, color: isMin ? "#111" : isUrb ? "#fff" : "#1a1a1a", fontFamily: `"${fB}",sans-serif`, minHeight: "100vh" }}>
+    <div style={{ background: pageBg, color: titleC, fontFamily: `"${fB}",sans-serif`, minHeight: "100vh", transition: "background 0.3s ease, color 0.3s ease" }}>
 
       {TopBanner}
 
@@ -129,6 +169,23 @@ export default function StoreFront({ layoutType = "minimalista", data = {} }) {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         cartCount={cartCount}
+        isOwner={isOwner}
+        onCartOpen={openCart}
+        isDark={isDark}
+        onToggleDark={toggleDark}
+      />
+
+      <CartDrawer
+        isOpen={cartOpen}
+        onClose={closeCart}
+        cart={cart}
+        loading={cartLoading}
+        itemLoading={itemLoading}
+        error={cartError}
+        onUpdateQuantity={updateQuantity}
+        onRemoveItem={removeCartItem}
+        onClearCart={emptyCart}
+        onClearError={clearError}
       />
 
       <StoreHero banner={banner} theme={theme} />
