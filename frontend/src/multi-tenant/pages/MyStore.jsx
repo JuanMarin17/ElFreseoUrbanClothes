@@ -105,7 +105,7 @@ const MyStore = () => {
             <span className="ms-nav-icon">📦</span>
             Mis productos
           </button>
-          <button className="ms-nav-item" onClick={() => navigate("/admin/inventario")}>
+          <button className="ms-nav-item" onClick={() => navigate(`/admin/${stores[0]?.slug}/inventario`)}>
             <span className="ms-nav-icon">📋</span>
             Inventario
           </button>

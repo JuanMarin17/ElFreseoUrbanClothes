@@ -1,23 +1,21 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  PackagePlus, 
-  Users, 
-  ShoppingCart, 
-  BarChart3, 
-  ImageIcon, 
-  AlertTriangle, 
-  LogOut 
+import { NavLink, useNavigate, useParams } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  PackagePlus,
+  Users,
+  ShoppingCart,
+  BarChart3,
+  ImageIcon,
+  AlertTriangle,
+  LogOut
 } from 'lucide-react';
 import './Sidebar.css';
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const { storeSlug } = useParams();
 
-  // ⚠️ Cada "path" debe coincidir EXACTAMENTE con la ruta definida en App.jsx
-  // Si en App.jsx tienes:  <Route path="report" element={<Report />} />
-  // Aquí debes poner:       path: 'report'
   const menuItems = [
     { path: 'dashboard',        label: 'DASHBOARD',          icon: LayoutDashboard },
     { path: 'subir-producto',   label: 'SUBIR PRODUCTOS',    icon: PackagePlus },
@@ -27,10 +25,9 @@ const Sidebar = () => {
     { path: 'alertas',          label: 'ALERTAS DE STOCK',   icon: AlertTriangle },
   ];
 
+  const adminBase = `/admin/${storeSlug}`;
+
   const handleLogout = () => {
-    // Limpia token si lo usas:
-    // localStorage.removeItem('token');
-    console.log("Cerrando sesión...");
     navigate('/login');
   };
 
@@ -46,7 +43,7 @@ const Sidebar = () => {
           {menuItems.map((item) => (
             <NavLink
               key={item.path}
-              to={`/admin/${item.path}`}
+              to={`${adminBase}/${item.path}`}
               className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
             >
               <item.icon size={18} />

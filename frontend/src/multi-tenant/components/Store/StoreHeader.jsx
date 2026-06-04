@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
+import { ShoppingBag, Sun, Moon, Settings } from "lucide-react";
 import StoreSearchBar from "./StoreSearchBar.jsx";
+import "./styles/styles.css"
 
 export default function StoreHeader({
   header,
@@ -9,19 +11,37 @@ export default function StoreHeader({
   onSearchChange,
   cartCount,
   isOwner = false,
+  storeSlug = null,
   onCartOpen,
   isDark = true,
   onToggleDark,
 }) {
   const { accent, btnR, hBg, hColor, hFont, isMin, isUrb, isCls } = theme;
 
+  const btnBg     = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)";
+  const btnBgHov  = isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.11)";
+  const btnBorder = isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)";
+
+  const iconBtnStyle = {
+    background: btnBg,
+    border: `1px solid ${btnBorder}`,
+    color: hColor,
+    width: 36,
+    height: 36,
+    borderRadius: btnR,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+    transition: "background 0.2s",
+  };
+
   return (
     <header
       style={{
         background: hBg,
-        borderBottom: isDark
-          ? "1px solid rgba(255,255,255,0.05)"
-          : "1px solid rgba(0,0,0,0.07)",
+        borderBottom: `1px solid ${btnBorder}`,
         padding: "0 clamp(16px,3vw,48px)",
         height: 64,
         display: "flex",
@@ -31,47 +51,13 @@ export default function StoreHeader({
         position: "sticky",
         top: 0,
         zIndex: 10,
-        backdropFilter: "blur(10px)",
+        backdropFilter: "blur(12px)",
         transition: "background 0.3s ease, border-color 0.3s ease",
       }}
     >
-      {isOwner && (
-        <Link
-          to="/mi-tienda/productos"
-          style={{
-            background: "transparent",
-            border: `1.5px solid ${isUrb ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)"}`,
-            color: hColor,
-            padding: "5px 12px",
-            borderRadius: btnR,
-            fontSize: 10,
-            fontWeight: 700,
-            letterSpacing: 1.5,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 5,
-            flexShrink: 0,
-            textDecoration: "none",
-            opacity: 0.75,
-            transition: "opacity 0.2s",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = 1)}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = 0.75)}
-        >
-          PANEL ADMIN
-        </Link>
-      )}
-      
-      {/* NAV izquierda — minimalista */}
+      {/* NAV izquierda — solo minimalista */}
       {isMin && (
-        <nav
-          style={{
-            display: "flex",
-            gap: "clamp(12px,2vw,28px)",
-            flexWrap: "wrap",
-          }}
-        >
+        <nav style={{ display: "flex", gap: "clamp(12px,2vw,28px)" }}>
           {(header.items ?? []).slice(0, 3).map((it, i) => (
             <span
               key={i}
@@ -83,8 +69,7 @@ export default function StoreHeader({
                 fontWeight: i === 0 ? 700 : 400,
                 textTransform: "uppercase",
                 cursor: "pointer",
-                borderBottom:
-                  i === 0 ? `1.5px solid ${hColor}` : "1.5px solid transparent",
+                borderBottom: i === 0 ? `1.5px solid ${hColor}` : "1.5px solid transparent",
                 paddingBottom: 1,
               }}
             >
@@ -104,6 +89,7 @@ export default function StoreHeader({
           color: hColor,
           textTransform: "uppercase",
           whiteSpace: "nowrap",
+          flexShrink: 0,
         }}
       >
         {header.logo}
@@ -122,13 +108,7 @@ export default function StoreHeader({
 
       {/* NAV derecha — urbano y clásico */}
       {!isMin && (
-        <nav
-          style={{
-            display: "flex",
-            gap: "clamp(12px,2vw,28px)",
-            flexWrap: "wrap",
-          }}
-        >
+        <nav style={{ display: "flex", gap: "clamp(12px,2vw,28px)" }}>
           {(header.items ?? []).slice(0, 3).map((it, i) => (
             <span
               key={i}
@@ -148,126 +128,80 @@ export default function StoreHeader({
         </nav>
       )}
 
-      {/* Carrito */}
-      <button
-        onClick={onCartOpen}
-        style={{
-          background: isMin ? "transparent" : accent,
-          border: isMin ? `1.5px solid ${hColor}` : "none",
-          color: isMin ? hColor : isUrb ? "#000" : "#fff",
-          padding: isMin ? "6px 14px" : "8px 18px",
-          borderRadius: btnR,
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: isUrb ? 2 : 0.5,
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          flexShrink: 0,
-        }}
-      >
-        {isUrb ? (
-          <span>{cartCount > 0 ? `BAG (${cartCount})` : "BAG"}</span>
-        ) : (
-          <>
-            <span style={{ fontSize: 13 }}>🛒</span>
-            <span
-              style={{
-                minWidth: 16,
-                height: 16,
-                borderRadius: 8,
-                background: cartCount > 0 ? accent : "transparent",
-                color: cartCount > 0 ? (isMin ? "#fff" : "#000") : "inherit",
-                fontSize: 10,
-                fontWeight: 800,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: cartCount > 0 ? "0 4px" : 0,
-              }}
-            >
-              {cartCount}
-            </span>
-          </>
-        )}
-      </button>
+      {/* ── Acciones lado derecho ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
 
-      {/* Toggle modo oscuro / claro */}
-      <button
-        onClick={onToggleDark}
-        title={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-        style={{
-          background: "transparent",
-          border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.12)"}`,
-          color: hColor,
-          width: 36,
-          height: 36,
-          borderRadius: btnR,
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-          transition: "border-color 0.2s, background 0.2s",
-        }}
-        onMouseEnter={e => {
-          e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)";
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.background = "transparent";
-        }}
-      >
-        {isDark ? (
-          /* Sol */
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <circle cx="12" cy="12" r="5"/>
-            <line x1="12" y1="1" x2="12" y2="3"/>
-            <line x1="12" y1="21" x2="12" y2="23"/>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-            <line x1="1" y1="12" x2="3" y2="12"/>
-            <line x1="21" y1="12" x2="23" y2="12"/>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-          </svg>
-        ) : (
-          /* Luna */
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-          </svg>
-        )}
-      </button>
-
-      {/* Panel Admin — solo visible para el dueño */}
-      {isOwner && (
-        <Link
-          to="/mi-tienda/productos"
+        {/* Carrito */}
+        <button
+          onClick={onCartOpen}
           style={{
-            background: "transparent",
-            border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.12)"}`,
-            color: hColor,
-            padding: "5px 12px",
+            background: isMin ? "transparent" : accent,
+            border: isMin ? `1.5px solid ${btnBorder}` : "none",
+            color: isMin ? hColor : isUrb ? "#000" : "#fff",
+            padding: isMin ? "7px 14px" : "8px 18px",
             borderRadius: btnR,
-            fontSize: 10,
+            fontSize: 11,
             fontWeight: 700,
-            letterSpacing: 1.2,
+            letterSpacing: isUrb ? 2 : 0.5,
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
-            gap: 5,
-            flexShrink: 0,
-            textDecoration: "none",
-            opacity: 0.6,
+            gap: 7,
             transition: "opacity 0.2s",
-            textTransform: "uppercase",
           }}
-          onMouseEnter={e => e.currentTarget.style.opacity = 1}
-          onMouseLeave={e => e.currentTarget.style.opacity = 0.6}
+          onMouseEnter={e => { e.currentTarget.style.opacity = "0.8"; }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
         >
-          ⚙ Admin
-        </Link>
-      )}
+          <ShoppingBag size={16} />
+          {isUrb ? (
+            <span>{cartCount > 0 ? `(${cartCount})` : ""}</span>
+          ) : (
+            cartCount > 0 && (
+              <span
+                style={{
+                  minWidth: 18,
+                  height: 18,
+                  borderRadius: 9,
+                  background: isMin ? accent : "rgba(255,255,255,0.25)",
+                  color: isMin ? "#fff" : "inherit",
+                  fontSize: 10,
+                  fontWeight: 800,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0 4px",
+                }}
+              >
+                {cartCount}
+              </span>
+            )
+          )}
+        </button>
+
+        {/* Toggle modo oscuro / claro */}
+        <button className="btn-sun-moon"
+          onClick={onToggleDark}
+          title={isDark ? "Modo claro" : "Modo oscuro"}
+          style={iconBtnStyle}
+          onMouseEnter={e => { e.currentTarget.style.background = btnBgHov; }}
+          onMouseLeave={e => { e.currentTarget.style.background = btnBg; }}
+        >
+          {isDark ? <Sun/> : <Moon/>}
+        </button>
+
+        {/* Botón Admin — solo visible para el dueño */}
+        {isOwner && storeSlug && (
+          <Link
+            to={`/admin/${storeSlug}/dashboard`}
+            title="Panel de administración"
+            style={{ ...iconBtnStyle, textDecoration: "none" }}
+            onMouseEnter={e => { e.currentTarget.style.background = btnBgHov; }}
+            onMouseLeave={e => { e.currentTarget.style.background = btnBg; }}
+          >
+            <Settings size={14} />
+          </Link>
+        )}
+      </div>
     </header>
   );
 }

@@ -129,6 +129,14 @@ export async function validateAccess(storeId, userId) {
   return request(`${BASE_URL}/${storeId}/access/${userId}`);
 }
 
+/**
+ * GET /stores/:storeId/isOwner/:userId
+ * Respuesta: true | false
+ */
+export async function checkIsOwner(storeId, userId) {
+  return request(`${BASE_URL}/${storeId}/isOwner/${userId}`);
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 // 3. SETTINGS DEL WIZARD — /api/v1/stores/settings
 // (Todos requieren X-Store-Id)

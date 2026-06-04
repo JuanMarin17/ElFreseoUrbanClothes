@@ -28,6 +28,16 @@ export function useCart(storeId) {
   const closeCart = useCallback(() => setIsOpen(false), []);
   const clearError = useCallback(() => setError(null), []);
 
+  const refreshCart = useCallback(async () => {
+    if (!storeId || !isLoggedIn()) return;
+    try {
+      const updated = await cartService.getCart(storeId);
+      setCart(updated);
+    } catch {
+      // silencioso
+    }
+  }, [storeId]);
+
   const addToCart = useCallback(async (product, idx) => {
     setJustAdded(idx);
     setTimeout(() => setJustAdded(null), 1200);
@@ -102,6 +112,7 @@ export function useCart(storeId) {
     justAdded,
     openCart,
     closeCart,
+    refreshCart,
     addToCart,
     updateQuantity,
     removeCartItem,

@@ -46,7 +46,7 @@
 .info-tag {
   display: block;
   font-size: 9px;
-  color: #444; /* Un poco más claro para legibilidad */
+  color: rgba(255, 255, 255, 0.852); /* Un poco más claro para legibilidad */
   font-weight: 700;
   letter-spacing: 1.5px;
 }
@@ -76,7 +76,7 @@
   background: transparent;
   border: none;
   color: #b6b3b3;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;

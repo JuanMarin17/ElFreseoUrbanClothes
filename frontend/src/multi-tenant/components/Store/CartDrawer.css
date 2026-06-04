@@ -95,6 +95,11 @@
   background: rgba(248, 113, 113, 0.08);
 }
 
+.cd-close svg{
+  min-width: 16px;
+  height: 16px;
+}
+
 /* ── Alertas ──────────────────────────────── */
 .cd-price-alert {
   display: flex;

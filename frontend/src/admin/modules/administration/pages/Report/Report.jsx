@@ -816,10 +816,10 @@ export default function Report() {
       {/* TOPBAR */}
       <div className="rp-topbar">
         <h1 className="rp-title">Reportes</h1>
-        <div className="rp-topbar-right">
+        {/* <div className="rp-topbar-right">
           <i className="ti ti-bell"     style={{ fontSize: 18 }} aria-hidden="true" />
           <i className="ti ti-settings" style={{ fontSize: 18 }} aria-hidden="true" />
-        </div>
+        </div> */}
       </div>
 
       {/* TABS */}

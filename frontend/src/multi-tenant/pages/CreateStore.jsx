@@ -4,17 +4,22 @@ import { useNavigate } from "react-router-dom";
 import { useStore } from "./StoreContext";
 import { useAuth } from "../../admin/modules/auth/pages/hook/Useauth";
 import { useState } from "react";
-import {
-  AlertCircle,
-  CheckCircle2,
-  ArrowLeft,
-  ArrowRight,
-  Info,
-  Store,
-  Globe,
-} from "lucide-react";
+import { createSubscription } from "./services/paymentService.js";
+import { AlertCircle, CheckCircle2, ArrowLeft, ArrowRight, Info, Store, Globe, CreditCard } from "lucide-react";
 import VexioTermsPage from "../components/VexioTermsPage";
 import StepProgress from "../components/StepProgress";
+
+const IS_DEV = import.meta.env.DEV;
+const PLAN_API_ID = { basico: "BASIC", pro: "PRO", premium: "ENTERPRISE" };
+
+function getEmailFromJwt() {
+  try {
+    const jwt = localStorage.getItem("jwt");
+    if (!jwt || jwt === "null") return null;
+    const p = JSON.parse(atob(jwt.split(".")[1]));
+    return p.email ?? p.mail ?? null;
+  } catch { return null; }
+}
 import useCreateStore from "../hooks/useCreateStore";
 
 /* ── Componente de alerta reutilizable ─────────────────────────────────────── */
@@ -52,7 +57,9 @@ export default function CreateStore() {
     accepted:  state.store?.accepted ?? false,
   });
 
-  const [touched, setTouched] = useState({ name: false, subdomain: false });
+  const [touched,      setTouched]      = useState({ name: false, subdomain: false });
+  const [paymentError, setPaymentError] = useState(null);  // msg de error de pago
+  const [createdId,    setCreatedId]    = useState(null);  // storeId ya creado
 
   // ── Hook de integración API ─────────────────────────────────────────────────
   const { loading, error, submit, clearError } = useCreateStore(state, ownerId);
@@ -93,14 +100,30 @@ export default function CreateStore() {
 
   const handleBack = () => nav("/widgets");
 
+  const retryPayment = async (storeId) => {
+    setPaymentError(null);
+    const email  = getEmailFromJwt() ?? user?.email ?? "";
+    const planId = PLAN_API_ID[state.plan?.id] ?? "BASIC";
+    try {
+      sessionStorage.setItem("sub_return_to", "/resultado");
+      const payment = await createSubscription(storeId, planId, email);
+      const url = IS_DEV ? payment.sandboxCheckoutUrl : payment.checkoutUrl;
+      if (url) { window.location.href = url; }
+    } catch (err) {
+      setPaymentError(err.message ?? "Error al iniciar el pago.");
+    }
+  };
+
   const handleSubmit = async () => {
     if (!form.name.trim() || !form.subdomain.trim() || !form.accepted) return;
     try {
       const createdStoreId = await submit(form);
       completeStep("store", { ...form, storeId: createdStoreId });
-      nav("/resultado");
+      localStorage.setItem("storeId", createdStoreId);
+      setCreatedId(createdStoreId);
+      await retryPayment(createdStoreId);
     } catch {
-      // error ya capturado en el hook
+      // error de creación ya capturado en el hook
     }
   };
 
@@ -235,6 +258,70 @@ export default function CreateStore() {
 
         </div>
 
+        {/* ── Modal error de pago ── */}
+        {paymentError && createdId && (
+          <div style={{
+            position: "fixed", inset: 0, zIndex: 9999,
+            background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            padding: 20,
+          }}>
+            <div style={{
+              background: "#0e1220", border: "1px solid #1e2230",
+              borderRadius: 16, padding: "28px 28px 24px",
+              maxWidth: 420, width: "100%",
+              display: "flex", flexDirection: "column", gap: 16,
+              fontFamily: "Inter, sans-serif",
+            }}>
+              <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                <div style={{
+                  width: 40, height: 40, borderRadius: 10,
+                  background: "#271e0c", flexShrink: 0,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <CreditCard size={18} color="#fbbf24" />
+                </div>
+                <div>
+                  <p style={{ margin: "0 0 4px", fontWeight: 700, color: "#f0f4ff", fontSize: 15 }}>
+                    Tu tienda fue creada, pero el pago falló
+                  </p>
+                  <p style={{ margin: 0, fontSize: 12, color: "#64748b", lineHeight: 1.5 }}>
+                    {paymentError}
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ background: "#080b14", borderRadius: 10, padding: "12px 14px", fontSize: 12, color: "#64748b", lineHeight: 1.6 }}>
+                Tu tienda ya está registrada. Puedes intentar el pago nuevamente o hacerlo más tarde desde <strong style={{ color: "#94a3b8" }}>Mis tiendas → Activar suscripción</strong>.
+              </div>
+
+              <div style={{ display: "flex", gap: 10 }}>
+                <button
+                  onClick={() => retryPayment(createdId)}
+                  style={{
+                    flex: 1, background: "#6366f1", border: "none",
+                    color: "#fff", padding: "11px 0", borderRadius: 10,
+                    fontWeight: 700, fontSize: 13, cursor: "pointer",
+                  }}
+                >
+                  Reintentar pago
+                </button>
+                <button
+                  onClick={() => nav("/resultado")}
+                  style={{
+                    flex: 1, background: "transparent",
+                    border: "1px solid #1e2230", color: "#64748b",
+                    padding: "11px 0", borderRadius: 10,
+                    fontWeight: 600, fontSize: 13, cursor: "pointer",
+                  }}
+                >
+                  Ir al resultado
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Acciones */}
         <div className="step-actions">
           <button
@@ -258,7 +345,7 @@ export default function CreateStore() {
               </>
             ) : (
               <>
-                Crear tienda
+                Crear tienda y pagar
                 <ArrowRight size={14} />
               </>
             )}
