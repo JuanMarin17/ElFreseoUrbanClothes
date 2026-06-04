@@ -10,12 +10,6 @@ import "../components/styles/StepPages.css";
 
 const PAYMENT_OPTIONS = [
   {
-    id: "stripe",
-    label: "Wonpy",
-    icon: "💳",
-    desc: "Tarjetas de crédito y débito",
-  },
-  {
     id: "mercadopago",
     label: "MercadoPago",
     icon: "🟦",

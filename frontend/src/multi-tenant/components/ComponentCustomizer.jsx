@@ -1,14 +1,8 @@
 /**
- * ComponentCustomizer.jsx
- *
- * Paso 5 – Componentes (header, banner, footer)
- * Path: /component
- *
- * ✅ image del banner es string (URL Cloudinary) — compatible con BannerSettingsDTO
- * ✅ addBannerImage sin duplicados, sube a Cloudinary y guarda secure_url
- * ✅ handleBack guarda con saveProgress(5) y vuelve a /customer
- * ✅ handleSave guarda con completeStep(5) y navega a /widgets
- * ✅ Pre-carga state.components al montar
+ * ComponentCustomizer.jsx - CORREGIDO
+ * - Banner usa <img> absoluto con zIndex para que la imagen quede detrás del texto
+ * - Se eliminó el <section> banner duplicado que estaba dentro del <aside>
+ * - Se restauró el campo de imagen del banner en el panel de control
  */
 
 import React, { useState } from "react";
@@ -27,7 +21,6 @@ const ComponentCustomizer = () => {
   const styles = state.styles ?? {};
   const layout = state.layout ?? {};
 
-  // ✅ Pre-carga lo que el usuario había puesto si regresa a este paso
   const [design, setDesign] = useState(
     state.components ?? {
       header: {
@@ -44,7 +37,7 @@ const ComponentCustomizer = () => {
         size: 60,
         color: "#ffffff",
         bg: "#111111",
-        image: "", // ✅ string simple — igual que BannerSettingsDTO
+        image: "",
       },
       footer: {
         text: `© ${state.store?.name ?? "Mi Tienda"} 2026`,
@@ -56,12 +49,18 @@ const ComponentCustomizer = () => {
     },
   );
 
+  const MENU_ITEMS = [
+    { key: "home",        label: "Home",        path: "/",            icon: "ti-home"        },
+    { key: "nuevo",       label: "Nuevo",       path: "/nuevo",       icon: "ti-sparkles"    },
+    { key: "catalogo",    label: "Catálogo",    path: "/catalogo",    icon: "ti-layout-grid" },
+    { key: "promociones", label: "Promociones", path: "/promociones", icon: "ti-tag"         },
+  ];
+
   const cleanFont = (f = "Inter") => {
     const match = f.match(/['"]([^'"]+)['"]/);
     return match ? match[1] : f;
   };
 
-  // Colores de borde para gradiente
   const cardBorder1 = styles.cardBorderColor1 ?? "#8b3cf7";
   const cardBorder2 = styles.cardBorderColor2 ?? "#f5c842";
   const cardBorderW = `${styles.cardBorderWidth ?? 3}px`;
@@ -72,14 +71,10 @@ const ComponentCustomizer = () => {
     "0 8px 32px 0 rgba(139,60,247,0.18), 0 1.5px 8px 0 rgba(245,200,66,0.10)";
 
   const btnRadius = `${styles.btnRadius ?? 4}px`;
-
   const fontTitle = cleanFont(styles.fontTitle ?? "Bebas Neue");
   const fontBody = cleanFont(styles.fontBody ?? "Inter");
-
   const productoDesc = styles.textoCuerpo ?? "Streetwear essentials.";
-
   const layoutClass = layout.id ?? "minimalista";
-
   const accentColor = styles.colorBoton ?? "#8b3cf7";
   const titleColor =
     layoutClass === "urbano"
@@ -104,49 +99,31 @@ const ComponentCustomizer = () => {
     }));
   };
 
-  const updateHeaderItem = (index, value) => {
-    const newItems = [...design.header.items];
-    newItems[index] = value;
-    updateSection("items", newItems);
-  };
-
-  // ✅ Una sola función, limpia — sube a Cloudinary y guarda URL como string
   const addBannerImage = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "preset"); // ⚠️ CAMBIAR
+    formData.append("upload_preset", "preset");
 
     try {
       const res = await fetch(
-        "https://api.cloudinary.com/v1_1/dcwyyoe7c/image/upload", // ⚠️ CAMBIAR
+        "https://api.cloudinary.com/v1_1/dcwyyoe7c/image/upload",
         { method: "POST", body: formData },
       );
       const data = await res.json();
-      // ✅ Guarda solo la URL como string — compatible con BannerSettingsDTO.image
       updateSection("image", data.secure_url);
     } catch (error) {
       console.error("Error subiendo imagen a Cloudinary:", error);
     }
   };
 
-  const getStyle = (comp) => ({
-    fontFamily: `"${comp.font}", sans-serif`,
-    fontSize: `${comp.size}px`,
-    color: comp.color,
-    backgroundColor: comp.bg,
-    transition: "0.3s ease",
-  });
-
-  // ← Guarda en memoria (no localStorage) y vuelve al paso anterior
   const handleBack = () => {
     saveDraft("components", design);
     navigate("/customer");
   };
 
-  // ✓ Guarda y navega al siguiente paso
   const handleSave = () => {
     completeStep(5, design);
     navigate("/widgets");
@@ -157,18 +134,12 @@ const ComponentCustomizer = () => {
       {!isFullscreen && (
         <>
           <header className="admin-nav">
-            <button
-              onClick={handleBack}
-              className="btn-back-arrow"
-              title="Volver"
-            >
+            <button onClick={handleBack} className="btn-back-arrow" title="Volver">
               ←
             </button>
-
             <div className="brand">
-              {state.store?.name ?? "EL FRESEO"} <span>STUDIO V3</span>
+              {state.store?.name ?? "VEXIO"} <span>STUDIO V3</span>
             </div>
-
             <button className="btn-save-top" onClick={handleSave}>
               SIGUIENTE →
             </button>
@@ -204,6 +175,7 @@ const ComponentCustomizer = () => {
               </div>
 
               <div className="scroll-fields-container">
+
                 {/* 1. TEXTO PRINCIPAL */}
                 <div className="field-group">
                   <label>Texto Principal</label>
@@ -235,43 +207,33 @@ const ComponentCustomizer = () => {
                   <div className="field-group">
                     <label>Items del Menú</label>
                     <div className="links-manager">
-                      {design.header.items.map((item, index) => (
-                        <div key={index} className="link-row">
-                          <input
-                            type="text"
-                            value={item}
-                            onChange={(e) =>
-                              updateHeaderItem(index, e.target.value)
-                            }
-                            className="f-input-mini"
-                          />
-                          <button
-                            className="btn-del-link"
-                            onClick={() =>
-                              updateSection(
-                                "items",
-                                design.header.items.filter(
-                                  (_, i) => i !== index,
-                                ),
-                              )
-                            }
-                          >
-                            ×
-                          </button>
+                      {MENU_ITEMS.map((item) => (
+                        <div key={item.key} className="link-row link-row--fixed">
+                          <i className={`menu-icon ti ${item.icon}`} />
+                          <div className="link-info">
+                            <span className="link-label">{item.label}</span>
+                            <span className="link-path">{item.path}</span>
+                          </div>
+                          <label className="toggle-wrap" aria-label={`Activar ${item.label}`}>
+                            <input
+                              type="checkbox"
+                              checked={design.header.items.includes(item.key)}
+                              onChange={(e) => {
+                                const next = e.target.checked
+                                  ? [...design.header.items, item.key]
+                                  : design.header.items.filter((k) => k !== item.key);
+                                updateSection("items", next);
+                              }}
+                            />
+                            <span className="toggle-track" />
+                            <span className="toggle-thumb" />
+                          </label>
                         </div>
                       ))}
-                      <button
-                        className="btn-add-link"
-                        onClick={() =>
-                          updateSection("items", [
-                            ...design.header.items,
-                            "NUEVO",
-                          ])
-                        }
-                      >
-                        + Añadir
-                      </button>
                     </div>
+                    <p className="menu-hint">
+                      Activa o desactiva los items que aparecen en el header.
+                    </p>
                   </div>
                 )}
 
@@ -290,14 +252,11 @@ const ComponentCustomizer = () => {
                       + Cargar Imagen
                     </label>
 
-                    {/* Vista previa de la imagen activa */}
                     {design.banner.image && (
                       <div className="img-control-card">
                         <div className="img-control-header">
                           <span>Imagen activa</span>
-                          <button
-                            onClick={() => updateSection("image", "")}
-                          >
+                          <button onClick={() => updateSection("image", "")}>
                             Eliminar
                           </button>
                         </div>
@@ -321,19 +280,11 @@ const ComponentCustomizer = () => {
                 <div className="field-group">
                   <label>Fuente</label>
                   <div className="font-grid-mini">
-                    {[
-                      "Inter",
-                      "Bebas Neue",
-                      "Syncopate",
-                      "Oswald",
-                      "Dancing Script",
-                    ].map((f) => (
+                    {["Inter", "Bebas Neue", "Syncopate", "Oswald", "Dancing Script"].map((f) => (
                       <button
                         key={f}
                         className={`f-tag ${
-                          design[activeComponent.toLowerCase()].font === f
-                            ? "active"
-                            : ""
+                          design[activeComponent.toLowerCase()].font === f ? "active" : ""
                         }`}
                         onClick={() => updateSection("font", f)}
                       >
@@ -400,16 +351,14 @@ const ComponentCustomizer = () => {
                     </div>
                   </div>
                   <small>
-                    Si solo eliges un color, el borde será sólido. Si eliges
-                    dos, será gradiente.
+                    Si solo eliges un color, el borde será sólido. Si eliges dos, será gradiente.
                   </small>
                 </div>
 
                 {/* 6. TAMAÑO DE FUENTE */}
                 <div className="field-group">
                   <label>
-                    Tamaño:{" "}
-                    <span>{design[activeComponent.toLowerCase()].size}px</span>
+                    Tamaño: <span>{design[activeComponent.toLowerCase()].size}px</span>
                   </label>
                   <input
                     type="range"
@@ -420,24 +369,21 @@ const ComponentCustomizer = () => {
                     className="f-range"
                   />
                 </div>
+
               </div>
             </div>
           </aside>
         )}
 
-        <section
-          className={`viewport-area ${isFullscreen ? "fullscreen" : ""}`}
-        >
+        <section className={`viewport-area ${isFullscreen ? "fullscreen" : ""}`}>
           {isFullscreen && (
-            <button
-              className="btn-exit-full"
-              onClick={() => setIsFullscreen(false)}
-            >
+            <button className="btn-exit-full" onClick={() => setIsFullscreen(false)}>
               VOLVER ×
             </button>
           )}
 
           <div className={`store-preview ${layoutClass}`}>
+
             {/* ── HEADER ── */}
             <header
               style={{
@@ -454,22 +400,16 @@ const ComponentCustomizer = () => {
               <div style={{ fontWeight: 800, letterSpacing: "3px" }}>
                 {design.header.logo}
               </div>
-
               <nav style={{ display: "flex", gap: "24px" }}>
                 {design.header.items.map((it, i) => (
                   <span
                     key={i}
-                    style={{
-                      fontSize: "12px",
-                      opacity: 0.85,
-                      letterSpacing: "2px",
-                    }}
+                    style={{ fontSize: "12px", opacity: 0.85, letterSpacing: "2px" }}
                   >
                     {it}
                   </span>
                 ))}
               </nav>
-
               <button
                 style={{
                   background: accentColor,
@@ -485,16 +425,11 @@ const ComponentCustomizer = () => {
               </button>
             </header>
 
-            {/* ── BANNER ── */}
+            {/* ── BANNER — imagen como <img> absoluto, texto encima con zIndex ── */}
             <section
               style={{
+                position: "relative",
                 backgroundColor: design.banner.bg,
-                // ✅ Usa design.banner.image (string) directamente
-                backgroundImage: design.banner.image
-                  ? `linear-gradient(rgba(0,0,0,0.45),rgba(0,0,0,0.45)),url(${design.banner.image})`
-                  : undefined,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
                 minHeight: "340px",
                 display: "flex",
                 flexDirection: "column",
@@ -503,10 +438,43 @@ const ComponentCustomizer = () => {
                 padding: "80px 40px",
                 textAlign: "center",
                 gap: "20px",
+                overflow: "hidden",
               }}
             >
+              {/* ✅ Imagen de fondo — z-index 0, cubre todo el section */}
+              {design.banner.image && (
+                <img
+                  src={design.banner.image}
+                  alt=""
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    objectPosition: "center",
+                    zIndex: 0,
+                  }}
+                />
+              )}
+
+              {/* ✅ Overlay oscuro — z-index 1, encima de la imagen */}
+              {design.banner.image && (
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background: "rgba(0,0,0,0.50)",
+                    zIndex: 1,
+                  }}
+                />
+              )}
+
+              {/* ✅ Todo el contenido — z-index 2, encima del overlay */}
               <h1
                 style={{
+                  position: "relative",
+                  zIndex: 2,
                   fontFamily: `"${cleanFont(design.banner.font)}", sans-serif`,
                   fontSize: `clamp(2rem, 5vw, ${design.banner.size}px)`,
                   color: design.banner.color,
@@ -519,6 +487,8 @@ const ComponentCustomizer = () => {
 
               <p
                 style={{
+                  position: "relative",
+                  zIndex: 2,
                   color: paraColor,
                   fontFamily: `"${fontBody}", sans-serif`,
                   letterSpacing: "2px",
@@ -531,6 +501,8 @@ const ComponentCustomizer = () => {
 
               <button
                 style={{
+                  position: "relative",
+                  zIndex: 2,
                   background: accentColor,
                   border: "none",
                   color: "#fff",
@@ -594,33 +566,14 @@ const ComponentCustomizer = () => {
                         height: "100%",
                       }}
                     >
-                      <div
-                        style={{
-                          height: "180px",
-                          background: `${accentColor}22`,
-                        }}
-                      />
-
+                      <div style={{ height: "180px", background: `${accentColor}22` }} />
                       <div style={{ padding: "16px" }}>
-                        <h3
-                          style={{
-                            color: titleColor,
-                            fontFamily: `"${fontTitle}", sans-serif`,
-                          }}
-                        >
+                        <h3 style={{ color: titleColor, fontFamily: `"${fontTitle}", sans-serif` }}>
                           {design.banner.title}
                         </h3>
-
-                        <p
-                          style={{
-                            color: paraColor,
-                            fontSize: "13px",
-                            lineHeight: 1.5,
-                          }}
-                        >
+                        <p style={{ color: paraColor, fontSize: "13px", lineHeight: 1.5 }}>
                           {productoDesc}
                         </p>
-
                         <div
                           style={{
                             display: "flex",
@@ -629,10 +582,7 @@ const ComponentCustomizer = () => {
                             marginTop: "14px",
                           }}
                         >
-                          <span style={{ color: accentColor, fontWeight: 700 }}>
-                            $120.00
-                          </span>
-
+                          <span style={{ color: accentColor, fontWeight: 700 }}>$120.00</span>
                           <button
                             style={{
                               background: accentColor,

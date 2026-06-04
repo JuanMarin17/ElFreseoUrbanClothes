@@ -56,7 +56,7 @@ export default function CreateStore() {
   };
 
   const handleBack = () => {
-    nav("/widgets");
+    nav("/cms");
   };
 
   const handleSubmit = async () => {
@@ -68,8 +68,23 @@ export default function CreateStore() {
       // Persiste el paso en el contexto local
       completeStep("store", { ...form, storeId: createdStoreId });
 
-      // Navega al resultado
-      nav("/resultado");
+      // Navega al resultado con datos para mostrar el preview
+      // Pasamos `bypassProtected: true` para evitar la redirección causada
+      // por el guard mientras el estado `completedStep` se actualiza.
+      nav("/resultado", {
+        state: {
+          previewState: {
+            plan: state.plan ?? {},
+            store: { ...form, storeId: createdStoreId },
+            layout: state.layout ?? { id: "minimalista", title: "MINIMALISTA" },
+            styles: state.styles ?? {},
+            components: state.components ?? {},
+            widgets: state.widgets ?? null,
+          },
+          clearStorage: true,
+          bypassProtected: true,
+        },
+      });
     } catch {
       // El error ya está en el estado del hook
     }
@@ -127,7 +142,7 @@ export default function CreateStore() {
                   marginLeft: 8,
                 }}
               >
-                {form.subdomain ? `${form.subdomain}.freseo.com` : ""}
+                {form.subdomain ? `${form.subdomain}.vexio.com` : ""}
               </span>
             </label>
             <input

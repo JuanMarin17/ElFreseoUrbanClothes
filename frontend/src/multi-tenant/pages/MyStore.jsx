@@ -1,18 +1,30 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useStore } from "./StoreContext";
 import { useAuth } from "../../admin/modules/auth/pages/hook/Useauth";
 import "../components/styles/MyStore.css";
-import { FiLogOut, FiPlus, FiSearch, FiExternalLink, FiCopy, FiCheck } from "react-icons/fi";
-import { getStoresByUser, getStoreSettingsByHeader, getAllStores } from "./services/storeService";
+import {
+  FiLogOut,
+  FiPlus,
+  FiSearch,
+  FiExternalLink,
+  FiCopy,
+  FiCheck,
+} from "react-icons/fi";
+import {
+  getStoresByUser,
+  getStoreSettingsByHeader,
+  getAllStores,
+} from "./services/storeService";
 
 const MyStore = () => {
   const navigate = useNavigate();
-  const { state } = useStore();
+  const location = useLocation();
+  const { state, resetAll } = useStore();
   const { user, logout } = useAuth();
   const userId = user?.id ?? user?.userId ?? null;
-  const name   = user?.userName ?? user?.name ?? null;
-  const role   = "SUPERADMIN"; // ajustar cuando tengas roles reales
+  const name = user?.userName ?? user?.name ?? null;
+  const role = "SUPERADMIN"; // ajustar cuando tengas roles reales
 
   // ── Tienda recién creada (wizard) ──────────────────────────────────────────
   const createdStore = state?.store;
@@ -28,6 +40,13 @@ const MyStore = () => {
   const [storesError, setStoresError] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const [search, setSearch] = useState("");
+
+  // Limpiar storage si se viene de crear tienda
+  useEffect(() => {
+    if (location.state?.clearStorage) {
+      resetAll();
+    }
+  }, [location.state, resetAll]);
 
   useEffect(() => {
     // console.log("🔑 userId en MyStore:", userId);
@@ -245,7 +264,8 @@ const MyStore = () => {
                   <div
                     className="ms-store-banner"
                     style={{
-                      backgroundImage: storeSettings[store.storeId]?.components?.banner?.image
+                      backgroundImage: storeSettings[store.storeId]?.components
+                        ?.banner?.image
                         ? `url(${storeSettings[store.storeId].components.banner.image})`
                         : undefined,
                       backgroundSize: "cover",

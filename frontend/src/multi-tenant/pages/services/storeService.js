@@ -34,7 +34,7 @@ async function request(url, options = {}) {
   }
 
   if (!res.ok) {
-    if (res.status === 404 && res.message.includes("no tiene configuración")) {
+    if (res.status === 404 && typeof body === "object" && body.message?.includes("no tiene configuración")) {
       return null; // o {}
     }
     const message =
