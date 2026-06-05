@@ -110,7 +110,7 @@ export default function Login({ mode }) {
     if (!email.value.trim())                tempErrors.email    = 'El correo es requerido';
     else if (!emailRegex.test(email.value)) tempErrors.email    = 'Email no válido';
     if (!password.value)                    tempErrors.password = 'La contraseña es requerida';
-    else if (password.value.length < 6)     tempErrors.password = 'Mínimo 6 caracteres';
+    else if (password.value.length < 8)     tempErrors.password = 'Mínimo 8 caracteres';
     if (mode === 'register') {
       if (!userName.value.trim()) tempErrors.userName = 'El nombre es requerido';
       if (!phone.value.trim())    tempErrors.phone    = 'El teléfono es requerido';
