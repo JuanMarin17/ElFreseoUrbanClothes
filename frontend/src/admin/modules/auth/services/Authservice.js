@@ -14,7 +14,6 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
-// ─── Interceptor de respuesta: refresca el token automáticamente en 401 ───────
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -30,12 +29,10 @@ API.interceptors.response.use(
   async (error) => {
     const original = error.config;
 
-    // Solo interceptar 401 y evitar bucle infinito
     if (error.response?.status !== 401 || original._retry) {
       return Promise.reject(error);
     }
 
-    // Si ya hay un refresh en curso, encolar esta petición
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject });
@@ -51,7 +48,6 @@ API.interceptors.response.use(
     const oldToken = localStorage.getItem('jwt');
 
     try {
-      // Usar axios directo (no API) para evitar que este request pase por el interceptor
       const { data } = await axios.post(
         `${BASE_URL}/auth/refresh-token`,
         {},
@@ -65,7 +61,7 @@ API.interceptors.response.use(
       original.headers['Authorization'] = `Bearer ${data.jwt}`;
       processQueue(null, data.jwt);
 
-      return API(original); // reintenta la petición original con el nuevo token
+      return API(original);
     } catch (refreshError) {
       processQueue(refreshError, null);
       localStorage.removeItem('jwt');
@@ -80,6 +76,7 @@ API.interceptors.response.use(
 function parseJwt(jwt) {
   try {
     const decoded = JSON.parse(atob(jwt.split('.')[1]));
+    if (decoded.exp * 1000 < Date.now()) return null;
     return {
       userId:   decoded.user_id,
       userName: decoded.sub,
@@ -90,17 +87,32 @@ function parseJwt(jwt) {
   }
 }
 
-/* ─── Mensajes limpios y amigables ─── */
 function extractBackendError(err) {
-  /* Sin internet */
   if (!navigator.onLine || err.code === 'ERR_NETWORK') {
     return 'Sin conexión a internet. Verifica tu red e intenta de nuevo.';
   }
 
-  const msg = err?.response?.data?.message || '';
+  const status = err?.response?.status;
+  const raw    = err?.response?.data;
+  const msg    = (typeof raw === 'string' ? raw : raw?.message ?? raw?.error ?? '').toLowerCase();
 
-  /* Mapeo de mensajes técnicos → amigables */
-  const map = {
+  if (import.meta.env.DEV) {
+    console.warn('[AuthError raw]', err?.response?.data);
+  }
+
+  const validationMap = {
+    'password must be longer than or equal to 8': 'La contraseña debe tener al menos 8 caracteres',
+    'password must be at least':                  'La contraseña debe tener al menos 8 caracteres',
+    'password is too short':                      'La contraseña debe tener al menos 8 caracteres',
+    'email must be an email':                     'El formato del correo no es válido',
+    'email is not valid':                         'El formato del correo no es válido',
+    'username must be longer':                    'El nombre de usuario es muy corto',
+    'phone must be a number':                     'El teléfono solo debe contener números',
+    'must be shorter than or equal':              'Uno de los campos supera el largo permitido',
+    'should not be empty':                        'Hay campos obligatorios vacíos',
+  };
+
+  const businessMap = {
     'correo o contraseña incorrectos': 'Correo o contraseña incorrectos',
     'incorrectcredentials':            'Correo o contraseña incorrectos',
     'user not found':                  'No existe una cuenta con ese correo',
@@ -112,15 +124,15 @@ function extractBackendError(err) {
   };
 
   if (msg) {
-    const lower = msg.toLowerCase();
-    for (const [key, value] of Object.entries(map)) {
-      if (lower.includes(key)) return value;
+    for (const [key, value] of Object.entries(validationMap)) {
+      if (msg.includes(key)) return value;
     }
-    return msg;
+    for (const [key, value] of Object.entries(businessMap)) {
+      if (msg.includes(key)) return value;
+    }
   }
 
-  /* Errores HTTP genéricos */
-  const status = err?.response?.status;
+  if (status === 400) return 'Datos inválidos, revisa los campos e intenta de nuevo';
   if (status === 401) return 'Correo o contraseña incorrectos';
   if (status === 404) return 'No existe una cuenta con ese correo';
   if (status === 409) return 'Ya existe una cuenta con ese correo';
@@ -133,19 +145,16 @@ const authService = {
 
   uploadAvatar: (file) => uploadFile(file),
 
-  /* ─── Login paso 1 ─── */
- async login({ email, password }) {
-  try {
-    /* Guardar email ANTES del request para que quede aunque falle */
-    localStorage.setItem('last_email', email);
-    const { data } = await API.post('/auth/login', { email, password });
-    return data;
-  } catch (err) {
-    throw new Error(extractBackendError(err));
-  }
-},
+  async login({ email, password }) {
+    try {
+      localStorage.setItem('last_email', email);
+      const { data } = await API.post('/auth/login', { email, password });
+      return data;
+    } catch (err) {
+      throw new Error(extractBackendError(err));
+    }
+  },
 
-  /* ─── Login paso 2 ─── */
   async loginSecondStep({ email, code }) {
     try {
       const { data } = await API.post('/auth/loginSecondStep', {
@@ -160,7 +169,6 @@ const authService = {
     }
   },
 
-  /* ─── Register paso 1 ─── */
   async register({ userName, email, password, phone, imageProfile }) {
     try {
       const { data } = await API.post('/auth/register', {
@@ -172,7 +180,6 @@ const authService = {
     }
   },
 
-  /* ─── Register paso 2 ─── */
   async registerSecondStep({ email, code }) {
     try {
       const { data } = await API.post('/auth/registerSecondStep', {
@@ -187,7 +194,6 @@ const authService = {
     }
   },
 
-  /* ─── Reenviar código ─── */
   async resendCode({ email }) {
     try {
       const { data } = await API.post('/auth/resendVerificationCode', { email });
@@ -197,7 +203,6 @@ const authService = {
     }
   },
 
-  /* ─── Recuperar contraseña paso 1 ─── */
   async forgotPassword({ email }) {
     try {
       const { data } = await API.post('/auth/forgotPassword', { email });
@@ -208,7 +213,6 @@ const authService = {
     }
   },
 
-  /* ─── Recuperar contraseña paso 2 ─── */
   async forgotPasswordSecondStep({ email, code, password }) {
     try {
       const { data } = await API.put('/auth/forgotPasswordSecondStep', {
@@ -221,7 +225,6 @@ const authService = {
     }
   },
 
-  /* ─── Refresh token (llamada proactiva desde el hook de 3 minutos) ─── */
   async refreshToken() {
     const oldToken = localStorage.getItem('jwt');
     if (!oldToken) return null;
