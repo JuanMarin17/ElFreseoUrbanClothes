@@ -1,47 +1,39 @@
+import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  PackagePlus,
-  Users,
-  ShoppingCart,
-  BarChart3,
-  AlertTriangle,
-  LogOut,
+  LayoutDashboard, PackagePlus, Users, ShoppingCart,
+  BarChart3, AlertTriangle, LogOut,
 } from 'lucide-react';
 import './Sidebar.css';
 import defaultLogo from '../../../../../assets/LogoVexios/banervexio.png';
 
-// Rutas del panel admin (paths completos)
 const DEFAULT_MENU_ITEMS = [
-  { path: '/admin/:slug/dashboard',       label: 'DASHBOARD',          icon: LayoutDashboard },
-  { path: '/admin/:slug/subir-producto',  label: 'SUBIR PRODUCTOS',    icon: PackagePlus     },
-  { path: '/admin/:slug/usuarios',        label: 'GESTIONAR USUARIOS', icon: Users           },
-  { path: '/admin/:slug/pedidos',         label: 'VER PEDIDOS',        icon: ShoppingCart    },
-  { path: '/admin/:slug/report',          label: 'INFORMES',           icon: BarChart3       },
-  { path: '/admin/:slug/alertas',         label: 'ALERTAS DE STOCK',   icon: AlertTriangle   },
+  { path: '/tienda/:slug/admin/dashboard',      label: 'DASHBOARD',          icon: LayoutDashboard },
+  { path: '/tienda/:slug/admin/subir-producto', label: 'SUBIR PRODUCTOS',    icon: PackagePlus     },
+  { path: '/tienda/:slug/admin/usuarios',       label: 'GESTIONAR USUARIOS', icon: Users           },
+  { path: '/tienda/:slug/admin/pedidos',        label: 'VER PEDIDOS',        icon: ShoppingCart    },
+  { path: '/tienda/:slug/admin/report',         label: 'INFORMES',           icon: BarChart3       },
+  { path: '/tienda/:slug/admin/alertas',        label: 'ALERTAS DE STOCK',   icon: AlertTriangle, alertKey: 'stock' },
 ];
 
-export default function Sidebar({
+const Sidebar = ({
   menuItems    = DEFAULT_MENU_ITEMS,
-  brandName    = "VEXIO",
+  brandName    = "NOMBRE",
   brandSub     = "ADMIN",
   onLogout,
   logoUrl,
-  useImageLogo = false,
-  storeSlug,          // necesario para construir rutas admin
+  useImageLogo,
+  storeSlug,
   lowStockCount = 0,
-}) {
+}) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    if (onLogout) {
-      onLogout();
-    } else {
-      navigate('/login');
-    }
+    if (onLogout) onLogout();
+    else navigate('/login');
   };
 
-  // Si los paths tienen el parámetro :slug, sustituirlo por el slug real
+  // Sustituir el parámetro :slug por el slug real
   const resolvedItems = menuItems.map((item) => ({
     ...item,
     path: storeSlug ? item.path.replace(':slug', storeSlug) : item.path,
@@ -68,19 +60,27 @@ export default function Sidebar({
       {/* ── Nav ──────────────────────────────────────────────────────── */}
       <nav className="sidebar-nav">
         <div className="nav-group">
-          {resolvedItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
-            >
-              <item.icon size={18} />
-              <span>{item.label}</span>
-              {item.alertKey === 'stock' && lowStockCount > 0 && (
-                <span className="nav-badge">{lowStockCount}</span>
-              )}
-            </NavLink>
-          ))}
+          {resolvedItems.map((item) => {
+            const showStockAlert = item.alertKey === 'stock' && lowStockCount > 0;
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+              >
+                <span className="nav-icon-wrapper">
+                  <item.icon size={18} />
+                  {showStockAlert && (
+                    <span className="stock-alert-dot" title={`${lowStockCount} productos con stock bajo`} />
+                  )}
+                </span>
+                <span>{item.label}</span>
+                {showStockAlert && (
+                  <span className="stock-alert-badge">{lowStockCount}</span>
+                )}
+              </NavLink>
+            );
+          })}
         </div>
 
         <div className="nav-footer">
@@ -92,4 +92,6 @@ export default function Sidebar({
       </nav>
     </aside>
   );
-}
+};
+
+export default Sidebar;

@@ -13,7 +13,7 @@ const DEFAULT = {
   mission: "",
   vision: "",
   founded: "",
-  team: "",
+  teamSize: "",
   showTeam: true,
   showTimeline: true,
 };
@@ -115,8 +115,8 @@ export default function CMSAbout() {
               <input
                 className="f-input-dark"
                 placeholder="Ej: 5 personas"
-                value={data.team}
-                onChange={(e) => set("team", e.target.value)}
+                value={data.teamSize}
+                onChange={(e) => set("teamSize", e.target.value)}
               />
             </div>
           </div>

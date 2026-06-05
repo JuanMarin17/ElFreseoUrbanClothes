@@ -62,7 +62,7 @@ export default function CMSEditor() {
   const handleBack = () => navigate("/widgets");
 
   const handleNext = () => {
-    completeStep(8);
+    completeStep(8, state.cms ?? {});
     navigate("/crear-tienda");
   };
 

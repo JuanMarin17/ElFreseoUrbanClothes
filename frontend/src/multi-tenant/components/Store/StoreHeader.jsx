@@ -192,7 +192,7 @@ export default function StoreHeader({
         {/* Botón Admin — solo visible para el dueño */}
         {isOwner && storeSlug && (
           <Link
-            to={`/admin/${storeSlug}/dashboard`}
+            to={`/tienda/${storeSlug}/admin/dashboard`}
             title="Panel de administración"
             style={{ ...iconBtnStyle, textDecoration: "none" }}
             onMouseEnter={e => { e.currentTarget.style.background = btnBgHov; }}

@@ -61,6 +61,15 @@ const WidgetsCustomizer   = lazy(() => import("./multi-tenant/components/Widgets
 const OrdersDashboard     = lazy(() => import("./multi-tenant/components/OrdersDashboard.jsx"));
 const MyStore             = lazy(() => import("./multi-tenant/pages/MyStore.jsx"));
 const StorePage           = lazy(() => import("./multi-tenant/pages/StorePage.jsx"));
+const Transaction         = lazy(() => import("./multi-tenant/pages/Transaction/Transaction.jsx"));
+
+// CMS
+const CMSEditor    = lazy(() => import("./multi-tenant/cms/CMSeditor.jsx"));
+const CMSAbout     = lazy(() => import("./multi-tenant/cms/CMSabout.jsx"));
+const CMSContact   = lazy(() => import("./multi-tenant/cms/CMSconctact.jsx"));
+const CMSLocations = lazy(() => import("./multi-tenant/cms/CMSlocations.jsx"));
+const CMSReturns   = lazy(() => import("./multi-tenant/cms/CMSreturns.jsx"));
+const CMSFAQ       = lazy(() => import("./multi-tenant/cms/CMSfaq.jsx"));
 
 // ── Spinner de carga global ───────────────────────────────────────────────────
 function PageLoader() {
@@ -125,8 +134,14 @@ export default function App() {
                   <Route path="/customer"  element={<ProtectedStep requiredStep={4}><CustomizationPanel /></ProtectedStep>} />
                   <Route path="/component" element={<ProtectedStep requiredStep={5}><ComponentCustomizer /></ProtectedStep>} />
                   <Route path="/widgets"   element={<ProtectedStep requiredStep={6}><WidgetsCustomizer /></ProtectedStep>} />
-                  <Route path="/crear-tienda" element={<ProtectedStep requiredStep={7}><CreateStore /></ProtectedStep>} />
-                  <Route path="/resultado"    element={<ProtectedStep requiredStep={8}><StoreResult /></ProtectedStep>} />
+                  <Route path="/cms"         element={<ProtectedStep requiredStep={7}><CMSEditor /></ProtectedStep>} />
+                  <Route path="/cms/about"     element={<ProtectedStep requiredStep={7}><CMSAbout /></ProtectedStep>} />
+                  <Route path="/cms/contact"   element={<ProtectedStep requiredStep={7}><CMSContact /></ProtectedStep>} />
+                  <Route path="/cms/locations" element={<ProtectedStep requiredStep={7}><CMSLocations /></ProtectedStep>} />
+                  <Route path="/cms/returns"   element={<ProtectedStep requiredStep={7}><CMSReturns /></ProtectedStep>} />
+                  <Route path="/cms/faq"       element={<ProtectedStep requiredStep={7}><CMSFAQ /></ProtectedStep>} />
+                  <Route path="/crear-tienda" element={<ProtectedStep requiredStep={8}><CreateStore /></ProtectedStep>} />
+                  <Route path="/resultado"    element={<ProtectedStep requiredStep={9}><StoreResult /></ProtectedStep>} />
 
                   {/* ── Suscripciones / pago ─────────────────────────────── */}
                   <Route path="/planes"                              element={<SubscriptionPlansPage />} />
@@ -136,8 +151,9 @@ export default function App() {
 
                   {/* ── Tienda pública ───────────────────────────────────── */}
                   <Route path="/tienda/:slug" element={<StorePage />} />
-
+                    <Route path="/transacciones"       element={<MyStore />} />
                     <Route path="/mis-tiendas"         element={<MyStore />} />
+
                   {/* ── Rutas protegidas (requieren login) ───────────────── */}
                   <Route element={<ProtectedRoute />}>
                     <Route path="/tiendas"             element={<MyStore />} />
@@ -148,7 +164,7 @@ export default function App() {
 
                   {/* ── Dashboard admin (requiere login + suscripción) ───── */}
                   <Route element={<SubscriptionGuard />}>
-                    <Route path="/admin/:storeSlug" element={<AdminLayout />}>
+                    <Route path="/tienda/:slug/admin" element={<AdminLayout />}>
                       <Route index                      element={<Navigate to="dashboard" replace />} />
                       <Route path="IA"                  element={<IAAdmin />} />
                       <Route path="dashboard"           element={<Dashboard />} />

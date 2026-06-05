@@ -236,7 +236,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
         onCartRefresh={handleIaCartRefresh}
         accentColor={accent}
         products={products}
-        storeName={header.logo ?? "Tienda"}
+        storeName={banner.title ?? "Tienda"}
       />
 
     </div>

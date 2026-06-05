@@ -12,16 +12,9 @@ export default function SubscriptionGuard() {
   const tenantId = localStorage.getItem("storeId");
 
   useEffect(() => {
-    if (!tenantId) {
-      setStatus("inactive");
-      return;
-    }
-    isSubscriptionActive(tenantId)
-      .then((active) => {
-        setStatus(active === true || active === "true" ? "active" : "inactive");
-      })
-      .catch(() => setStatus("inactive"));
-  }, [tenantId]);
+    // TODO: reactivar cuando el módulo de pagos esté listo
+    setStatus("active");
+  }, []);
 
   if (status === "checking") {
     return (

@@ -24,8 +24,8 @@ export default function CMSLocations() {
   const { state, saveProgress } = useStore();
 
   const [locations, setLocations] = useState(
-    state.cms?.locations?.list?.length
-      ? state.cms.locations.list
+    state.cms?.locations?.items?.length
+      ? state.cms.locations.items
       : [EMPTY_LOC()],
   );
   const [showMap, setShowMap] = useState(state.cms?.locations?.showMap ?? true);
@@ -45,7 +45,7 @@ export default function CMSLocations() {
     const prevCms = state.cms ?? {};
     saveProgress("cms", {
       ...prevCms,
-      locations: { list: locations, showMap },
+      locations: { items: locations, showMap },
       completed: [...new Set([...(prevCms.completed ?? []), "locations"])],
     });
     setToast(true);

@@ -7,11 +7,11 @@ import './AdminLayout.css';
 
 const AdminLayout = () => {
   const [isAiOpen, setIsAiOpen] = useState(false);
-  const { storeSlug } = useParams();
+  const { slug } = useParams();
 
   return (
     <div className="admin-terminal-wrapper">
-      <Sidebar storeSlug={storeSlug} />
+      <Sidebar storeSlug={slug} />
 
       <div className="admin-main-section">
         <AdminHeader
