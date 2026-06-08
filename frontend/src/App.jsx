@@ -4,7 +4,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import "./animations.css";
 
-// ── Providers y guards (carga siempre, no son rutas) ──────────────────────────
 import { AuthProvider }                            from "./admin/modules/auth/pages/hook/Useauth.jsx";
 import { AuthProvider as MultiTenantAuthProvider } from "./multi-tenant/context/AuthContext.jsx";
 import { StoreProvider }                           from "./multi-tenant/pages/StoreContext.jsx";
@@ -13,15 +12,13 @@ import { TokenGuard }                              from "./admin/modules/auth/pa
 import ProtectedStep                               from "./multi-tenant/components/ProtectStep.jsx";
 import SubscriptionGuard                           from "./admin/modules/auth/pages/hook/SubscriptionGuard.jsx";
 
-// ── Páginas lazy ──────────────────────────────────────────────────────────────
-
-// Suscripciones / pagos
+// ── Suscripciones ─────────────────────────────────────────────────────────────
 const SubscriptionPlansPage = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionPlansPage.jsx"));
 const SubscriptionSuccess   = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionSuccess.jsx"));
 const SubscriptionFailure   = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionFailure.jsx"));
 const SubscriptionPending   = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionPending.jsx"));
 
-// Panel de administración
+// ── Admin ─────────────────────────────────────────────────────────────────────
 const AdminLayout      = lazy(() => import("./admin/modules/administration/components/AdminLayout/AdminLayout.jsx"));
 const Dashboard        = lazy(() => import("./admin/modules/administration/dashboard/Dashboard.jsx"));
 const UploadProduct    = lazy(() => import("./admin/modules/administration/pages/UploadProduct/UploadProduct.jsx"));
@@ -31,22 +28,23 @@ const Report           = lazy(() => import("./admin/modules/administration/pages
 const IAAdmin          = lazy(() => import("./admin/modules/administration/pages/IAAdmin/AIAdmin.jsx"));
 const OrdersManagement = lazy(() => import("./admin/modules/administration/pages/OrdersManagement/OrdersManagement.jsx"));
 const ShockAlerts      = lazy(() => import("./admin/modules/administration/pages/StockAlerts/StockAlert.jsx"));
+const SuppliersPage    = lazy(() => import("./admin/modules/administration/pages/Suppliers/SuppliersPage.jsx")); // ← nuevo
 
-// Autenticación
+// ── Auth ──────────────────────────────────────────────────────────────────────
 const Login            = lazy(() => import("./admin/modules/auth/pages/Login/Login.jsx"));
 const ForgotPassword   = lazy(() => import("./admin/modules/auth/pages/ForgotPassword/ForgotPassword.jsx"));
 const NewPassword      = lazy(() => import("./admin/modules/auth/pages/NewPassword.jsx"));
 const VerificationPage = lazy(() => import("./admin/modules/auth/pages/VerificationPage.jsx"));
 const VerifyCode       = lazy(() => import("./admin/modules/auth/pages/VerifyCode/VerifyCode.jsx"));
 
-// Cliente / público
+// ── Cliente ───────────────────────────────────────────────────────────────────
 const VexioLanding  = lazy(() => import("./client/modules/landingPage/pages/VexioLanding/VexioLanding.jsx"));
 const HelpCenter    = lazy(() => import("./client/modules/help/pages/HelpCenter/HelpCenter.jsx"));
 const SessionClosed = lazy(() => import("./client/modules/MainPage/pages/SessionClosed.jsx"));
 const MarketPage    = lazy(() => import("./client/modules/MarketPage/Pages/MarketPage/MarketPage.jsx"));
 const AccountPage   = lazy(() => import("./client/modules/account/pages/AccountPage/AccountPage.jsx"));
 
-// Multi-tenant / tiendas
+// ── Multi-tenant ──────────────────────────────────────────────────────────────
 const StoreProductsAdmin  = lazy(() => import("./multi-tenant/pages/StoreProductsAdmin/StoreProductsAdmin.jsx"));
 const StoreResult         = lazy(() => import("./multi-tenant/pages/StoreResult.jsx"));
 const CreateStore         = lazy(() => import("./multi-tenant/pages/CreateStore.jsx"));
@@ -63,7 +61,7 @@ const MyStore             = lazy(() => import("./multi-tenant/pages/MyStore.jsx"
 const StorePage           = lazy(() => import("./multi-tenant/pages/StorePage.jsx"));
 const Transaction         = lazy(() => import("./multi-tenant/pages/Transaction/Transaction.jsx"));
 
-// CMS
+// ── CMS ───────────────────────────────────────────────────────────────────────
 const CMSEditor    = lazy(() => import("./multi-tenant/cms/CMSeditor.jsx"));
 const CMSAbout     = lazy(() => import("./multi-tenant/cms/CMSabout.jsx"));
 const CMSContact   = lazy(() => import("./multi-tenant/cms/CMSconctact.jsx"));
@@ -71,7 +69,7 @@ const CMSLocations = lazy(() => import("./multi-tenant/cms/CMSlocations.jsx"));
 const CMSReturns   = lazy(() => import("./multi-tenant/cms/CMSreturns.jsx"));
 const CMSFAQ       = lazy(() => import("./multi-tenant/cms/CMSfaq.jsx"));
 
-// ── Spinner de carga global ───────────────────────────────────────────────────
+// ── Loader ────────────────────────────────────────────────────────────────────
 function PageLoader() {
   return (
     <div style={{
@@ -143,18 +141,18 @@ export default function App() {
                   <Route path="/crear-tienda"  element={<ProtectedStep requiredStep={8}><CreateStore /></ProtectedStep>} />
                   <Route path="/resultado"     element={<ProtectedStep requiredStep={9}><StoreResult /></ProtectedStep>} />
 
-                  {/* ── Suscripciones / pago ─────────────────────────────── */}
-                  <Route path="/planes"                              element={<SubscriptionPlansPage />} />
-                  <Route path="/dashboard/subscription/success"     element={<SubscriptionSuccess />} />
-                  <Route path="/dashboard/subscription/failure"     element={<SubscriptionFailure />} />
-                  <Route path="/dashboard/subscription/pending"     element={<SubscriptionPending />} />
+                  {/* ── Suscripciones ────────────────────────────────────── */}
+                  <Route path="/planes"                          element={<SubscriptionPlansPage />} />
+                  <Route path="/dashboard/subscription/success" element={<SubscriptionSuccess />} />
+                  <Route path="/dashboard/subscription/failure" element={<SubscriptionFailure />} />
+                  <Route path="/dashboard/subscription/pending" element={<SubscriptionPending />} />
 
                   {/* ── Tienda pública ───────────────────────────────────── */}
                   <Route path="/tienda/:slug" element={<StorePage />} />
                   <Route path="/transacciones" element={<MyStore />} />
                   <Route path="/mis-tiendas"   element={<MyStore />} />
 
-                  {/* ── Rutas protegidas (requieren login) ───────────────── */}
+                  {/* ── Rutas protegidas ─────────────────────────────────── */}
                   <Route element={<ProtectedRoute />}>
                     <Route path="/tiendas"             element={<MyStore />} />
                     <Route path="/ordenes"             element={<OrdersDashboard />} />
@@ -166,6 +164,7 @@ export default function App() {
                   <Route element={<SubscriptionGuard />}>
                     <Route path="/tienda/:slug/admin" element={<AdminLayout />}>
                       <Route index                      element={<Navigate to="dashboard" replace />} />
+                      <Route path="proveedores"         element={<SuppliersPage />} /> {/* ← nuevo */}
                       <Route path="IA"                  element={<IAAdmin />} />
                       <Route path="dashboard"           element={<Dashboard />} />
                       <Route path="subir-producto"      element={<UploadProduct />} />

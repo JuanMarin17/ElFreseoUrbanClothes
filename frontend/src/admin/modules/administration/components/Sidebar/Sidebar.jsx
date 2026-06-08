@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, PackagePlus, Users, ShoppingCart,
   BarChart3, AlertTriangle, LogOut, FileText, ArrowLeft,
+  Building2,
 } from 'lucide-react';
 import './Sidebar.css';
 import defaultLogo from '../../../../../assets/LogoVexios/banervexio.png';
@@ -13,7 +14,8 @@ const DEFAULT_MENU_ITEMS = [
   { path: '/tienda/:slug/admin/usuarios',       label: 'GESTIONAR USUARIOS', icon: Users           },
   { path: '/tienda/:slug/admin/pedidos',        label: 'VER PEDIDOS',        icon: ShoppingCart    },
   { path: '/tienda/:slug/admin/report',         label: 'INFORMES',           icon: BarChart3       },
-  { path: '/tienda/:slug/admin/alertas',        label: 'ALERTAS DE STOCK',   icon: AlertTriangle, alertKey: 'stock' },
+  { path: '/tienda/:slug/admin/alertas',        label: 'ALERTAS DE STOCK',   icon: AlertTriangle,  alertKey: 'stock' },
+  { path: '/tienda/:slug/admin/proveedores',    label: 'SUPPLIERS',          icon: Building2       },
   { path: '/tienda/:slug/admin/cms',            label: 'CONTENIDO CMS',      icon: FileText        },
 ];
 
@@ -34,7 +36,6 @@ const Sidebar = ({
     else navigate('/login');
   };
 
-  // Sustituir el parámetro :slug por el slug real
   const resolvedItems = menuItems.map((item) => ({
     ...item,
     path: storeSlug ? item.path.replace(':slug', storeSlug) : item.path,
@@ -79,7 +80,10 @@ const Sidebar = ({
                 <span className="nav-icon-wrapper">
                   <item.icon size={18} />
                   {showStockAlert && (
-                    <span className="stock-alert-dot" title={`${lowStockCount} productos con stock bajo`} />
+                    <span
+                      className="stock-alert-dot"
+                      title={`${lowStockCount} productos con stock bajo`}
+                    />
                   )}
                 </span>
                 <span>{item.label}</span>
