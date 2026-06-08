@@ -18,7 +18,7 @@
   transition: border-color .25s;
 }
 .vx-faq-item:hover { border-color: var(--vx-border2); }
-.vx-faq-item.open  { border-color: rgba(37,99,255,.28); }
+.vx-faq-item--open { border-color: rgba(37,99,255,.28); }
 
 .vx-faq-q {
   width: 100%;
@@ -37,7 +37,7 @@
   text-align: left;
   transition: color .2s;
 }
-.vx-faq-item.open .vx-faq-q { color: #3B82F6; }
+.vx-faq-item--open .vx-faq-q { color: #3B82F6; }
 
 .vx-faq-icon {
   font-size: 1.1rem;
@@ -46,14 +46,22 @@
   transition: transform .28s;
   line-height: 1;
 }
-.vx-faq-item.open .vx-faq-icon {
+.vx-faq-item--open .vx-faq-icon {
   transform: rotate(45deg);
   color: #2563FF;
 }
 
+/* Acordeón — oculto por defecto, visible al abrir */
 .vx-faq-a {
-  padding: 0 22px 18px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .3s ease, padding .3s ease;
+  padding: 0 22px;
   font-size: .865rem;
   color: #9CA3AF;
   line-height: 1.8;
+}
+.vx-faq-item--open .vx-faq-a {
+  max-height: 300px;
+  padding: 0 22px 18px;
 }

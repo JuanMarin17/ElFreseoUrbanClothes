@@ -175,6 +175,12 @@ export default function App() {
                       <Route path="report"              element={<Report />} />
                       <Route path="pedidos"             element={<OrdersManagement />} />
                       <Route path="alertas"             element={<ShockAlerts />} />
+                      <Route path="cms"                 element={<CMSEditor />} />
+                      <Route path="cms/about"           element={<CMSAbout />} />
+                      <Route path="cms/contact"         element={<CMSContact />} />
+                      <Route path="cms/locations"       element={<CMSLocations />} />
+                      <Route path="cms/returns"         element={<CMSReturns />} />
+                      <Route path="cms/faq"             element={<CMSFAQ />} />
                     </Route>
                   </Route>
 

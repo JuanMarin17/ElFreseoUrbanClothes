@@ -191,6 +191,12 @@
   color: rgba(255, 255, 255, 0.2);
 }
 
+/* Ocultar el ojo nativo del navegador (Chrome, Edge, Safari) */
+.vp-input-main::-ms-reveal,
+.vp-input-main::-ms-clear {
+  display: none !important;
+}
+
 .vp-eye-btn {
   background: none;
   border: none;

@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, PackagePlus, Users, ShoppingCart,
-  BarChart3, AlertTriangle, LogOut,
+  BarChart3, AlertTriangle, LogOut, FileText, ArrowLeft,
 } from 'lucide-react';
 import './Sidebar.css';
 import defaultLogo from '../../../../../assets/LogoVexios/banervexio.png';
@@ -14,6 +14,7 @@ const DEFAULT_MENU_ITEMS = [
   { path: '/tienda/:slug/admin/pedidos',        label: 'VER PEDIDOS',        icon: ShoppingCart    },
   { path: '/tienda/:slug/admin/report',         label: 'INFORMES',           icon: BarChart3       },
   { path: '/tienda/:slug/admin/alertas',        label: 'ALERTAS DE STOCK',   icon: AlertTriangle, alertKey: 'stock' },
+  { path: '/tienda/:slug/admin/cms',            label: 'CONTENIDO CMS',      icon: FileText        },
 ];
 
 const Sidebar = ({
@@ -59,6 +60,13 @@ const Sidebar = ({
 
       {/* ── Nav ──────────────────────────────────────────────────────── */}
       <nav className="sidebar-nav">
+        {storeSlug && (
+          <NavLink to={`/tienda/${storeSlug}`} className="nav-link back-to-store">
+            <ArrowLeft size={18} />
+            <span>VOLVER A LA TIENDA</span>
+          </NavLink>
+        )}
+
         <div className="nav-group">
           {resolvedItems.map((item) => {
             const showStockAlert = item.alertKey === 'stock' && lowStockCount > 0;

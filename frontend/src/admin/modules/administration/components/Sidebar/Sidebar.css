@@ -83,6 +83,21 @@
   height: 100%;
 }
 
+.back-to-store {
+  margin: 0 12px 12px;
+  border-radius: 8px;
+  border-right: none !important;
+  color: #6b7280 !important;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.back-to-store:hover {
+  color: #d1d5db !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
 .nav-group {
   display: flex;
   flex-direction: column;

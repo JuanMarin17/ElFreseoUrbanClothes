@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { uploadFile } from '../../../../utils/uploadService';
+import { uploadUserImage } from '../../../../utils/uploadService';
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api/v1';
 
@@ -98,6 +98,7 @@ function extractBackendError(err) {
 
   if (import.meta.env.DEV) {
     console.warn('[AuthError raw]', err?.response?.data);
+    if (raw?.errors) console.warn('[AuthError fields]', JSON.stringify(raw.errors, null, 2));
   }
 
   const validationMap = {
@@ -143,7 +144,7 @@ function extractBackendError(err) {
 
 const authService = {
 
-  uploadAvatar: (file) => uploadFile(file),
+  uploadAvatar: (file) => uploadUserImage(file),
 
   async login({ email, password }) {
     try {
@@ -171,9 +172,11 @@ const authService = {
 
   async register({ userName, email, password, phone, imageProfile }) {
     try {
-      const { data } = await API.post('/auth/register', {
-        userName, email, password, phone, imageProfile,
-      });
+      // El microservicio de usuarios valida phone como numérico → quitar +, espacios, guiones
+      const cleanPhone = phone ? phone.replace(/\D/g, '') : '';
+      const payload = { userName, email, password, phone: cleanPhone, imageProfile };
+      if (import.meta.env.DEV) console.log('[Register payload]', JSON.stringify(payload, null, 2));
+      const { data } = await API.post('/auth/register', payload);
       return data;
     } catch (err) {
       throw new Error(extractBackendError(err));
