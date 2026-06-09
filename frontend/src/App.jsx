@@ -4,7 +4,47 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import "./animations.css";
 
+import AdminLayout from "./admin/modules/administration/components/AdminLayout/AdminLayout.jsx";
+import Dashboard from "./admin/modules/administration/dashboard/Dashboard.jsx";
+import UploadProduct from "./admin/modules/administration/pages/UploadProduct/UploadProduct.jsx";
+import EditProduct from "./admin/modules/administration/pages/EditProduct/EditProduct.jsx";
+import InventaryStock from "./admin/modules/administration/pages/Inventary/InventaryStock.jsx";
+import StoreProductsAdmin from "./multi-tenant/pages/StoreProductsAdmin/StoreProductsAdmin.jsx";
+import Report from "./admin/modules/administration/pages/Report/Report.jsx";
+import IAAdmin from "./admin/modules/administration/pages/IAAdmin/AIAdmin.jsx";
+import OrdersManagement from "./admin/modules/administration/pages/OrdersManagement/OrdersManagement.jsx";
+import ShockAlerts from "./admin/modules/administration/pages/StockAlerts/StockAlert.jsx";
+import PromotionsDashboard from "./admin/modules/administration/promotions/PromotionsDashboards.jsx";
+
+/* ─── Auth ─── */
+import Login from "./admin/modules/auth/pages/Login/Login.jsx";
+import ForgotPassword from "./admin/modules/auth/pages/ForgotPassword/ForgotPassword.jsx";
+import NewPassword from "./admin/modules/auth/pages/NewPassword.jsx";
+import VerificationPage from "./admin/modules/auth/pages/VerificationPage.jsx";
+import VerifyCode from "./admin/modules/auth/pages/VerifyCode/VerifyCode.jsx";
+
+/* ─── Cliente ─── */
+import VexioLanding from "./client/modules/landingPage/pages/VexioLanding/VexioLanding.jsx";
+import HelpCenter from "./client/modules/help/pages/HelpCenter/HelpCenter.jsx";
+import SessionClosed from "./client/modules/MainPage/pages/SessionClosed.jsx";
+
+/* ─── Market ─── */
+import MarketPage from "./client/modules/MarketPage/Pages/MarketPage/MarketPage.jsx";
+import ProductPage from "./client/modules/ProductPage/ProductPage.jsx";
+
+/* ─── Account ─── */
+import AccountPage from "./client/modules/account/pages/AccountPage/AccountPage.jsx";
+
+/* ─── Guards ─── */
+import ProtectedStep from "./multi-tenant/components/ProtectStep.jsx";
+import { ProtectedRoute } from "./admin/modules/auth/pages/hook/ProtectedRoute.jsx";
+import { TokenGuard } from "./admin/modules/auth/pages/hook/TokenGuard.jsx";
+import { StoreProvider } from "./multi-tenant/pages/StoreContext.jsx";
+import StoreResult from "./multi-tenant/pages/StoreResult.jsx";
+import { AuthProvider } from "./admin/modules/auth/pages/hook/Useauth.jsx";
+
 import { AuthProvider }                            from "./admin/modules/auth/pages/hook/Useauth.jsx";
+
 import { AuthProvider as MultiTenantAuthProvider } from "./multi-tenant/context/AuthContext.jsx";
 import { StoreProvider }                           from "./multi-tenant/pages/StoreContext.jsx";
 import { ProtectedRoute }                          from "./admin/modules/auth/pages/hook/ProtectedRoute.jsx";
@@ -89,6 +129,32 @@ function PageLoader() {
   );
 }
 
+/* ─── Multi-tenant ─── */
+import CreateStore from "./multi-tenant/pages/CreateStore.jsx";
+import StepBasicPage from "./multi-tenant/pages/StepBasicPage.jsx";
+import StepLegalPage from "./multi-tenant/pages/StepLegalPage.jsx";
+import StepPaymentPage from "./multi-tenant/pages/StepPaymentPage.jsx";
+import SelectPlan from "./multi-tenant/pages/SelectPlan.jsx";
+import LayoutSelect from "./multi-tenant/components/SelectLayout/LayoutSelect.jsx";
+import CustomizationPanel from "./multi-tenant/components/CustomizationPanel.jsx";
+import ComponentCustomizer from "./multi-tenant/components/ComponentCustomizer.jsx";
+import WidgetsCustomizer from "./multi-tenant/components/WidgetsCustomizer.jsx";
+import OrdersDashboard from "./multi-tenant/components/OrdersDashboard.jsx";
+import MyStore from "./multi-tenant/pages/MyStore.jsx";
+import MyStoreLayout from "./multi-tenant/pages/MyStoreLayout.jsx"; // ← NUEVO
+import StorePage from "./multi-tenant/pages/StorePage.jsx";
+import Transactions from "./multi-tenant/pages/Transaction/Transaction.jsx";
+
+import ProductReviews from "./client/modules/reviews/ProductReviews.jsx";
+
+function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
   return (
@@ -97,6 +163,202 @@ export default function App() {
         <StoreProvider>
           <TokenGuard />
           <div className="main-container">
+
+            <AnimatePresence mode="wait">
+              <Routes key="main-content">
+                {/* ─── Públicas cliente ─── */}
+                <Route path="/" element={<VexioLanding />} />
+                <Route path="/landing" element={<VexioLanding />} />
+                <Route path="/market" element={<MarketPage />} />
+                <Route path="/products/:productId" element={<ProductPage />} />
+                <Route path="/reviews" element={<ProductReviews />} />
+
+                {/* ─── Account ─── */}
+                <Route path="/cuenta/*" element={<AccountPage />} />
+
+                {/* ─── Auth ─── */}
+                <Route
+                  path="/login"
+                  element={
+                    <div className="ayuda">
+                      <Login mode="login" />
+                    </div>
+                  }
+                />
+                <Route
+                  path="/login/register"
+                  element={
+                    <div className="ayuda">
+                      <Login mode="register" />
+                    </div>
+                  }
+                />
+                <Route
+                  path="/recuperar-contraseña"
+                  element={<ForgotPassword />}
+                />
+                <Route path="/verificar-codigo" element={<VerifyCode />} />
+                <Route path="/nueva-contraseña" element={<NewPassword />} />
+                <Route
+                  path="/verificacion-pagina"
+                  element={<VerificationPage />}
+                />
+
+                {/* ─── Ayuda ─── */}
+                <Route
+                  path="/ayuda"
+                  element={
+                    <div className="ayuda">
+                      <HelpCenter />
+                    </div>
+                  }
+                />
+                <Route
+                  path="/pedidos"
+                  element={
+                    <div className="ayuda">
+                      <HelpCenter />
+                    </div>
+                  }
+                />
+                <Route
+                  path="/pagos"
+                  element={
+                    <div className="ayuda">
+                      <HelpCenter />
+                    </div>
+                  }
+                />
+                <Route
+                  path="/devoluciones"
+                  element={
+                    <div className="ayuda">
+                      <HelpCenter />
+                    </div>
+                  }
+                />
+                <Route
+                  path="/seguridad"
+                  element={
+                    <div className="ayuda">
+                      <HelpCenter />
+                    </div>
+                  }
+                />
+
+                {/* ─── Misc ─── */}
+                <Route path="/session-cerrada" element={<SessionClosed />} />
+
+                {/* ─── Multi-tenant wizard ─── */}
+                <Route
+                  path="/plan"
+                  element={<SelectPlan showComponents={true} />}
+                />
+                <Route
+                  path="/crear-tienda/basico"
+                  element={<StepBasicPage />}
+                />
+                <Route path="/crear-tienda/legal" element={<StepLegalPage />} />
+                <Route
+                  path="/crear-tienda/pagos"
+                  element={<StepPaymentPage />}
+                />
+                <Route
+                  path="/layout"
+                  element={
+                    <ProtectedStep requiredStep={3}>
+                      <LayoutSelect />
+                    </ProtectedStep>
+                  }
+                />
+                <Route
+                  path="/customer"
+                  element={
+                    <ProtectedStep requiredStep={4}>
+                      <CustomizationPanel />
+                    </ProtectedStep>
+                  }
+                />
+                <Route
+                  path="/component"
+                  element={
+                    <ProtectedStep requiredStep={5}>
+                      <ComponentCustomizer />
+                    </ProtectedStep>
+                  }
+                />
+                <Route
+                  path="/widgets"
+                  element={
+                    <ProtectedStep requiredStep={6}>
+                      <WidgetsCustomizer />
+                    </ProtectedStep>
+                  }
+                />
+                <Route
+                  path="/crear-tienda"
+                  element={
+                    <ProtectedStep requiredStep={7}>
+                      <CreateStore />
+                    </ProtectedStep>
+                  }
+                />
+                <Route
+                  path="/resultado"
+                  element={
+                    <ProtectedStep requiredStep={8}>
+                      <StoreResult />
+                    </ProtectedStep>
+                  }
+                />
+
+                {/* ─── SuperAdmin layout ─────────────────────────────────────
+                    MyStoreLayout actúa como shell (Sidebar + Header + IA).
+                    Outlet renderiza MyStore o Transactions según la ruta.
+                ─────────────────────────────────────────────────────────── */}
+                <Route element={<MyStoreLayout />}>
+                  <Route path="/mis-tiendas" element={<MyStore />} />
+                  <Route path="/transacciones" element={<Transactions />} />
+                </Route>
+
+                {/* ─── Rutas protegidas ─── */}
+                <Route element={<ProtectedRoute />}>
+                  <Route
+                    path="/inventario"
+                    element={<Navigate to="/admin/inventario" replace />}
+                  />
+                  <Route path="/ordenes" element={<OrdersDashboard />} />
+                </Route>
+
+                <Route path="/tienda/:slug" element={<StorePage />} />
+
+                {/* ─── Admin normal ─── */}
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="IA" element={<IAAdmin />} />
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="subir-producto" element={<UploadProduct />} />
+                  <Route path="editar-producto/:id" element={<EditProduct />} />
+                  <Route path="inventario" element={<InventaryStock />} />
+                  <Route path="usuarios" element={<Dashboard />} />
+                  <Route path="promociones" element={<PromotionsDashboard />} />
+                  <Route path="report" element={<Report />} />
+                  <Route path="pedidos" element={<OrdersManagement />} />
+                  <Route path="alertas" element={<ShockAlerts />} />
+                </Route>
+
+                {/* ─── Tienda Admin ─── */}
+                <Route element={<ProtectedRoute />}>
+                  <Route
+                    path="/mi-tienda/productos"
+                    element={<StoreProductsAdmin />}
+                  />
+                </Route>
+
+                {/* ─── Fallback ─── */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </AnimatePresence>
             <Suspense fallback={<PageLoader />}>
               <AnimatePresence mode="wait">
                 <Routes key="main-content">
@@ -195,3 +457,5 @@ export default function App() {
     </AuthProvider>
   );
 }
+
+export default App;
