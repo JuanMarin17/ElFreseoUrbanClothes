@@ -20,7 +20,7 @@ export default function SellerCard({ seller }) {
         <div className="vx-seller__meta">
           <i
             className="fa-solid fa-star"
-            style={{ color: "var(--vx-amber)", fontSize: "0.72rem" }}
+            style={{ color: 'var(--vx-amber)', fontSize: '0.72rem' }}
             aria-hidden="true"
           />
           {seller.rating}
@@ -29,7 +29,9 @@ export default function SellerCard({ seller }) {
         </div>
       </div>
 
-      <button className="vx-btn vx-btn--ghost vx-btn--sm">Seguir</button>
+      <button className="vx-btn vx-btn--ghost vx-btn--sm">
+        Seguir
+      </button>
     </div>
   );
 }

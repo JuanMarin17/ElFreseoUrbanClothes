@@ -1,12 +1,22 @@
 /**
  * StockIndicator
- * Indicador visual del estado de stock del producto.
- * Maneja tres estados: sin stock, stock bajo (≤5) y stock disponible.
+ * Indicador de stock dinámico según la variante activa.
  *
  * Props:
- *  - stock {number} Unidades disponibles
+ *  - stock         {number}       Unidades de la variante activa
+ *  - minStock      {number}       Mínimo de stock definido (viene del backend)
+ *  - activeVariant {object|null}  Si es null, no hay combinación disponible
  */
-export default function StockIndicator({ stock }) {
+export default function StockIndicator({ stock, minStock = 5, activeVariant }) {
+  // No se encontró variante para la combinación seleccionada
+  if (!activeVariant) {
+    return (
+      <span className="vx-stock vx-stock--out" role="status">
+        Combinación no disponible
+      </span>
+    );
+  }
+
   if (stock === 0) {
     return (
       <span className="vx-stock vx-stock--out" role="status">
@@ -15,7 +25,8 @@ export default function StockIndicator({ stock }) {
     );
   }
 
-  if (stock <= 5) {
+  // Stock bajo: igual o menor al minStock del backend
+  if (stock <= minStock) {
     return (
       <span className="vx-stock vx-stock--low" role="status">
         ¡Solo {stock} {stock === 1 ? "unidad disponible" : "disponibles"}!

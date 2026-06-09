@@ -306,6 +306,12 @@ body {
   height: 100%;
 }
 
+.vx-gallery__placeholder-label {
+  font-size: 0.82rem;
+  color: var(--vx-muted2);
+  font-family: var(--vx-font-body);
+}
+
 .vx-gallery__placeholder-icon {
   width: 80px;
   height: 80px;
@@ -506,12 +512,50 @@ body {
   color: var(--vx-green);
 }
 
+.vx-price-block__brand {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--vx-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 8px;
+}
+
+.vx-price-block__cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.vx-price-block__cat-pill {
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: var(--vx-cyan-dim);
+  border: 1px solid var(--vx-cyan-mid);
+  color: var(--vx-muted);
+}
+
 .vx-price-block__note {
   font-size: 0.8rem;
   color: var(--vx-muted);
 }
 
 .vx-price-block__note span { color: var(--vx-green); font-weight: 600; }
+
+.vx-desc__brand {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--vx-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
 /* ── Selector de variantes ── */
 .vx-variants { margin-bottom: 20px; }

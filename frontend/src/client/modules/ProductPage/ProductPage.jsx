@@ -1,30 +1,28 @@
 import { useParams, Link } from "react-router-dom";
 
-import "../ProductPage.css";
-import { useProduct } from "../useProduct";
+import "./ProductPage.css";
+import { useProduct } from "./service/useProduct";
 
-import SkeletonHero from "./SkeletonHero";
-import ProductGallery from "./ProductGallery";
-import ProductRating from "./ProductRating";
-import ProductPrice from "./ProductPrice";
-import ColorSelector from "./ColorSelector";
-import VariantSelector from "./VariantSelector";
-import QuantityControl from "./QuantityControl";
-import StockIndicator from "./StockIndicator";
-import ProductActions from "./ProductActions";
-import TrustStrip from "./TrustStrip";
-import SellerCard from "./SellerCard";
-import ProductTabs from "./ProductTabs";
-import TabDescription from "./TabDescription";
-import TabSpecs from "./TabSpecs";
-import TabReviews from "./TabReviews";
-import TabQA from "./TabQA";
-import RelatedProducts from "./RelatedProducts";
-import { CartToast, StickyCTA } from "./CartToast";
+import SkeletonHero from "./components/SkeletonHero";
+import ProductGallery from "./components/ProductGallery";
+import ProductPrice from "./components/Productprice";
+import ColorSelector from "./components/ColorSelector";
+import SizeSelector from "./components/SizeSelector";
+import QuantityControl from "./components/QuantityControl";
+import StockIndicator from "./components/Stockindicator";
+import ProductActions from "./components/Productactions";
+import Trusptrip from "./components/TruspTrip";
+import ProductTabs from "./components/Producttabs";
+import TabDescription from "./components/Tabsdescription";
+import TabSpecs from "./components/Tabspecs";
+import Tabreviews from "./components/Tabreviews";
+import TabQA from "./components/TabqA";
+import RelatedProduct from "./components/Relatedproduct";
+import { CartToast, StickyCTA } from "./components/Carttoast";
 
-/* ─────────────────────────────────────────────
-   Definición de tabs (sin datos de negocio)
-   ───────────────────────────────────────────── */
+/* ──────────────────────────────────────────────
+   Tabs estáticos — sin datos de negocio
+   ────────────────────────────────────────────── */
 const TABS = [
   { id: "description", label: "Descripción" },
   { id: "specs", label: "Especificaciones" },
@@ -32,34 +30,49 @@ const TABS = [
   { id: "qa", label: "Preguntas" },
 ];
 
-/* ─────────────────────────────────────────────
-   ProductPage — componente orquestador
-   ───────────────────────────────────────────── */
+/* ──────────────────────────────────────────────
+   Items de confianza — estáticos de negocio,
+   no vienen del backend
+   ────────────────────────────────────────────── */
+const TRUST_ITEMS = [
+  { id: 1, icon: "fa-solid fa-shield-halved", label: "Garantía 30 días" },
+  { id: 2, icon: "fa-solid fa-rotate-left", label: "Devolución gratis" },
+  { id: 3, icon: "fa-solid fa-truck-fast", label: "Envío express" },
+];
+
+/* ──────────────────────────────────────────────
+   ProductPage — orquestador
+   ────────────────────────────────────────────── */
 export default function ProductPage() {
   const { productId } = useParams();
 
   const {
-    // Datos del servidor
+    // Datos
     product,
     reviews,
     related,
     hasMoreReviews,
 
-    // Selecciones de UI
+    // Selecciones
     selectedImage,
     selectedColor,
-    selectedVariant,
+    selectedSize,
+    activeVariant,
     quantity,
     activeTab,
     wishlisted,
 
-    // Setters de UI
+    // Precio y stock dinámicos (según variante activa)
+    currentStock,
+    currentPriceFormatted,
+
+    // Setters
     setSelectedImage,
-    setSelectedColor,
-    setSelectedVariant,
     setActiveTab,
 
     // Acciones
+    handleSelectColor,
+    handleSelectSize,
     incrementQty,
     decrementQty,
     handleAddToCart,
@@ -73,7 +86,7 @@ export default function ProductPage() {
     cartSuccess,
   } = useProduct(productId);
 
-  /* ── Estado de error ── */
+  /* ── Error ── */
   if (error) {
     return (
       <div className="vx-page vx-noise">
@@ -110,6 +123,7 @@ export default function ProductPage() {
               VEXIO
             </Link>
 
+            {/* Breadcrumb dinámico con datos reales del backend */}
             {!loading && product && (
               <ol
                 className="vx-nav__breadcrumb"
@@ -121,14 +135,21 @@ export default function ProductPage() {
                 <li aria-hidden="true" className="vx-nav__breadcrumb-sep">
                   ›
                 </li>
-                <li>
-                  <Link to={`/categories/${product.categorySlug}`}>
-                    {product.categoryName}
-                  </Link>
-                </li>
-                <li aria-hidden="true" className="vx-nav__breadcrumb-sep">
-                  ›
-                </li>
+                {/* Primera categoría como enlace */}
+                {product.categories[0] && (
+                  <>
+                    <li>
+                      <Link
+                        to={`/categories/${product.categories[0].toLowerCase()}`}
+                      >
+                        {product.categories[0]}
+                      </Link>
+                    </li>
+                    <li aria-hidden="true" className="vx-nav__breadcrumb-sep">
+                      ›
+                    </li>
+                  </>
+                )}
                 <li className="vx-nav__breadcrumb-current" aria-current="page">
                   {product.name}
                 </li>
@@ -136,19 +157,11 @@ export default function ProductPage() {
             )}
 
             <div className="vx-nav__actions">
-              <Link
-                to="/wishlist"
-                className="vx-btn vx-btn--ghost vx-btn--sm"
-                aria-label="Mi lista de deseos"
-              >
+              <Link to="/wishlist" className="vx-btn vx-btn--ghost vx-btn--sm">
                 <i className="fa-regular fa-heart" aria-hidden="true" />{" "}
                 Wishlist
               </Link>
-              <Link
-                to="/cart"
-                className="vx-btn vx-btn--primary vx-btn--sm"
-                aria-label="Ver carrito"
-              >
+              <Link to="/cart" className="vx-btn vx-btn--primary vx-btn--sm">
                 <i className="fa-solid fa-bag-shopping" aria-hidden="true" />{" "}
                 Carrito
               </Link>
@@ -167,66 +180,60 @@ export default function ProductPage() {
               <SkeletonHero />
             ) : (
               <div className="vx-hero__grid">
-                {/* Galería */}
+                {/* Galería con imágenes de Cloudinary */}
                 <ProductGallery
                   images={product.images}
                   selectedImage={selectedImage}
                   onSelect={setSelectedImage}
+                  productName={product.name}
                 />
 
                 {/* Panel de información */}
                 <div className="vx-info">
-                  <p className="vx-info__category vx-anim vx-anim--d1">
-                    {product.categoryName}
-                  </p>
-
+                  {/* Nombre del producto */}
                   <h1 className="vx-info__title vx-anim vx-anim--d1">
-                    {product.titlePrefix}{" "}
-                    {product.titleHighlight && (
-                      <span>{product.titleHighlight}</span>
-                    )}{" "}
-                    {product.titleSuffix}
+                    {product.name}
                   </h1>
 
-                  <ProductRating
-                    rating={product.rating}
-                    reviewCount={product.reviewCount}
-                    soldCount={product.soldCount}
-                    viewersNow={product.viewersNow}
-                  />
-
+                  {/* Precio dinámico + marca + categorías */}
                   <ProductPrice
-                    priceFormatted={product.priceFormatted}
-                    originalPriceFormatted={product.originalPriceFormatted}
-                    discountLabel={product.discountLabel}
-                    installmentText={product.installmentText}
-                    shippingText={product.shippingText}
+                    priceFormatted={currentPriceFormatted}
+                    brand={product.brand}
+                    categories={product.categories}
                   />
 
+                  {/* Selector de colores (extraídos de variants) */}
                   <ColorSelector
                     colors={product.colors}
                     selected={selectedColor}
-                    onSelect={setSelectedColor}
+                    onSelect={handleSelectColor}
                   />
 
-                  <VariantSelector
-                    label={product.variantLabel ?? "Edición"}
-                    variants={product.variants}
-                    selected={selectedVariant}
-                    onSelect={setSelectedVariant}
+                  {/* Selector de tallas (extraídas de variants) */}
+                  <SizeSelector
+                    sizes={product.sizes}
+                    selected={selectedSize}
+                    onSelect={handleSelectSize}
                   />
 
+                  {/* Control de cantidad */}
                   <QuantityControl
                     value={quantity}
                     onIncrement={incrementQty}
                     onDecrement={decrementQty}
-                    max={product.stock}
+                    max={currentStock}
                   />
 
-                  <StockIndicator stock={product.stock} />
+                  {/* Stock dinámico de la variante activa */}
+                  <StockIndicator
+                    stock={currentStock}
+                    minStock={activeVariant?.minStock ?? 5}
+                    activeVariant={activeVariant}
+                  />
 
+                  {/* CTA: carrito, comprar, wishlist */}
                   <ProductActions
-                    stock={product.stock}
+                    stock={currentStock}
                     cartLoading={cartLoading}
                     wishlisted={wishlisted}
                     onAddToCart={handleAddToCart}
@@ -234,9 +241,8 @@ export default function ProductPage() {
                     onToggleWishlist={handleToggleWishlist}
                   />
 
-                  <TrustStrip items={product.trustItems} />
-
-                  <SellerCard seller={product.seller} />
+                  {/* Garantías — datos estáticos de negocio */}
+                  <TrustStrip items={TRUST_ITEMS} />
                 </div>
               </div>
             )}
@@ -244,7 +250,7 @@ export default function ProductPage() {
         </section>
 
         {/* ══════════════════════════════
-            TABS — Descripción / Specs / Reseñas / Q&A
+            TABS
             ══════════════════════════════ */}
         {!loading && product && (
           <section className="vx-body" aria-label="Información detallada">
@@ -260,13 +266,13 @@ export default function ProductPage() {
               {activeTab === "description" && (
                 <TabDescription
                   description={product.description}
-                  features={product.features}
-                  quickSpecs={product.quickSpecs}
+                  brand={product.brand}
+                  categories={product.categories}
                 />
               )}
 
               {activeTab === "specs" && (
-                <TabSpecs specGroups={product.specGroups} />
+                <TabSpecs specGroups={product.specGroups ?? []} />
               )}
 
               {activeTab === "reviews" && (
@@ -280,14 +286,12 @@ export default function ProductPage() {
                 />
               )}
 
-              {activeTab === "qa" && <TabQA qaItems={product.qaItems} />}
+              {activeTab === "qa" && <TabQA qaItems={product.qaItems ?? []} />}
             </div>
           </section>
         )}
 
-        {/* ══════════════════════════════
-            PRODUCTOS RELACIONADOS
-            ══════════════════════════════ */}
+        {/* Productos relacionados */}
         {!loading && <RelatedProducts products={related} />}
       </main>
 
@@ -315,13 +319,11 @@ export default function ProductPage() {
         </div>
       </footer>
 
-      {/* ══════════════════════════════
-          MOBILE — CTA Sticky + Toast
-          ══════════════════════════════ */}
+      {/* CTA sticky mobile */}
       {!loading && product && (
         <StickyCTA
-          priceFormatted={product.priceFormatted}
-          stock={product.stock}
+          priceFormatted={currentPriceFormatted}
+          stock={currentStock}
           cartLoading={cartLoading}
           wishlisted={wishlisted}
           onAddToCart={handleAddToCart}
@@ -329,6 +331,7 @@ export default function ProductPage() {
         />
       )}
 
+      {/* Toast de confirmación */}
       <CartToast visible={cartSuccess} />
     </div>
   );
