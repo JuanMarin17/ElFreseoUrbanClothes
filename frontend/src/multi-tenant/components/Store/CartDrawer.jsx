@@ -18,7 +18,14 @@ function CartItem({ item, onIncrease, onDecrease, onRemove, busy }) {
           <img src={item.productImageUrl} alt={item.productName} />
         ) : (
           <div className="cd-item__img-placeholder">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
               <rect x="3" y="3" width="18" height="18" rx="2" />
               <circle cx="8.5" cy="8.5" r="1.5" />
               <polyline points="21 15 16 10 5 21" />
@@ -29,9 +36,7 @@ function CartItem({ item, onIncrease, onDecrease, onRemove, busy }) {
 
       <div className="cd-item__info">
         <p className="cd-item__name">{item.productName}</p>
-        {item.productSku && (
-          <p className="cd-item__sku">{item.productSku}</p>
-        )}
+        {item.productSku && <p className="cd-item__sku">{item.productSku}</p>}
 
         {/* Alerta de cambio de precio */}
         {item.priceChanged && item.currentPrice != null && (
@@ -48,14 +53,18 @@ function CartItem({ item, onIncrease, onDecrease, onRemove, busy }) {
               onClick={() => onDecrease(item.cartItemId, item.quantity - 1)}
               disabled={isLoading}
               aria-label="Reducir cantidad"
-            >−</button>
+            >
+              −
+            </button>
             <span className="cd-qty__val">{item.quantity}</span>
             <button
               className="cd-qty__btn"
               onClick={() => onIncrease(item.cartItemId, item.quantity + 1)}
               disabled={isLoading}
               aria-label="Aumentar cantidad"
-            >+</button>
+            >
+              +
+            </button>
           </div>
 
           <span className="cd-item__subtotal">{formatCOP(item.subtotal)}</span>
@@ -68,7 +77,15 @@ function CartItem({ item, onIncrease, onDecrease, onRemove, busy }) {
         disabled={isLoading}
         aria-label="Eliminar producto"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        >
           <line x1="18" y1="6" x2="6" y2="18" />
           <line x1="6" y1="6" x2="18" y2="18" />
         </svg>
@@ -79,9 +96,15 @@ function CartItem({ item, onIncrease, onDecrease, onRemove, busy }) {
 
 /* ── CartDrawer ───────────────────────────────────────────── */
 export default function CartDrawer({
-  isOpen, onClose,
-  cart, loading, itemLoading, error,
-  onUpdateQuantity, onRemoveItem, onClearCart,
+  isOpen,
+  onClose,
+  cart,
+  loading,
+  itemLoading,
+  error,
+  onUpdateQuantity,
+  onRemoveItem,
+  onClearCart,
   onClearError,
 }) {
   // Bloquear scroll del body mientras está abierto
@@ -91,13 +114,16 @@ export default function CartDrawer({
     } else {
       document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   const items = cart?.items ?? [];
   const subtotal = cart?.subtotal ?? 0;
   const hasPriceChanges = cart?.hasPriceChanges ?? false;
-  const isLoggedIn = !!localStorage.getItem("jwt") && localStorage.getItem("jwt") !== "null";
+  const isLoggedIn =
+    !!localStorage.getItem("jwt") && localStorage.getItem("jwt") !== "null";
 
   return (
     <>
@@ -109,8 +135,10 @@ export default function CartDrawer({
       />
 
       {/* Panel */}
-      <aside className={`cd-panel ${isOpen ? "cd-panel--open" : ""}`} aria-label="Carrito de compras">
-
+      <aside
+        className={`cd-panel ${isOpen ? "cd-panel--open" : ""}`}
+        aria-label="Carrito de compras"
+      >
         {/* Header */}
         <div className="cd-header">
           <div className="cd-header__left">
@@ -119,8 +147,18 @@ export default function CartDrawer({
               <span className="cd-header__count">{cart?.totalItems ?? 0}</span>
             )}
           </div>
-          <button className="cd-close" onClick={onClose} aria-label="Cerrar carrito">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <button
+            className="cd-close"
+            onClick={onClose}
+            aria-label="Cerrar carrito"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
@@ -130,7 +168,14 @@ export default function CartDrawer({
         {/* Alerta cambio de precios */}
         {hasPriceChanges && (
           <div className="cd-price-alert">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <circle cx="12" cy="12" r="10" />
               <line x1="12" y1="8" x2="12" y2="12" />
               <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -152,13 +197,24 @@ export default function CartDrawer({
           {!isLoggedIn ? (
             <div className="cd-empty">
               <div className="cd-empty__icon">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+                <svg
+                  width="36"
+                  height="36"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                >
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
                 </svg>
               </div>
-              <p className="cd-empty__title">Inicia sesión para usar el carrito</p>
-              <p className="cd-empty__sub">Tu carrito se guarda por tienda en tu cuenta.</p>
+              <p className="cd-empty__title">
+                Inicia sesión para usar el carrito
+              </p>
+              <p className="cd-empty__sub">
+                Tu carrito se guarda por tienda en tu cuenta.
+              </p>
             </div>
           ) : loading && items.length === 0 ? (
             <div className="cd-loading">
@@ -168,7 +224,14 @@ export default function CartDrawer({
           ) : items.length === 0 ? (
             <div className="cd-empty">
               <div className="cd-empty__icon">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+                <svg
+                  width="36"
+                  height="36"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                >
                   <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
                   <line x1="3" y1="6" x2="21" y2="6" />
                   <path d="M16 10a4 4 0 01-8 0" />
@@ -185,7 +248,9 @@ export default function CartDrawer({
                   item={item}
                   busy={itemLoading}
                   onIncrease={(id, qty) => onUpdateQuantity(id, qty)}
-                  onDecrease={(id, qty) => qty === 0 ? onRemoveItem(id) : onUpdateQuantity(id, qty)}
+                  onDecrease={(id, qty) =>
+                    qty === 0 ? onRemoveItem(id) : onUpdateQuantity(id, qty)
+                  }
                   onRemove={onRemoveItem}
                 />
               ))}
@@ -200,11 +265,22 @@ export default function CartDrawer({
               <span className="cd-total__label">Subtotal</span>
               <span className="cd-total__value">{formatCOP(subtotal)}</span>
             </div>
-            <p className="cd-total__note">Envío e impuestos calculados al finalizar</p>
+            <p className="cd-total__note">
+              Envío e impuestos calculados al finalizar
+            </p>
 
             <button className="cd-btn-checkout">
               Proceder al pago
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <line x1="5" y1="12" x2="19" y2="12" />
                 <polyline points="12 5 19 12 12 19" />
               </svg>

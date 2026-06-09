@@ -50,6 +50,7 @@ const HeaderMarket = () => {
           <Link to="/catalogo" className="nav-link">CATÁLOGO</Link>
           <Link to="/ayuda" className="nav-link">AYUDA</Link>
           <Link to="/market" className="nav-link nav-link--accent">HOME</Link>
+          <Link to="/plan" className='nav-link'>CREAR TIENDA</Link>
         </nav>
 
         {/* Acciones */}

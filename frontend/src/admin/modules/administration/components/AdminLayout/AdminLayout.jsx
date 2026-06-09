@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { useState } from 'react';
+import { Outlet, useParams } from 'react-router-dom';
 import Sidebar from '../Sidebar/Sidebar';
 import AdminHeader from '../AdminHeader/AdminHeader';
 import IAAdmin from '../../pages/IAAdmin/AIAdmin';
@@ -7,10 +7,11 @@ import './AdminLayout.css';
 
 const AdminLayout = () => {
   const [isAiOpen, setIsAiOpen] = useState(false);
+  const { slug } = useParams();
 
   return (
     <div className="admin-terminal-wrapper">
-      <Sidebar />
+      <Sidebar storeSlug={slug} />
 
       <div className="admin-main-section">
         <AdminHeader

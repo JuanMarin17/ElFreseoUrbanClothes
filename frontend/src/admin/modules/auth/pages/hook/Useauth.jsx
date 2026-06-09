@@ -46,7 +46,13 @@ export function AuthProvider({ children }) {
       let imageProfile = import.meta.env.VITE_DEFAULT_AVATAR || DEFAULT_AVATAR;
 
       if (avatarFile) {
-        imageProfile = await authService.uploadAvatar(avatarFile);
+        try {
+          // El upload requiere JWT; si aún no existe (registro) falla silenciosamente
+          // y se usa el avatar por defecto. El usuario puede actualizarlo desde su perfil.
+          imageProfile = await authService.uploadAvatar(avatarFile);
+        } catch {
+          // upload fallido → avatar por defecto, el registro continúa
+        }
       }
 
       await authService.register({ userName, email, password, phone, imageProfile });

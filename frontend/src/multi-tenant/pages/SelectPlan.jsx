@@ -27,27 +27,28 @@ const plans = [
   },
 ];
 
-const isAuthenticated = () => !!localStorage.getItem('jwt');
+const isAuthenticated = () => !!localStorage.getItem("jwt");
 
 export default function SelectPlan({ showComponents }) {
-  const { state, completeStep, resetStep } = useStore();
+  const { state, completeStep } = useStore();
   const nav = useNavigate();
   const [selectedId, setSelectedId] = useState(state.plan?.id ?? null);
 
   const handleSelect = (plan) => {
     if (!isAuthenticated()) {
-      sessionStorage.setItem('pendingPlan', plan.id);
-      nav('/login');
+      sessionStorage.setItem("pendingPlan", plan.id);
+      nav("/login");
       return;
     }
+
     setSelectedId(plan.id);
+    // Guardar plan en el contexto del wizard; el pago se hace al final del wizard
+    // (en CreateStore, cuando ya tenemos el storeId real como tenantId)
     completeStep(1, plan);
     nav("/crear-tienda/basico");
   };
 
-  const handleBack = () => {
-    nav('/market'); // ← siempre va al inicio
-  };
+  const handleBack = () => nav("/market");
 
   return (
     <div className="plan-container">
@@ -87,6 +88,7 @@ export default function SelectPlan({ showComponents }) {
           </motion.div>
         ))}
       </div>
+
     </div>
   );
 }

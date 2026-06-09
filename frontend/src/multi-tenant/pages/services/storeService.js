@@ -39,7 +39,9 @@ async function request(url, options = {}) {
   body = ct.includes("application/json") ? await res.json() : await res.text();
 
   if (!res.ok) {
-    if (res.status === 404) return null;
+    if (res.status === 404 && res.message.includes("no tiene configuración")) {
+      return null; // o {}
+    }
     const message =
       typeof body === "object"
         ? (body.message ?? `Error ${res.status}`)
@@ -128,6 +130,14 @@ export async function getStoresByUser(userId) {
  */
 export async function validateAccess(storeId, userId) {
   return request(`${BASE_URL}/${storeId}/access/${userId}`);
+}
+
+/**
+ * GET /stores/:storeId/isOwner/:userId
+ * Respuesta: true | false
+ */
+export async function checkIsOwner(storeId, userId) {
+  return request(`${BASE_URL}/${storeId}/isOwner/${userId}`);
 }
 
 // ════════════════════════════════════════════════════════════════════════════

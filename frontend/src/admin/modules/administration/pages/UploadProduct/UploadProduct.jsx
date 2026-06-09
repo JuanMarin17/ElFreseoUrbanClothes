@@ -287,10 +287,10 @@ const UploadProduct = () => {
           img.previewUrl === previewUrl ? { ...img, cloudinaryUrl, uploading: false } : img
         ),
       }));
-    } catch {
+    } catch (e){
       URL.revokeObjectURL(previewUrl);
       setProducto(prev => ({ ...prev, imagenes: prev.imagenes.filter(img => img.previewUrl !== previewUrl) }));
-      setError("Error al subir la imagen. Intenta de nuevo.");
+      setError("Error al subir la imagen. Intenta de nuevo." + e);
     }
   };
 

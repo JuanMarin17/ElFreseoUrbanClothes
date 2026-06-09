@@ -1,7 +1,7 @@
 import { cf } from './storeUtils.jsx';
 
 export default function StoreHero({ banner, theme }) {
-  const { accent, btnR, fT, desc, titleC, paraC, pageBg, isDark, isMin, isUrb, isCls } = theme;
+  const { accent, btnR, desc, titleC, paraC, pageBg, isDark, isMin, isUrb } = theme;
   const bannerImageUrl = banner._imageUrl ?? null;
 
   /* ── MINIMALISTA ─────────────────────────────────────────── */
@@ -32,7 +32,7 @@ export default function StoreHero({ banner, theme }) {
         <h1 style={{
           fontFamily: `"${cf(banner.font)}",sans-serif`,
           fontSize: "clamp(2.2rem,5vw,3.6rem)",
-          color: titleC ?? "#f1f5f9",
+          color: isDark ? titleC : "#333",
           lineHeight: 1.0,
           margin: 0,
           letterSpacing: -1,

@@ -40,12 +40,17 @@ export async function uploadFile(file) {
 }
 
 /**
+ * Sube una imagen de USUARIO (avatar / foto de perfil).
+ * POST /upload?folder=usuarios
+ */
+export async function uploadUserImage(file) {
+  return postImage("usuarios", file);
+}
+
+/**
  * Sube una imagen de TIENDA (logo, banner, etc.).
  * POST /upload?folder=<folder>
  * Carpetas disponibles: "stores/logos" | "stores/banners" | "general"
- * @param {File} file
- * @param {string} folder
- * @returns {Promise<string>} URL de Cloudinary
  */
 export async function uploadStoreImage(file, folder = "general") {
   return postImage(folder, file);

@@ -1,0 +1,102 @@
+.settings-modal {
+  position: fixed;
+  top: 60px;
+  right: 16px;
+  z-index: 901;
+  width: 300px;
+  background: #0d1017;
+  border: 1px solid #1e2230;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  font-family: 'Inter', sans-serif;
+}
+
+.settings-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #1e2230;
+}
+
+.settings-modal__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.settings-modal__user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #1e2230;
+}
+
+.settings-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #1e2230;
+  border: 1px solid #252e45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #6366f1;
+  flex-shrink: 0;
+}
+
+.settings-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 2px;
+}
+
+.settings-user-role {
+  font-size: 10px;
+  color: #475569;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.settings-list {
+  list-style: none;
+  padding: 8px 0;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.settings-item:hover { background: #111827; }
+
+.settings-icon {
+  color: #475569;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.settings-item-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-bottom: 2px;
+}
+
+.settings-item-desc {
+  font-size: 10px;
+  color: #475569;
+}

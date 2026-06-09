@@ -4,6 +4,12 @@
   box-sizing: border-box;
 }
 
+/* Ocultar el ojo nativo del navegador en TODOS los inputs de contraseña */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none !important;
+}
+
 body {
   width: 100%;
   min-height: 100vh;

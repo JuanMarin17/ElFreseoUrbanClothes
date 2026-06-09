@@ -191,6 +191,12 @@
   color: rgba(255, 255, 255, 0.2);
 }
 
+/* Ocultar el ojo nativo del navegador (Chrome, Edge, Safari) */
+.vp-input-main::-ms-reveal,
+.vp-input-main::-ms-clear {
+  display: none !important;
+}
+
 .vp-eye-btn {
   background: none;
   border: none;
@@ -543,4 +549,31 @@
   opacity: 0.4;
   cursor: not-allowed;
   border-color: rgba(255,77,79,0.3);
+}
+.avatar-upload-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.avatar-remove-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: background 0.2s;
+}
+
+.avatar-remove-btn:hover {
+  background: #dc2626;
 }

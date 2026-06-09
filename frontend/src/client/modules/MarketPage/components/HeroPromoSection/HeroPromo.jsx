@@ -25,7 +25,7 @@ export default function HeroPromoSection() {
 
           <h1 className="hero-title">
             Descubre miles de tiendas<br />
-            <span className="hero-title--cyan">y encuentra lo que te encanta</span>
+            <span className="hero-title--cyan">y encuentra lo que te gusta</span>
           </h1>
 
           <p className="hero-subtitle">
