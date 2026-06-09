@@ -3,7 +3,7 @@
  * Integración con el microservicio de productos.
  */
 
-const BASE = "http://localhost:8080/api/v1";
+const BASE = "http://46.225.21.146:8080/api/v1";
 
 // ─── Headers ─────────────────────────────────────────────────────────────────
 const buildHeaders = (extra = {}) => {
@@ -12,11 +12,11 @@ const buildHeaders = (extra = {}) => {
     Accept: "application/json",
   };
 
-  const jwt     = localStorage.getItem("jwt");
+  const jwt = localStorage.getItem("jwt");
   const storeId = localStorage.getItem("storeId");
 
-  if (jwt     && jwt     !== "null") h["Authorization"] = `Bearer ${jwt}`;
-  if (storeId && storeId !== "null") h["X-Store-Id"]    = storeId;
+  if (jwt && jwt !== "null") h["Authorization"] = `Bearer ${jwt}`;
+  if (storeId && storeId !== "null") h["X-Store-Id"] = storeId;
 
   return { ...h, ...extra };
 };
@@ -37,7 +37,11 @@ async function request(method, path, { body, params, extraHeaders } = {}) {
   if (res.status === 204) return [];
 
   let data;
-  try { data = await res.json(); } catch { data = {}; }
+  try {
+    data = await res.json();
+  } catch {
+    data = {};
+  }
 
   if (!res.ok) {
     const msg = data?.message ?? data?.error ?? `Error ${res.status}`;
@@ -54,27 +58,29 @@ async function request(method, path, { body, params, extraHeaders } = {}) {
 // PRODUCTOS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export const getProducts          = (page = 0, size = 10) =>
+export const getProducts = (page = 0, size = 10) =>
   request("GET", "/products", { params: { page, size } });
 
-export const getActiveProducts    = (page = 0, size = 10) =>
+export const getActiveProducts = (page = 0, size = 10) =>
   request("GET", "/products/active", { params: { page, size } });
 
 export const getAllProducts = (storeId) => {
   const id = storeId ?? localStorage.getItem("storeId");
-  if (!id || id === "null") throw new Error("Se requiere el storeId para obtener productos.");
+  if (!id || id === "null")
+    throw new Error("Se requiere el storeId para obtener productos.");
   return request("GET", "/products", { extraHeaders: { "X-Store-Id": id } });
 };
 
-export const getAllActiveProducts  = (storeId) => {
+export const getAllActiveProducts = (storeId) => {
   const id = storeId ?? localStorage.getItem("storeId");
   return request("GET", "/products/all/active", {
     ...(id && id !== "null" ? { extraHeaders: { "X-Store-Id": id } } : {}),
   });
 };
-export const getNewProducts       = () => request("GET", "/products/new");
-export const getNewActiveProducts = () => request("GET", "/products/new/active");
-export const getProductById       = (id) => request("GET", `/products/${id}`);
+export const getNewProducts = () => request("GET", "/products/new");
+export const getNewActiveProducts = () =>
+  request("GET", "/products/new/active");
+export const getProductById = (id) => request("GET", `/products/${id}`);
 
 export const getPublicActiveProducts = (storeId) => {
   const id = storeId ?? localStorage.getItem("storeId");
@@ -84,65 +90,67 @@ export const getPublicActiveProducts = (storeId) => {
   });
 };
 
-export const createProduct     = (data) =>
+export const createProduct = (data) =>
   request("POST", "/products", { body: buildProductPayload(data) });
 
-export const updateProduct     = (id, data) =>
+export const updateProduct = (id, data) =>
   request("PUT", `/products/${id}`, { body: buildProductPayload(data) });
 
 export const inactivateProduct = (id) =>
   request("PUT", `/products/inactive/${id}`);
 
-export const activateProduct   = (id) =>
-  request("PUT", `/products/active/${id}`);
+export const activateProduct = (id) => request("PUT", `/products/active/${id}`);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CATEGORÍAS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export const getActiveCategories  = () =>
-  request("GET", "/categories/active");
+export const getActiveCategories = () => request("GET", "/categories/active");
 
-export const getAllCategories      = () =>
+export const getAllCategories = () =>
   request("GET", "/categories/getAllCategories");
 
-export const createCategory       = (name) =>
+export const createCategory = (name) =>
   request("POST", "/categories/createCategory", { body: { name } });
 
-export const updateCategory       = (id, name) =>
+export const updateCategory = (id, name) =>
   request("PUT", `/categories/${id}`, { body: { name } });
 
-export const activateCategory     = (id) => request("PUT",    `/categories/active/${id}`);
-export const deactivateCategory   = (id) => request("DELETE", `/categories/${id}`);
+export const activateCategory = (id) =>
+  request("PUT", `/categories/active/${id}`);
+export const deactivateCategory = (id) =>
+  request("DELETE", `/categories/${id}`);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MARCAS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export const getActiveBrands  = () =>
-  request("GET", "/brands/active");
+export const getActiveBrands = () => request("GET", "/brands/active");
 
-export const getAllBrands      = () =>
-  request("GET", "/brands/getAllBrands");
+export const getAllBrands = () => request("GET", "/brands/getAllBrands");
 
-export const createBrand      = (name) =>
+export const createBrand = (name) =>
   request("POST", "/brands/createBrand", { body: { name } });
 
-export const updateBrand      = (id, name) =>
+export const updateBrand = (id, name) =>
   request("PUT", `/brands/${id}`, { body: { name } });
 
-export const activateBrand    = (id) => request("PUT", `/brands/active/${id}`);
-export const inactivateBrand  = (id) => request("PUT", `/brands/inactive/${id}`);
+export const activateBrand = (id) => request("PUT", `/brands/active/${id}`);
+export const inactivateBrand = (id) => request("PUT", `/brands/inactive/${id}`);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // VARIANTES — stock
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export const increaseStock  = (variantId, quantity) =>
-  request("PATCH", `/variants/${variantId}/stock/increase`, { body: { quantity } });
+export const increaseStock = (variantId, quantity) =>
+  request("PATCH", `/variants/${variantId}/stock/increase`, {
+    body: { quantity },
+  });
 
-export const decreaseStock  = (variantId, quantity) =>
-  request("PATCH", `/variants/${variantId}/stock/decrease`, { body: { quantity } });
+export const decreaseStock = (variantId, quantity) =>
+  request("PATCH", `/variants/${variantId}/stock/decrease`, {
+    body: { quantity },
+  });
 
 export const updateMinStock = (variantId, minStock) =>
   request("PATCH", `/variants/${variantId}/min-stock`, { body: { minStock } });
@@ -160,7 +168,11 @@ export const subscribeStockAlerts = (onAlert, onError) => {
   const source = new EventSource(`${BASE}/alerts/stock/stream`);
 
   source.onmessage = (e) => {
-    try { onAlert(JSON.parse(e.data)); } catch { /* ignorar */ }
+    try {
+      onAlert(JSON.parse(e.data));
+    } catch {
+      /* ignorar */
+    }
   };
 
   if (onError) source.onerror = onError;
@@ -171,16 +183,16 @@ export const subscribeStockAlerts = (onAlert, onError) => {
 // ─── Builder interno ──────────────────────────────────────────────────────────
 function buildProductPayload(data) {
   return {
-    name:        data.name,
+    name: data.name,
     description: data.description ?? "",
-    brandId:     data.brandId     || null,
+    brandId: data.brandId || null,
     categoryIds: data.categoryIds ?? [],
-    images:      data.images      ?? [],
-    variants:    data.variants    ?? [],
+    images: data.images ?? [],
+    variants: data.variants ?? [],
   };
 }
 
 // ─── Aliases de compatibilidad ────────────────────────────────────────────────
 export const syncApiContext = () => {};
-export const authHeaders    = () => ({});
-export const extractData    = (r) => r?.data ?? r;
+export const authHeaders = () => ({});
+export const extractData = (r) => r?.data ?? r;

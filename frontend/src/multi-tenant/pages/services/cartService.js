@@ -3,7 +3,7 @@
  * Carrito de compras — por tienda y por usuario (JWT via Gateway).
  */
 
-const BASE = "http://localhost:8080/api/v1";
+const BASE = "http://46.225.21.146:8080/api/v1";
 
 const buildHeaders = (storeId) => {
   const jwt = localStorage.getItem("jwt");
@@ -27,7 +27,11 @@ async function request(method, path, storeId, body) {
   if (res.status === 204) return null;
 
   let data;
-  try { data = await res.json(); } catch { data = {}; }
+  try {
+    data = await res.json();
+  } catch {
+    data = {};
+  }
 
   if (!res.ok) {
     const msg = data?.message ?? data?.error ?? `Error ${res.status}`;
@@ -45,11 +49,16 @@ export const getCart = (storeId) =>
 
 /** Agregar producto al carrito. Si ya existe, suma la cantidad. */
 export const addItem = (storeId, { productId, quantity }) =>
-  request("POST", `/stores/${storeId}/cart/items`, storeId, { productId, quantity });
+  request("POST", `/stores/${storeId}/cart/items`, storeId, {
+    productId,
+    quantity,
+  });
 
 /** Cambiar cantidad de un ítem. Si quantity = 0 se elimina automáticamente. */
 export const updateItem = (storeId, cartItemId, { quantity }) =>
-  request("PUT", `/stores/${storeId}/cart/items/${cartItemId}`, storeId, { quantity });
+  request("PUT", `/stores/${storeId}/cart/items/${cartItemId}`, storeId, {
+    quantity,
+  });
 
 /** Eliminar un ítem del carrito. */
 export const removeItem = (storeId, cartItemId) =>
