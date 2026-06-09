@@ -23,6 +23,7 @@ const DEFAULT_STATE = {
   styles: null, // paso 4  – { colorBoton, cardBg, fontTitle, ... }
   components: null, // paso 5  – { header, banner, footer }
   widgets: null, // paso 6  – { sidebar, searchbar }
+  cms: null, // paso 8 — contenido de páginas
 };
 
 /* ── Helpers localStorage ─────────────────────────── */
@@ -53,6 +54,9 @@ const NUMERIC_MAP = {
   4: "styles",
   5: "components",
   6: "widgets",
+  8: "cms",
+  9: "store",
+  10:"resultado"
 };
 
 function resolveField(key) {
@@ -61,15 +65,17 @@ function resolveField(key) {
 }
 
 const STEP_ORDER = [
-  "plan",      // 0 → /plan
-  "basic",     // 1 → /crear-tienda/basico
-  "legal",     // 2 → /crear-tienda/legal
-  "payment",   // 3 → /crear-tienda/pagos
-  "layout",    // 4 → /layout
-  "styles",    // 5 → /customer
-  "components",// 6 → /component
-  "widgets",   // 7 → /widgets
-  "store",     // 8 → /crear-tienda (términos + crear)
+  "plan", // 0 → /plan
+  "basic", // 1 → /crear-tienda/basico
+  "legal", // 2 → /crear-tienda/legal
+  "payment", // 3 → /crear-tienda/pagos
+  "layout", // 4 → /layout
+  "styles", // 5 → /customer
+  "components", // 6 → /component
+  "widgets", // 7 → /widgets
+  "cms", // 8 → /cms
+  "store", // 9 → /crear-tienda (términos + crear)
+  "resultado",
 ];
 
 function stepIndex(key) {

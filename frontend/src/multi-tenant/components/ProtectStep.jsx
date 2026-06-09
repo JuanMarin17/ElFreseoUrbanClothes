@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useStore } from "../pages/StoreContext";
 
 /**
@@ -14,11 +14,17 @@ const STEP_PATHS = {
   5: "/customer",
   6: "/component",
   7: "/widgets",
-  8: "/crear-tienda",
+  8: "/cms",
+  9: "/crear-tienda",
+  10: "/resultado",
 };
 
 export default function ProtectedStep({ requiredStep, children }) {
   const { state } = useStore();
+  const location = useLocation();
+
+  // Allow bypass when navigation includes the special flag (e.g. after create)
+  if (location.state?.bypassProtected) return children;
 
   if (state.completedStep < requiredStep) {
     const redirectTo = STEP_PATHS[state.completedStep] ?? "/plan";

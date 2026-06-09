@@ -38,6 +38,7 @@ function Alert({ type = "error", title, children }) {
 
 const PAYMENT_OPTIONS = [
   {
+
     id: "stripe",
     label: "Wonpy",
     icon: <CreditCard size={20} />,

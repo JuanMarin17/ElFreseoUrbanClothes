@@ -6,7 +6,7 @@ import {
   activateProduct,
   inactivateProduct,
 } from "../../../admin/modules/administration/services/productService";
-import { getStoresByUser } from "../../pages/services/storeService";
+import { getStoresByUser, getStoreById } from "../../pages/services/storeService";
 import StockAlertToast from "../../../admin/modules/administration/components/StockAlertToast/StockAlertToast";
 import HeaderMarket from "../../../utils/Header/HeaderMarket";
 import "./StoreProductsAdmin.css";
@@ -144,15 +144,19 @@ export default function StoreProductsAdmin() {
   const [error, setError] = useState(null);
   const [toggling, setToggling] = useState(null);
   const [filter, setFilter] = useState("ALL");
-
+  const [storeSlug, setStoreSlug] = useState(null);
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const storeId = await resolveStoreId();
-      const data = await getAllProducts(storeId);
+      const [data, storeData] = await Promise.all([
+        getAllProducts(storeId),
+        getStoreById(storeId),
+      ]);
       setProducts(Array.isArray(data) ? data : []);
+      if (storeData?.slug) setStoreSlug(storeData.slug);
     } catch (err) {
       setError(err.message ?? "No se pudieron cargar los productos.");
     } finally {
@@ -214,7 +218,7 @@ export default function StoreProductsAdmin() {
           </div>
           <button
             className="spa-btn-new"
-            onClick={() => navigate("/admin/subir-producto")}
+            onClick={() => navigate(`/admin/${storeSlug}/subir-producto`)}
           >
             <Plus size={15} /> NUEVO PRODUCTO
           </button>
@@ -266,7 +270,7 @@ export default function StoreProductsAdmin() {
             {products.length === 0 && (
               <button
                 className="spa-btn-new"
-                onClick={() => navigate("/admin/subir-producto")}
+                onClick={() => navigate(`/admin/${storeSlug}/subir-producto`)}
               >
                 <Plus size={15} /> CREAR PRIMER PRODUCTO
               </button>
@@ -278,7 +282,7 @@ export default function StoreProductsAdmin() {
               <ProductAdminCard
                 key={product.productId}
                 product={product}
-                onEdit={id => navigate(`/admin/editar-producto/${id}`)}
+                onEdit={id => navigate(`/admin/${storeSlug}/editar-producto/${id}`)}
                 onToggle={handleToggle}
                 toggling={toggling}
               />

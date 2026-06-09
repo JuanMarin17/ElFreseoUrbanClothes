@@ -2,7 +2,7 @@ import StoreProductCard from './StoreProductCard.jsx';
 import StoreSearchBar from './StoreSearchBar.jsx';
 
 export default function StoreCatalog({
-  layoutType, theme,
+  theme,
   filteredProducts, totalProducts,
   searchQuery, clearFilters,
   addToCart, justAdded,
@@ -78,8 +78,9 @@ export default function StoreCatalog({
       <div style={{ minWidth: 0 }}>
         <div style={{
           display: "grid",
-          gridTemplateColumns: `repeat(auto-fill, minmax(${isUrb ? "170px" : "160px"}, 1fr))`,
-          gap: 16,
+          gridTemplateColumns: `repeat(auto-fill, minmax(${isUrb ? "240px" : "220px"}, 1fr))`,
+          gap: isUrb ? 14 : 18,
+          alignItems: "start",
         }}>
           {filteredProducts.map((p, i) => (
             <StoreProductCard

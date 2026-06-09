@@ -8,6 +8,7 @@ import StoreSidebar from './StoreSidebar.jsx';
 import StoreCatalog from './StoreCatalog.jsx';
 import StoreFooter from './StoreFooter.jsx';
 import CartDrawer from './CartDrawer.jsx';
+import AiChatDrawer from './AiChatDrawer.jsx';
 
 /* ══════════════════════════════════════════
    StoreFront — Vista pública de la tienda
@@ -15,7 +16,7 @@ import CartDrawer from './CartDrawer.jsx';
      layoutType: "minimalista" | "urbano" | "clasico"
      data: { header, banner, footer, products, styles, widgets }
 ══════════════════════════════════════════ */
-export default function StoreFront({ layoutType = "minimalista", data = {}, isOwner = false, storeId = null }) {
+export default function StoreFront({ layoutType = "minimalista", data = {}, isOwner = false, storeId = null, storeSlug = null }) {
   const header   = data.header   ?? DEMO.header;
   const footer   = data.footer   ?? DEMO.footer;
   const products = data.products ?? DEMO.products;
@@ -78,7 +79,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
 
   const pageBg = isDark
     ? (isMin ? "#0c0e14" : isUrb ? "#000000" : "#0d1020")
-    : (isMin ? "#f6f8fc" : isUrb ? "#f2f2f2" : "#eef1f8");
+    : (isMin ? "#dededf" : isUrb ? "#e7e6e6" : "#dfdfdf");
 
   const catalogBg = pageBg;
 
@@ -136,9 +137,15 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
   const {
     cart, cartCount, isOpen: cartOpen, loading: cartLoading,
     itemLoading, error: cartError,
-    openCart, closeCart, addToCart, justAdded,
+    openCart, closeCart, refreshCart, addToCart, justAdded,
     updateQuantity, removeCartItem, emptyCart, clearError,
   } = useCart(storeId);
+
+  // Cuando la IA agrega un producto: refresca los datos y abre el drawer
+  const handleIaCartRefresh = useCallback(async () => {
+    await refreshCart();
+    openCart();
+  }, [refreshCart, openCart]);
   const {
     searchQuery, setSearchQuery,
     activeCategory, setActiveCategory,
@@ -170,6 +177,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
         onSearchChange={setSearchQuery}
         cartCount={cartCount}
         isOwner={isOwner}
+        storeSlug={storeSlug}
         onCartOpen={openCart}
         isDark={isDark}
         onToggleDark={toggleDark}
@@ -222,6 +230,14 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
       </div>
 
       <StoreFooter footer={footer} header={header} theme={theme} />
+
+      <AiChatDrawer
+        storeId={storeId}
+        onCartRefresh={handleIaCartRefresh}
+        accentColor={accent}
+        products={products}
+        storeName={banner.title ?? "Tienda"}
+      />
 
     </div>
   );

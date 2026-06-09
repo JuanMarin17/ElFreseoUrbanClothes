@@ -1,0 +1,289 @@
+/* ═══════════════════════════════════════════
+   Subscription pages — dark admin theme
+   ═══════════════════════════════════════════ */
+
+.sub-root {
+  min-height: 100vh;
+  background: #080b14;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  font-family: "Inter", -apple-system, sans-serif;
+}
+
+/* ── Header de marca ── */
+.sub-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 40px;
+}
+.sub-brand__logo {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: #f0f4ff;
+  text-transform: uppercase;
+}
+.sub-brand__tag {
+  font-size: 11px;
+  color: #475569;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* ══════════════════════════════
+   PLANES
+══════════════════════════════ */
+.sub-plans {
+  width: 100%;
+  max-width: 900px;
+}
+.sub-plans__title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: #f0f4ff;
+  margin-bottom: 8px;
+}
+.sub-plans__sub {
+  text-align: center;
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 36px;
+}
+
+.sub-plans__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.sub-plan-card {
+  background: #0e1220;
+  border: 1px solid #1e2230;
+  border-radius: 16px;
+  padding: 28px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  cursor: pointer;
+  transition: border-color .2s, transform .2s, box-shadow .2s;
+}
+.sub-plan-card:hover {
+  border-color: #6366f1;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(99,102,241,.2);
+}
+.sub-plan-card--featured {
+  border-color: #6366f1;
+  background: linear-gradient(160deg, #0e1220 60%, #13153a);
+}
+
+.sub-plan-card__badge {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #6366f1;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.sub-plan-card__name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 10px;
+}
+.sub-plan-card__price {
+  font-size: 36px;
+  font-weight: 900;
+  color: #f0f4ff;
+  line-height: 1;
+}
+.sub-plan-card__price span {
+  font-size: 16px;
+  font-weight: 500;
+  color: #475569;
+  margin-left: 4px;
+}
+.sub-plan-card__period {
+  font-size: 12px;
+  color: #475569;
+  margin-top: 4px;
+  margin-bottom: 20px;
+}
+
+.sub-plan-card__features {
+  list-style: none;
+  padding: 0; margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  flex: 1;
+  margin-bottom: 24px;
+}
+.sub-plan-card__features li {
+  font-size: 13px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sub-plan-card__features li::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #6366f1;
+  flex-shrink: 0;
+}
+
+.sub-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .15s, transform .1s;
+  letter-spacing: .02em;
+}
+.sub-btn:active { transform: scale(.97); }
+.sub-btn:disabled { opacity: .5; cursor: not-allowed; }
+.sub-btn--primary { background: #6366f1; color: #fff; }
+.sub-btn--primary:hover:not(:disabled) { opacity: .88; }
+.sub-btn--outline {
+  background: transparent;
+  border: 1px solid #1e2230;
+  color: #94a3b8;
+}
+.sub-btn--outline:hover:not(:disabled) { border-color: #6366f1; color: #a5b4fc; }
+
+.sub-error {
+  background: #2d1010;
+  border: 1px solid #7f1d1d;
+  border-radius: 10px;
+  color: #fca5a5;
+  font-size: 13px;
+  padding: 10px 16px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* ══════════════════════════════
+   PÁGINAS DE RETORNO
+══════════════════════════════ */
+.sub-result {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+}
+.sub-result__icon {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.sub-result__icon--green  { background: #14291f; }
+.sub-result__icon--red    { background: #2d1010; }
+.sub-result__icon--amber  { background: #271e0c; }
+
+.sub-result__title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #f0f4ff;
+  margin-bottom: 10px;
+}
+.sub-result__text {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 32px;
+  max-width: 360px;
+}
+
+.sub-result__card {
+  background: #0e1220;
+  border: 1px solid #1e2230;
+  border-radius: 14px;
+  padding: 20px 24px;
+  width: 100%;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sub-result__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+.sub-result__row-label { color: #475569; }
+.sub-result__row-value { color: #e2e8f0; font-weight: 600; }
+
+.sub-result__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.sub-result__status--approved { background: #14291f; color: #4ade80; }
+.sub-result__status--pending  { background: #271e0c; color: #fbbf24; }
+.sub-result__status--rejected { background: #2d1010; color: #f87171; }
+
+.sub-result__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+/* Spinner */
+.sub-spinner {
+  width: 20px; height: 20px;
+  border: 2px solid rgba(255,255,255,.2);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: sub-spin .7s linear infinite;
+  display: inline-block;
+}
+@keyframes sub-spin { to { transform: rotate(360deg); } }
+
+.sub-polling {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fbbf24;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 760px) {
+  .sub-plans__grid { grid-template-columns: 1fr; max-width: 380px; margin: 0 auto; }
+}

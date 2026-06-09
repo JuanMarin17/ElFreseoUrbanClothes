@@ -131,6 +131,30 @@
   text-transform: uppercase;
   margin: 0;
 }
+.link-row--fixed { cursor: default; }
+.link-row--fixed:hover { background: none; }
+
+.menu-icon { font-size: 16px; color: var(--text-muted); }
+
+.link-info { flex: 1; display: flex; flex-direction: column; }
+.link-label { font-size: 13px; font-weight: 500; }
+.link-path  { font-size: 11px; color: var(--text-muted); }
+
+.toggle-wrap { position: relative; width: 36px; height: 20px; cursor: pointer; }
+.toggle-wrap input { opacity: 0; position: absolute; width: 0; height: 0; }
+.toggle-track {
+  position: absolute; inset: 0; border-radius: 20px;
+  background: var(--border-color); transition: background 0.2s;
+}
+.toggle-wrap input:checked + .toggle-track { background: var(--accent-blue); }
+.toggle-thumb {
+  position: absolute; top: 3px; left: 3px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: white; transition: transform 0.2s; pointer-events: none;
+}
+.toggle-wrap input:checked ~ .toggle-thumb { transform: translateX(16px); }
+
+.menu-hint { font-size: 11px; color: var(--text-muted); margin-top: 10px; }
 
 .btn-view-trigger {
   background: rgba(62, 120, 255, 0.1);

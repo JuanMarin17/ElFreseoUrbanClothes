@@ -1,40 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import "./Report.css";
+import {
+  getDashboard,
+  getStockReport,
+  getOrdersReport,
+  getSalesReport,
+  formatCOP,
+  periodToDays,
+} from "../../services/ReportService";
 
-// ============================================================
-//  CONFIGURACIÓN DE API
-// ============================================================
-const BASE = "http://localhost:8080/api/v1";
-
-const buildHeaders = () => ({
-  "Content-Type": "application/json",
-  Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-  "X-Store-Id": localStorage.getItem("storeId"),
-});
-
-async function apiFetch(path) {
-  const res = await fetch(`${BASE}${path}`, { headers: buildHeaders() });
-  if (res.status === 401) throw new Error("UNAUTHORIZED");
-  if (res.status === 400) throw new Error("STORE_ID_MISSING");
-  if (!res.ok) throw new Error(`HTTP_${res.status}`);
-  return res.json();
-}
-
-const getDashboard    = ()           => apiFetch("/reports/dashboard");
-const getStockReport  = ()           => apiFetch("/reports/stock");
-const getOrdersReport = (days = 30)  => apiFetch(`/reports/orders?days=${days}`);
-const getSalesReport  = (days = 30)  => apiFetch(`/reports/sales?days=${days}`);
-
-// ============================================================
-//  UTILIDADES
-// ============================================================
-const formatCOP = (v) =>
-  new Intl.NumberFormat("es-CO", {
-    style: "currency", currency: "COP",
-    minimumFractionDigits: 0, maximumFractionDigits: 0,
-  }).format(v ?? 0);
-
-const periodToDays = (p) => ({ "7D": 7, "30D": 30, "90D": 90, "ALL": 0 }[p] ?? 30);
 
 const ORDER_STATUS_COLORS = {
   pendingOrders:    "#f59e0b",
@@ -764,43 +738,73 @@ export default function Report() {
 
   // ── Carga de datos por sección ──────────────────────────────
   useEffect(() => {
-    if (activeTab === "dashboard" && !dashboardData) {
+    if (activeTab !== "dashboard" || dashboardData) return;
+    let cancelled = false;
+    (async () => {
       setLoad("dashboard", true);
-      getDashboard()
-        .then(setDashboardData)
-        .catch((e) => { handleAuthError(e); setError("dashboard", e.message); })
-        .finally(() => setLoad("dashboard", false));
-    }
+      try {
+        const data = await getDashboard();
+        if (!cancelled) setDashboardData(data);
+      } catch (e) {
+        if (!cancelled) { handleAuthError(e); setError("dashboard", e.message); }
+      } finally {
+        if (!cancelled) setLoad("dashboard", false);
+      }
+    })();
+    return () => { cancelled = true; };
   }, [activeTab]);
 
   useEffect(() => {
-    if (activeTab === "stock" && !stockData) {
+    if (activeTab !== "stock" || stockData) return;
+    let cancelled = false;
+    (async () => {
       setLoad("stock", true);
-      getStockReport()
-        .then(setStockData)
-        .catch((e) => { handleAuthError(e); setError("stock", e.message); })
-        .finally(() => setLoad("stock", false));
-    }
+      try {
+        const data = await getStockReport();
+        if (!cancelled) setStockData(data);
+      } catch (e) {
+        if (!cancelled) { handleAuthError(e); setError("stock", e.message); }
+      } finally {
+        if (!cancelled) setLoad("stock", false);
+      }
+    })();
+    return () => { cancelled = true; };
   }, [activeTab]);
 
   useEffect(() => {
     if (activeTab !== "orders") return;
-    setLoad("orders", true);
-    setOrdersData(null);
-    getOrdersReport(periodToDays(ordersPeriod))
-      .then(setOrdersData)
-      .catch((e) => { handleAuthError(e); setError("orders", e.message); })
-      .finally(() => setLoad("orders", false));
+    let cancelled = false;
+    (async () => {
+      setLoad("orders", true);
+      setOrdersData(null);
+      try {
+        const data = await getOrdersReport(periodToDays(ordersPeriod));
+        if (!cancelled) setOrdersData(data);
+      } catch (e) {
+        if (!cancelled) { handleAuthError(e); setError("orders", e.message); }
+      } finally {
+        if (!cancelled) setLoad("orders", false);
+      }
+    })();
+    return () => { cancelled = true; };
   }, [activeTab, ordersPeriod]);
 
   useEffect(() => {
     if (activeTab !== "sales") return;
-    setLoad("sales", true);
-    setSalesData(null);
-    getSalesReport(periodToDays(salesPeriod))
-      .then(setSalesData)
-      .catch((e) => { handleAuthError(e); setError("sales", e.message); })
-      .finally(() => setLoad("sales", false));
+    let cancelled = false;
+    (async () => {
+      setLoad("sales", true);
+      setSalesData(null);
+      try {
+        const data = await getSalesReport(periodToDays(salesPeriod));
+        if (!cancelled) setSalesData(data);
+      } catch (e) {
+        if (!cancelled) { handleAuthError(e); setError("sales", e.message); }
+      } finally {
+        if (!cancelled) setLoad("sales", false);
+      }
+    })();
+    return () => { cancelled = true; };
   }, [activeTab, salesPeriod]);
 
   const tabs = [
@@ -816,10 +820,10 @@ export default function Report() {
       {/* TOPBAR */}
       <div className="rp-topbar">
         <h1 className="rp-title">Reportes</h1>
-        <div className="rp-topbar-right">
+        {/* <div className="rp-topbar-right">
           <i className="ti ti-bell"     style={{ fontSize: 18 }} aria-hidden="true" />
           <i className="ti ti-settings" style={{ fontSize: 18 }} aria-hidden="true" />
-        </div>
+        </div> */}
       </div>
 
       {/* TABS */}

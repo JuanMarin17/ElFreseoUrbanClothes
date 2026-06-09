@@ -4,7 +4,7 @@
 //  Base URL: http://localhost:8080/api/v1
 // ============================================================
 
-const BASE = "http://localhost:8080/api/v1";
+const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
 
 /**
  * Construye los headers requeridos por todos los endpoints.
