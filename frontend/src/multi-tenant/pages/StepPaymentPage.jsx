@@ -1,10 +1,10 @@
 /**
- * StepPaymentPage.jsx — Paso 4: Métodos de pago y envío
+ * StepPaymentPage.jsx " Paso 4: Metodos de pago y envio
  * Ruta: /crear-tienda/pagos
  */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useStore } from "./StoreContext";
+import { useStore } from "./useStore";
 import StepProgress from "../components/StepProgress";
 import "../components/styles/StepPages.css";
 import {
@@ -18,7 +18,7 @@ import {
   Truck,
 } from "lucide-react";
 
-// ── Alerta reutilizable ────────────────────────────────────────────────────────
+// "" Alerta reutilizable """"""""""""""""""""""""""""""""""""""""""""""""""""""""
 function Alert({ type = "error", title, children }) {
   const cfg = {
     error:   { icon: <AlertCircle size={16} />, cls: "error"   },
@@ -38,17 +38,10 @@ function Alert({ type = "error", title, children }) {
 
 const PAYMENT_OPTIONS = [
   {
-
-    id: "stripe",
-    label: "Wonpy",
-    icon: <CreditCard size={20} />,
-    desc: "Tarjetas de crédito y débito",
-  },
-  {
     id: "mercadopago",
     label: "MercadoPago",
     icon: <ShoppingBag size={20} />,
-    desc: "Pagos locales en Latinoamérica",
+    desc: "Pagos locales en Latinoamerica",
   },
 ];
 
@@ -57,13 +50,13 @@ const SHIPPING_OPTIONS = [
     id: "nacional",
     label: "Nacional",
     icon: <Package size={20} />,
-    desc: "Envíos dentro del país",
+    desc: "Envios dentro del pais",
   },
   {
     id: "internacional",
     label: "Internacional",
     icon: <Globe size={20} />,
-    desc: "Envíos a todo el mundo",
+    desc: "Envios a todo el mundo",
   },
   {
     id: "ambos",
@@ -91,8 +84,8 @@ export default function StepPaymentPage() {
 
   const handleNext = () => {
     const newErrors = {};
-    if (!form.paymentMethod) newErrors.paymentMethod = "Selecciona un método de pago";
-    if (!form.shipping)      newErrors.shipping      = "Selecciona el tipo de envío";
+    if (!form.paymentMethod) newErrors.paymentMethod = "Selecciona un metodo de pago";
+    if (!form.shipping)      newErrors.shipping      = "Selecciona el tipo de envio";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -123,16 +116,16 @@ export default function StepPaymentPage() {
             <ArrowLeft size={16} />
           </button>
           <div>
-            <h1 className="step-title">Pagos y envíos</h1>
-            <p className="step-subtitle">Configura cómo cobras y envías</p>
+            <h1 className="step-title">Pagos y envios</h1>
+            <p className="step-subtitle">Configura como cobras y envias</p>
           </div>
         </div>
 
         <div className="step-body">
 
-          {/* Método de pago */}
+          {/* Metodo de pago */}
           <div className="field-block">
-            <label>Método de pago *</label>
+            <label>Metodo de pago *</label>
             <div className="option-grid">
               {PAYMENT_OPTIONS.map((opt) => (
                 <button
@@ -154,9 +147,9 @@ export default function StepPaymentPage() {
             )}
           </div>
 
-          {/* Tipo de envío */}
+          {/* Tipo de envio */}
           <div className="field-block">
-            <label>Tipo de envío *</label>
+            <label>Tipo de envio *</label>
             <div className="option-grid">
               {SHIPPING_OPTIONS.map((opt) => (
                 <button
@@ -178,10 +171,10 @@ export default function StepPaymentPage() {
             )}
           </div>
 
-          {/* Alerta global si ambos están vacíos */}
+          {/* Alerta global si ambos estan vacios */}
           {errors.paymentMethod && errors.shipping && (
             <Alert type="error" title="Selecciones requeridas">
-              Elige un método de pago y un tipo de envío para continuar.
+              Elige un metodo de pago y un tipo de envio para continuar.
             </Alert>
           )}
 
@@ -190,7 +183,7 @@ export default function StepPaymentPage() {
         <div className="step-actions">
           <button className="btn-secondary" onClick={handleBack}>
             <ArrowLeft size={14} />
-            Atrás
+            Atras
           </button>
           <button className="btn-primary" onClick={handleNext}>
             Continuar

@@ -3,7 +3,8 @@
 // Requiere: Authorization, X-Store-Id (GET); + X-User-Role (escritura)
 // ══════════════════════════════════════════════════════════════════════════════
 
-const BASE_URL = "http://46.225.21.146:8080/api/v1";
+const BASE_URL = const BASE_URL = "http://46.225.21.146:8080/api/v1";
+
 
 const readHeaders = () => {
   const jwt = localStorage.getItem("jwt");

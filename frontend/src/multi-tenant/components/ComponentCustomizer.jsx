@@ -1,13 +1,13 @@
 /**
  * ComponentCustomizer.jsx - CORREGIDO
- * - Banner usa <img> absoluto con zIndex para que la imagen quede detrás del texto
- * - Se eliminó el <section> banner duplicado que estaba dentro del <aside>
- * - Se restauró el campo de imagen del banner en el panel de control
+ * - Banner usa <img> absoluto con zIndex para que la imagen quede detras del texto
+ * - Se elimino el <section> banner duplicado que estaba dentro del <aside>
+ * - Se restauro el campo de imagen del banner en el panel de control
  */
 
 import React, { useState } from "react";
 import "../components/styles/ComponentCustomizer.css";
-import { useStore } from "../pages/StoreContext";
+import { useStore } from "../pages/useStore";
 import { useNavigate } from "react-router-dom";
 import StepProgress from "./StepProgress";
 import { uploadStoreImage } from "../../utils/uploadService";
@@ -25,8 +25,8 @@ const ComponentCustomizer = () => {
   const [design, setDesign] = useState(
     state.components ?? {
       header: {
-        logo: state.store?.name ?? "FRESEO",
-        items: ["HOME", "SHOP"],
+        logo: state.store?.name ?? "VEXIO",
+        items: ["home", "catalogo"],
         font: "Inter",
         size: 16,
         color: "#ffffff",
@@ -55,7 +55,7 @@ const ComponentCustomizer = () => {
     { key: "nuevo", label: "Nuevo", path: "/nuevo", icon: "ti-sparkles" },
     {
       key: "catalogo",
-      label: "Catálogo",
+      label: "Catalogo",
       path: "/catalogo",
       icon: "ti-layout-grid",
     },
@@ -147,13 +147,13 @@ const ComponentCustomizer = () => {
               className="btn-back-arrow"
               title="Volver"
             >
-              ←
+              
             </button>
             <div className="brand">
               {state.store?.name ?? "VEXIO"} <span>STUDIO V3</span>
             </div>
             <button className="btn-save-top" onClick={handleSave}>
-              SIGUIENTE →
+              SIGUIENTE '
             </button>
           </header>
           <StepProgress />
@@ -213,10 +213,10 @@ const ComponentCustomizer = () => {
                   />
                 </div>
 
-                {/* 2. ITEMS DEL MENÚ — solo en HEADER */}
+                {/* 2. ITEMS DEL MENU - solo en HEADER */}
                 {activeComponent === "HEADER" && (
                   <div className="field-group">
-                    <label>Items del Menú</label>
+                    <label>Items del Menu</label>
                     <div className="links-manager">
                       {MENU_ITEMS.map((item) => (
                         <div
@@ -256,7 +256,7 @@ const ComponentCustomizer = () => {
                   </div>
                 )}
 
-                {/* 3. IMAGEN DEL BANNER — solo en BANNER */}
+                {/* 3. IMAGEN DEL BANNER " solo en BANNER */}
                 {activeComponent === "BANNER" && (
                   <div className="field-group">
                     <label>Imagen del Banner</label>
@@ -295,7 +295,7 @@ const ComponentCustomizer = () => {
                   </div>
                 )}
 
-                {/* 4. TIPOGRAFÍA */}
+                {/* 4. TIPOGRAFIA */}
                 <div className="field-group">
                   <label>Fuente</label>
                   <div className="font-grid-mini">
@@ -378,15 +378,15 @@ const ComponentCustomizer = () => {
                     </div>
                   </div>
                   <small>
-                    Si solo eliges un color, el borde será sólido. Si eliges
-                    dos, será gradiente.
+                    Si solo eliges un color, el borde sera solido. Si eliges
+                    dos, sera gradiente.
                   </small>
                 </div>
 
-                {/* 6. TAMAÑO DE FUENTE */}
+                {/* 6. TAMANO DE FUENTE */}
                 <div className="field-group">
                   <label>
-                    Tamaño:{" "}
+                    Tamano:{" "}
                     <span>{design[activeComponent.toLowerCase()].size}px</span>
                   </label>
                   <input
@@ -411,12 +411,12 @@ const ComponentCustomizer = () => {
               className="btn-exit-full"
               onClick={() => setIsFullscreen(false)}
             >
-              VOLVER ×
+              VOLVER
             </button>
           )}
 
           <div className={`store-preview ${layoutClass}`}>
-            {/* ── HEADER ── */}
+            {/* "" HEADER "" */}
             <header
               style={{
                 display: "flex",
@@ -433,16 +433,19 @@ const ComponentCustomizer = () => {
                 {design.header.logo}
               </div>
               <nav style={{ display: "flex", gap: "24px" }}>
-                {design.header.items.map((it, i) => (
+                {MENU_ITEMS.filter((item) =>
+                  design.header.items.includes(item.key)
+                ).map((item) => (
                   <span
-                    key={i}
+                    key={item.key}
                     style={{
                       fontSize: "12px",
                       opacity: 0.85,
                       letterSpacing: "2px",
+                      textTransform: "uppercase",
                     }}
                   >
-                    {it}
+                    {item.label}
                   </span>
                 ))}
               </nav>
@@ -461,7 +464,7 @@ const ComponentCustomizer = () => {
               </button>
             </header>
 
-            {/* ── BANNER — imagen como <img> absoluto, texto encima con zIndex ── */}
+            {/* "" BANNER " imagen como <img> absoluto, texto encima con zIndex "" */}
             <section
               style={{
                 position: "relative",
@@ -477,7 +480,7 @@ const ComponentCustomizer = () => {
                 overflow: "hidden",
               }}
             >
-              {/* ✅ Imagen de fondo — z-index 0, cubre todo el section */}
+              {/* ... Imagen de fondo " z-index 0, cubre todo el section */}
               {design.banner.image && (
                 <img
                   src={design.banner.image}
@@ -494,7 +497,7 @@ const ComponentCustomizer = () => {
                 />
               )}
 
-              {/* ✅ Overlay oscuro — z-index 1, encima de la imagen */}
+              {/* ... Overlay oscuro " z-index 1, encima de la imagen */}
               {design.banner.image && (
                 <div
                   style={{
@@ -506,7 +509,7 @@ const ComponentCustomizer = () => {
                 />
               )}
 
-              {/* ✅ Todo el contenido — z-index 2, encima del overlay */}
+              {/* ... Todo el contenido " z-index 2, encima del overlay */}
               <h1
                 style={{
                   position: "relative",
@@ -552,7 +555,7 @@ const ComponentCustomizer = () => {
               </button>
             </section>
 
-            {/* ── CATÁLOGO ── */}
+            {/* "" CATALOGO "" */}
             <section
               style={{
                 padding: "48px 40px",
@@ -573,7 +576,7 @@ const ComponentCustomizer = () => {
                   marginBottom: "28px",
                 }}
               >
-                CATÁLOGO
+                CATALOGO
               </h2>
 
               <div
@@ -657,7 +660,7 @@ const ComponentCustomizer = () => {
               </div>
             </section>
 
-            {/* ── FOOTER ── */}
+            {/* "" FOOTER "" */}
             <footer
               style={{
                 backgroundColor: design.footer.bg,
@@ -699,14 +702,14 @@ const ComponentCustomizer = () => {
                 }}
                 title="Volver"
               >
-                ←
+                
               </button>
               <button
                 className="btn-save-top"
                 onClick={handleSave}
                 style={{ padding: "10px 24px" }}
               >
-                SIGUIENTE →
+                SIGUIENTE '
               </button>
             </div>
           )}

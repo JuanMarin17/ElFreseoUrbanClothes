@@ -47,7 +47,7 @@ const SuperAdminCard = ({ store, onClick, logoUrl, bannerUrl }) => (
     </div>
     <div className="store-info">
       <h3>{store.name}</h3>
-      <p className="store-url">{store.slug}.freseo.com</p>
+      <p className="store-url">{store.slug}.com</p>
       <p className="store-description">{store.description}</p>
       <span className={`status ${store.isActive ? "activa" : "borrador"}`}>
         {store.isActive ? "ACTIVA" : "BORRADOR"}

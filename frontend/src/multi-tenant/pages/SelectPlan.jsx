@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useStore } from "../pages/StoreContext";
+import { useStore } from "../pages/useStore";
 import "../components/styles/SelectPlan.css";
 import { motion } from "framer-motion";
 import StepProgress from "../components/StepProgress";
@@ -8,9 +8,9 @@ import StepProgress from "../components/StepProgress";
 const plans = [
   {
     id: "basico",
-    name: "BÁSICO",
+    name: "BASICO",
     price: "$19",
-    features: ["1 Tienda", "Productos ilimitados", "Plantillas básicas", "Soporte por email"],
+    features: ["1 Tienda", "Productos ilimitados", "Plantillas basicas", "Soporte por email"],
   },
   {
     id: "pro",
@@ -23,7 +23,7 @@ const plans = [
     id: "premium",
     name: "PREMIUM",
     price: "$79",
-    features: ["Todo en Pro", "Analíticas avanzadas", "Integraciones", "Soporte 24/7", "Acceso API"],
+    features: ["Todo en Pro", "Analiticas avanzadas", "Integraciones", "Soporte 24/7", "Acceso API"],
   },
 ];
 
@@ -56,7 +56,7 @@ export default function SelectPlan({ showComponents }) {
 
       <div className="header-plan">
         {showComponents && (
-          <button className="back-btn" onClick={handleBack}>←</button>
+          <button className="back-btn" onClick={handleBack}></button>
         )}
         <div className="title-plan">
           <h1>Crear nueva tienda</h1>
@@ -74,12 +74,12 @@ export default function SelectPlan({ showComponents }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
           >
-            {plan.popular && <span className="badge">MÁS POPULAR</span>}
+            {plan.popular && <span className="badge">MAS POPULAR</span>}
             <h2>{plan.name}</h2>
             <h3>{plan.price} <span>/mes</span></h3>
             <ul>
               {plan.features.map((f, idx) => (
-                <li key={idx}>✔ {f}</li>
+                <li key={idx}>" {f}</li>
               ))}
             </ul>
             <button onClick={() => handleSelect(plan)}>
