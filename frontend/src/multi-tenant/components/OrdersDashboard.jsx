@@ -56,7 +56,7 @@ const OrdersDashboard = () => {
       {/* SIDEBAR */}
       <aside className="orders-sidebar">
         <div className="brand-section">
-          <h2>EL FRESEO</h2>
+          <h2>EL VEXIO</h2>
           <p>ADMIN DASHBOARD</p>
         </div>
         <nav className="nav-menu">

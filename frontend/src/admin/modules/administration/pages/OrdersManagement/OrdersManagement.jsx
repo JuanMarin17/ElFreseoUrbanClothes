@@ -411,7 +411,7 @@ function OrderDetailModal({ order, updatingId, onClose, onAdvance, onCancel }) {
         <div className="invoice-print-body">
           <div className="invoice-brand-row">
             <div>
-              <h2 className="invoice-logo">ElFreseo Urban Clothes</h2>
+              <h2 className="invoice-logo">Vexio</h2>
               <p className="invoice-meta-text">Comprobante de pedido</p>
             </div>
             <div className="text-right">
@@ -508,7 +508,7 @@ function OrderDetailModal({ order, updatingId, onClose, onAdvance, onCancel }) {
 
           <div className="invoice-footer-print-only">
             <p>Gracias por tu compra. Este documento sirve como soporte legal.</p>
-            <small>ElFreseo Urban Clothes • Pedido {order.orderNumber}</small>
+            <small>El Vexio • Pedido {order.orderNumber}</small>
           </div>
         </div>
       </div>

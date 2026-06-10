@@ -35,7 +35,7 @@ const AdminProductsPage   = lazy(() => import("./admin/modules/administration/pa
 const AdminProductDetail  = lazy(() => import("./admin/modules/administration/pages/AdminProducts/AdminProductDetail.jsx"));
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
-const Login            = lazy(() => import("./admin/modules/auth/pages/Login/Login.jsx"));
+const Login            = lazy(() => import("./admin/modules/auth/pages/Login/login.jsx"));
 const ForgotPassword   = lazy(() => import("./admin/modules/auth/pages/ForgotPassword/ForgotPassword.jsx"));
 const NewPassword      = lazy(() => import("./admin/modules/auth/pages/NewPassword.jsx"));
 const VerificationPage = lazy(() => import("./admin/modules/auth/pages/VerificationPage.jsx"));
@@ -74,6 +74,12 @@ const CMSContact   = lazy(() => import("./multi-tenant/cms/CMSconctact.jsx"));
 const CMSLocations = lazy(() => import("./multi-tenant/cms/CMSlocations.jsx"));
 const CMSReturns   = lazy(() => import("./multi-tenant/cms/CMSreturns.jsx"));
 const CMSFAQ       = lazy(() => import("./multi-tenant/cms/CMSfaq.jsx"));
+
+// ── Páginas públicas de tienda ────────────────────────────────────────────────
+const StoreContactPage = lazy(() => import("./multi-tenant/components/Store/StoreContactPage.jsx"));
+const StoreReturnsPage = lazy(() => import("./multi-tenant/components/Store/StoreReturnsPage.jsx"));
+const StoreFaqPage     = lazy(() => import("./multi-tenant/components/Store/StoreFaqPage.jsx"));
+const StoreAboutPage   = lazy(() => import("./multi-tenant/components/Store/StoreAboutPage.jsx"));
 
 // ── Loader ────────────────────────────────────────────────────────────────────
 function PageLoader() {
@@ -156,7 +162,11 @@ export default function App() {
                   <Route path="/dashboard/subscription/pending" element={<SubscriptionPending />} />
 
                   {/* ── Tienda pública ───────────────────────────────────── */}
-                  <Route path="/tienda/:slug"  element={<StorePage />} />
+                  <Route path="/tienda/:slug"             element={<StorePage />} />
+                  <Route path="/tienda/:slug/contacto"    element={<StoreContactPage />} />
+                  <Route path="/tienda/:slug/devoluciones"element={<StoreReturnsPage />} />
+                  <Route path="/tienda/:slug/faq"         element={<StoreFaqPage />} />
+                  <Route path="/tienda/:slug/nosotros"    element={<StoreAboutPage />} />
                   <Route path="/transacciones" element={<Transaction />} />
                   <Route path="/mis-tiendas"   element={<MyStore />} />
 

@@ -59,7 +59,7 @@ const StoreCreatedCard = ({ store, styles, components, status, onClick }) => {
         <h3 style={{ fontFamily: `"${cleanFont(header.font)}", sans-serif` }}>
           {store?.name}
         </h3>
-        <p>{store?.subdomain}.freseo.com</p>
+        <p>{store?.subdomain}.vexio.com</p>
         <span className={`status ${status?.toLowerCase()}`}>{status}</span>
         <span
           style={{

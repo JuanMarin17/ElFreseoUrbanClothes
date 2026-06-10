@@ -155,7 +155,7 @@ export default function FeaturedStores() {
                       {plan && <span className="vx-store-plan">{plan}</span>}
                     </div>
                     {desc && <p className="vx-store-tagline">{desc}</p>}
-                    <p className="vx-store-url">{store.slug}.freseo.com</p>
+                    <p className="vx-store-url">{store.slug}.VEXIO.com</p>
                     <div className="vx-store-divider" />
                     <button className="vx-store-btn">Visitar tienda →</button>
                   </div>
