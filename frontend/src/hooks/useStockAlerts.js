@@ -1,6 +1,9 @@
 import { useEffect, useRef, useCallback } from "react";
 
+const SSE_URL = `${import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1"}/alerts/stock/stream`;
+
 const SSE_URL = "http://46.225.21.146:8080/api/v1/alerts/stock/stream";
+
 const RECONNECT_DELAY_MS = 5_000;
 
 /**

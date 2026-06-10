@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useStore } from "./StoreContext";
+import { useStore } from "./useStore";
 import "../components/styles/StoreResult.css";
 import StoreFront from "../components/Store/StoreFront.jsx";
+import { ExternalLink } from "lucide-react";
 
 const cleanFont = (f = "Inter") => {
   const m = f.match(/['"]([^'"]+)['"]/);
@@ -34,9 +35,9 @@ const StoreResult = () => {
   const accentColor = styles.colorBoton ?? "#3e78ff";
   const fontTitle = cleanFont(styles.fontTitle ?? "Bebas Neue");
   const layoutClass = layout.id ?? "minimalista";
-  const siteUrl = `${store.subdomain ?? "mi-tienda"}.freseo.com`;
+  const siteUrl = `${store.subdomain ?? "mi-tienda"}.vexio.com`;
 
-  /* ── datos reales para StorePreview ── */
+  /* "" datos reales para StorePreview "" */
   const header = components.header ?? {
     logo: store.name ?? "MI TIENDA",
     items: ["HOME", "SHOP", "ABOUT"],
@@ -46,7 +47,7 @@ const StoreResult = () => {
     size: 14,
   };
   const banner = components.banner ?? {
-    title: styles.textoTitulo ?? "NUEVA COLECCIÓN",
+    title: styles.textoTitulo ?? "NUEVA COLECCION",
     color: "#fff",
     bg: "#111",
     font: "Bebas Neue",
@@ -54,7 +55,7 @@ const StoreResult = () => {
     images: [],
   };
   const footer = components.footer ?? {
-    text: `© ${store.name ?? "Mi Tienda"} 2026`,
+    text: `(c) ${store.name ?? "Mi Tienda"} 2026`,
     color: "#888",
     bg: "#080808",
     font: "Inter",
@@ -67,7 +68,7 @@ const StoreResult = () => {
     { name: styles.textoTitulo ?? "PRODUCTO", price: "$95.00" },
   ];
 
-  // widgets: usa los del usuario si existen, si no null (Clasico usará defaults con sidebar visible)
+  // widgets: usa los del usuario si existen, si no null (Clasico usara defaults con sidebar visible)
  
   const previewData = { header, banner, footer, products, styles, widgets };
 
@@ -84,10 +85,10 @@ const StoreResult = () => {
 
   return (
     <div className="result-page">
-      {/* ── Topbar ──────────────────────────── */}
+      {/* "" Topbar """""""""""""""""""""""""""" */}
       <div className="result-topbar">
         <div className="result-topbar__left">
-          <span className="result-badge">✓ TIENDA CREADA</span>
+          <span className="result-badge">" TIENDA CREADA</span>
           <span className="result-store-name">{store.name ?? "Mi Tienda"}</span>
           <span
             className="result-plan-badge"
@@ -101,7 +102,7 @@ const StoreResult = () => {
           <div className="result-url-box">
             <span className="result-url-text">{siteUrl}</span>
             <button className="result-url-copy" onClick={handleCopyUrl}>
-              {copied ? "✓ Copiado" : "Copiar URL"}
+              {copied ? "Copiado!" : "Copiar URL"}
             </button>
           </div>
         </div>
@@ -111,7 +112,7 @@ const StoreResult = () => {
             className="result-btn-secondary"
             onClick={() => navigate("/widgets")}
           >
-            ←Editar
+            Editar
           </button>
 
           <button
@@ -124,17 +125,17 @@ const StoreResult = () => {
         </div>
       </div>
 
-      {/* ── Summary bar ─────────────────────── */}
+      {/* "" Summary bar """"""""""""""""""""""" */}
       <div className="result-summary-bar">
         {[
-          { label: "PLAN", value: plan.name ?? "—" },
-          { label: "LAYOUT", value: layout.title ?? "—" },
+          { label: "PLAN", value: plan.name ?? "" },
+          { label: "LAYOUT", value: layout.title ?? "" },
           {
             label: "FUENTE",
             value: fontTitle,
             style: { fontFamily: fontTitle },
           },
-          { label: "SUBDOMINIO", value: store.subdomain ?? "—" },
+          { label: "SUBDOMINIO", value: store.subdomain ?? "" },
         ].map((pill) => (
           <div key={pill.label} className="summary-pill">
             <span className="summary-pill__label">{pill.label}</span>
@@ -153,7 +154,38 @@ const StoreResult = () => {
         </div>
       </div>
 
-      {/* ── Preview con layout real del usuario ─ */}
+      {/* "" Ir a mi tienda """""""""""""""""""""" */}
+      <div className="result-goto-section">
+        <div className="result-goto-card">
+          <div className="result-goto-icon">
+            <ExternalLink size={22} />
+          </div>
+          <div className="result-goto-text">
+            <h2 className="result-goto-title">Tu tienda esta lista</h2>
+            <p className="result-goto-sub">
+              Visita tu tienda ahora o administrala desde el panel
+            </p>
+            <span className="result-goto-url">{siteUrl}</span>
+          </div>
+          <div className="result-goto-actions">
+            <button
+              className="result-goto-btn-primary"
+              style={{ background: accentColor }}
+              onClick={() => navigate(`/tienda/${store.subdomain}`)}
+            >
+              Ir a mi tienda
+            </button>
+            <button
+              className="result-goto-btn-secondary"
+              onClick={() => navigate("/mis-tiendas")}
+            >
+              Administrar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* "" Preview con layout real del usuario " */}
       <div className="result-preview-container">
         <div className="store-preview">
           <StoreFront layoutType={layoutClass} data={previewData} />

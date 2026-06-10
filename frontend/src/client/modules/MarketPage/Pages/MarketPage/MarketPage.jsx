@@ -42,7 +42,6 @@ export default function MarketPage() {
         <HeroPromoSection />
         <CategoriesBubble />
         <FeaturedStores />
-        <ProductGrid title="Más vendidos" products={bestSellers} />
         <CreateStoreSection />
         <ProductGrid title="Nuevas llegadas" products={newArrivals} />
       </main>

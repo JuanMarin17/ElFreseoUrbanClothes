@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { GCard } from "./storeUtils.jsx";
 
 export default function StoreProductCard({ product, index, theme, isJustAdded, onAddToCart }) {
@@ -167,6 +168,43 @@ export default function StoreProductCard({ product, index, theme, isJustAdded, o
               {btnText}
             </button>
           </div>
+
+          {/* Ver más → ProductPage */}
+          <Link
+            to={`/products/${product.id ?? product.productId}`}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+              marginTop: 10,
+              padding: isUrb ? "8px 0" : "8px 0",
+              borderRadius: btnR,
+              border: `1px solid ${accent}35`,
+              background: `${accent}0d`,
+              color: accent,
+              fontSize: isUrb ? 9 : 11,
+              fontWeight: isUrb ? 800 : 600,
+              letterSpacing: isUrb ? 2.5 : 0.4,
+              textTransform: isUrb ? "uppercase" : "none",
+              textDecoration: "none",
+              fontFamily: `"${fT}",sans-serif`,
+              transition: "background 0.18s, border-color 0.18s",
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = `${accent}22`;
+              e.currentTarget.style.borderColor = `${accent}70`;
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = `${accent}0d`;
+              e.currentTarget.style.borderColor = `${accent}35`;
+            }}
+          >
+            {isUrb ? "VER MÁS" : "Ver más"}
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="7" y1="17" x2="17" y2="7" /><polyline points="7 7 17 7 17 17" />
+            </svg>
+          </Link>
         </div>
       </div>
     </GCard>

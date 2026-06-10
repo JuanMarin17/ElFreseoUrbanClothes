@@ -1,0 +1,408 @@
+/* ── Layout base ─────────────────────────────────────────────────────────── */
+
+.um-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  animation: um-fade-in 0.4s ease-out;
+}
+
+@keyframes um-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
+.um-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.um-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.5px;
+}
+
+.um-subtitle {
+  font-size: 13px;
+  color: #888888;
+  margin: 0;
+}
+
+.um-header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ── Botones ─────────────────────────────────────────────────────────────── */
+
+.um-btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.um-btn-primary:hover:not(:disabled) { background: #1d4ed8; }
+.um-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.um-btn-secondary {
+  background: #111111;
+  color: #aaaaaa;
+  border: 1px solid #222222;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.um-btn-secondary:hover:not(:disabled) { color: #ffffff; border-color: #444444; }
+.um-btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.um-btn-refresh {
+  background: transparent;
+  border: 1px solid #222222;
+  color: #666666;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.15s;
+}
+.um-btn-refresh:hover:not(:disabled) { color: #ffffff; border-color: #444444; }
+.um-btn-refresh:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.um-icon-btn {
+  background: transparent;
+  border: none;
+  color: #666666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 4px;
+}
+.um-icon-btn:hover { color: #ffffff; }
+
+.um-spin { animation: um-spin-anim 0.8s linear infinite; }
+@keyframes um-spin-anim { to { transform: rotate(360deg); } }
+
+/* ── Formulario de agregar miembro ───────────────────────────────────────── */
+
+.um-add-form-card {
+  background: #111111;
+  border: 1px solid #1e3a5f;
+  border-radius: 12px;
+  overflow: hidden;
+  animation: um-fade-in 0.2s ease-out;
+}
+
+.um-add-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: #0d1f33;
+  font-size: 13px;
+  font-weight: 600;
+  color: #93c5fd;
+}
+
+.um-add-form-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.um-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.um-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #666666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.um-input {
+  background: #0d0d0d;
+  border: 1px solid #222222;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #ffffff;
+  font-family: monospace;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.um-input:focus { border-color: #2563eb; }
+.um-input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.um-field-hint {
+  font-size: 11px;
+  color: #555555;
+}
+
+.um-form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* ── KPI Cards ───────────────────────────────────────────────────────────── */
+
+.um-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.um-stat-card {
+  background: #111111;
+  border: 1px solid #1a1a1a;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.um-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.um-stat-icon.blue   { background: rgba(37, 99, 235, 0.15); color: #3b82f6; }
+.um-stat-icon.green  { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.um-stat-icon.purple { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
+
+.um-stat-data { display: flex; flex-direction: column; }
+
+.um-stat-label {
+  font-size: 11px;
+  color: #666666;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.um-stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 2px 0 0 0;
+}
+
+/* ── Tabla ───────────────────────────────────────────────────────────────── */
+
+.um-table-wrapper {
+  background: #0d0d0d;
+  border: 1px solid #141414;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.um-state-placeholder {
+  text-align: center;
+  padding: 60px 20px;
+  color: #555555;
+  font-size: 14px;
+}
+
+.um-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.um-table th {
+  background: #111111;
+  padding: 12px 16px;
+  color: #555555;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #1a1a1a;
+  text-align: left;
+}
+
+.um-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #141414;
+  color: #cccccc;
+  vertical-align: middle;
+}
+
+.um-table tbody tr:last-child td { border-bottom: none; }
+.um-table tbody tr:hover { background: rgba(255, 255, 255, 0.01); }
+
+/* Celda de usuario con avatar */
+.um-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.um-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.um-user-name { color: #ffffff; font-weight: 500; }
+.um-email     { color: #888888; font-size: 13px; }
+
+.um-null-text { color: #444444; font-style: italic; }
+
+/* Badges de rol */
+.um-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.um-role-owner {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.um-role-admin {
+  background: rgba(139, 92, 246, 0.12);
+  color: #8b5cf6;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+/* Badges de estado activo/inactivo */
+.um-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.um-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.um-active  { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.um-active .um-status-dot  { background: #10b981; }
+
+.um-inactive { background: rgba(107, 114, 128, 0.1); color: #6b7280; }
+.um-inactive .um-status-dot { background: #6b7280; }
+
+/* Botones de toggle en la tabla */
+.um-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.um-toggle-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.um-toggle-deactivate {
+  background: rgba(127, 29, 29, 0.3);
+  color: #fca5a5;
+  border-color: #7f1d1d;
+}
+.um-toggle-deactivate:hover:not(:disabled) { background: #7f1d1d; }
+
+.um-toggle-activate {
+  background: rgba(6, 78, 59, 0.3);
+  color: #6ee7b7;
+  border-color: #064e3b;
+}
+.um-toggle-activate:hover:not(:disabled) { background: #064e3b; }
+
+.um-owner-note {
+  font-size: 11px;
+  color: #555555;
+  font-style: italic;
+}
+
+/* ── Toast ───────────────────────────────────────────────────────────────── */
+
+.um-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100000;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  max-width: 360px;
+  animation: um-fade-in 0.2s ease-out;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.um-toast-success { background: #064e3b; color: #d1fae5; border: 1px solid #10b981; }
+.um-toast-error   { background: #450a0a; color: #fee2e2; border: 1px solid #ef4444; }
+
+/* ── Nota de pie ─────────────────────────────────────────────────────────── */
+
+.um-footer-note {
+  font-size: 12px;
+  color: #444444;
+  text-align: center;
+  margin: 0;
+  padding: 0 20px;
+}
+
+/* ── Texto utilitario ────────────────────────────────────────────────────── */
+
+.text-center { text-align: center; }

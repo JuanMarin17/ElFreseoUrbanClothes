@@ -46,13 +46,21 @@ export function useDashboard() {
       setLoading(true);
       setError(null);
       try {
-        const [promos, cups] = await Promise.all([
+        const [promosResult, cupsResult] = await Promise.allSettled([
           fetchAllPromotions(),
           fetchAllCoupons(),
         ]);
         if (cancelled) return;
-        setPromotions(promos ?? []);
-        setCoupons(cups ?? []);
+
+        if (promosResult.status === "fulfilled") {
+          setPromotions(promosResult.value ?? []);
+        }
+        if (cupsResult.status === "fulfilled") {
+          setCoupons(cupsResult.value ?? []);
+        }
+
+        const failed = [promosResult, cupsResult].find((r) => r.status === "rejected");
+        if (failed) setError(failed.reason?.message ?? "Error al cargar datos");
       } catch (err) {
         if (!cancelled) setError(err.message);
       } finally {

@@ -57,6 +57,7 @@ function Field({ icon, type = 'text', placeholder, value, onChange, showToggle, 
           placeholder={placeholder}
           value={value}
           onChange={onChange}
+          autoComplete='none'
         />
         {showToggle && (
           <button type="button" className="vp-eye-btn" onClick={onToggle}>

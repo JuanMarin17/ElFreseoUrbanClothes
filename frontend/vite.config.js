@@ -10,6 +10,11 @@ export default defineConfig({
         target: 'http://46.225.21.146:8080',
         changeOrigin: true,
         secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Accept-Charset', 'UTF-8');
+          });
+        },
       },
     },
   },

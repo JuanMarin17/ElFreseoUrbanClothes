@@ -57,7 +57,8 @@ export function useProduct(productId) {
       setQuantity(1);
 
       try {
-        const [productData, reviewData, relatedData] = await Promise.all([
+        // El producto es crítico; reviews y related son opcionales
+        const [productResult, reviewResult, relatedResult] = await Promise.allSettled([
           fetchProductById(productId),
           fetchProductReviews(productId, 0),
           fetchRelatedProducts(productId),
@@ -65,10 +66,19 @@ export function useProduct(productId) {
 
         if (cancelled) return;
 
+        // Si el producto falla, mostramos el error
+        if (productResult.status === "rejected") {
+          throw productResult.reason;
+        }
+
+        const productData = productResult.value;
+        const reviewData  = reviewResult.status  === "fulfilled" ? reviewResult.value  : null;
+        const relatedData = relatedResult.status === "fulfilled" ? relatedResult.value : [];
+
         setProduct(productData);
-        setReviews(reviewData.content ?? []);
-        setHasMoreReviews(!reviewData.last);
-        setRelated(relatedData);
+        setReviews(reviewData?.content ?? []);
+        setHasMoreReviews(reviewData ? !reviewData.last : false);
+        setRelated(Array.isArray(relatedData) ? relatedData : []);
 
         // Preselecciona primer color y primera talla disponible
         const firstColor = productData.colors?.[0] ?? null;
