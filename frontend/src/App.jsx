@@ -12,13 +12,14 @@ import { TokenGuard }                              from "./admin/modules/auth/pa
 import ProtectedStep                               from "./multi-tenant/components/ProtectStep.jsx";
 import SubscriptionGuard                           from "./admin/modules/auth/pages/hook/SubscriptionGuard.jsx";
 
+import MyStoreLayout                               from "./multi-tenant/pages/MyStoreLayout.jsx";
+
 // ── Suscripciones ─────────────────────────────────────────────────────────────
 const SubscriptionPlansPage = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionPlansPage.jsx"));
 const SubscriptionSuccess   = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionSuccess.jsx"));
 const SubscriptionFailure   = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionFailure.jsx"));
 const SubscriptionPending   = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionPending.jsx"));
 
-// ── Admin ─────────────────────────────────────────────────────────────────────
 const AdminLayout         = lazy(() => import("./admin/modules/administration/components/AdminLayout/AdminLayout.jsx"));
 const Dashboard           = lazy(() => import("./admin/modules/administration/dashboard/Dashboard.jsx"));
 const UploadProduct       = lazy(() => import("./admin/modules/administration/pages/UploadProduct/UploadProduct.jsx"));
@@ -100,8 +101,6 @@ function PageLoader() {
     </div>
   );
 }
-
-// ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
   return (
     <AuthProvider>
@@ -112,8 +111,6 @@ export default function App() {
             <Suspense fallback={<PageLoader />}>
               <AnimatePresence mode="wait">
                 <Routes key="main-content">
-
-                  {/* ── Público ──────────────────────────────────────────── */}
                   <Route path="/"                    element={<VexioLanding />} />
                   <Route path="/landing"             element={<VexioLanding />} />
                   <Route path="/market"              element={<MarketPage />} />
@@ -156,7 +153,48 @@ export default function App() {
                   <Route path="/resultado"     element={<ProtectedStep requiredStep={9}><StoreResult /></ProtectedStep>} />
 
                   {/* ── Suscripciones ────────────────────────────────────── */}
-                  <Route path="/planes"                          element={<SubscriptionPlansPage />} />
+                  <Route path="/planes" element={<SubscriptionPlansPage />} />
+                  <Route path="/" element={<VexioLanding />} />
+                  <Route path="/market" element={<MarketPage />} />
+                  <Route path="/products/:productId" element={<ProductPage />} />
+                  <Route path="/cuenta/*" element={<AccountPage />} />
+
+                  {/* ── Auth ─────────────────────────────────────────────── */}
+                  <Route path="/login" element={<div className="ayuda"><Login mode="login" /></div>} />
+                  <Route path="/login/register" element={<div className="ayuda"><Login mode="register" /></div>} />
+                  <Route path="/recuperar-contraseña" element={<ForgotPassword />} />
+                  <Route path="/verificar-codigo" element={<VerifyCode />} />
+                  <Route path="/nueva-contraseña" element={<NewPassword />} />
+                  <Route path="/verificacion-pagina" element={<VerificationPage />} />
+
+                  {/* ── Ayuda ────────────────────────────────────────────── */}
+                  <Route path="/ayuda" element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/pedidos" element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/pagos" element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/devoluciones" element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/seguridad" element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/session-cerrada" element={<SessionClosed />} />
+
+                  {/* ── Wizard creación de tienda ─────────────────────────── */}
+                  <Route path="/plan" element={<SelectPlan showComponents={true} />} />
+                  <Route path="/crear-tienda/basico" element={<StepBasicPage />} />
+                  <Route path="/crear-tienda/legal" element={<StepLegalPage />} />
+                  <Route path="/crear-tienda/pagos" element={<StepPaymentPage />} />
+                  <Route path="/layout" element={<ProtectedStep requiredStep={3}><LayoutSelect /></ProtectedStep>} />
+                  <Route path="/customer" element={<ProtectedStep requiredStep={4}><CustomizationPanel /></ProtectedStep>} />
+                  <Route path="/component" element={<ProtectedStep requiredStep={5}><ComponentCustomizer /></ProtectedStep>} />
+                  <Route path="/widgets" element={<ProtectedStep requiredStep={6}><WidgetsCustomizer /></ProtectedStep>} />
+                  <Route path="/cms" element={<ProtectedStep requiredStep={7}><CMSEditor /></ProtectedStep>} />
+                  <Route path="/cms/about" element={<ProtectedStep requiredStep={7}><CMSAbout /></ProtectedStep>} />
+                  <Route path="/cms/contact" element={<ProtectedStep requiredStep={7}><CMSContact /></ProtectedStep>} />
+                  <Route path="/cms/locations" element={<ProtectedStep requiredStep={7}><CMSLocations /></ProtectedStep>} />
+                  <Route path="/cms/returns" element={<ProtectedStep requiredStep={7}><CMSReturns /></ProtectedStep>} />
+                  <Route path="/cms/faq" element={<ProtectedStep requiredStep={7}><CMSFAQ /></ProtectedStep>} />
+                  <Route path="/crear-tienda" element={<ProtectedStep requiredStep={8}><CreateStore /></ProtectedStep>} />
+                  <Route path="/resultado" element={<ProtectedStep requiredStep={9}><StoreResult /></ProtectedStep>} />
+
+                  {/* ── Suscripciones ────────────────────────────────────── */}
+                  <Route path="/planes" element={<SubscriptionPlansPage />} />
                   <Route path="/dashboard/subscription/success" element={<SubscriptionSuccess />} />
                   <Route path="/dashboard/subscription/failure" element={<SubscriptionFailure />} />
                   <Route path="/dashboard/subscription/pending" element={<SubscriptionPending />} />
@@ -225,6 +263,42 @@ export default function App() {
                       <Route path="cms/locations"       element={<CMSLocations />} />
                       <Route path="cms/returns"         element={<CMSReturns />} />
                       <Route path="cms/faq"             element={<CMSFAQ />} />
+                      <Route path="/tienda/:slug" element={<StorePage />} />
+
+                  {/* ── SuperAdmin shell ─────────────────────────────────── */}
+                  <Route element={<MyStoreLayout />}>
+                    <Route path="/mis-tiendas" element={<MyStore />} />
+                    <Route path="/transacciones" element={<Transaction />} />
+                  </Route>
+
+                  {/* ── Rutas protegidas ─────────────────────────────────── */}
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="/tiendas" element={<MyStore />} />
+                    <Route path="/ordenes" element={<OrdersDashboard />} />
+                    <Route path="/mi-tienda/productos" element={<StoreProductsAdmin />} />
+                    <Route path="/inventario" element={<Navigate to="/tiendas" replace />} />
+                  </Route>
+
+                  {/* ── Dashboard admin por tienda ───────────────────────── */}
+                  <Route element={<SubscriptionGuard />}>
+                    <Route path="/tienda/:slug/admin" element={<AdminLayout />}>
+                      <Route index element={<Navigate to="dashboard" replace />} />
+                      <Route path="proveedores" element={<SuppliersPage />} />
+                      <Route path="IA" element={<IAAdmin />} />
+                      <Route path="dashboard" element={<Dashboard />} />
+                      <Route path="subir-producto" element={<UploadProduct />} />
+                      <Route path="editar-producto/:id" element={<EditProduct />} />
+                      <Route path="inventario" element={<InventaryStock />} />
+                      <Route path="usuarios" element={<Dashboard />} />
+                      <Route path="report" element={<Report />} />
+                      <Route path="pedidos" element={<OrdersManagement />} />
+                      <Route path="alertas" element={<ShockAlerts />} />
+                      <Route path="cms" element={<CMSEditor />} />
+                      <Route path="cms/about" element={<CMSAbout />} />
+                      <Route path="cms/contact" element={<CMSContact />} />
+                      <Route path="cms/locations" element={<CMSLocations />} />
+                      <Route path="cms/returns" element={<CMSReturns />} />
+                      <Route path="cms/faq" element={<CMSFAQ />} />
                     </Route>
                   </Route>
 
@@ -239,4 +313,4 @@ export default function App() {
       </MultiTenantAuthProvider>
     </AuthProvider>
   );
-}
+
