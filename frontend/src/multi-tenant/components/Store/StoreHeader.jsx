@@ -59,7 +59,7 @@ export default function StoreHeader({
     >
       {/* Botón volver */}
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => navigate("/market")}
         title="Volver"
         style={{
           ...iconBtnStyle,
@@ -68,7 +68,7 @@ export default function StoreHeader({
         onMouseEnter={e => { e.currentTarget.style.background = btnBgHov; }}
         onMouseLeave={e => { e.currentTarget.style.background = btnBg; }}
       >
-        <ArrowLeft size={16} />
+        <ArrowLeft style={{minWidth: "15px", height: "15px"}}/>
       </button>
 
       {/* NAV izquierda — solo minimalista */}

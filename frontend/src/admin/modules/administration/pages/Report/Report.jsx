@@ -4,7 +4,7 @@ import "./Report.css";
 // ============================================================
 //  CONFIGURACIÓN DE API
 // ============================================================
-const BASE = "http://localhost:8080/api/v1";
+const BASE = "http://46.225.21.146:8080/api/v1";
 
 const buildHeaders = () => ({
   "Content-Type": "application/json",
@@ -20,21 +20,24 @@ async function apiFetch(path) {
   return res.json();
 }
 
-const getDashboard    = ()           => apiFetch("/reports/dashboard");
-const getStockReport  = ()           => apiFetch("/reports/stock");
-const getOrdersReport = (days = 30)  => apiFetch(`/reports/orders?days=${days}`);
-const getSalesReport  = (days = 30)  => apiFetch(`/reports/sales?days=${days}`);
+const getDashboard = () => apiFetch("/reports/dashboard");
+const getStockReport = () => apiFetch("/reports/stock");
+const getOrdersReport = (days = 30) => apiFetch(`/reports/orders?days=${days}`);
+const getSalesReport = (days = 30) => apiFetch(`/reports/sales?days=${days}`);
 
 // ============================================================
 //  UTILIDADES
 // ============================================================
 const formatCOP = (v) =>
   new Intl.NumberFormat("es-CO", {
-    style: "currency", currency: "COP",
-    minimumFractionDigits: 0, maximumFractionDigits: 0,
+    style: "currency",
+    currency: "COP",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(v ?? 0);
 
-const periodToDays = (p) => ({ "7D": 7, "30D": 30, "90D": 90, "ALL": 0 }[p] ?? 30);
+const periodToDays = (p) =>
+  ({ "7D": 7, "30D": 30, "90D": 90, ALL: 0 })[p] ?? 30;
 
 const ORDER_STATUS_COLORS = {
   pendingOrders: "#f59e0b",
@@ -1086,25 +1089,31 @@ export default function Report() {
   useEffect(() => {
     if (activeTab !== "dashboard" || dashboardData) return;
     let cancelled = false;
-    (async () => {
+    async () => {
       setLoad("dashboard", true);
       getDashboard()
         .then(setDashboardData)
-        .catch((e) => { handleAuthError(e); setError("dashboard", e.message); })
+        .catch((e) => {
+          handleAuthError(e);
+          setError("dashboard", e.message);
+        })
         .finally(() => setLoad("dashboard", false));
-    })
+    };
   }, [activeTab]);
 
   useEffect(() => {
     if (activeTab !== "stock" || stockData) return;
     let cancelled = false;
-    (async () => {
+    async () => {
       setLoad("stock", true);
       getStockReport()
         .then(setStockData)
-        .catch((e) => { handleAuthError(e); setError("stock", e.message); })
+        .catch((e) => {
+          handleAuthError(e);
+          setError("stock", e.message);
+        })
         .finally(() => setLoad("stock", false));
-    })
+    };
   }, [activeTab]);
 
   useEffect(() => {
@@ -1113,7 +1122,10 @@ export default function Report() {
     setOrdersData(null);
     getOrdersReport(periodToDays(ordersPeriod))
       .then(setOrdersData)
-      .catch((e) => { handleAuthError(e); setError("orders", e.message); })
+      .catch((e) => {
+        handleAuthError(e);
+        setError("orders", e.message);
+      })
       .finally(() => setLoad("orders", false));
   }, [activeTab, ordersPeriod]);
 
@@ -1123,7 +1135,10 @@ export default function Report() {
     setSalesData(null);
     getSalesReport(periodToDays(salesPeriod))
       .then(setSalesData)
-      .catch((e) => { handleAuthError(e); setError("sales", e.message); })
+      .catch((e) => {
+        handleAuthError(e);
+        setError("sales", e.message);
+      })
       .finally(() => setLoad("sales", false));
   }, [activeTab, salesPeriod]);
 
@@ -1140,8 +1155,16 @@ export default function Report() {
       <div className="rp-topbar">
         <h1 className="rp-title">Reportes</h1>
         <div className="rp-topbar-right">
-          <i className="ti ti-bell"     style={{ fontSize: 18 }} aria-hidden="true" />
-          <i className="ti ti-settings" style={{ fontSize: 18 }} aria-hidden="true" />
+          <i
+            className="ti ti-bell"
+            style={{ fontSize: 18 }}
+            aria-hidden="true"
+          />
+          <i
+            className="ti ti-settings"
+            style={{ fontSize: 18 }}
+            aria-hidden="true"
+          />
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const IA_BASE = `${import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1"}/ia/admin`;
+const IA_BASE = `${import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1"}/ia/admin`;
 
 const ia = axios.create({
   baseURL: IA_BASE,
@@ -9,13 +9,13 @@ const ia = axios.create({
 });
 
 ia.interceptors.request.use((config) => {
-  const token   = localStorage.getItem("jwt");
+  const token = localStorage.getItem("jwt");
   const storeId = localStorage.getItem("storeId");
-  const role    = localStorage.getItem("userRole");
+  const role = localStorage.getItem("userRole");
 
-  if (token)   config.headers.Authorization  = `Bearer ${token}`;
-  if (storeId) config.headers["X-Store-Id"]  = storeId;
-  if (role)    config.headers["X-User-Role"] = role;
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (storeId) config.headers["X-Store-Id"] = storeId;
+  if (role) config.headers["X-User-Role"] = role;
 
   if (token) {
     try {
@@ -36,11 +36,11 @@ ia.interceptors.response.use(
       return Promise.reject(err);
     }
     const err = new Error(
-      error.response?.data?.message || error.message || "Error desconocido"
+      error.response?.data?.message || error.message || "Error desconocido",
     );
     err.status = error.response.status;
     return Promise.reject(err);
-  }
+  },
 );
 
 export const sendChat = (body) => ia.post("/chat", body);

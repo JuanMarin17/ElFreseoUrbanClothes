@@ -29,7 +29,7 @@ const AdminHeader = ({
             type="text"
             placeholder={searchPlaceholder}
             value={searchValue ?? ""}
-            onChange={onSearchChange}
+            onChange={onSearchChange ?? (() => {})}
           />
         </div>
 

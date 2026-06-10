@@ -5,7 +5,7 @@
 // ============================================================
 
 const BASE = "http://46.225.21.146:8080/api/v1";
-const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
+const BASE = import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
 
 /**
  * Construye los headers requeridos por todos los endpoints.
