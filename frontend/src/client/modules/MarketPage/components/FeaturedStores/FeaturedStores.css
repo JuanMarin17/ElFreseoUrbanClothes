@@ -1,152 +1,169 @@
-/* ── FeaturedStores ── */
+/* ==========================================================================
+   VEXIO — Módulo de Tiendas Destacadas (Premium, Fluido e Interactivo)
+   ========================================================================== */
+
 .vx-fstores-root {
-  width: 100%;
-  padding: 0 0 60px;
+  padding-top: var(--vx-section-gap-sm);
+  padding-bottom: var(--vx-section-gap);
+  position: relative;
 }
 
+/* Grid Elástico y Distribución Limpia */
 .vx-fstores-grid {
   display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  width: 100%;
 }
-@media (min-width: 480px)  { .vx-fstores-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 768px)  { .vx-fstores-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 1200px) { .vx-fstores-grid { grid-template-columns: repeat(4, 1fr); } }
 
-/* ─ Card ─ */
+/* ── Tarjeta de Tienda (Sin Encierros Rígidos) ── */
 .vx-store-card {
   position: relative;
   background: var(--vx-card);
   border: 1px solid var(--vx-border);
-  border-radius: 14px;
-  /* sin overflow:hidden para que el avatar pueda sobresalir */
+  border-radius: var(--vx-radius-xl);
   display: flex;
   flex-direction: column;
   cursor: pointer;
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(22px);
+  background-clip: padding-box;
   transition:
-    opacity .45s ease,
-    transform .45s ease,
-    border-color .2s,
-    box-shadow .2s;
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .vx-store-card.vx-visible {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* Hover Cinemático Profundo */
 .vx-store-card:hover {
-  border-color: var(--store-accent, var(--vx-cyan-mid));
-  transform: translateY(-5px);
+  border-color: color-mix(in srgb, var(--store-accent) 45%, transparent);
+  transform: translateY(-6px);
   box-shadow:
-    0 16px 40px color-mix(in srgb, var(--store-accent, #3e78ff) 20%, transparent),
-    0 2px 8px rgba(0,0,0,0.3);
-}
-.vx-store-card:focus-visible {
-  outline: 2px solid var(--store-accent, var(--vx-cyan));
-  outline-offset: 2px;
+    0 20px 40px rgba(0, 0, 0, 0.5),
+    0 0 0 1px color-mix(in srgb, var(--store-accent) 8%, transparent);
 }
 
-/* ─ Cover ─ */
+.vx-store-card:focus-visible {
+  outline: 2px solid var(--store-accent);
+  outline-offset: 4px;
+}
+
+/* ── Cover de la Tienda ── */
 .vx-store-cover-wrap {
   position: relative;
-  height: 140px;
+  height: 130px;
   overflow: hidden;
-  flex-shrink: 0;
-  border-radius: 13px 13px 0 0;
+  border-radius: 19px 19px 0 0;
 }
+
 .vx-store-cover,
 .vx-store-cover-gradient {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.5s ease;
+  transform: scale(1);
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .vx-store-card:hover .vx-store-cover,
-.vx-store-card:hover .vx-store-cover-gradient { transform: scale(1.07); }
+.vx-store-card:hover .vx-store-cover-gradient {
+  transform: scale(1.05);
+}
 
 .vx-store-cover-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.05) 0%,
-    rgba(0,0,0,0.55) 100%
+    rgba(6, 6, 8, 0) 0%,
+    rgba(6, 6, 8, 0.6) 100__
   );
+  z-index: 1;
 }
 
-/* ─ Avatar — posicionado relativo a la card, sobresale del cover ─ */
+/* ── Avatar Flotante Premium ── */
 .vx-store-avatar-ring {
   position: absolute;
-  top: 116px;   /* cover 140px - la mitad del avatar (44/2=22) - borde (2.5) ≈ 116 */
-  left: 16px;
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  border: 3px solid var(--vx-card);
+  top: 104px; /* Centrado asimétrico sobre el borde del banner */
+  left: 20px;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--vx-radius-lg);
+  border: 4px solid var(--vx-card);
   overflow: hidden;
-  z-index: 10;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  z-index: 3;
+  background: var(--vx-card2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
+.vx-store-card:hover .vx-store-avatar-ring {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--store-accent) 30%, rgba(0,0,0,0.5));
+}
+
 .vx-store-avatar {
   width: 100%;
   height: 100%;
-  border-radius: 8px;
   object-fit: cover;
   display: block;
 }
+
 .vx-store-avatar-initials {
   width: 100%;
   height: 100%;
   display: flex;
-  position: absolute;
-  z-index: 100;
   align-items: center;
   justify-content: center;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 800;
-  color: #fff;
-  letter-spacing: 0;
+  color: #ffffff;
 }
 
-/* ─ Badge activo (esquina superior derecha del cover) ─ */
+/* Chip de Estado Minimalista */
 .vx-store-badge {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: #fff;
+  top: 14px;
+  right: 14px;
+  background: rgba(6, 6, 8, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--vx-border);
+  color: var(--vx-text);
   font-size: 9px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 20px;
+  padding: 4px 10px;
+  border-radius: 99px;
   z-index: 2;
 }
 
-/* ─ Info ─ */
+/* ── Bloque de Contenido ── */
 .vx-store-info {
-  padding: 36px 16px 16px;  /* extra top para dar espacio al avatar superpuesto */
+  padding: 38px 20px 20px;
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 5px;
+  gap: 8px;
 }
 
 .vx-store-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 2px;
+  gap: 12px;
 }
 
 .vx-store-name {
-  font-size: 0.93rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--vx-text);
   margin: 0;
@@ -155,24 +172,25 @@
   text-overflow: ellipsis;
 }
 
+/* Tag de Categoría de Plan */
 .vx-store-plan {
   font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--store-accent, var(--vx-cyan));
-  background: color-mix(in srgb, var(--store-accent, var(--vx-cyan)) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--store-accent, var(--vx-cyan)) 30%, transparent);
-  padding: 2px 7px;
-  border-radius: 20px;
+  color: var(--store-accent);
+  background: color-mix(in srgb, var(--store-accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--store-accent) 25%, transparent);
+  padding: 3px 8px;
+  border-radius: 99px;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .vx-store-tagline {
-  font-size: 0.75rem;
-  color: var(--vx-muted);
-  line-height: 1.45;
+  font-size: 0.8rem;
+  color: var(--vx-text2);
+  line-height: 1.5;
   margin: 0;
   overflow: hidden;
   display: -webkit-box;
@@ -182,74 +200,151 @@
 }
 
 .vx-store-url {
-  font-size: 0.68rem;
-  color: var(--store-accent, var(--vx-cyan));
-  font-family: "SF Mono", "Consolas", monospace;
-  margin: 0;
-  opacity: 0.75;
+  font-size: 0.72rem;
+  color: var(--vx-muted);
+  font-family: var(--vx-font);
+  margin: 2px 0 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color 0.3s ease;
+}
+
+.vx-store-card:hover .vx-store-url {
+  color: var(--store-accent);
 }
 
 .vx-store-divider {
   height: 1px;
-  background: var(--vx-border);
+  background: linear-gradient(90deg, var(--vx-border), transparent);
   margin: 4px 0;
 }
 
+/* Botón de Acción Estilo Líquido */
 .vx-store-btn {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   width: 100%;
-  padding: 9px 0;
-  font-size: 0.8rem;
+  padding: 11px 0;
+  font-size: 0.82rem;
   font-weight: 600;
-  text-align: center;
-  color: var(--store-accent, var(--vx-cyan));
-  border: 1.5px solid color-mix(in srgb, var(--store-accent, var(--vx-cyan)) 35%, transparent);
-  border-radius: 8px;
+  color: var(--vx-text);
+  border: 1px solid var(--vx-border2);
+  border-radius: var(--vx-radius);
   background: transparent;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
-  margin-top: 4px;
-  letter-spacing: 0.3px;
+  transition: 
+    background-color 0.3s ease, 
+    color 0.3s ease, 
+    border-color 0.3s ease;
+  margin-top: 6px;
 }
+
+.vx-btn-icon-move {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .vx-store-card:hover .vx-store-btn {
-  background: var(--store-accent, var(--vx-cyan));
-  color: #fff;
+  background: var(--store-accent);
+  color: #ffffff;
   border-color: transparent;
 }
 
-/* ─ Empty / Error ─ */
+.vx-store-card:hover .vx-btn-icon-move {
+  transform: translate(2px, -2px);
+}
+
+/* ── Vista de Error y Vacíos ── */
 .vx-fstores-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 48px 20px;
+  gap: 14px;
+  padding: 60px 20px;
   color: var(--vx-muted);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   text-align: center;
+  width: 100%;
 }
-.vx-fstores-empty svg { opacity: 0.4; }
+.vx-fstores-empty svg {
+  color: var(--vx-cyan);
+  opacity: 0.6;
+}
 
-/* ─ Skeleton ─ */
+/* ── Skeletons Avanzados Receptivos ── */
 .vx-fstores-loading {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  width: 100%;
 }
-@media (min-width: 768px)  { .vx-fstores-loading { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 1200px) { .vx-fstores-loading { grid-template-columns: repeat(4, 1fr); } }
 
 .vx-store-skeleton {
-  height: 260px;
-  border-radius: 14px;
-  background: linear-gradient(90deg, var(--vx-card) 25%, var(--vx-card2) 50%, var(--vx-card) 75%);
-  background-size: 200% 100%;
-  animation: vx-shimmer 1.4s infinite;
+  height: 290px;
+  border-radius: var(--vx-radius-xl);
+  background: var(--vx-card);
+  border: 1px solid var(--vx-border);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
 }
+
+.vx-store-skeleton .sk-cover {
+  height: 130px;
+  background: var(--vx-card2);
+}
+
+.vx-store-skeleton .sk-avatar {
+  position: absolute;
+  top: 104px;
+  left: 20px;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--vx-radius-lg);
+  background: var(--vx-card2);
+  border: 4px solid var(--vx-card);
+}
+
+.vx-store-skeleton .sk-body {
+  padding: 38px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.vx-store-skeleton .sk-line {
+  background: linear-gradient(90deg, var(--vx-card2) 25%, var(--vx-card-hover) 50%, var(--vx-card2) 75%);
+  background-size: 200% 100%;
+  animation: vx-shimmer 1.5s infinite linear;
+  border-radius: 4px;
+}
+
+.vx-store-skeleton .sk-line-title { height: 16px; width: 60%; }
+.vx-store-skeleton .sk-line-text  { height: 12px; width: 90%; margin-bottom: auto; }
+.vx-store-skeleton .sk-line-btn   { height: 36px; width: 100%; border-radius: var(--vx-radius); }
+
 @keyframes vx-shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* ── Adaptabilidad Móvil ── */
+@media (max-width: 640px) {
+  .vx-fstores-grid, .vx-fstores-loading {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .vx-store-card {
+    border-radius: var(--vx-radius-lg);
+  }
+  .vx-store-cover-wrap {
+    height: 115px;
+  }
+  .vx-store-avatar-ring {
+    top: 90px;
+  }
 }
