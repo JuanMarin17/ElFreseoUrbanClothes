@@ -8,4 +8,13 @@ export default defineConfig({
     loader: 'jsx',
     include: /src\/admin\/modules\/auth\/pages\/hook\/Useauth\.jsx$/,
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 })

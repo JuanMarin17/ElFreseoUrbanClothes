@@ -31,7 +31,7 @@ export const DEMO = {
 /* ── Tarjeta con borde gradiente ── */
 export function GCard({ b1, b2, bw, br, sh, bg, children }) {
   return (
-    <div style={{ background: `linear-gradient(135deg,${b1},${b2})`, padding: bw, borderRadius: br, boxShadow: sh }}>
+    <div style={{ background: `linear-gradient(135deg,${b1},${b2})`, padding: bw, borderRadius: br, boxShadow: sh, width: "100%" }}>
       <div style={{ background: bg, borderRadius: `calc(${br} - ${bw})`, overflow: "hidden", height: "100%" }}>
         {children}
       </div>

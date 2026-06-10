@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   User, Shield, ShoppingBag,
-  MapPin, Settings, HelpCircle, LogOut
+  MapPin, Settings, HelpCircle, LogOut, ArrowLeft
 } from 'lucide-react';
 import './AccountSidebar.css';
 
@@ -28,6 +28,11 @@ export default function AccountSidebar({ active, onSelect }) {
 
   return (
     <aside className="account-sidebar">
+      <button className="sidebar-back-btn" onClick={() => navigate('/market')}>
+        <ArrowLeft size={15} />
+        <span>Volver al Market</span>
+      </button>
+
       <div className="sidebar-avatar">
         <div className="avatar-glow-container">
           <div className="avatar-circle">

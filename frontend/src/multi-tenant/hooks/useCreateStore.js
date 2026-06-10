@@ -59,10 +59,11 @@ export default function useCreateStore(storeContext, ownerId) {
           .replace(/[^a-z0-9-]/g, "");
 
         const storePayload = {
-          ownerId, // UUID del dueño (auth)
-          name: storeForm.name.trim(), // nombre de la tienda
-          slug, // slug/subdominio
-          description: storeContext.basic?.description ?? "", // del paso básico
+          ownerId,
+          name: storeForm.name.trim(),
+          slug,
+          description: storeContext.basic?.description ?? "",
+          cms: buildCmsPayload(storeContext.cms),
         };
         
         console.log("📦 storePayload:", JSON.stringify(storePayload, null, 2));
@@ -110,6 +111,80 @@ export default function useCreateStore(storeContext, ownerId) {
 }
 
 // ─── Builder interno ───────────────────────────────────────────────────────────
+
+/**
+ * Normaliza el CMS del StoreContext al DTO que espera POST /api/v1/stores.
+ * Corrige nombres de campo y tipos (team→teamSize, list→items, days string→number).
+ */
+function buildCmsPayload(cms) {
+  if (!cms) return undefined;
+
+  return {
+    about: cms.about ? {
+      headline:     cms.about.headline     ?? "",
+      story:        cms.about.story        ?? "",
+      mission:      cms.about.mission      ?? "",
+      vision:       cms.about.vision       ?? "",
+      founded:      cms.about.founded      ?? "",
+      teamSize:     cms.about.teamSize     ?? "",
+      showTeam:     cms.about.showTeam     ?? true,
+      showTimeline: cms.about.showTimeline ?? false,
+    } : undefined,
+
+    contact: cms.contact ? {
+      email:       cms.contact.email       ?? "",
+      phone:       cms.contact.phone       ?? "",
+      whatsapp:    cms.contact.whatsapp    ?? "",
+      instagram:   cms.contact.instagram   ?? "",
+      tiktok:      cms.contact.tiktok      ?? "",
+      hours:       cms.contact.hours       ?? "",
+      formTitle:   cms.contact.formTitle   ?? "",
+      formSubtitle:cms.contact.formSubtitle?? "",
+      showForm:    cms.contact.showForm    ?? true,
+      showSocials: cms.contact.showSocials ?? true,
+    } : undefined,
+
+    locations: cms.locations ? {
+      showMap: cms.locations.showMap ?? true,
+      items: (cms.locations.items ?? []).map((loc, i) => ({
+        name:      loc.name      ?? "",
+        address:   loc.address   ?? "",
+        city:      loc.city      ?? "",
+        phone:     loc.phone     ?? "",
+        hours:     loc.hours     ?? "",
+        mapUrl:    loc.mapUrl    ?? "",
+        isPrimary: loc.isPrimary ?? false,
+        sortOrder: i,
+      })),
+    } : undefined,
+
+    returns: cms.returns ? {
+      title:          cms.returns.title          ?? "",
+      intro:          cms.returns.intro          ?? "",
+      days:           Number(cms.returns.days)   || 30,
+      conditions:     cms.returns.conditions     ?? "",
+      process:        cms.returns.process        ?? "",
+      exceptions:     cms.returns.exceptions     ?? "",
+      refundMethod:   cms.returns.refundMethod   ?? "original",
+      allowExchanges: cms.returns.allowExchanges ?? true,
+      allowRefunds:   cms.returns.allowRefunds   ?? true,
+      requireReceipt: cms.returns.requireReceipt ?? false,
+      contactEmail:   cms.returns.contactEmail   ?? "",
+    } : undefined,
+
+    faq: cms.faq ? {
+      pageTitle:    cms.faq.pageTitle    ?? "",
+      pageSubtitle: cms.faq.pageSubtitle ?? "",
+      showSearch:   cms.faq.showSearch   ?? true,
+      items: (cms.faq.items ?? []).map((item, i) => ({
+        question:  item.question  ?? "",
+        answer:    item.answer    ?? "",
+        category:  item.category  ?? "general",
+        sortOrder: i,
+      })),
+    } : undefined,
+  };
+}
 
 /**
  * Convierte el estado del StoreContext al DTO que espera StoreSettingsController.

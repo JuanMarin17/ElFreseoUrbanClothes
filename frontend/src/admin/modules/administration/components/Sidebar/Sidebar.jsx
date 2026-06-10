@@ -1,19 +1,22 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, PackagePlus, Users, ShoppingCart, 
-  BarChart3, AlertTriangle, LogOut 
+import {
+  LayoutDashboard, PackagePlus, Users, ShoppingCart,
+  BarChart3, AlertTriangle, LogOut, FileText, ArrowLeft,
+  Building2,
 } from 'lucide-react';
 import './Sidebar.css';
 import defaultLogo from '../../../../../assets/LogoVexios/banervexio.png';
 
 const DEFAULT_MENU_ITEMS = [
-  { path: '/admin/dashboard',        label: 'DASHBOARD',          icon: LayoutDashboard },
-  { path: '/admin/subir-producto',   label: 'SUBIR PRODUCTOS',    icon: PackagePlus     },
-  { path: '/admin/usuarios',         label: 'GESTIONAR USUARIOS', icon: Users           },
-  { path: '/admin/pedidos',          label: 'VER PEDIDOS',        icon: ShoppingCart    },
-  { path: '/admin/report',           label: 'INFORMES',           icon: BarChart3       },
-  { path: '/admin/alertas',          label: 'ALERTAS DE STOCK',   icon: AlertTriangle, alertKey: 'stock' }, // 👈 marca este item
+  { path: '/tienda/:slug/admin/dashboard',      label: 'DASHBOARD',          icon: LayoutDashboard },
+  { path: '/tienda/:slug/admin/subir-producto', label: 'SUBIR PRODUCTOS',    icon: PackagePlus     },
+  { path: '/tienda/:slug/admin/usuarios',       label: 'GESTIONAR USUARIOS', icon: Users           },
+  { path: '/tienda/:slug/admin/pedidos',        label: 'VER PEDIDOS',        icon: ShoppingCart    },
+  { path: '/tienda/:slug/admin/report',         label: 'INFORMES',           icon: BarChart3       },
+  { path: '/tienda/:slug/admin/alertas',        label: 'ALERTAS DE STOCK',   icon: AlertTriangle,  alertKey: 'stock' },
+  { path: '/tienda/:slug/admin/proveedores',    label: 'SUPPLIERS',          icon: Building2       },
+  { path: '/tienda/:slug/admin/cms',            label: 'CONTENIDO CMS',      icon: FileText        },
 ];
 
 const Sidebar = ({
@@ -23,7 +26,8 @@ const Sidebar = ({
   onLogout,
   logoUrl,
   useImageLogo,
-  lowStockCount = 0,  // 👈 NUEVA PROP: cuántos productos con stock bajo
+  storeSlug,
+  lowStockCount = 0,
 }) => {
   const navigate = useNavigate();
 
@@ -31,6 +35,11 @@ const Sidebar = ({
     if (onLogout) onLogout();
     else navigate('/login');
   };
+
+  const resolvedItems = menuItems.map((item) => ({
+    ...item,
+    path: storeSlug ? item.path.replace(':slug', storeSlug) : item.path,
+  }));
 
   return (
     <aside className="sidebar-container">
@@ -45,21 +54,23 @@ const Sidebar = ({
             onError={(e) => { e.target.onerror = null; e.target.src = defaultLogo; }}
           />
         ) : (
-          <img
-            src={defaultLogo}
-            alt="Logo"
-            className="sidebar-logo-img"
-          />
+          <img src={defaultLogo} alt="Logo" className="sidebar-logo-img" />
         )}
         <span className="brand-subtitle">{brandSub}</span>
       </div>
 
+      {/* ── Nav ──────────────────────────────────────────────────────── */}
       <nav className="sidebar-nav">
-        <div className="nav-group">
-          {menuItems.map((item) => {
-            // ¿Este item debe mostrar alerta de stock?
-            const showStockAlert = item.alertKey === 'stock' && lowStockCount > 0;
+        {storeSlug && (
+          <NavLink to={`/tienda/${storeSlug}`} className="nav-link back-to-store">
+            <ArrowLeft size={18} />
+            <span>VOLVER A LA TIENDA</span>
+          </NavLink>
+        )}
 
+        <div className="nav-group">
+          {resolvedItems.map((item) => {
+            const showStockAlert = item.alertKey === 'stock' && lowStockCount > 0;
             return (
               <NavLink
                 key={item.path}
@@ -69,11 +80,13 @@ const Sidebar = ({
                 <span className="nav-icon-wrapper">
                   <item.icon size={18} />
                   {showStockAlert && (
-                    <span className="stock-alert-dot" title={`${lowStockCount} productos con stock bajo`} />
+                    <span
+                      className="stock-alert-dot"
+                      title={`${lowStockCount} productos con stock bajo`}
+                    />
                   )}
                 </span>
                 <span>{item.label}</span>
-                {/* Contador opcional al lado del label */}
                 {showStockAlert && (
                   <span className="stock-alert-badge">{lowStockCount}</span>
                 )}

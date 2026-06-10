@@ -167,6 +167,7 @@
 
 /* Link cols */
 .vx-footer-link-col h6 {
+  margin-top: 20px;
   font-size: 0.82rem;
   font-weight: 800;
   color: var(--vx-text);

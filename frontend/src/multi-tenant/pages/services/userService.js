@@ -1,7 +1,7 @@
 // userService.js
 // Servicio profesional para la gestión de usuarios y conexión con la API backend
 
-const API_URL = "http://localhost:8081";
+const API_URL = "http://46.225.21.146:8081";
 
 /**
  * Crea un nuevo usuario en el sistema.

@@ -301,12 +301,224 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── Controles de vista (grid / lista) ───── */
+.ms-view-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #0d1520;
+  border: 1px solid #1a2535;
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.ms-view-btn {
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  color: #3a5a7a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  padding: 0;
+  margin: 0;
+}
+
+.ms-view-btn:hover { color: #8899aa; transform: none; }
+.ms-view-btn--active { background: #1a2a40; color: #3e78ff; }
+
 /* ── Grid de tiendas ──────────────────────── */
 .ms-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
 }
+
+/* ── Lista de tiendas ─────────────────────── */
+.ms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Card en modo lista — banner arriba, info abajo */
+.ms-list-card {
+  background: #0d1520;
+  border: 1px solid #1a2535;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.ms-list-card:hover {
+  border-color: #3e78ff;
+  box-shadow: 0 6px 24px rgba(62,120,255,0.1);
+  transform: translateY(-2px);
+}
+
+/* Banner full-width */
+.ms-list-banner {
+  width: 100%;
+  height: 160px;
+  background: #111c2e;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Logo encima del banner */
+.ms-list-logo {
+  position: absolute;
+  bottom: -28px;
+  left: 20px;
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 3px solid #0d1520;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+  z-index: 2;
+}
+
+.ms-list-logo--placeholder {
+  position: absolute;
+  bottom: -28px;
+  left: 20px;
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #3e78ff, #6c63ff);
+  border: 3px solid #0d1520;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+  z-index: 2;
+}
+
+/* Badge de estado sobre banner */
+.ms-list-banner .ms-store-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+/* Fila de info debajo del banner */
+.ms-list-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 16px 16px 96px; /* 96px para no tapar el logo más grande */
+  min-width: 0;
+}
+
+.ms-list-info__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ms-list-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ms-list-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ms-list-url {
+  font-size: 11px;
+  color: #3a5a7a;
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ms-list-id {
+  font-size: 10px;
+  color: #2a4a6a;
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+/* Acciones a la derecha de la fila */
+.ms-list-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.ms-list-plan {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #3e78ff;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ms-list-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(62,120,255,0.08);
+  border: 1px solid rgba(62,120,255,0.2);
+  color: #3e78ff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+  margin: 0;
+}
+
+.ms-list-link:hover {
+  background: rgba(62,120,255,0.15);
+  border-color: #3e78ff;
+  transform: none;
+}
+
+.ms-list-copy {
+  background: transparent;
+  border: none;
+  color: #3a5a7a;
+  cursor: pointer;
+  padding: 2px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+.ms-list-copy:hover { color: #3e78ff; transform: none; }
 
 /* ── Card de tienda ───────────────────────── */
 .ms-store-card {

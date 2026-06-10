@@ -1,17 +1,18 @@
 // ============================================================
 //  reportService.js
 //  Integración con el módulo de reportes del backend
-//  Base URL: http://localhost:8080/api/v1
+//  Base URL: http://46.225.21.146:8080/api/v1
 // ============================================================
 
-const BASE = "http://localhost:8080/api/v1";
+const BASE = "http://46.225.21.146:8080/api/v1";
+const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
 
 /**
  * Construye los headers requeridos por todos los endpoints.
  * Requiere que "jwt" y "storeId" estén guardados en localStorage.
  */
 const buildHeaders = () => {
-  const jwt     = localStorage.getItem("jwt");
+  const jwt = localStorage.getItem("jwt");
   const storeId = localStorage.getItem("storeId");
 
   if (!storeId) {
@@ -47,10 +48,10 @@ async function apiFetch(path, options = {}) {
     throw new Error("STORE_ID_MISSING"); // X-Store-Id es requerido
   }
   if (response.status === 401) {
-    throw new Error("UNAUTHORIZED");     // JWT inválido o expirado
+    throw new Error("UNAUTHORIZED"); // JWT inválido o expirado
   }
   if (response.status === 500) {
-    throw new Error("SERVER_ERROR");     // Servicio dependiente caído
+    throw new Error("SERVER_ERROR"); // Servicio dependiente caído
   }
   if (!response.ok) {
     throw new Error(`HTTP_ERROR_${response.status}`);
@@ -176,11 +177,15 @@ export function handleApiError(error, handlers = {}) {
       handlers.onUnauthorized?.();
       break;
     case "STORE_ID_MISSING":
-      console.error("[reportService] X-Store-Id es requerido pero no está configurado.");
+      console.error(
+        "[reportService] X-Store-Id es requerido pero no está configurado.",
+      );
       handlers.onStoreIdMissing?.();
       break;
     case "SERVER_ERROR":
-      console.error("[reportService] Error 500: servicio dependiente caído (Product u OrderPayment).");
+      console.error(
+        "[reportService] Error 500: servicio dependiente caído (Product u OrderPayment).",
+      );
       break;
     default:
       console.error("[reportService] Error inesperado:", error.message);
@@ -206,6 +211,6 @@ export const formatCOP = (value) =>
  * "7D" → 7, "30D" → 30, "90D" → 90, "ALL" → 0
  */
 export const periodToDays = (period) => {
-  const map = { "7D": 7, "30D": 30, "90D": 90, "ALL": 0 };
+  const map = { "7D": 7, "30D": 30, "90D": 90, ALL: 0 };
   return map[period] ?? 30;
 };

@@ -5,8 +5,9 @@
  * Los endpoints de settings además requieren X-Store-Id: <uuid>
  */
 
-const API_ROOT = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
-const BASE_URL     = `${API_ROOT}/stores`;
+const API_ROOT =
+  import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
+const BASE_URL = `${API_ROOT}/stores`;
 const SETTINGS_URL = `${API_ROOT}/stores/settings`;
 
 // ─── Helpers de headers ───────────────────────────────────────────────────────
@@ -28,8 +29,8 @@ async function request(url, options = {}) {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      ...authHeader(),        // JWT en todas las peticiones
-      ...options.headers,     // headers extra (ej. X-Store-Id) pueden sobreescribir
+      ...authHeader(), // JWT en todas las peticiones
+      ...options.headers, // headers extra (ej. X-Store-Id) pueden sobreescribir
     },
   });
 
@@ -131,6 +132,14 @@ export async function validateAccess(storeId, userId) {
   return request(`${BASE_URL}/${storeId}/access/${userId}`);
 }
 
+/**
+ * GET /stores/:storeId/isOwner/:userId
+ * Respuesta: true | false
+ */
+export async function checkIsOwner(storeId, userId) {
+  return request(`${BASE_URL}/${storeId}/isOwner/${userId}`);
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 // 3. SETTINGS DEL WIZARD — /api/v1/stores/settings
 // (Todos requieren X-Store-Id)
@@ -194,7 +203,8 @@ export async function uploadStoreLogo(storeId, file) {
   body = ct.includes("application/json") ? await res.json() : await res.text();
 
   if (!res.ok) {
-    const message = typeof body === "object" ? (body.message ?? `Error ${res.status}`) : body;
+    const message =
+      typeof body === "object" ? (body.message ?? `Error ${res.status}`) : body;
     throw new Error(message || "Error al subir el logo");
   }
 

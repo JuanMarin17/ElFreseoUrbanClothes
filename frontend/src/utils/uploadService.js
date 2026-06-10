@@ -1,4 +1,5 @@
-const API_ROOT = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
+const API_ROOT =
+  import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
 
 // ─── Utilidad interna ─────────────────────────────────────────────────────────
 async function postImage(folder, file) {
@@ -7,13 +8,14 @@ async function postImage(folder, file) {
   const formData = new FormData();
   formData.append("image", file); // el campo siempre se llama "image"
 
-  const jwt     = localStorage.getItem("jwt");
+  const jwt = localStorage.getItem("jwt");
   const headers = jwt ? { Authorization: `Bearer ${jwt}` } : {};
 
-  const res = await fetch(
-    `${API_ROOT}/upload?folder=${folder}`,
-    { method: "POST", headers, body: formData }
-  );
+  const res = await fetch(`${API_ROOT}/upload?folder=${folder}`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -38,12 +40,17 @@ export async function uploadFile(file) {
 }
 
 /**
+ * Sube una imagen de USUARIO (avatar / foto de perfil).
+ * POST /upload?folder=usuarios
+ */
+export async function uploadUserImage(file) {
+  return postImage("usuarios", file);
+}
+
+/**
  * Sube una imagen de TIENDA (logo, banner, etc.).
  * POST /upload?folder=<folder>
  * Carpetas disponibles: "stores/logos" | "stores/banners" | "general"
- * @param {File} file
- * @param {string} folder
- * @returns {Promise<string>} URL de Cloudinary
  */
 export async function uploadStoreImage(file, folder = "general") {
   return postImage(folder, file);

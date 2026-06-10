@@ -7,9 +7,20 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import StoreFront from "../components/Store/StoreFront.jsx";
-import { getStoreBySlug, getStoreSettingsByHeader } from "./services/storeService";
+import { getStoreBySlug, getStoreSettingsByHeader, checkIsOwner } from "./services/storeService";
 import { getPublicActiveProducts } from "../../admin/modules/administration/services/productService";
 import "../components/styles/StorePage.css";
+
+function getUserIdFromJwt() {
+  try {
+    const jwt = localStorage.getItem("jwt");
+    if (!jwt || jwt === "null") return null;
+    const payload = JSON.parse(atob(jwt.split(".")[1]));
+    return payload.user_id ?? payload.userId ?? payload.sub ?? payload.id ?? null;
+  } catch {
+    return null;
+  }
+}
 
 const formatCOP = (price) =>
   new Intl.NumberFormat("es-CO", {
@@ -33,27 +44,39 @@ export default function StorePage() {
   useEffect(() => {
     if (!slug) return;
 
-    setLoading(true);
-    setError(null);
-
     getStoreBySlug(slug)
       .then(async (store) => {
         if (!store) throw new Error("Tienda no encontrada");
 
         // El backend puede devolver el ID con distintos nombres de campo
         const resolvedStoreId = store.storeId ?? store.id ?? store.store_id ?? null;
-
-        console.log("[StorePage] store response:", store);
-        console.log("[StorePage] resolvedStoreId:", resolvedStoreId);
-
+        
         if (!resolvedStoreId) throw new Error("La tienda no devolvió un ID válido.");
 
         setStoreName(store.name ?? slug);
         setStoreId(resolvedStoreId);
 
-        // Verificar si el usuario logueado es dueño de esta tienda
-        const myStoreId = localStorage.getItem("storeId");
-        setIsOwner(!!myStoreId && myStoreId === resolvedStoreId);
+        // Verificar ownership via backend
+        const myUserId = getUserIdFromJwt();
+
+        if (myUserId && resolvedStoreId) {
+          try {
+            const ownerResult = await checkIsOwner(resolvedStoreId, myUserId);
+            const isOwnerValue = ownerResult === true
+              || ownerResult === "true"
+              || ownerResult === "OWNER"
+              || ownerResult?.role === "OWNER"
+              || ownerResult?.isOwner === true
+              || ownerResult?.owner === true
+              || ownerResult?.data === true;
+            setIsOwner(isOwnerValue);
+          } catch (err) {
+            console.warn("[StorePage] checkIsOwner falló:", err.message);
+            setIsOwner(false);
+          }
+        } else {
+          console.warn("[StorePage] No se verificó ownership. userId:", myUserId, "storeId:", resolvedStoreId);
+        }
 
         const settings = await getStoreSettingsByHeader(resolvedStoreId);
 
@@ -147,14 +170,14 @@ export default function StorePage() {
             </svg>
           </span>
           <span className="sp-addressbar-url">
-            <span className="sp-addressbar-domain">freseo.com</span>
+            <span className="sp-addressbar-domain">vexio.com</span>
             <span className="sp-addressbar-path">/{slug}</span>
           </span>
         </div>
         <span className="sp-store-name">{storeName}</span>
       </div>
 
-      <StoreFront layoutType={layoutType} data={previewData} isOwner={isOwner} storeId={storeId} />
+      <StoreFront layoutType={layoutType} data={previewData} isOwner={isOwner} storeId={storeId} storeSlug={slug} />
     </div>
   );
 }

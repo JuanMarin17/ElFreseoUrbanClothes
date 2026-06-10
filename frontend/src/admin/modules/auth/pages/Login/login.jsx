@@ -73,10 +73,10 @@ export default function Login({ mode }) {
   const navigate = useNavigate();
   const { login, verifyLoginOTP, register, verifyRegisterOTP, loading } = useAuth();
 
-  const [step, setStep]               = useState('form');
-  const [emailForOTP, setEmailForOTP] = useState('');
-  const [errors, setErrors]           = useState({});
-  const [toast, setToast]             = useState({ message: '', type: 'error' });
+  const [step, setStep]                 = useState('form');
+  const [emailForOTP, setEmailForOTP]   = useState('');
+  const [errors, setErrors]             = useState({});
+  const [toast, setToast]               = useState({ message: '', type: 'error' });
   const [showRecovery, setShowRecovery] = useState(false);
 
   /* ─── Avatar ─── */
@@ -104,13 +104,19 @@ export default function Login({ mode }) {
     setAvatarPreview(URL.createObjectURL(file));
   };
 
+  const handleAvatarRemove = () => {
+    setAvatarFile(null);
+    setAvatarPreview(null);
+    fileRef.current.value = '';
+  };
+
   const validate = () => {
     const tempErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email.value.trim())                tempErrors.email    = 'El correo es requerido';
     else if (!emailRegex.test(email.value)) tempErrors.email    = 'Email no válido';
     if (!password.value)                    tempErrors.password = 'La contraseña es requerida';
-    else if (password.value.length < 6)     tempErrors.password = 'Mínimo 6 caracteres';
+    else if (password.value.length < 8)     tempErrors.password = 'Mínimo 8 caracteres';
     if (mode === 'register') {
       if (!userName.value.trim()) tempErrors.userName = 'El nombre es requerido';
       if (!phone.value.trim())    tempErrors.phone    = 'El teléfono es requerido';
@@ -164,33 +170,32 @@ export default function Login({ mode }) {
   };
 
   /* ─── OTP paso 2 ─── */
-const handleVerify = async (code) => {
-  try {
-    const fn     = mode === 'login' ? verifyLoginOTP : verifyRegisterOTP;
-    const result = await fn({ email: emailForOTP, code });
+  const handleVerify = async (code) => {
+    try {
+      const fn     = mode === 'login' ? verifyLoginOTP : verifyRegisterOTP;
+      const result = await fn({ email: emailForOTP, code });
 
-    if (result.success) {
-      showToast(
-        mode === 'login' ? '¡Bienvenido de vuelta!' : '¡Cuenta creada exitosamente!',
-        'success'
-      );
+      if (result.success) {
+        showToast(
+          mode === 'login' ? '¡Bienvenido de vuelta!' : '¡Cuenta creada exitosamente!',
+          'success'
+        );
 
-      const pendingPlan = sessionStorage.getItem('pendingPlan');
-      console.log('pendingPlan al hacer login:', pendingPlan);
+        const pendingPlan = sessionStorage.getItem('pendingPlan');
 
-      if (pendingPlan) {
-        sessionStorage.removeItem('pendingPlan');
-        setTimeout(() => navigate('/crear-tienda/basico'), 1200);
-        return;
+        if (pendingPlan) {
+          sessionStorage.removeItem('pendingPlan');
+          setTimeout(() => navigate('/crear-tienda/basico'), 1200);
+          return;
+        }
+
+        const route = getRouteByRol(result.user?.rolId);
+        setTimeout(() => navigate(route), 1200);
       }
-
-      const route = getRouteByRol(result.user?.rolId);
-      setTimeout(() => navigate(route), 1200);
+    } catch (err) {
+      showToast(err.message);
     }
-  } catch (err) {
-    showToast(err.message);
-  }
-};
+  };
 
   /* ─── Render OTP ─── */
   if (step === 'otp') {
@@ -235,20 +240,48 @@ const handleVerify = async (code) => {
                   style={{ display: 'none' }}
                   onChange={handleAvatarChange}
                 />
-                <div
-                  className="avatar-upload-preview"
-                  onClick={() => fileRef.current.click()}
-                  title="Seleccionar foto de perfil"
-                >
-                  {avatarPreview
-                    ? <img src={avatarPreview} alt="avatar" className="avatar-preview-img" />
-                    : <div className="avatar-upload-placeholder">
-                        <User size={28} /><span>Foto de perfil</span>
+
+                <div className="avatar-upload-wrapper">
+                  <div
+                    className="avatar-upload-preview"
+                    onClick={() => fileRef.current.click()}
+                    title={avatarPreview ? 'Cambiar foto' : 'Seleccionar foto de perfil'}
+                  >
+                    {avatarPreview ? (
+                      <img src={avatarPreview} alt="avatar" className="avatar-preview-img" />
+                    ) : (
+                      <div className="avatar-upload-placeholder">
+                        <User size={28} />
+                        <span>Foto de perfil</span>
                       </div>
-                  }
-                  <div className="avatar-upload-overlay"><Camera size={14} /></div>
+                    )}
+
+                    {/* Overlay con cámara solo si NO hay imagen */}
+                    {!avatarPreview && (
+                      <div className="avatar-upload-overlay">
+                        <Camera size={14} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Botón X para quitar la foto */}
+                  {avatarPreview && (
+                    <button
+                      type="button"
+                      className="avatar-remove-btn"
+                      title="Quitar foto"
+                      onClick={handleAvatarRemove}
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
-                <p className="avatar-upload-hint">Opcional · JPG, PNG · Máx 2MB</p>
+
+                <p className="avatar-upload-hint">
+                  {avatarPreview
+                    ? 'Haz clic en la imagen para cambiarla'
+                    : 'Opcional · JPG, PNG · Máx 2MB'}
+                </p>
               </div>
 
               <Field
@@ -307,7 +340,6 @@ const handleVerify = async (code) => {
           </button>
         </form>
 
-        {/* ─── Link recuperar contraseña — siempre visible en login ─── */}
         {mode === 'login' && (
           <p className="vp-switch-auth">
             <span

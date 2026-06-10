@@ -4,17 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { useStore } from "./StoreContext";
 import { useAuth } from "../../admin/modules/auth/pages/hook/Useauth";
 import { useState } from "react";
-import {
-  AlertCircle,
-  CheckCircle2,
-  ArrowLeft,
-  ArrowRight,
-  Info,
-  Store,
-  Globe,
-} from "lucide-react";
+import { AlertCircle, CheckCircle2, ArrowLeft, ArrowRight, Info, Store, Globe } from "lucide-react";
 import VexioTermsPage from "../components/VexioTermsPage";
 import StepProgress from "../components/StepProgress";
+
 import useCreateStore from "../hooks/useCreateStore";
 
 /* â”€â”€ Componente de alerta reutilizable â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -97,27 +90,19 @@ export default function CreateStore() {
     if (!form.name.trim() || !form.subdomain.trim() || !form.accepted) return;
     try {
       const createdStoreId = await submit(form);
-      completeStep("store", { ...form, storeId: createdStoreId });
-
-      // Navega al resultado con datos para mostrar el preview
-      // Pasamos `bypassProtected: true` para evitar la redirecciÃ³n causada
-      // por el guard mientras el estado `completedStep` se actualiza.
+      const updatedStore = { ...form, storeId: createdStoreId };
+      completeStep("store", updatedStore);
+      localStorage.setItem("storeId", createdStoreId);
+      // Pasamos el estado actual como previewState para que StoreResult lo use,
+      // y clearStorage para que limpie el wizard del localStorage al llegar.
       nav("/resultado", {
         state: {
-          previewState: {
-            plan: state.plan ?? {},
-            store: { ...form, storeId: createdStoreId },
-            layout: state.layout ?? { id: "minimalista", title: "MINIMALISTA" },
-            styles: state.styles ?? {},
-            components: state.components ?? {},
-            widgets: state.widgets ?? null,
-          },
           clearStorage: true,
-          bypassProtected: true,
+          previewState: { ...state, store: updatedStore },
         },
       });
     } catch {
-      // error ya capturado en el hook
+      // error de creación ya capturado en el hook
     }
   };
 
@@ -285,6 +270,7 @@ export default function CreateStore() {
           )}
         </div>
 
+
         {/* Acciones */}
         <div className="step-actions">
           <button
@@ -308,7 +294,7 @@ export default function CreateStore() {
               </>
             ) : (
               <>
-                Crear tienda
+                Crear tienda y pagar
                 <ArrowRight size={14} />
               </>
             )}
