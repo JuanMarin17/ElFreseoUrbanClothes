@@ -92,7 +92,7 @@ export default function VexioStores() {
                     </div>
                     <div className="vx-store-meta">
                       <div className="vx-store-name">{store.name}</div>
-                      <div className="vx-store-category">{store.slug}.freseo.com</div>
+                      <div className="vx-store-category">{store.slug}.vexio.com</div>
                     </div>
                     <span className={`vx-store-tag vx-store-tag--${tagColor}`}>{tagLabel}</span>
                   </div>

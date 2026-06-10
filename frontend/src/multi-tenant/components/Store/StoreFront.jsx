@@ -231,7 +231,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
         </div>
       </div>
 
-      <StoreFooter footer={footer} header={header} theme={theme} />
+      <StoreFooter footer={footer} header={header} theme={theme} storeSlug={storeSlug} />
 
       <AiChatDrawer
         storeId={storeId}

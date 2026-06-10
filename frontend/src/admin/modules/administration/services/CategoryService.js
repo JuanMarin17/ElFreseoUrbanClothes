@@ -3,21 +3,21 @@
 // Requiere: Authorization, X-Store-Id (GET); + X-User-Role (escritura)
 // ══════════════════════════════════════════════════════════════════════════════
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
+const BASE_URL = const BASE_URL = "http://46.225.21.146:8080/api/v1";
 
 const readHeaders = () => {
-  const jwt     = localStorage.getItem("jwt");
+  const jwt = localStorage.getItem("jwt");
   const storeId = localStorage.getItem("storeId");
   const h = {};
-  if (jwt)     h["Authorization"] = `Bearer ${jwt}`;
-  if (storeId) h["X-Store-Id"]    = storeId;
+  if (jwt) h["Authorization"] = `Bearer ${jwt}`;
+  if (storeId) h["X-Store-Id"] = storeId;
   return h;
 };
 
 const writeHeaders = () => ({
   ...readHeaders(),
   "Content-Type": "application/json",
-  "X-User-Role":  localStorage.getItem("userRole") ?? "OWNER",
+  "X-User-Role": localStorage.getItem("userRole") ?? "OWNER",
 });
 
 // Desenvuelve { message, status, data, timestamp } → data
@@ -37,13 +37,17 @@ const unwrap = async (res) => {
 
 /** GET /categories/active */
 export const getCategories = async () => {
-  const res = await fetch(`${BASE_URL}/categories/active`, { headers: readHeaders() });
+  const res = await fetch(`${BASE_URL}/categories/active`, {
+    headers: readHeaders(),
+  });
   return unwrap(res);
 };
 
 /** GET /categories/getAllCategories */
 export const getAllCategories = async () => {
-  const res = await fetch(`${BASE_URL}/categories/getAllCategories`, { headers: readHeaders() });
+  const res = await fetch(`${BASE_URL}/categories/getAllCategories`, {
+    headers: readHeaders(),
+  });
   return unwrap(res);
 };
 

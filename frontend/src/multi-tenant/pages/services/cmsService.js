@@ -40,3 +40,17 @@ export function patchCms(storeId, data) {
     body: JSON.stringify(data),
   });
 }
+
+/** Lectura pública sin JWT — para páginas del cliente final */
+export async function getPublicCms(storeId) {
+  const res = await fetch(`${API_ROOT}/stores/cms`, {
+    headers: { "Content-Type": "application/json", "X-Store-Id": storeId },
+  });
+  const ct   = res.headers.get("Content-Type") ?? "";
+  const body = ct.includes("application/json") ? await res.json() : await res.text();
+  if (!res.ok) {
+    const msg = typeof body === "object" ? (body.message ?? `Error ${res.status}`) : body;
+    throw new Error(msg || `Error ${res.status}`);
+  }
+  return body?.data ?? body;
+}

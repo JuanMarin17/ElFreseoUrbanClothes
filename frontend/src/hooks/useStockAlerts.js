@@ -1,6 +1,9 @@
 import { useEffect, useRef, useCallback } from "react";
 
 const SSE_URL = `${import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1"}/alerts/stock/stream`;
+
+const SSE_URL = "http://46.225.21.146:8080/api/v1/alerts/stock/stream";
+
 const RECONNECT_DELAY_MS = 5_000;
 
 /**
@@ -13,9 +16,9 @@ const RECONNECT_DELAY_MS = 5_000;
  * @typedef {{ variantId, sku, productName, currentStock, minStock }} StockAlert
  */
 export function useStockAlerts(onAlert, enabled = true) {
-  const sourceRef   = useRef(null);
-  const timerRef    = useRef(null);
-  const onAlertRef  = useRef(onAlert);
+  const sourceRef = useRef(null);
+  const timerRef = useRef(null);
+  const onAlertRef = useRef(onAlert);
   onAlertRef.current = onAlert; // siempre apunta al callback más reciente
 
   const disconnect = useCallback(() => {

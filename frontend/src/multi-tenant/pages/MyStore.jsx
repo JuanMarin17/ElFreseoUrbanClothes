@@ -188,7 +188,7 @@ const MyStore = () => {
 
                         <div className="ms-store-body">
                           <h3 className="ms-store-name">{store.name}</h3>
-                          <p className="ms-store-url">{store.slug}.freseo.com</p>
+                          <p className="ms-store-url">{store.slug}.vexio.com</p>
                           <div className="ms-store-id-row">
                             <span className="ms-store-id-label">ID</span>
                             <code className="ms-store-id">{store.storeId}</code>
