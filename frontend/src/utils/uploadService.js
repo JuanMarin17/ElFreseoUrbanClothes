@@ -1,4 +1,5 @@
-const API_ROOT = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
+const API_ROOT =
+  import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
 
 // ─── Utilidad interna ─────────────────────────────────────────────────────────
 async function postImage(folder, file) {
@@ -7,13 +8,14 @@ async function postImage(folder, file) {
   const formData = new FormData();
   formData.append("image", file); // el campo siempre se llama "image"
 
-  const jwt     = localStorage.getItem("jwt");
+  const jwt = localStorage.getItem("jwt");
   const headers = jwt ? { Authorization: `Bearer ${jwt}` } : {};
 
-  const res = await fetch(
-    `${API_ROOT}/upload?folder=${folder}`,
-    { method: "POST", headers, body: formData }
-  );
+  const res = await fetch(`${API_ROOT}/upload?folder=${folder}`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
