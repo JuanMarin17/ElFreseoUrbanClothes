@@ -22,33 +22,38 @@ const ComponentCustomizer = () => {
   const styles = state.styles ?? {};
   const layout = state.layout ?? {};
 
-  const [design, setDesign] = useState(
-    state.components ?? {
-      header: {
-        logo: state.store?.name ?? "VEXIO",
-        items: ["home", "catalogo"],
-        font: "Inter",
-        size: 16,
-        color: "#ffffff",
-        bg: "#000000",
-      },
-      banner: {
-        title: state.styles?.textoTitulo ?? "NEON VAPOR",
-        font: "Bebas Neue",
-        size: 60,
-        color: "#ffffff",
-        bg: "#111111",
-        image: "",
-      },
-      footer: {
-        text: `© ${state.store?.name ?? "Mi Tienda"} 2026`,
-        font: "Montserrat",
-        size: 14,
-        color: "#888888",
-        bg: "#080808",
-      },
-    },
-  );
+  const [design, setDesign] = useState(() => {
+    const saved = state.components;
+    const defaultHeader = {
+      logo: state.store?.name ?? "VEXIO",
+      items: ["home", "catalogo"],
+      font: "Inter",
+      size: 16,
+      color: "#ffffff",
+      bg: "#000000",
+    };
+    const defaultBanner = {
+      title: state.styles?.textoTitulo ?? "NEON VAPOR",
+      font: "Bebas Neue",
+      size: 60,
+      color: "#ffffff",
+      bg: "#111111",
+      image: "",
+    };
+    const defaultFooter = {
+      text: `© ${state.store?.name ?? "Mi Tienda"} 2026`,
+      font: "Montserrat",
+      size: 14,
+      color: "#888888",
+      bg: "#080808",
+    };
+    if (!saved) return { header: defaultHeader, banner: defaultBanner, footer: defaultFooter };
+    return {
+      header: { ...defaultHeader, ...saved.header, items: saved.header?.items ?? defaultHeader.items },
+      banner: { ...defaultBanner, ...saved.banner },
+      footer: { ...defaultFooter, ...saved.footer },
+    };
+  });
 
   const MENU_ITEMS = [
     { key: "home", label: "Home", path: "/", icon: "ti-home" },
@@ -111,7 +116,7 @@ const ComponentCustomizer = () => {
   };
 
   const updateHeaderItem = (index, value) => {
-    const newItems = [...design.header.items];
+    const newItems = [...(design.header?.items ?? [])];
     newItems[index] = value;
     updateSection("items", newItems);
   };

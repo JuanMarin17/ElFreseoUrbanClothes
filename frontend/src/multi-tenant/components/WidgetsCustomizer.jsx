@@ -89,7 +89,7 @@ const WidgetsCustomizer = () => {
           <header className="admin-nav">
             <button onClick={handleBack} className="btn-back-arrow" title="Volver"></button>
             <div className="brand">
-              {state.store?.name ?? "EL FRESEO"} <span>WIDGETS</span>
+              {state.store?.name ?? "EL vexio"} <span>WIDGETS</span>
             </div>
             <button className="btn-save-top" onClick={handleFinish}>
               SIGUIENTE '
