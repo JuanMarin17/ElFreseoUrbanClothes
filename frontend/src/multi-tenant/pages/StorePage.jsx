@@ -155,29 +155,6 @@ export default function StorePage() {
   }
 
   return (
-    <div className="sp-root">
-      {/* Barra de navegador */}
-      <div className="sp-topbar">
-        <button className="sp-back" onClick={() => navigate(-1)}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
-        <div className="sp-addressbar">
-          <span className="sp-addressbar-lock">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-          </span>
-          <span className="sp-addressbar-url">
-            <span className="sp-addressbar-domain">vexio.com</span>
-            <span className="sp-addressbar-path">/{slug}</span>
-          </span>
-        </div>
-        <span className="sp-store-name">{storeName}</span>
-      </div>
-
-      <StoreFront layoutType={layoutType} data={previewData} isOwner={isOwner} storeId={storeId} storeSlug={slug} />
-    </div>
+    <StoreFront layoutType={layoutType} data={previewData} isOwner={isOwner} storeId={storeId} storeSlug={slug} headerTopOffset={0} />
   );
 }

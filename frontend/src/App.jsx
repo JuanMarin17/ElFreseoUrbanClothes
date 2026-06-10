@@ -1,53 +1,16 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import "./animations.css";
-import { AuthProvider } from "./admin/modules/auth/pages/hook/Useauth.jsx";
 
-// import AdminLayout from "./admin/modules/administration/components/AdminLayout/AdminLayout.jsx";
-// import Dashboard from "./admin/modules/administration/dashboard/Dashboard.jsx";
-// import UploadProduct from "./admin/modules/administration/pages/UploadProduct/UploadProduct.jsx";
-// import EditProduct from "./admin/modules/administration/pages/EditProduct/EditProduct.jsx";
-// import InventaryStock from "./admin/modules/administration/pages/Inventary/InventaryStock.jsx";
-// import StoreProductsAdmin from "./multi-tenant/pages/StoreProductsAdmin/StoreProductsAdmin.jsx";
-// import Report from "./admin/modules/administration/pages/Report/Report.jsx";
-// import IAAdmin from "./admin/modules/administration/pages/IAAdmin/AIAdmin.jsx";
-// import OrdersManagement from "./admin/modules/administration/pages/OrdersManagement/OrdersManagement.jsx";
-// import ShockAlerts from "./admin/modules/administration/pages/StockAlerts/StockAlert.jsx";
-// import PromotionsDashboard from "./admin/modules/administration/promotions/PromotionsDashboards.jsx";
-
-// /* ─── Auth ─── */
-// import Login from "./admin/modules/auth/pages/Login/Login.jsx";
-// import ForgotPassword from "./admin/modules/auth/pages/ForgotPassword/ForgotPassword.jsx";
-// import NewPassword from "./admin/modules/auth/pages/NewPassword.jsx";
-// import VerificationPage from "./admin/modules/auth/pages/VerificationPage.jsx";
-// import VerifyCode from "./admin/modules/auth/pages/VerifyCode/VerifyCode.jsx";
-
-// /* ─── Cliente ─── */
-// import VexioLanding from "./client/modules/landingPage/pages/VexioLanding/VexioLanding.jsx";
-// import HelpCenter from "./client/modules/help/pages/HelpCenter/HelpCenter.jsx";
-// import SessionClosed from "./client/modules/MainPage/pages/SessionClosed.jsx";
-
-// /* ─── Market ─── */
-// import MarketPage from "./client/modules/MarketPage/Pages/MarketPage/MarketPage.jsx";
-import ProductPage from "./client/modules/ProductPage/ProductPage.jsx";
-
-// /* ─── Account ─── */
-// import AccountPage from "./client/modules/account/pages/AccountPage/AccountPage.jsx";
-
-// /* ─── Guards ─── */
-
-import ProtectedStep from "./multi-tenant/components/ProtectStep.jsx";
-import { ProtectedRoute } from "./admin/modules/auth/pages/hook/ProtectedRoute.jsx";
-import { TokenGuard } from "./admin/modules/auth/pages/hook/TokenGuard.jsx";
-// import { StoreProvider } from "./multi-tenant/pages/StoreContext.jsx";
-// import StoreResult from "./multi-tenant/pages/StoreResult.jsx";
-// import { AuthProvider } from "./admin/modules/auth/pages/hook/Useauth.jsx";
-
+import { AuthProvider }                            from "./admin/modules/auth/pages/hook/Useauth.jsx";
 import { AuthProvider as MultiTenantAuthProvider } from "./multi-tenant/context/AuthContext.jsx";
 import { StoreProvider }                           from "./multi-tenant/pages/StoreContext.jsx";
-import MyStoreLayout from "./multi-tenant/pages/MyStoreLayout.jsx";
+import { ProtectedRoute }                          from "./admin/modules/auth/pages/hook/ProtectedRoute.jsx";
+import { TokenGuard }                              from "./admin/modules/auth/pages/hook/TokenGuard.jsx";
+import ProtectedStep                               from "./multi-tenant/components/ProtectStep.jsx";
+import SubscriptionGuard                           from "./admin/modules/auth/pages/hook/SubscriptionGuard.jsx";
 
 // ── Suscripciones ─────────────────────────────────────────────────────────────
 const SubscriptionPlansPage = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionPlansPage.jsx"));
@@ -56,16 +19,20 @@ const SubscriptionFailure   = lazy(() => import("./admin/modules/administration/
 const SubscriptionPending   = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionPending.jsx"));
 
 // ── Admin ─────────────────────────────────────────────────────────────────────
-const AdminLayout      = lazy(() => import("./admin/modules/administration/components/AdminLayout/AdminLayout.jsx"));
-const Dashboard        = lazy(() => import("./admin/modules/administration/dashboard/Dashboard.jsx"));
-const UploadProduct    = lazy(() => import("./admin/modules/administration/pages/UploadProduct/UploadProduct.jsx"));
-const EditProduct      = lazy(() => import("./admin/modules/administration/pages/EditProduct/EditProduct.jsx"));
-const InventaryStock   = lazy(() => import("./admin/modules/administration/pages/Inventary/InventaryStock.jsx"));
-const Report           = lazy(() => import("./admin/modules/administration/pages/Report/Report.jsx"));
-const IAAdmin          = lazy(() => import("./admin/modules/administration/pages/IAAdmin/AIAdmin.jsx"));
-const OrdersManagement = lazy(() => import("./admin/modules/administration/pages/OrdersManagement/OrdersManagement.jsx"));
-const ShockAlerts      = lazy(() => import("./admin/modules/administration/pages/StockAlerts/StockAlert.jsx"));
-const SuppliersPage    = lazy(() => import("./admin/modules/administration/pages/Suppliers/SuppliersPage.jsx")); // ← nuevo
+const AdminLayout         = lazy(() => import("./admin/modules/administration/components/AdminLayout/AdminLayout.jsx"));
+const Dashboard           = lazy(() => import("./admin/modules/administration/dashboard/Dashboard.jsx"));
+const UploadProduct       = lazy(() => import("./admin/modules/administration/pages/UploadProduct/UploadProduct.jsx"));
+const EditProduct         = lazy(() => import("./admin/modules/administration/pages/EditProduct/EditProduct.jsx"));
+const InventaryStock      = lazy(() => import("./admin/modules/administration/pages/Inventary/InventaryStock.jsx"));
+const Report              = lazy(() => import("./admin/modules/administration/pages/Report/Report.jsx"));
+const IAAdmin             = lazy(() => import("./admin/modules/administration/pages/IAAdmin/AIAdmin.jsx"));
+const OrdersManagement    = lazy(() => import("./admin/modules/administration/pages/OrdersManagement/OrdersManagement.jsx"));
+const ShockAlerts         = lazy(() => import("./admin/modules/administration/pages/StockAlerts/StockAlert.jsx"));
+const SuppliersPage       = lazy(() => import("./admin/modules/administration/pages/Suppliers/SuppliersPage.jsx"));
+const PromotionsDashboard = lazy(() => import("./admin/modules/administration/promotions/PromotionsDashboards.jsx"));
+const UsersManagement     = lazy(() => import("./admin/modules/administration/pages/UsersManagement/UsersManagement.jsx"));
+const AdminProductsPage   = lazy(() => import("./admin/modules/administration/pages/AdminProducts/AdminProductsPage.jsx"));
+const AdminProductDetail  = lazy(() => import("./admin/modules/administration/pages/AdminProducts/AdminProductDetail.jsx"));
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 const Login            = lazy(() => import("./admin/modules/auth/pages/Login/Login.jsx"));
@@ -75,11 +42,13 @@ const VerificationPage = lazy(() => import("./admin/modules/auth/pages/Verificat
 const VerifyCode       = lazy(() => import("./admin/modules/auth/pages/VerifyCode/VerifyCode.jsx"));
 
 // ── Cliente ───────────────────────────────────────────────────────────────────
-const VexioLanding  = lazy(() => import("./client/modules/landingPage/pages/VexioLanding/VexioLanding.jsx"));
-const HelpCenter    = lazy(() => import("./client/modules/help/pages/HelpCenter/HelpCenter.jsx"));
-const SessionClosed = lazy(() => import("./client/modules/MainPage/pages/SessionClosed.jsx"));
-const MarketPage    = lazy(() => import("./client/modules/MarketPage/Pages/MarketPage/MarketPage.jsx"));
-const AccountPage   = lazy(() => import("./client/modules/account/pages/AccountPage/AccountPage.jsx"));
+const VexioLanding   = lazy(() => import("./client/modules/landingPage/pages/VexioLanding/VexioLanding.jsx"));
+const HelpCenter     = lazy(() => import("./client/modules/help/pages/HelpCenter/HelpCenter.jsx"));
+const SessionClosed  = lazy(() => import("./client/modules/MainPage/pages/SessionClosed.jsx"));
+const MarketPage     = lazy(() => import("./client/modules/MarketPage/Pages/MarketPage/MarketPage.jsx"));
+const AccountPage    = lazy(() => import("./client/modules/account/pages/AccountPage/AccountPage.jsx"));
+const ProductPage    = lazy(() => import("./client/modules/ProductPage/ProductPage.jsx"));
+const ProductReviews = lazy(() => import("./client/modules/reviews/ProductReviews.jsx"));
 
 // ── Multi-tenant ──────────────────────────────────────────────────────────────
 const StoreProductsAdmin  = lazy(() => import("./multi-tenant/pages/StoreProductsAdmin/StoreProductsAdmin.jsx"));
@@ -126,315 +95,138 @@ function PageLoader() {
   );
 }
 
-  // ── App ───────────────────────────────────────────────────────────────────────
-  function App() {
-      const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
-    return (
-      <AuthProvider>
-        <MultiTenantAuthProvider>
-          <StoreProvider>
-            <TokenGuard />
-            <div className="main-container">
-
+// ── App ───────────────────────────────────────────────────────────────────────
+export default function App() {
+  return (
+    <AuthProvider>
+      <MultiTenantAuthProvider>
+        <StoreProvider>
+          <TokenGuard />
+          <div className="main-container">
+            <Suspense fallback={<PageLoader />}>
               <AnimatePresence mode="wait">
                 <Routes key="main-content">
-                  {/* ─── Públicas cliente ─── */}
-                  <Route path="/" element={<VexioLanding />} />
-                  <Route path="/landing" element={<VexioLanding />} />
-                  <Route path="/market" element={<MarketPage />} />
+
+                  {/* ── Público ──────────────────────────────────────────── */}
+                  <Route path="/"                    element={<VexioLanding />} />
+                  <Route path="/landing"             element={<VexioLanding />} />
+                  <Route path="/market"              element={<MarketPage />} />
+                  <Route path="/cuenta/*"            element={<AccountPage />} />
                   <Route path="/products/:productId" element={<ProductPage />} />
-                  {/* <Route path="/reviews" element={<ProductReviews />} /> */}
+                  <Route path="/reviews"             element={<ProductReviews />} />
 
-                  {/* ─── Account ─── */}
-                  <Route path="/cuenta/*" element={<AccountPage />} />
+                  {/* ── Auth ─────────────────────────────────────────────── */}
+                  <Route path="/login"                    element={<div className="ayuda"><Login mode="login" /></div>} />
+                  <Route path="/login/register"           element={<div className="ayuda"><Login mode="register" /></div>} />
+                  <Route path="/recuperar-contraseña"     element={<ForgotPassword />} />
+                  <Route path="/verificar-codigo"         element={<VerifyCode />} />
+                  <Route path="/nueva-contraseña"         element={<NewPassword />} />
+                  <Route path="/verificacion-pagina"      element={<VerificationPage />} />
 
-                  {/* ─── Auth ─── */}
-                  <Route
-                    path="/login"
-                    element={
-                      <div className="ayuda">
-                        <Login mode="login" />
-                      </div>
-                    }
-                  />
-                  <Route
-                    path="/login/register"
-                    element={
-                      <div className="ayuda">
-                        <Login mode="register" />
-                      </div>
-                    }
-                  />
-
-                  <Route
-                    path="/recuperar-contraseña"
-                    element={<ForgotPassword />}
-                  />
-                  <Route path="/verificar-codigo" element={<VerifyCode />} />
-                  <Route path="/nueva-contraseña" element={<NewPassword />} />
-                  <Route
-                    path="/verificacion-pagina"
-                    element={<VerificationPage />}
-                  />
-
-                  {/* ─── Ayuda ─── */}
-                  <Route
-                    path="/ayuda"
-                    element={
-                      <div className="ayuda">
-                        <HelpCenter />
-                      </div>
-                    }
-                  />
-                  <Route
-                    path="/pedidos"
-                    element={
-                      <div className="ayuda">
-                        <HelpCenter />
-                      </div>
-                    }
-                  />
-                  <Route
-                    path="/pagos"
-                    element={
-                      <div className="ayuda">
-                        <HelpCenter />
-                      </div>
-                    }
-                  />
-                  <Route
-                    path="/devoluciones"
-                    element={
-                      <div className="ayuda">
-                        <HelpCenter />
-                      </div>
-                    }
-                  />
-                  <Route
-                    path="/seguridad"
-                    element={
-                      <div className="ayuda">
-                        <HelpCenter />
-                      </div>
-                    }
-                  />
-
-                  {/* ─── Misc ─── */}
+                  {/* ── Ayuda ────────────────────────────────────────────── */}
+                  <Route path="/ayuda"        element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/pedidos"      element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/pagos"        element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/devoluciones" element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/seguridad"    element={<div className="ayuda"><HelpCenter /></div>} />
                   <Route path="/session-cerrada" element={<SessionClosed />} />
 
-                  {/* ─── Multi-tenant wizard ─── */}
-                  <Route
-                    path="/plan"
-                    element={<SelectPlan showComponents={true} />}
-                  />
-                  <Route
-                    path="/crear-tienda/basico"
-                    element={<StepBasicPage />}
-                  />
-                  <Route path="/crear-tienda/legal" element={<StepLegalPage />} />
-                  <Route
-                    path="/crear-tienda/pagos"
-                    element={<StepPaymentPage />}
-                  />
-                  <Route
-                    path="/layout"
-                    element={
-                      <ProtectedStep requiredStep={3}>
-                        <LayoutSelect />
-                      </ProtectedStep>
-                    }
-                  />
-                  <Route
-                    path="/customer"
-                    element={
-                      <ProtectedStep requiredStep={4}>
-                        <CustomizationPanel />
-                      </ProtectedStep>
-                    }
-                  />
-                  <Route
-                    path="/component"
-                    element={
-                      <ProtectedStep requiredStep={5}>
-                        <ComponentCustomizer />
-                      </ProtectedStep>
-                    }
-                  />
-                  <Route
-                    path="/widgets"
-                    element={
-                      <ProtectedStep requiredStep={6}>
-                        <WidgetsCustomizer />
-                      </ProtectedStep>
-                    }
-                  />
-                  <Route
-                    path="/crear-tienda"
-                    element={
-                      <ProtectedStep requiredStep={7}>
-                        <CreateStore />
-                      </ProtectedStep>
-                    }
-                  />
-                  <Route
-                    path="/resultado"
-                    element={
-                      <ProtectedStep requiredStep={8}>
-                        <StoreResult />
-                      </ProtectedStep>
-                    }
-                  />
+                  {/* ── Wizard creación de tienda ─────────────────────────── */}
+                  <Route path="/plan"                element={<SelectPlan showComponents={true} />} />
+                  <Route path="/crear-tienda/basico" element={<StepBasicPage />} />
+                  <Route path="/crear-tienda/legal"  element={<StepLegalPage />} />
+                  <Route path="/crear-tienda/pagos"  element={<StepPaymentPage />} />
+                  <Route path="/layout"    element={<ProtectedStep requiredStep={3}><LayoutSelect /></ProtectedStep>} />
+                  <Route path="/customer"  element={<ProtectedStep requiredStep={4}><CustomizationPanel /></ProtectedStep>} />
+                  <Route path="/component" element={<ProtectedStep requiredStep={5}><ComponentCustomizer /></ProtectedStep>} />
+                  <Route path="/widgets"   element={<ProtectedStep requiredStep={6}><WidgetsCustomizer /></ProtectedStep>} />
+                  <Route path="/cms"           element={<ProtectedStep requiredStep={7}><CMSEditor /></ProtectedStep>} />
+                  <Route path="/cms/about"     element={<ProtectedStep requiredStep={7}><CMSAbout /></ProtectedStep>} />
+                  <Route path="/cms/contact"   element={<ProtectedStep requiredStep={7}><CMSContact /></ProtectedStep>} />
+                  <Route path="/cms/locations" element={<ProtectedStep requiredStep={7}><CMSLocations /></ProtectedStep>} />
+                  <Route path="/cms/returns"   element={<ProtectedStep requiredStep={7}><CMSReturns /></ProtectedStep>} />
+                  <Route path="/cms/faq"       element={<ProtectedStep requiredStep={7}><CMSFAQ /></ProtectedStep>} />
+                  <Route path="/crear-tienda"  element={<ProtectedStep requiredStep={8}><CreateStore /></ProtectedStep>} />
+                  <Route path="/resultado"     element={<ProtectedStep requiredStep={9}><StoreResult /></ProtectedStep>} />
 
-                  {/* ─── SuperAdmin layout ─────────────────────────────────────
-                    MyStoreLayout actúa como shell (Sidebar + Header + IA).
-                    Outlet renderiza MyStore o Transactions según la ruta.
-                ─────────────────────────────────────────────────────────── */}
-                  <Route element={<MyStoreLayout />}>
-                    <Route path="/mis-tiendas" element={<MyStore />} />
-                    <Route path="/transacciones" element={<Transactions />} />
-                  </Route>
+                  {/* ── Suscripciones ────────────────────────────────────── */}
+                  <Route path="/planes"                          element={<SubscriptionPlansPage />} />
+                  <Route path="/dashboard/subscription/success" element={<SubscriptionSuccess />} />
+                  <Route path="/dashboard/subscription/failure" element={<SubscriptionFailure />} />
+                  <Route path="/dashboard/subscription/pending" element={<SubscriptionPending />} />
 
-                  {/* ─── Rutas protegidas ─── */}
+                  {/* ── Tienda pública ───────────────────────────────────── */}
+                  <Route path="/tienda/:slug"  element={<StorePage />} />
+                  <Route path="/transacciones" element={<Transaction />} />
+                  <Route path="/mis-tiendas"   element={<MyStore />} />
+
+                  {/* ── Rutas protegidas ─────────────────────────────────── */}
                   <Route element={<ProtectedRoute />}>
-                    <Route
-                      path="/inventario"
-                      element={<Navigate to="/admin/inventario" replace />}
-                    />
-                    <Route path="/ordenes" element={<OrdersDashboard />} />
+                    <Route path="/tiendas"             element={<MyStore />} />
+                    <Route path="/ordenes"             element={<OrdersDashboard />} />
+                    <Route path="/mi-tienda/productos" element={<StoreProductsAdmin />} />
+                    <Route path="/inventario"          element={<Navigate to="/tiendas" replace />} />
                   </Route>
 
-                  <Route path="/tienda/:slug" element={<StorePage />} />
-
-                  {/* ─── Admin normal ─── */}
+                  {/* ── Admin directo (acceso sin slug) ─────────────────── */}
                   <Route path="/admin" element={<AdminLayout />}>
-                    <Route index element={<Navigate to="dashboard" replace />} />
-                    <Route path="IA" element={<IAAdmin />} />
-                    <Route path="dashboard" element={<Dashboard />} />
-                    <Route path="subir-producto" element={<UploadProduct />} />
+                    <Route index                      element={<Navigate to="dashboard" replace />} />
+                    <Route path="IA"                  element={<IAAdmin />} />
+                    <Route path="dashboard"           element={<Dashboard />} />
+                    <Route path="subir-producto"      element={<UploadProduct />} />
                     <Route path="editar-producto/:id" element={<EditProduct />} />
-                    <Route path="inventario" element={<InventaryStock />} />
-                    <Route path="usuarios" element={<Dashboard />} />
-                    <Route path="promociones" element={<PromotionsDashboard />} />
-                    <Route path="report" element={<Report />} />
-                    <Route path="pedidos" element={<OrdersManagement />} />
-                    <Route path="alertas" element={<ShockAlerts />} />
+                    <Route path="inventario"          element={<InventaryStock />} />
+                    <Route path="usuarios"            element={<UsersManagement />} />
+                    <Route path="report"              element={<Report />} />
+                    <Route path="pedidos"             element={<OrdersManagement />} />
+                    <Route path="alertas"             element={<ShockAlerts />} />
+                    <Route path="proveedores"         element={<SuppliersPage />} />
+                    <Route path="promociones"         element={<PromotionsDashboard />} />
+                    <Route path="productos"           element={<AdminProductsPage />} />
+                    <Route path="productos/:id"       element={<AdminProductDetail />} />
+                    <Route path="cms"                 element={<CMSEditor />} />
+                    <Route path="cms/about"           element={<CMSAbout />} />
+                    <Route path="cms/contact"         element={<CMSContact />} />
+                    <Route path="cms/locations"       element={<CMSLocations />} />
+                    <Route path="cms/returns"         element={<CMSReturns />} />
+                    <Route path="cms/faq"             element={<CMSFAQ />} />
                   </Route>
 
-                  {/* ─── Tienda Admin ─── */}
-                  <Route element={<ProtectedRoute />}>
-                    <Route
-                      path="/mi-tienda/productos"
-                      element={<StoreProductsAdmin />}
-                    />
+                  {/* ── Dashboard admin por tienda ───────────────────────── */}
+                  <Route element={<SubscriptionGuard />}>
+                    <Route path="/tienda/:slug/admin" element={<AdminLayout />}>
+                      <Route index                      element={<Navigate to="dashboard" replace />} />
+                      <Route path="IA"                  element={<IAAdmin />} />
+                      <Route path="dashboard"           element={<Dashboard />} />
+                      <Route path="subir-producto"      element={<UploadProduct />} />
+                      <Route path="editar-producto/:id" element={<EditProduct />} />
+                      <Route path="inventario"          element={<InventaryStock />} />
+                      <Route path="usuarios"            element={<UsersManagement />} />
+                      <Route path="report"              element={<Report />} />
+                      <Route path="pedidos"             element={<OrdersManagement />} />
+                      <Route path="alertas"             element={<ShockAlerts />} />
+                      <Route path="proveedores"         element={<SuppliersPage />} />
+                      <Route path="promociones"         element={<PromotionsDashboard />} />
+                      <Route path="productos"           element={<AdminProductsPage />} />
+                      <Route path="productos/:id"       element={<AdminProductDetail />} />
+                      <Route path="cms"                 element={<CMSEditor />} />
+                      <Route path="cms/about"           element={<CMSAbout />} />
+                      <Route path="cms/contact"         element={<CMSContact />} />
+                      <Route path="cms/locations"       element={<CMSLocations />} />
+                      <Route path="cms/returns"         element={<CMSReturns />} />
+                      <Route path="cms/faq"             element={<CMSFAQ />} />
+                    </Route>
                   </Route>
 
-                  {/* ─── Fallback ─── */}
+                  {/* ── Fallback ─────────────────────────────────────────── */}
                   <Route path="*" element={<Navigate to="/" replace />} />
+
                 </Routes>
               </AnimatePresence>
-              <Suspense fallback={<PageLoader />}>
-                <AnimatePresence mode="wait">
-                  <Routes key="main-content">
-
-                    {/* ── Público ──────────────────────────────────────────── */}
-                    <Route path="/" element={<VexioLanding />} />
-                    <Route path="/landing" element={<VexioLanding />} />
-                    <Route path="/market" element={<MarketPage />} />
-                    <Route path="/cuenta/*" element={<AccountPage />} />
-
-                    {/* ── Auth ─────────────────────────────────────────────── */}
-                    <Route path="/login" element={<div className="ayuda"><Login mode="login" /></div>} />
-                    <Route path="/login/register" element={<div className="ayuda"><Login mode="register" /></div>} />
-                    <Route path="/recuperar-contraseña" element={<ForgotPassword />} />
-                    <Route path="/verificar-codigo" element={<VerifyCode />} />
-                    <Route path="/nueva-contraseña" element={<NewPassword />} />
-                    <Route path="/verificacion-pagina" element={<VerificationPage />} />
-
-                    {/* ── Ayuda ────────────────────────────────────────────── */}
-                    <Route path="/ayuda" element={<div className="ayuda"><HelpCenter /></div>} />
-                    <Route path="/pedidos" element={<div className="ayuda"><HelpCenter /></div>} />
-                    <Route path="/pagos" element={<div className="ayuda"><HelpCenter /></div>} />
-                    <Route path="/devoluciones" element={<div className="ayuda"><HelpCenter /></div>} />
-                    <Route path="/seguridad" element={<div className="ayuda"><HelpCenter /></div>} />
-                    <Route path="/session-cerrada" element={<SessionClosed />} />
-
-                    {/* ── Wizard creación de tienda ─────────────────────────── */}
-                    <Route path="/plan" element={<SelectPlan showComponents={true} />} />
-                    <Route path="/crear-tienda/basico" element={<StepBasicPage />} />
-                    <Route path="/crear-tienda/legal" element={<StepLegalPage />} />
-                    <Route path="/crear-tienda/pagos" element={<StepPaymentPage />} />
-                    <Route path="/layout" element={<ProtectedStep requiredStep={3}><LayoutSelect /></ProtectedStep>} />
-                    <Route path="/customer" element={<ProtectedStep requiredStep={4}><CustomizationPanel /></ProtectedStep>} />
-                    <Route path="/component" element={<ProtectedStep requiredStep={5}><ComponentCustomizer /></ProtectedStep>} />
-                    <Route path="/widgets" element={<ProtectedStep requiredStep={6}><WidgetsCustomizer /></ProtectedStep>} />
-                    <Route path="/cms" element={<ProtectedStep requiredStep={7}><CMSEditor /></ProtectedStep>} />
-                    <Route path="/cms/about" element={<ProtectedStep requiredStep={7}><CMSAbout /></ProtectedStep>} />
-                    <Route path="/cms/contact" element={<ProtectedStep requiredStep={7}><CMSContact /></ProtectedStep>} />
-                    <Route path="/cms/locations" element={<ProtectedStep requiredStep={7}><CMSLocations /></ProtectedStep>} />
-                    <Route path="/cms/returns" element={<ProtectedStep requiredStep={7}><CMSReturns /></ProtectedStep>} />
-                    <Route path="/cms/faq" element={<ProtectedStep requiredStep={7}><CMSFAQ /></ProtectedStep>} />
-                    <Route path="/crear-tienda" element={<ProtectedStep requiredStep={8}><CreateStore /></ProtectedStep>} />
-                    <Route path="/resultado" element={<ProtectedStep requiredStep={9}><StoreResult /></ProtectedStep>} />
-
-                    {/* ── Suscripciones ────────────────────────────────────── */}
-                    <Route path="/planes" element={<SubscriptionPlansPage />} />
-                    <Route path="/dashboard/subscription/success" element={<SubscriptionSuccess />} />
-                    <Route path="/dashboard/subscription/failure" element={<SubscriptionFailure />} />
-                    <Route path="/dashboard/subscription/pending" element={<SubscriptionPending />} />
-
-                    {/* ── Tienda pública ───────────────────────────────────── */}
-                    <Route path="/tienda/:slug" element={<StorePage />} />
-                    <Route path="/transacciones" element={<MyStore />} />
-                    <Route path="/mis-tiendas" element={<MyStore />} />
-
-                    {/* ── Rutas protegidas ─────────────────────────────────── */}
-                    <Route element={<ProtectedRoute />}>
-                      <Route path="/tiendas" element={<MyStore />} />
-                      <Route path="/ordenes" element={<OrdersDashboard />} />
-                      <Route path="/mi-tienda/productos" element={<StoreProductsAdmin />} />
-                      <Route path="/inventario" element={<Navigate to="/tiendas" replace />} />
-                    </Route>
-
-                    {/* ── Dashboard admin por tienda ───────────────────────── */}
-                    <Route element={<SubscriptionGuard />}>
-                      <Route path="/tienda/:slug/admin" element={<AdminLayout />}>
-                        <Route index element={<Navigate to="dashboard" replace />} />
-                        <Route path="proveedores" element={<SuppliersPage />} /> {/* ← nuevo */}
-                        <Route path="IA" element={<IAAdmin />} />
-                        <Route path="dashboard" element={<Dashboard />} />
-                        <Route path="subir-producto" element={<UploadProduct />} />
-                        <Route path="editar-producto/:id" element={<EditProduct />} />
-                        <Route path="inventario" element={<InventaryStock />} />
-                        <Route path="usuarios" element={<Dashboard />} />
-                        <Route path="report" element={<Report />} />
-                        <Route path="pedidos" element={<OrdersManagement />} />
-                        <Route path="alertas" element={<ShockAlerts />} />
-                        <Route path="cms" element={<CMSEditor />} />
-                        <Route path="cms/about" element={<CMSAbout />} />
-                        <Route path="cms/contact" element={<CMSContact />} />
-                        <Route path="cms/locations" element={<CMSLocations />} />
-                        <Route path="cms/returns" element={<CMSReturns />} />
-                        <Route path="cms/faq" element={<CMSFAQ />} />
-                      </Route>
-                    </Route>
-
-                    {/* ── Fallback ─────────────────────────────────────────── */}
-                    <Route path="*" element={<Navigate to="/" replace />} />
-
-                  </Routes>
-                </AnimatePresence>
-              </Suspense>
-            </div>
-          </StoreProvider>
-        </MultiTenantAuthProvider>
-      </AuthProvider>
-    );
-  }
-
-
-export default App;
+            </Suspense>
+          </div>
+        </StoreProvider>
+      </MultiTenantAuthProvider>
+    </AuthProvider>
+  );
+}

@@ -3,6 +3,7 @@ import VexioNav        from '../../components/VexioNav/VexioNav';
 import VexioHero       from '../../components/VexioHero/VexioHero';
 import VexioCategories from '../../components/VexioCategories/VexioCategories';
 import VexioHowItWorks from '../../components/VexioHowItWorks/VexioHowItWorks';
+import VexioStores     from '../../components/VexioStores/VexioStores';
 import VexioSeller     from '../../components/VexioSeller/VexioSeller';
 import VexioPricing    from '../../components/VexioPricing/VexioPricing';
 import VexioReviews    from '../../components/VexioReviews/VexioReviews';
@@ -25,6 +26,7 @@ export default function VexioLanding() {
         <VexioHowItWorks />
 
         {/* 4. Tiendas destacadas */}
+        <VexioStores />
 
         {/* 5. Propuesta para vendedores — secundaria */}
         <VexioSeller />

@@ -399,7 +399,7 @@
 .wc-toggle {
   display: flex;
   align-items: center;
-  gap: 50px;
+  gap: 8px;
   flex-direction: row;
   cursor: pointer;
   user-select: none;
@@ -407,19 +407,21 @@
 
 .wc-toggle input[type="checkbox"] {
   display: none;
-  width: auto;
+  width: 0;
+  height: 0;
   margin: 0;
 }
 
 .wc-toggle-track {
   width: 40px;
   height: 22px;
-  background: #1a2535;
+  background: #2a3550;
   border-radius: 999px;
   position: relative;
+  overflow: hidden;
   transition: background 0.2s;
   flex-shrink: 0;
-  border: 1px solid #2a3a5a;
+  border: 1px solid #3a4a6a;
 }
 
 .wc-toggle-track.checked {
@@ -429,14 +431,14 @@
 
 .wc-toggle-thumb {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
   background: #fff;
   border-radius: 50%;
   transition: transform 0.2s;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .wc-toggle-track.checked .wc-toggle-thumb {

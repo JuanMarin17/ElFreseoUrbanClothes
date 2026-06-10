@@ -25,8 +25,9 @@ import "./HelpCenter.css";
 import HeaderMarket from "../../../../../utils/Header/HeaderMarket";
 import { useAuth } from "../../../../../admin/modules/auth/pages/hook/Useauth";
 
-/* Microservicio de soporte — puerto propio independiente del API principal */
-const API_BASE = "http://46.225.21.146:8080/api/v1/support";
+/* Microservicio de soporte —
+const API_BASE = `${import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1/support";
+
 
 const useCurrentUser = () => {
   const { user } = useAuth();

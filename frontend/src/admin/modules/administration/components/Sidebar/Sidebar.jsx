@@ -1,22 +1,24 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, PackagePlus, Users, ShoppingCart,
+  LayoutDashboard, PackagePlus, Package, Users, ShoppingCart,
   BarChart3, AlertTriangle, LogOut, FileText, ArrowLeft,
-  Building2,
+  Building2, Bot,
 } from 'lucide-react';
 import './Sidebar.css';
 import defaultLogo from '../../../../../assets/LogoVexios/banervexio.png';
 
 const DEFAULT_MENU_ITEMS = [
   { path: '/tienda/:slug/admin/dashboard',      label: 'DASHBOARD',          icon: LayoutDashboard },
-  { path: '/tienda/:slug/admin/subir-producto', label: 'SUBIR PRODUCTOS',    icon: PackagePlus     },
+  { path: '/tienda/:slug/admin/productos',      label: 'PRODUCTOS',          icon: Package         },
+  { path: '/tienda/:slug/admin/subir-producto', label: 'SUBIR PRODUCTO',     icon: PackagePlus     },
   { path: '/tienda/:slug/admin/usuarios',       label: 'GESTIONAR USUARIOS', icon: Users           },
   { path: '/tienda/:slug/admin/pedidos',        label: 'VER PEDIDOS',        icon: ShoppingCart    },
   { path: '/tienda/:slug/admin/report',         label: 'INFORMES',           icon: BarChart3       },
   { path: '/tienda/:slug/admin/alertas',        label: 'ALERTAS DE STOCK',   icon: AlertTriangle,  alertKey: 'stock' },
   { path: '/tienda/:slug/admin/proveedores',    label: 'SUPPLIERS',          icon: Building2       },
   { path: '/tienda/:slug/admin/cms',            label: 'CONTENIDO CMS',      icon: FileText        },
+  { path: '/tienda/:slug/admin/IA',             label: 'ASISTENTE IA',       icon: Bot             },
 ];
 
 const Sidebar = ({

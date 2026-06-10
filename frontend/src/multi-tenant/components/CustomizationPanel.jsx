@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import "../components/styles/CustomatizacionPanel.css";
-import { useStore } from "../pages/StoreContext";
+import { useStore } from "../pages/useStore";
 import { useNavigate } from "react-router-dom";
 import StepProgress from "../components/StepProgress";
 
@@ -10,7 +10,7 @@ const CustomizationPanel = () => {
   const { state, completeStep, saveProgress } = useStore();
   const navigate = useNavigate();
 
-  // ✅ Pre-carga lo que el usuario había puesto si regresa a este paso
+  // ... Pre-carga lo que el usuario habia puesto si regresa a este paso
   const [design, setDesign] = useState(
     state.styles ?? {
       colorBoton: "#3e78ff",
@@ -35,21 +35,21 @@ const CustomizationPanel = () => {
     setDesign((prev) => ({ ...prev, [key]: value }));
   };
 
-  // ← Guarda lo que lleva y vuelve al paso 3
+  //  Guarda lo que lleva y vuelve al paso 3
   const handleBack = () => {
     saveProgress(4, design); // guarda sin marcar como completado
     navigate("/layout");
   };
 
-  // → Guarda y avanza al paso 5
+  // ' Guarda y avanza al paso 5
   const handleSave = () => {
     completeStep(4, design); // guarda design directamente como styles
     navigate("/component");
   };
 
   const dynamicStyles = {
-    // ── Solo variables de la tarjeta de preview ──
-    // --accent se aplica SOLO en la tarjeta, no aquí
+    // "" Solo variables de la tarjeta de preview ""
+    // --accent se aplica SOLO en la tarjeta, no aqui
     "--title-color": design.colorTitulo,
     "--text-color": design.colorParrafo,
     "--card-bg": design.cardBg,
@@ -74,29 +74,29 @@ const CustomizationPanel = () => {
         <StepProgress />
         <main className="main-content">
         <header className="top-header">
-          {/* ← Vuelve al paso anterior guardando el progreso */}
+          {/*  Vuelve al paso anterior guardando el progreso */}
           <button
             onClick={handleBack}
             className="btn-back-arrow"
             title="Volver"
           >
-            ←
+            
           </button>
 
           <div className="store-name">
             {state.store?.name ?? "EDITOR PROFESIONAL"}
           </div>
 
-          {/* → Guarda y continúa al paso 5 */}
+          {/* ' Guarda y continua al paso 5 */}
           <button className="btn-save-primary" onClick={handleSave}>
-            GUARDAR Y CONTINUAR →
+            GUARDAR Y CONTINUAR '
           </button>
         </header>
 
         <section className="editor-grid">
           <div className="control-panel">
             <div className="tabs-header">
-              {["colores", "tarjetas", "botones", "tipografía"].map((tab) => (
+              {["colores", "tarjetas", "botones", "tipografia"].map((tab) => (
                 <button
                   key={tab}
                   className={`tab-links ${activeTab === tab ? "active" : ""}`}
@@ -112,7 +112,7 @@ const CustomizationPanel = () => {
                 <div className="control-group animate-fade">
                   <label className="section-title">PALETA GLOBAL</label>
                   <div className="input-field">
-                    <span>Títulos</span>
+                    <span>Titulos</span>
                     <input
                       type="color"
                       value={design.colorTitulo}
@@ -122,7 +122,7 @@ const CustomizationPanel = () => {
                     />
                   </div>
                   <div className="input-field">
-                    <span>Párrafos</span>
+                    <span>Parrafos</span>
                     <input
                       type="color"
                       value={design.colorParrafo}
@@ -132,7 +132,7 @@ const CustomizationPanel = () => {
                     />
                   </div>
                   <div className="input-field">
-                    <span>Botón</span>
+                    <span>Boton</span>
                     <input
                       type="color"
                       value={design.colorBoton}
@@ -239,11 +239,11 @@ const CustomizationPanel = () => {
                 </div>
               )}
 
-              {activeTab === "tipografía" && (
+              {activeTab === "tipografia" && (
                 <div className="control-group animate-fade">
                   <label className="section-title">FUENTES Y CONTENIDO</label>
                   <div className="edit-block">
-                    <span>Título producto</span>
+                    <span>Titulo producto</span>
                     <input
                       type="text"
                       value={design.textoTitulo}
@@ -253,7 +253,7 @@ const CustomizationPanel = () => {
                     />
                   </div>
                   <div className="edit-block">
-                    <span>Descripción producto</span>
+                    <span>Descripcion producto</span>
                     <input
                       type="text"
                       value={design.textoCuerpo}
@@ -263,7 +263,7 @@ const CustomizationPanel = () => {
                     />
                   </div>
                   <div className="select-field">
-                    <span>Fuente Títulos</span>
+                    <span>Fuente Titulos</span>
                     <select
                       value={design.fontTitle}
                       onChange={(e) =>

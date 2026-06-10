@@ -1,10 +1,10 @@
 /**
- * StepLegalPage.jsx — Paso 3: Información legal
+ * StepLegalPage.jsx " Paso 3: Informacion legal
  * Ruta: /crear-tienda/legal
  */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useStore } from "./StoreContext";
+import { useStore } from "./useStore";
 import StepProgress from "../components/StepProgress";
 import "../components/styles/StepPages.css";
 import {
@@ -17,7 +17,7 @@ import {
   Hash,
 } from "lucide-react";
 
-// ── Alerta reutilizable ────────────────────────────────────────────────────────
+// "" Alerta reutilizable """"""""""""""""""""""""""""""""""""""""""""""""""""""""
 function Alert({ type = "error", title, children }) {
   const cfg = {
     error:   { icon: <AlertCircle  size={16} />, cls: "error"   },
@@ -73,7 +73,7 @@ export default function StepLegalPage() {
   const handleNext = () => {
     const newErrors = {};
     if (!form.legalName.trim()) newErrors.legalName = "El nombre legal es obligatorio";
-    if (!form.idNumber.trim())  newErrors.idNumber  = "El número de documento es obligatorio";
+    if (!form.idNumber.trim())  newErrors.idNumber  = "El numero de documento es obligatorio";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -102,7 +102,7 @@ export default function StepLegalPage() {
             <ArrowLeft size={16} />
           </button>
           <div>
-            <h1 className="step-title">Información legal</h1>
+            <h1 className="step-title">Informacion legal</h1>
             <p className="step-subtitle">Datos para tu cuenta de vendedor</p>
           </div>
         </div>
@@ -113,12 +113,12 @@ export default function StepLegalPage() {
           <div className="field-block">
             <label htmlFor="sl-legalName">
               <User size={11} style={{ marginRight: 5, verticalAlign: "middle" }} />
-              Nombre legal / Razón social *
+              Nombre legal / Razon social *
             </label>
             <input
               id="sl-legalName"
               name="legalName"
-              placeholder="Ej: Juan Pérez o Mi Empresa S.A.S"
+              placeholder="Ej: Juan Perez o Mi Empresa S.A.S"
               value={form.legalName}
               onChange={handleChange}
               onBlur={() => handleBlur("legalName")}
@@ -137,11 +137,11 @@ export default function StepLegalPage() {
             )}
           </div>
 
-          {/* Número de documento */}
+          {/* Numero de documento */}
           <div className="field-block">
             <label htmlFor="sl-idNumber">
               <Hash size={11} style={{ marginRight: 5, verticalAlign: "middle" }} />
-              Número de documento / NIT *
+              Numero de documento / NIT *
             </label>
             <input
               id="sl-idNumber"
@@ -198,7 +198,7 @@ export default function StepLegalPage() {
         <div className="step-actions">
           <button className="btn-secondary" onClick={handleBack}>
             <ArrowLeft size={14} />
-            Atrás
+            Atras
           </button>
           <button className="btn-primary" onClick={handleNext}>
             Continuar

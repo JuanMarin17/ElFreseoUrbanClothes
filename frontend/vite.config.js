@@ -11,9 +11,14 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://46.225.21.146:8080',
         changeOrigin: true,
         secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Accept-Charset', 'UTF-8');
+          });
+        },
       },
     },
   },
