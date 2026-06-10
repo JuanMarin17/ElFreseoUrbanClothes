@@ -1,0 +1,255 @@
+/* ── FeaturedStores ── */
+.vx-fstores-root {
+  width: 100%;
+  padding: 0 0 60px;
+}
+
+.vx-fstores-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 16px;
+}
+@media (min-width: 480px)  { .vx-fstores-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 768px)  { .vx-fstores-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1200px) { .vx-fstores-grid { grid-template-columns: repeat(4, 1fr); } }
+
+/* ─ Card ─ */
+.vx-store-card {
+  position: relative;
+  background: var(--vx-card);
+  border: 1px solid var(--vx-border);
+  border-radius: 14px;
+  /* sin overflow:hidden para que el avatar pueda sobresalir */
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity .45s ease,
+    transform .45s ease,
+    border-color .2s,
+    box-shadow .2s;
+}
+.vx-store-card.vx-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.vx-store-card:hover {
+  border-color: var(--store-accent, var(--vx-cyan-mid));
+  transform: translateY(-5px);
+  box-shadow:
+    0 16px 40px color-mix(in srgb, var(--store-accent, #3e78ff) 20%, transparent),
+    0 2px 8px rgba(0,0,0,0.3);
+}
+.vx-store-card:focus-visible {
+  outline: 2px solid var(--store-accent, var(--vx-cyan));
+  outline-offset: 2px;
+}
+
+/* ─ Cover ─ */
+.vx-store-cover-wrap {
+  position: relative;
+  height: 140px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 13px 13px 0 0;
+}
+.vx-store-cover,
+.vx-store-cover-gradient {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+.vx-store-card:hover .vx-store-cover,
+.vx-store-card:hover .vx-store-cover-gradient { transform: scale(1.07); }
+
+.vx-store-cover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.05) 0%,
+    rgba(0,0,0,0.55) 100%
+  );
+}
+
+/* ─ Avatar — posicionado relativo a la card, sobresale del cover ─ */
+.vx-store-avatar-ring {
+  position: absolute;
+  top: 116px;   /* cover 140px - la mitad del avatar (44/2=22) - borde (2.5) ≈ 116 */
+  left: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: 3px solid var(--vx-card);
+  overflow: hidden;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+.vx-store-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+}
+.vx-store-avatar-initials {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: absolute;
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0;
+}
+
+/* ─ Badge activo (esquina superior derecha del cover) ─ */
+.vx-store-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 20px;
+  z-index: 2;
+}
+
+/* ─ Info ─ */
+.vx-store-info {
+  padding: 36px 16px 16px;  /* extra top para dar espacio al avatar superpuesto */
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 5px;
+}
+
+.vx-store-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.vx-store-name {
+  font-size: 0.93rem;
+  font-weight: 700;
+  color: var(--vx-text);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vx-store-plan {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--store-accent, var(--vx-cyan));
+  background: color-mix(in srgb, var(--store-accent, var(--vx-cyan)) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--store-accent, var(--vx-cyan)) 30%, transparent);
+  padding: 2px 7px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.vx-store-tagline {
+  font-size: 0.75rem;
+  color: var(--vx-muted);
+  line-height: 1.45;
+  margin: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  flex: 1;
+}
+
+.vx-store-url {
+  font-size: 0.68rem;
+  color: var(--store-accent, var(--vx-cyan));
+  font-family: "SF Mono", "Consolas", monospace;
+  margin: 0;
+  opacity: 0.75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vx-store-divider {
+  height: 1px;
+  background: var(--vx-border);
+  margin: 4px 0;
+}
+
+.vx-store-btn {
+  display: block;
+  width: 100%;
+  padding: 9px 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--store-accent, var(--vx-cyan));
+  border: 1.5px solid color-mix(in srgb, var(--store-accent, var(--vx-cyan)) 35%, transparent);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  margin-top: 4px;
+  letter-spacing: 0.3px;
+}
+.vx-store-card:hover .vx-store-btn {
+  background: var(--store-accent, var(--vx-cyan));
+  color: #fff;
+  border-color: transparent;
+}
+
+/* ─ Empty / Error ─ */
+.vx-fstores-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 48px 20px;
+  color: var(--vx-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+.vx-fstores-empty svg { opacity: 0.4; }
+
+/* ─ Skeleton ─ */
+.vx-fstores-loading {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+@media (min-width: 768px)  { .vx-fstores-loading { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1200px) { .vx-fstores-loading { grid-template-columns: repeat(4, 1fr); } }
+
+.vx-store-skeleton {
+  height: 260px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, var(--vx-card) 25%, var(--vx-card2) 50%, var(--vx-card) 75%);
+  background-size: 200% 100%;
+  animation: vx-shimmer 1.4s infinite;
+}
+@keyframes vx-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

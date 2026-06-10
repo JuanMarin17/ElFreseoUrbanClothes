@@ -1,105 +1,251 @@
 import axios from 'axios';
+import { uploadFile } from '../../../../utils/uploadService';
 
-/* ─── AXIOS INSTANCE ───────────────────────── */
+const BASE_URL =
+  import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
+
 const API = axios.create({
-  baseURL: 'http://localhost:8080/api/v1',
-  headers: { 'Content-Type': 'application/json' },
+  baseURL: BASE_URL,
+  headers: { "Content-Type": "application/json" },
 });
 
-/* ─── INTERCEPTOR JWT ─────────────────────── */
 API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  const jwt = localStorage.getItem("jwt");
+  if (jwt) config.headers.Authorization = `Bearer ${jwt}`;
   return config;
 });
 
-/* ─── PARSE JWT ───────────────────────────── */
-function parseJwt(token) {
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(({ resolve, reject }) =>
+    error ? reject(error) : resolve(token),
+  );
+  failedQueue = [];
+};
+
+API.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const original = error.config;
+
+    if (error.response?.status !== 401 || original._retry) {
+      return Promise.reject(error);
+    }
+
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      }).then((token) => {
+        original.headers["Authorization"] = `Bearer ${token}`;
+        return API(original);
+      });
+    }
+
+    original._retry = true;
+    isRefreshing = true;
+
+    const oldToken = localStorage.getItem("jwt");
+
+    try {
+      const { data } = await axios.post(
+        `${BASE_URL}/auth/refresh-token`,
+        {},
+        { headers: { Authorization: `Bearer ${oldToken}` } },
+      );
+
+      if (!data.jwt) throw new Error("No se recibió el token renovado");
+
+      localStorage.setItem("jwt", data.jwt);
+      API.defaults.headers.common["Authorization"] = `Bearer ${data.jwt}`;
+      original.headers["Authorization"] = `Bearer ${data.jwt}`;
+      processQueue(null, data.jwt);
+
+      return API(original);
+    } catch (refreshError) {
+      processQueue(refreshError, null);
+      localStorage.removeItem("jwt");
+      window.location.href = "/login";
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
+  },
+);
+
+function parseJwt(jwt) {
   try {
-    const base64 = token.split('.')[1];
-    const decoded = JSON.parse(atob(base64));
+    const decoded = JSON.parse(atob(jwt.split('.')[1]));
     return {
-      userId:   decoded.user_id,
+      userId: decoded.user_id,
       userName: decoded.sub,
-      rolId:    decoded.rol_id,
+      rolId: decoded.role,
     };
   } catch {
     return null;
   }
 }
 
-/* ─── SERVICE ─────────────────────────────── */
+function extractBackendError(err) {
+  /* Sin internet */
+  if (!navigator.onLine || err.code === 'ERR_NETWORK') {
+    return 'Sin conexión a internet. Verifica tu red e intenta de nuevo.';
+  }
+
+  const msg = err?.response?.data?.message || '';
+
+  /* Mapeo de mensajes técnicos → amigables */
+  const map = {
+    'correo o contraseña incorrectos': 'Correo o contraseña incorrectos',
+    'incorrectcredentials':            'Correo o contraseña incorrectos',
+    'user not found':                  'No existe una cuenta con ese correo',
+    'invalid otp':                     'Código inválido o expirado',
+    'otp':                             'Código inválido o expirado',
+    'user already exists':             'Ya existe una cuenta con ese correo',
+    'already exists':                  'Ya existe una cuenta con ese correo',
+    'role not found':                  'Error de configuración, contacta soporte',
+  };
+
+  if (msg) {
+    for (const [key, value] of Object.entries(validationMap)) {
+      if (msg.includes(key)) return value;
+    }
+    for (const [key, value] of Object.entries(businessMap)) {
+      if (msg.includes(key)) return value;
+    }
+    return msg;
+  }
+
+  /* Errores HTTP genéricos */
+  const status = err?.response?.status;
+  if (status === 401) return 'Correo o contraseña incorrectos';
+  if (status === 404) return 'No existe una cuenta con ese correo';
+  if (status === 409) return 'Ya existe una cuenta con ese correo';
+  if (status === 500) return 'Error del servidor, intenta más tarde';
+
+  return "Ocurrió un error inesperado, intenta de nuevo";
+}
+
 const authService = {
 
-  /* ── LOGIN PASO 1
-     DTO: LoginRequestDTO → { email: String, password: String }
-     Respuesta: MessageResponseDTO → { message: String }          */
-  async login({ email, password }) {
-    const { data } = await API.post('/users/login', {
-      email,      // String — @NotBlank @Email
-      password,   // String — @NotBlank
-    });
-    return data;  // { message }
-  },
+  uploadAvatar: (file) => uploadFile(file),
 
-  /* ── LOGIN PASO 2
-     DTO: ValidationCodeDTO → { email: String, code: Integer }
-     Respuesta: JwtResponseDTO → { jwt: String, message: String } */
+  /* ─── Login paso 1 ─── */
+ async login({ email, password }) {
+  try {
+    /* Guardar email ANTES del request para que quede aunque falle */
+    localStorage.setItem('last_email', email);
+    const { data } = await API.post('/auth/login', { email, password });
+    return data;
+  } catch (err) {
+    throw new Error(extractBackendError(err));
+  }
+},
+
   async loginSecondStep({ email, code }) {
-    const { data } = await API.post('/users/loginSecondStep', {
-      email,
-      code: Number(code), // backend espera Integer, no String
-    });
-    localStorage.setItem('token', data.jwt);
-    return { user: parseJwt(data.jwt), message: data.message };
+    try {
+      const { data } = await API.post("/auth/loginSecondStep", {
+        email,
+        code: Number(code),
+      });
+      if (!data.jwt) throw new Error("No se recibió el token");
+      localStorage.setItem("jwt", data.jwt);
+      return { user: parseJwt(data.jwt), message: data.message };
+    } catch (err) {
+      throw new Error(extractBackendError(err));
+    }
   },
 
-  /* ── REGISTER PASO 1
-     DTO: UserRequestDTO → { userName, email, password, phone }
-     Todos @NotBlank. password mínimo 8 chars. phone 7-15 dígitos.
-     Respuesta: MessageResponseDTO → { message: String }          */
-  async register({ userName, email, password, phone }) {
-    const { data } = await API.post('/users/register', {
-      "userName" : userName, // @Size(min=3, max=30)
-      "email": email,    // @Email
-      "password": password, // @Size(min=8)
-      "phone": phone,    // @Pattern "^[0-9]{7,15}$"
-    });
-    console.log(data);
-    return data; // { message }
+  async register({ userName, email, password, phone, imageProfile }) {
+    try {
+      const { data } = await API.post('/auth/register', {
+        userName, email, password, phone, imageProfile,
+      });
+      return data;
+    } catch (err) {
+      throw new Error(extractBackendError(err));
+    }
   },
 
-  /* ── REGISTER PASO 2
-     DTO: ValidationCodeDTO → { email: String, code: Integer }
-     Respuesta: JwtResponseDTO → { jwt: String, message: String } */
   async registerSecondStep({ email, code }) {
-    const { data } = await API.post('/users/registerSecondStep', {
-      email,
-      code: Number(code),
-    });
-    localStorage.setItem('token', data.jwt);
-    return { user: parseJwt(data.jwt), message: data.message };
+    try {
+      const { data } = await API.post("/auth/registerSecondStep", {
+        email,
+        code: Number(code),
+      });
+      if (!data.jwt) throw new Error("No se recibió el token");
+      localStorage.setItem("jwt", data.jwt);
+      return { user: parseJwt(data.jwt), message: data.message };
+    } catch (err) {
+      throw new Error(extractBackendError(err));
+    }
   },
 
-  /* ── REENVIAR CÓDIGO
-     DTO: EmailRequestDTO → { email: String }
-     Respuesta: MessageResponseDTO → { message: String }          */
   async resendCode({ email }) {
-    const { data } = await API.post('/users/resendVerificationCode', { email });
-    return data; // { message }
+    try {
+      const { data } = await API.post("/auth/resendVerificationCode", {
+        email,
+      });
+      return data;
+    } catch (err) {
+      throw new Error(extractBackendError(err));
+    }
+  },
+
+  async forgotPassword({ email }) {
+    try {
+      const { data } = await API.post("/auth/forgotPassword", { email });
+      localStorage.setItem("recovery_email", email);
+      return data;
+    } catch (err) {
+      throw new Error(extractBackendError(err));
+    }
+  },
+
+  async forgotPasswordSecondStep({ email, code, password }) {
+    try {
+      const { data } = await API.put("/auth/forgotPasswordSecondStep", {
+        email,
+        code,
+        password,
+      });
+      localStorage.removeItem("recovery_email");
+      return data;
+    } catch (err) {
+      throw new Error(extractBackendError(err));
+    }
+  },
+
+  async refreshToken() {
+    const oldToken = localStorage.getItem("jwt");
+    if (!oldToken) return null;
+    try {
+      const { data } = await axios.post(
+        `${BASE_URL}/auth/refresh-token`,
+        {},
+        { headers: { Authorization: `Bearer ${oldToken}` } },
+      );
+      if (!data.jwt) return null;
+      localStorage.setItem("jwt", data.jwt);
+      return parseJwt(data.jwt);
+    } catch {
+      return null;
+    }
   },
 
   logout() {
-    localStorage.removeItem('token');
+    localStorage.removeItem("jwt");
+    localStorage.removeItem("last_email");
   },
 
   getCurrentUser() {
-    const token = localStorage.getItem('token');
-    return token ? parseJwt(token) : null;
+    const jwt = localStorage.getItem("jwt");
+    return jwt ? parseJwt(jwt) : null;
   },
 
   isAuthenticated() {
-    return !!localStorage.getItem('token');
+    return !!localStorage.getItem("jwt");
   },
 };
 

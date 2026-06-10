@@ -1,0 +1,126 @@
+/* ══════════════════════════════════════════════
+   StepProgress.css  —  Barra de progreso global
+   Tema: dark profesional, acento azul/morado
+══════════════════════════════════════════════ */
+
+.step-progress {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 18px 20px 42px;
+  background: #060a10;
+  border-bottom: 1px solid #111c2e;
+  overflow-x: auto;
+  flex-shrink: 0;
+  /* Ocultar scrollbar pero permitir scroll */
+  scrollbar-width: none;
+}
+.step-progress::-webkit-scrollbar { display: none; }
+
+/* ── Ítem ─────────────────────────────────── */
+.sp-item {
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+  cursor: default;
+}
+
+/* Pasos visitados: cursor pointer + hover */
+.sp-item.clickable {
+  cursor: pointer;
+}
+
+.sp-item.clickable:hover .sp-circle {
+  filter: brightness(1.2);
+  transform: scale(1.08);
+}
+
+.sp-item.clickable:hover .sp-label {
+  opacity: 1;
+}
+
+.sp-item.done:hover .sp-circle {
+  box-shadow: 0 0 0 4px rgba(62, 120, 255, 0.2);
+}
+
+/* ── Línea conectora ──────────────────────── */
+.sp-line {
+  width: 36px;
+  height: 2px;
+  background: #1a2535;
+  transition: background 0.35s;
+  flex-shrink: 0;
+}
+
+.sp-line.done {
+  background: linear-gradient(90deg, #3e78ff, #6c63ff);
+}
+
+/* ── Círculo ──────────────────────────────── */
+.sp-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #1a2535;
+  background: #0d1520;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #3a4a5a;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.sp-item.done .sp-circle {
+  border-color: #3e78ff;
+  background: #3e78ff;
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(62, 120, 255, 0.15);
+}
+
+.sp-item.active .sp-circle {
+  border-color: #3e78ff;
+  background: rgba(62, 120, 255, 0.12);
+  color: #3e78ff;
+  box-shadow: 0 0 0 4px rgba(62, 120, 255, 0.12);
+}
+
+/* ── Etiqueta ─────────────────────────────── */
+.sp-label {
+  position: absolute;
+  top: 38px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: #2a3a4a;
+  white-space: nowrap;
+  text-transform: uppercase;
+  transition: color 0.3s;
+  pointer-events: none;
+}
+
+.sp-item.done .sp-label  { color: #3e78ff; }
+.sp-item.active .sp-label { color: #fff; }
+
+/* ── Responsive ───────────────────────────── */
+@media (max-width: 700px) {
+  .sp-line   { width: 20px; }
+  .sp-circle { width: 28px; height: 28px; font-size: 10px; }
+  .sp-label  { font-size: 8px; top: 34px; }
+  .step-progress { padding: 16px 10px 38px; }
+}
+
+@media (max-width: 480px) {
+  .sp-label  { display: none; }
+  .sp-line   { width: 14px; }
+  .step-progress { padding: 14px 8px; }
+}

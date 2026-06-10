@@ -1,46 +1,107 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, PackagePlus, Users, ShoppingCart, BarChart3, ImageIcon, AlertTriangle } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import {
+  LayoutDashboard, PackagePlus, Users, ShoppingCart,
+  BarChart3, AlertTriangle, LogOut, FileText, ArrowLeft,
+  Building2,
+} from 'lucide-react';
 import './Sidebar.css';
+import defaultLogo from '../../../../../assets/LogoVexios/banervexio.png';
 
-const Sidebar = () => {
-  const menuItems = [
-    { path: 'dashboard', label: 'DASHBOARD', icon: LayoutDashboard },
-    { path: 'subir-productos', label: 'SUBIR PRODUCTOS', icon: PackagePlus },
-    { path: 'usuarios', label: 'GESTIONAR USUARIOS', icon: Users },
-    { path: 'pedidos', label: 'VER PEDIDOS', icon: ShoppingCart },
-    { path: 'informes', label: 'INFORMES', icon: BarChart3 },
-    { path: 'carrusel', label: 'CARRUSEL', icon: ImageIcon },
-    { path: 'alertas', label: 'ALERTAS DE STOCK', icon: AlertTriangle },
-  ];
+const DEFAULT_MENU_ITEMS = [
+  { path: '/tienda/:slug/admin/dashboard',      label: 'DASHBOARD',          icon: LayoutDashboard },
+  { path: '/tienda/:slug/admin/subir-producto', label: 'SUBIR PRODUCTOS',    icon: PackagePlus     },
+  { path: '/tienda/:slug/admin/usuarios',       label: 'GESTIONAR USUARIOS', icon: Users           },
+  { path: '/tienda/:slug/admin/pedidos',        label: 'VER PEDIDOS',        icon: ShoppingCart    },
+  { path: '/tienda/:slug/admin/report',         label: 'INFORMES',           icon: BarChart3       },
+  { path: '/tienda/:slug/admin/alertas',        label: 'ALERTAS DE STOCK',   icon: AlertTriangle,  alertKey: 'stock' },
+  { path: '/tienda/:slug/admin/proveedores',    label: 'SUPPLIERS',          icon: Building2       },
+  { path: '/tienda/:slug/admin/cms',            label: 'CONTENIDO CMS',      icon: FileText        },
+];
+
+const Sidebar = ({
+  menuItems    = DEFAULT_MENU_ITEMS,
+  brandName    = "NOMBRE",
+  brandSub     = "ADMIN",
+  onLogout,
+  logoUrl,
+  useImageLogo,
+  storeSlug,
+  lowStockCount = 0,
+}) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    if (onLogout) onLogout();
+    else navigate('/login');
+  };
+
+  const resolvedItems = menuItems.map((item) => ({
+    ...item,
+    path: storeSlug ? item.path.replace(':slug', storeSlug) : item.path,
+  }));
 
   return (
     <aside className="sidebar-container">
+
+      {/* ── Brand / Logo ─────────────────────────────────────────────── */}
       <div className="sidebar-brand">
-        <h2>EL FRESEO</h2>
-        <span className="brand-subtitle">ADMIN TERMINAL</span>
+        {useImageLogo ? (
+          <img
+            src={logoUrl || defaultLogo}
+            alt={brandName}
+            className="sidebar-logo-img"
+            onError={(e) => { e.target.onerror = null; e.target.src = defaultLogo; }}
+          />
+        ) : (
+          <img src={defaultLogo} alt="Logo" className="sidebar-logo-img" />
+        )}
+        <span className="brand-subtitle">{brandSub}</span>
       </div>
 
+      {/* ── Nav ──────────────────────────────────────────────────────── */}
       <nav className="sidebar-nav">
-        {menuItems.map((item) => (
-          <NavLink 
-            key={item.path} 
-            to={`/admin/${item.path}`} 
-            className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
-          >
-            <item.icon size={18} />
-            <span>{item.label}</span>
+        {storeSlug && (
+          <NavLink to={`/tienda/${storeSlug}`} className="nav-link back-to-store">
+            <ArrowLeft size={18} />
+            <span>VOLVER A LA TIENDA</span>
           </NavLink>
-        ))}
-      </nav>
+        )}
 
-      <div className="sidebar-user-pill">
-        <div className="user-avatar" />
-        <div className="user-info">
-          <p className="user-name">ADMIN USER</p>
-          <p className="user-role">SUPER ADMIN</p>
+        <div className="nav-group">
+          {resolvedItems.map((item) => {
+            const showStockAlert = item.alertKey === 'stock' && lowStockCount > 0;
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+              >
+                <span className="nav-icon-wrapper">
+                  <item.icon size={18} />
+                  {showStockAlert && (
+                    <span
+                      className="stock-alert-dot"
+                      title={`${lowStockCount} productos con stock bajo`}
+                    />
+                  )}
+                </span>
+                <span>{item.label}</span>
+                {showStockAlert && (
+                  <span className="stock-alert-badge">{lowStockCount}</span>
+                )}
+              </NavLink>
+            );
+          })}
         </div>
-      </div>
+
+        <div className="nav-footer">
+          <button onClick={handleLogout} className="nav-link logout-btn">
+            <LogOut size={18} />
+            <span>CERRAR SESIÓN</span>
+          </button>
+        </div>
+      </nav>
     </aside>
   );
 };

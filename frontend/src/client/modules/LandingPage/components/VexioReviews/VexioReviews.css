@@ -1,0 +1,70 @@
+/* ============================================================
+   VexioReviews.css
+   ============================================================ */
+
+.vx-reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.vx-review-card {
+  background: var(--vx-card);
+  border: 1px solid var(--vx-border);
+  border-radius: 16px;
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color .28s, transform .28s;
+}
+.vx-review-card:hover {
+  border-color: rgba(37,99,255,.22);
+  transform: translateY(-3px);
+}
+
+.vx-review-stars {
+  color: var(--vx-amber);
+  font-size: .9rem;
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+}
+
+.vx-review-text {
+  font-size: .865rem;
+  color: #9CA3AF;
+  line-height: 1.8;
+  font-style: italic;
+  flex: 1;
+  margin-bottom: 20px;
+}
+
+.vx-review-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.vx-review-avatar {
+  width: 38px; height: 38px;
+  border-radius: 8px;              /* cuadrado redondeado */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: .8rem;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.vx-review-name {
+  font-family: 'Syne', sans-serif;
+  font-size: .875rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+.vx-review-role {
+  font-size: .75rem;
+  color: #6B7280;
+  margin-top: 2px;
+}

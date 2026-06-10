@@ -1,22 +1,22 @@
 * {
-  margin: 0%;
-  padding: 0%;
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
+/* Ocultar el ojo nativo del navegador en TODOS los inputs de contraseña */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none !important;
+}
+
 body {
-  width: 100vw;
-  height: 100vh;
-
-*{
-    box-sizing: border-box;
-    margin: 0%;
-    padding: 0;
+  width: 100%;
+  min-height: 100vh;
 }
 
-.main{
-    width: 100vw;
-    height: 100vh;
-    overflow: auto;
-}
+.main-container {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
