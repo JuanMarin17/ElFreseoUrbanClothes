@@ -16,7 +16,7 @@ import AiChatDrawer from './AiChatDrawer.jsx';
      layoutType: "minimalista" | "urbano" | "clasico"
      data: { header, banner, footer, products, styles, widgets }
 ══════════════════════════════════════════ */
-export default function StoreFront({ layoutType = "minimalista", data = {}, isOwner = false, storeId = null, storeSlug = null }) {
+export default function StoreFront({ layoutType = "minimalista", data = {}, isOwner = false, storeId = null, storeSlug = null, headerTopOffset = 0 }) {
   const header   = data.header   ?? DEMO.header;
   const footer   = data.footer   ?? DEMO.footer;
   const products = data.products ?? DEMO.products;
@@ -33,6 +33,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
 
   const [isDark, setIsDark] = useState(true);
   const toggleDark = useCallback(() => setIsDark(d => !d), []);
+
 
   /* ── Tokens de estilo (reaccionan a isDark) ── */
   const accent = styles.colorBoton ?? (isMin ? "#2563eb" : isUrb ? "#ffffff" : "#2563eb");
@@ -181,6 +182,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
         onCartOpen={openCart}
         isDark={isDark}
         onToggleDark={toggleDark}
+        topOffset={headerTopOffset}
       />
 
       <CartDrawer

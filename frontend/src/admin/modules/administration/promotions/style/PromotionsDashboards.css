@@ -38,165 +38,16 @@
   --vx-transition:   0.2s ease;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--vx-bg);
-  color: var(--vx-text);
-  font-family: var(--vx-font-body);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
-
-::-webkit-scrollbar       { width: 4px; }
-::-webkit-scrollbar-track { background: var(--vx-bg2); }
-::-webkit-scrollbar-thumb { background: var(--vx-cyan-mid); border-radius: 99px; }
-
-/* ── Noise ── */
-.vx-noise::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.022'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* ═══════════════════════════════════════════
-   LAYOUT
-   ═══════════════════════════════════════════ */
-.vx-dash {
-  display: flex;
-  min-height: 100vh;
-  position: relative;
-}
-
-/* ── Sidebar ── */
-.vx-sidebar {
-  width: 240px;
-  flex-shrink: 0;
-  background: var(--vx-bg2);
-  border-right: 1px solid var(--vx-border);
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  top: 0; left: 0; bottom: 0;
-  z-index: 50;
-}
-
-.vx-sidebar__logo {
-  padding: 24px 20px;
-  border-bottom: 1px solid var(--vx-border);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--vx-font-display);
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: var(--vx-text);
-  text-decoration: none;
-}
-
-.vx-sidebar__logo-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--vx-cyan);
-  box-shadow: 0 0 10px var(--vx-cyan-glow);
-  flex-shrink: 0;
-}
-
-.vx-sidebar__section-label {
-  padding: 20px 20px 8px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--vx-muted2);
-}
-
-.vx-sidebar__nav { flex: 1; padding: 8px 12px; display: flex; flex-direction: column; gap: 2px; }
-
-.vx-sidebar__item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: var(--vx-radius);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--vx-muted);
-  cursor: pointer;
-  border: none;
-  background: transparent;
-  font-family: var(--vx-font-body);
-  text-decoration: none;
-  transition: color var(--vx-transition), background var(--vx-transition);
-  width: 100%;
-  text-align: left;
-}
-
-.vx-sidebar__item i { font-size: 0.9rem; width: 16px; text-align: center; flex-shrink: 0; }
-.vx-sidebar__item:hover { color: var(--vx-text); background: var(--vx-card); }
-.vx-sidebar__item.is-active { color: var(--vx-cyan); background: var(--vx-cyan-dim); }
-.vx-sidebar__item.is-active i { color: var(--vx-cyan); }
-
-.vx-sidebar__footer {
-  padding: 16px 12px;
-  border-top: 1px solid var(--vx-border);
-}
-
-/* ── Main ── */
-.vx-main {
-  flex: 1;
-  margin-left: 240px;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ── Topbar ── */
-.vx-topbar {
-  height: 64px;
-  border-bottom: 1px solid var(--vx-border);
-  background: rgba(5,5,5,0.9);
-  backdrop-filter: blur(12px);
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 32px;
-}
-
-.vx-topbar__title {
-  font-family: var(--vx-font-display);
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-.vx-topbar__right { display: flex; align-items: center; gap: 12px; }
-
-.vx-avatar {
-  width: 34px; height: 34px;
-  border-radius: 8px;
-  background: var(--vx-cyan-dim);
-  border: 1px solid var(--vx-cyan-mid);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--vx-font-display);
-  font-weight: 800;
-  font-size: 0.78rem;
-  color: var(--vx-cyan);
-}
-
-/* ── Content ── */
-.vx-content {
-  flex: 1;
-  padding: 32px;
+/* ── Contenedor principal (sin layout propio, vive dentro de AdminLayout) ── */
+.vx-promo-page {
   display: flex;
   flex-direction: column;
   gap: 28px;
+  padding: 32px;
+  min-height: 100%;
+  position: relative;
+  color: var(--vx-text);
+  font-family: var(--vx-font-body);
 }
 
 /* ── Page header ── */
@@ -796,17 +647,12 @@ tbody td {
    ═══════════════════════════════════════════ */
 @media (max-width: 1024px) {
   .vx-stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .vx-sidebar { width: 200px; }
-  .vx-main { margin-left: 200px; }
 }
 
 @media (max-width: 768px) {
-  .vx-sidebar { display: none; }
-  .vx-main { margin-left: 0; }
-  .vx-content { padding: 20px 16px; }
+  .vx-promo-page { padding: 20px 16px; }
   .vx-stats-grid { grid-template-columns: repeat(2, 1fr); }
   .vx-form-grid { grid-template-columns: 1fr; }
-  .vx-topbar { padding: 0 16px; }
   .vx-modal { max-width: 100%; border-radius: var(--vx-radius-lg); }
   .vx-page-header { flex-direction: column; }
 }

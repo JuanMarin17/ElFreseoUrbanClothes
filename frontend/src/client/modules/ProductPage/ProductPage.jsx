@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 
 import "./ProductPage.css";
@@ -11,13 +12,13 @@ import SizeSelector from "./components/SizeSelector";
 import QuantityControl from "./components/QuantityControl";
 import StockIndicator from "./components/Stockindicator";
 import ProductActions from "./components/Productactions";
-import Trusptrip from "./components/TruspTrip";
+import TrustStrip from "./components/TruspTrip";
 import ProductTabs from "./components/Producttabs";
 import TabDescription from "./components/Tabsdescription";
 import TabSpecs from "./components/Tabspecs";
-import Tabreviews from "./components/Tabreviews";
+import TabReviews from "./components/Tabreviews";
 import TabQA from "./components/TabqA";
-import RelatedProduct from "./components/Relatedproduct";
+import RelatedProducts from "./components/Relatedproduct";
 import { CartToast, StickyCTA } from "./components/Carttoast";
 
 /* ──────────────────────────────────────────────
@@ -86,6 +87,21 @@ export default function ProductPage() {
     cartSuccess,
   } = useProduct(productId);
 
+  /* ── Scroll-reveal: activa .vx-visible cuando el elemento entra en viewport ── */
+  const revealRef = useRef(null);
+  useEffect(() => {
+    const root = revealRef.current;
+    if (!root) return;
+    const targets = root.querySelectorAll(".vx-reveal");
+    if (!targets.length) return;
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("vx-visible"); observer.unobserve(e.target); } }),
+      { threshold: 0.08 }
+    );
+    targets.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [loading]);
+
   /* ── Error ── */
   if (error) {
     return (
@@ -100,7 +116,7 @@ export default function ProductPage() {
               No se pudo cargar el producto
             </h1>
             <p className="vx-error-state__msg">{error}</p>
-            <Link to="/" className="vx-btn vx-btn--ghost vx-btn--sm">
+            <Link to={(-1)} className="vx-btn vx-btn--ghost vx-btn--sm">
               <i className="fa-solid fa-arrow-left" aria-hidden="true" /> Volver
               al inicio
             </Link>
@@ -170,7 +186,7 @@ export default function ProductPage() {
         </nav>
       </header>
 
-      <main>
+      <main ref={revealRef}>
         {/* ══════════════════════════════
             HERO — Galería + Info
             ══════════════════════════════ */}
@@ -253,7 +269,7 @@ export default function ProductPage() {
             TABS
             ══════════════════════════════ */}
         {!loading && product && (
-          <section className="vx-body" aria-label="Información detallada">
+          <section className="vx-body vx-reveal" aria-label="Información detallada">
             <div className="vx-wrap">
               <ProductTabs
                 tabs={TABS}
@@ -292,7 +308,11 @@ export default function ProductPage() {
         )}
 
         {/* Productos relacionados */}
-        {!loading && <RelatedProducts products={related} />}
+        {!loading && related.length > 0 && (
+          <div className="vx-reveal" style={{ transitionDelay: "0.1s" }}>
+            <RelatedProducts products={related} />
+          </div>
+        )}
       </main>
 
       {/* ══════════════════════════════

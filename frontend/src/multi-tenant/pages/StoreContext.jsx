@@ -1,3 +1,4 @@
+// @refresh reset
 /**
  * StoreContext.jsx
  * ─────────────────────────────────────────────────────────────────────────────
@@ -7,7 +8,8 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import { createContext, useContext, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
+import { StoreContext } from "../context/storeContextDef";
 
 const STORAGE_KEY = "mt_store_flow";
 
@@ -56,7 +58,7 @@ const NUMERIC_MAP = {
   6: "widgets",
   8: "cms",
   9: "store",
-  10:"resultado"
+  10: "resultado",
 };
 
 function resolveField(key) {
@@ -85,8 +87,6 @@ function stepIndex(key) {
 }
 
 /* ── Context ──────────────────────────────────────── */
-const StoreContext = createContext();
-
 export const StoreProvider = ({ children }) => {
   const [state, setState] = useState(load);
 
@@ -184,5 +184,3 @@ export const StoreProvider = ({ children }) => {
     </StoreContext.Provider>
   );
 };
-
-export const useStore = () => useContext(StoreContext);

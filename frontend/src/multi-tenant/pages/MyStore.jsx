@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useStore } from "./StoreContext";
+import { useStore } from "./useStore";
 import { useAuth } from "../../admin/modules/auth/pages/hook/Useauth";
 import "../components/styles/MyStore.css";
 import "../../admin/modules/administration/components/AdminLayout/AdminLayout.css";
@@ -35,7 +35,7 @@ const MyStore = () => {
   const menuItems       = role === "SUPERADMIN" ? SUPERADMIN_MENU : ADMIN_MENU;
   const isTransacciones = location.pathname === "/transacciones";
 
-  // ── Estados ───────────────────────────────────────────────────────────────
+  // "" Estados """"""""""""""""""""""""""""""""""""""""""
   const [isAiOpen,       setIsAiOpen]       = useState(false);
   const [stores,         setStores]         = useState([]);
   const [storeSettings,  setStoreSettings]  = useState({});
@@ -91,7 +91,7 @@ const MyStore = () => {
   return (
     <div className="admin-terminal-wrapper">
 
-      {/* ── Sidebar ───────────────────────────────────────────────────────── */}
+      {/* "" Sidebar """""""""""""""""""""""""""""""""""""" */}
       <Sidebar
         menuItems={menuItems}
         brandName="VEXIO"
@@ -103,7 +103,7 @@ const MyStore = () => {
 
       <div className="admin-main-section">
 
-        {/* ── Header ────────────────────────────────────────────────────── */}
+        {/* "" Header """""""""""""""""""""""""""""""""""" */}
         <AdminHeader
           isAiOpen={isAiOpen}
           setIsAiOpen={setIsAiOpen}
@@ -113,7 +113,7 @@ const MyStore = () => {
           isSuperAdmin={role === "SUPERADMIN"}
           searchValue={search}
           onSearchChange={(e) => setSearch(e.target.value)}
-          searchPlaceholder={isTransacciones ? "Buscar transacción..." : "Buscar tienda o ID..."}
+          searchPlaceholder={isTransacciones ? "Buscar transaccion..." : "Buscar tienda o ID..."}
           userName={name ?? "Usuario"}
           userRole={role}
         />
@@ -122,7 +122,7 @@ const MyStore = () => {
 
           <main className="admin-page-body">
 
-            {/* ── Vista condicional ──────────────────────────────────── */}
+            {/* "" Vista condicional """""""""""""""""""""""" */}
             {isTransacciones ? (
               <Transaction />
             ) : (
@@ -148,7 +148,7 @@ const MyStore = () => {
 
       {storesError && (
         <div className="ms-state ms-state--error">
-          <span>⚠ {storesError}</span>
+          <span> {storesError}</span>
         </div>
       )}
 
@@ -202,7 +202,7 @@ const MyStore = () => {
                           </div>
                           <div className="ms-store-footer">
                             <span className="ms-store-plan">
-                              {storeSettings[store.storeId]?.plan?.name ?? "—"}
+                              {storeSettings[store.storeId]?.plan?.name ?? ""}
                             </span>
                             <button
                               className="ms-store-link"
@@ -217,8 +217,8 @@ const MyStore = () => {
 
                   {!loadingStores && !storesError && filtered.length === 0 && (
                     <div className="ms-empty">
-                      <span className="ms-empty-icon">🏪</span>
-                      <p className="ms-empty-title">Sin tiendas aún</p>
+                      <span className="ms-empty-icon"></span>
+                      <p className="ms-empty-title">Sin tiendas aun</p>
                       <p className="ms-empty-sub">Crea tu primera tienda para empezar</p>
                       <button className="ms-btn-create" onClick={() => navigate("/plan")}>
                         <FiPlus size={14} /> Crear tienda
@@ -231,7 +231,7 @@ const MyStore = () => {
 
           </main>
 
-          {/* ── Panel IA ────────────────────────────────────────────── */}
+          {/* "" Panel IA """"""""""""""""""""""""""""""" */}
           <IAAdmin isOpen={isAiOpen} setIsOpen={setIsAiOpen} />
 
         </div>

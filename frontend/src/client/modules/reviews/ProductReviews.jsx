@@ -11,7 +11,7 @@ import './ProductReviews.css';
    Ajusta el BASE_URL y el helper getToken() a tu proyecto
 ══════════════════════════════════════════════════════════ */
 
-const BASE_URL = 'http://localhost:8080/api/v1/reviews';
+const BASE_URL = `${import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1"}/reviews`;
 
 /** Obtén el JWT de donde lo guardes: localStorage, contexto, etc. */
 const getToken = () => localStorage.getItem('token') || '';

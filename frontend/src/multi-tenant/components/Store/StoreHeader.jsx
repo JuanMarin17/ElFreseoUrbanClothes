@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { ShoppingBag, Sun, Moon, Settings } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ShoppingBag, Sun, Moon, Settings, ArrowLeft } from "lucide-react";
 import StoreSearchBar from "./StoreSearchBar.jsx";
 import "./styles/styles.css"
 
@@ -15,7 +15,9 @@ export default function StoreHeader({
   onCartOpen,
   isDark = true,
   onToggleDark,
+  topOffset = 0,
 }) {
+  const navigate = useNavigate();
   const { accent, btnR, hBg, hColor, hFont, isMin, isUrb, isCls } = theme;
 
   const btnBg     = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)";
@@ -49,12 +51,26 @@ export default function StoreHeader({
         justifyContent: "space-between",
         gap: 16,
         position: "sticky",
-        top: 0,
-        zIndex: 10,
+        top: topOffset,
+        zIndex: 99,
         backdropFilter: "blur(12px)",
         transition: "background 0.3s ease, border-color 0.3s ease",
       }}
     >
+      {/* Botón volver */}
+      <button
+        onClick={() => navigate(-1)}
+        title="Volver"
+        style={{
+          ...iconBtnStyle,
+          flexShrink: 0,
+        }}
+        onMouseEnter={e => { e.currentTarget.style.background = btnBgHov; }}
+        onMouseLeave={e => { e.currentTarget.style.background = btnBg; }}
+      >
+        <ArrowLeft size={16} />
+      </button>
+
       {/* NAV izquierda — solo minimalista */}
       {isMin && (
         <nav style={{ display: "flex", gap: "clamp(12px,2vw,28px)" }}>

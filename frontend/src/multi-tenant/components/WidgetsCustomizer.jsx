@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./styles/WidgetsCustomizer.css";
-import { useStore } from "../pages/StoreContext";
+import { useStore } from "../pages/useStore";
 import { useNavigate } from "react-router-dom";
 import StepProgress from "./StepProgress";
 
@@ -20,7 +20,7 @@ const WidgetsCustomizer = () => {
         color: "#d0dde8",
         font: "Inter",
         width: 240,
-        items: ["Inicio", "Productos", "Categorías", "Ofertas", "Contacto"],
+        items: ["Inicio", "Productos", "Categorias", "Ofertas", "Contacto"],
         borderColor: "#1a2535",
         borderWidth: 1,
         radius: 0,
@@ -65,13 +65,13 @@ const WidgetsCustomizer = () => {
     updateWidget("sidebar", "items", design.sidebar.items.filter((_, i) => i !== index));
   };
 
-  // ← Vuelve al paso anterior
+  //  Vuelve al paso anterior
   const handleBack = () => {
     saveProgress("widgets", design);
     navigate("/component");
   };
 
-  // ✓ Guarda y avanza a crear tienda
+  // " Guarda y avanza a crear tienda
   const handleFinish = () => {
     completeStep("widgets", design);
     navigate("/cms");
@@ -87,12 +87,12 @@ const WidgetsCustomizer = () => {
       {!isFullscreen && (
         <>
           <header className="admin-nav">
-            <button onClick={handleBack} className="btn-back-arrow" title="Volver">←</button>
+            <button onClick={handleBack} className="btn-back-arrow" title="Volver"></button>
             <div className="brand">
               {state.store?.name ?? "EL FRESEO"} <span>WIDGETS</span>
             </div>
             <button className="btn-save-top" onClick={handleFinish}>
-              SIGUIENTE →
+              SIGUIENTE '
             </button>
           </header>
           <StepProgress />
@@ -124,7 +124,7 @@ const WidgetsCustomizer = () => {
 
               <div className="scroll-fields-container">
 
-                {/* ── SIDEBAR ── */}
+                {/* "" SIDEBAR "" */}
                 {activeWidget === "SIDEBAR" && (
                   <>
                     <div className="field-group">
@@ -143,7 +143,7 @@ const WidgetsCustomizer = () => {
                     </div>
 
                     <div className="field-group">
-                      <label>Ítems del menú</label>
+                      <label>Items del menu</label>
                       <div className="links-manager">
                         {sb.items.map((item, index) => (
                           <div key={index} className="link-row">
@@ -153,7 +153,7 @@ const WidgetsCustomizer = () => {
                               onChange={(e) => updateSidebarItem(index, e.target.value)}
                               className="f-input-mini"
                             />
-                            <button className="btn-del-link" onClick={() => removeSidebarItem(index)}>×</button>
+                            <button className="btn-del-link" onClick={() => removeSidebarItem(index)}>X</button>
                           </div>
                         ))}
                      
@@ -203,7 +203,7 @@ const WidgetsCustomizer = () => {
                   </>
                 )}
 
-                {/* ── BUSCADOR ── */}
+                {/* "" BUSCADOR "" */}
                 {activeWidget === "BUSCADOR" && (
                   <>
                     <div className="field-group">
@@ -278,7 +278,7 @@ const WidgetsCustomizer = () => {
                     </div>
 
                     <div className="field-group">
-                      <label>Mostrar icono de búsqueda</label>
+                      <label>Mostrar icono de busqueda</label>
                       <label className="wc-toggle">
                         <input
                           type="checkbox"
@@ -301,7 +301,7 @@ const WidgetsCustomizer = () => {
         {/* VIEWPORT */}
         <section className={`viewport-area ${isFullscreen ? "fullscreen" : ""}`}>
           {isFullscreen && (
-            <button className="btn-exit-full" onClick={() => setIsFullscreen(false)}>VOLVER ×</button>
+            <button className="btn-exit-full" onClick={() => setIsFullscreen(false)}>VOLVER</button>
           )}
 
           <div className="wc-preview-shell">
@@ -330,7 +330,7 @@ const WidgetsCustomizer = () => {
               {sb.visible && (
                 <nav style={{ width: sb.width, minWidth: sb.width, background: sb.bg, borderRight: `${sb.borderWidth}px solid ${sb.borderColor}`, borderRadius: sb.radius, padding: "24px 0", display: "flex", flexDirection: "column", gap: 2, flexShrink: 0, fontFamily: `"${sb.font}", sans-serif` }}>
                   <div style={{ padding: "0 20px 20px", borderBottom: `1px solid ${sb.borderColor}`, marginBottom: 8 }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: sb.color, opacity: 0.4, letterSpacing: 2, textTransform: "uppercase" }}>MENÚ</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: sb.color, opacity: 0.4, letterSpacing: 2, textTransform: "uppercase" }}>MENU</span>
                   </div>
                   {sb.items.map((item, i) => (
                     <div key={i} style={{ padding: "11px 20px", fontSize: 13, color: i === 0 ? accentColor : sb.color, fontWeight: i === 0 ? 700 : 400, borderLeft: i === 0 ? `3px solid ${accentColor}` : "3px solid transparent", background: i === 0 ? `${accentColor}10` : "transparent", cursor: "pointer", letterSpacing: 0.3 }}>
@@ -342,7 +342,7 @@ const WidgetsCustomizer = () => {
 
               <div style={{ flex: 1, background: "#080c14", padding: "28px 24px", display: "flex", flexDirection: "column", gap: 16, overflow: "auto" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: 11, color: "#3a5a7a", letterSpacing: 3, textTransform: "uppercase" }}>CATÁLOGO</span>
+                  <span style={{ fontSize: 11, color: "#3a5a7a", letterSpacing: 3, textTransform: "uppercase" }}>CATALOGO</span>
                   <span style={{ fontSize: 11, color: "#1a2535" }}>4 productos</span>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 12 }}>
@@ -363,8 +363,8 @@ const WidgetsCustomizer = () => {
           {/* Botones fullscreen */}
           {isFullscreen && (
             <div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", gap: 10 }}>
-              <button onClick={handleBack} style={{ background: "#1a1a1a", border: "1px solid #555", color: "#aaa", padding: "10px 18px", borderRadius: 8, cursor: "pointer", fontSize: 18 }}>←</button>
-              <button className="btn-save-top" onClick={handleFinish} style={{ padding: "10px 24px" }}>SIGUIENTE →</button>
+              <button onClick={handleBack} style={{ background: "#1a1a1a", border: "1px solid #555", color: "#aaa", padding: "10px 18px", borderRadius: 8, cursor: "pointer", fontSize: 18 }}></button>
+              <button className="btn-save-top" onClick={handleFinish} style={{ padding: "10px 24px" }}>SIGUIENTE '</button>
             </div>
           )}
         </section>

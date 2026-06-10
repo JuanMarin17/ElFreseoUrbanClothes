@@ -3,7 +3,7 @@
  * Integración con el microservicio de productos.
  */
 
-const BASE = "http://localhost:8080/api/v1";
+const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
 
 // ─── Headers ─────────────────────────────────────────────────────────────────
 const buildHeaders = (extra = {}) => {
@@ -15,8 +15,14 @@ const buildHeaders = (extra = {}) => {
   const jwt     = localStorage.getItem("jwt");
   const storeId = localStorage.getItem("storeId");
 
-  if (jwt     && jwt     !== "null") h["Authorization"] = `Bearer ${jwt}`;
-  if (storeId && storeId !== "null") h["X-Store-Id"]    = storeId;
+  if (jwt && jwt !== "null") {
+    h["Authorization"] = `Bearer ${jwt}`;
+    try {
+      const decoded = JSON.parse(atob(jwt.split(".")[1]));
+      if (decoded.user_id) h["X-User-Id"] = decoded.user_id;
+    } catch { /* silent */ }
+  }
+  if (storeId && storeId !== "null") h["X-Store-Id"] = storeId;
 
   return { ...h, ...extra };
 };
@@ -63,7 +69,7 @@ export const getActiveProducts    = (page = 0, size = 10) =>
 export const getAllProducts = (storeId) => {
   const id = storeId ?? localStorage.getItem("storeId");
   if (!id || id === "null") throw new Error("Se requiere el storeId para obtener productos.");
-  return request("GET", "/products", { extraHeaders: { "X-Store-Id": id } });
+  return request("GET", "/products/all", { extraHeaders: { "X-Store-Id": id } });
 };
 
 export const getAllActiveProducts  = (storeId) => {
@@ -138,11 +144,11 @@ export const inactivateBrand  = (id) => request("PUT", `/brands/inactive/${id}`)
 // VARIANTES — stock
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export const increaseStock  = (variantId, quantity) =>
-  request("PATCH", `/variants/${variantId}/stock/increase`, { body: { quantity } });
+export const increaseStock  = (variantId, amount) =>
+  request("PATCH", `/variants/${variantId}/stock/increase`, { body: { amount } });
 
-export const decreaseStock  = (variantId, quantity) =>
-  request("PATCH", `/variants/${variantId}/stock/decrease`, { body: { quantity } });
+export const decreaseStock  = (variantId, amount) =>
+  request("PATCH", `/variants/${variantId}/stock/decrease`, { body: { amount } });
 
 export const updateMinStock = (variantId, minStock) =>
   request("PATCH", `/variants/${variantId}/min-stock`, { body: { minStock } });
