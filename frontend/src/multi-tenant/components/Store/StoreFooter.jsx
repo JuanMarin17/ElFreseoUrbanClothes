@@ -1,6 +1,15 @@
 import { cf } from './storeUtils.jsx';
+import { Link } from 'react-router-dom';
 
-export default function StoreFooter({ footer, header, theme }) {
+const FOOTER_LINKS = [
+  { label: "Catálogo",     to: "" },
+  { label: "Nosotros",     to: "/nosotros" },
+  { label: "FAQ",          to: "/faq" },
+  { label: "Devoluciones", to: "/devoluciones" },
+  { label: "Contacto",     to: "/contacto" },
+];
+
+export default function StoreFooter({ footer, header, theme, storeSlug = null }) {
   const { footerBg, hFont, fB, desc, accent, isMin, isUrb, isCls } = theme;
 
   const { isDark } = theme;
@@ -39,31 +48,33 @@ export default function StoreFooter({ footer, header, theme }) {
           </p>
         </div>
 
-        {/* Columnas de links */}
-        <div style={{ display: "flex", gap: 40, flexWrap: "wrap" }}>
-          {["Tienda", "Nosotros", "Contacto"].map((col, ci) => (
-            <div key={ci} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <span style={{
-                fontSize: 9, fontWeight: 700, letterSpacing: 2,
-                textTransform: "uppercase", color: "rgba(255,255,255,0.25)",
-                marginBottom: 2,
-              }}>
-                {col}
-              </span>
-              {(header.items ?? []).slice(0, 3).map((it, i) => (
-                <span key={i} style={{
-                  fontSize: 12, color: textMuted, cursor: "pointer",
-                  letterSpacing: isUrb ? 1.5 : 0.2,
-                  textTransform: isUrb ? "uppercase" : "none",
-                  transition: "color 0.15s",
-                  fontWeight: 400,
-                }}>
-                  {it}
-                </span>
-              ))}
-            </div>
-          ))}
-        </div>
+        {/* Links de la tienda */}
+        {storeSlug && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <span style={{
+              fontSize: 9, fontWeight: 700, letterSpacing: 2,
+              textTransform: "uppercase", color: "rgba(255,255,255,0.25)",
+              marginBottom: 2,
+            }}>
+              Páginas
+            </span>
+            {FOOTER_LINKS.map(link => (
+              <Link key={link.to} to={`/tienda/${storeSlug}${link.to}`} style={{
+                fontSize: 12, color: textMuted, cursor: "pointer",
+                letterSpacing: isUrb ? 1.5 : 0.2,
+                textTransform: isUrb ? "uppercase" : "none",
+                transition: "color 0.15s",
+                fontWeight: 400,
+                textDecoration: "none",
+              }}
+              onMouseEnter={e => e.currentTarget.style.color = textPrimary}
+              onMouseLeave={e => e.currentTarget.style.color = textMuted}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Bottom row */}

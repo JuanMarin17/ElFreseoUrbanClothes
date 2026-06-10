@@ -35,7 +35,7 @@ const StoreResult = () => {
   const accentColor = styles.colorBoton ?? "#3e78ff";
   const fontTitle = cleanFont(styles.fontTitle ?? "Bebas Neue");
   const layoutClass = layout.id ?? "minimalista";
-  const siteUrl = `${store.subdomain ?? "mi-tienda"}.freseo.com`;
+  const siteUrl = `${store.subdomain ?? "mi-tienda"}.vexio.com`;
 
   /* "" datos reales para StorePreview "" */
   const header = components.header ?? {

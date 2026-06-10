@@ -1,4 +1,4 @@
-import "../components/styles/Store.css";
+﻿import "../components/styles/Store.css";
 import "../components/styles/StepPages.css";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "./useStore";
@@ -196,7 +196,7 @@ export default function CreateStore() {
                     letterSpacing: 0,
                   }}
                 >
-                  {form.subdomain}.freseo.com
+                  {form.subdomain}.vexio.com
                 </span>
               )}
             </label>
