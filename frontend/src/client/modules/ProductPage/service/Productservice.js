@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API_BASE =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
+  import.meta.env.VITE_API_BASE_URL || "http://46.225.21.146:8080/api";
 
 const productApi = axios.create({
   baseURL: API_BASE,

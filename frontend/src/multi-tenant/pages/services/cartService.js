@@ -4,7 +4,7 @@
  * Nota: storeId va en la URL, NO en los headers.
  */
 
-const BASE = `${import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1"}`;
+const BASE = `${import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1"}`;
 
 const buildHeaders = () => {
   const jwt = localStorage.getItem("jwt");
@@ -25,7 +25,11 @@ async function request(method, path, body) {
   if (res.status === 204) return null;
 
   let data;
-  try { data = await res.json(); } catch { data = {}; }
+  try {
+    data = await res.json();
+  } catch {
+    data = {};
+  }
 
   if (!res.ok) {
     const msg = data?.message ?? data?.error ?? `Error ${res.status}`;
@@ -38,8 +42,7 @@ async function request(method, path, body) {
 }
 
 /** Obtener carrito activo (lo crea si no existe, nunca devuelve 404). */
-export const getCart = (storeId) =>
-  request("GET", `/stores/${storeId}/cart`);
+export const getCart = (storeId) => request("GET", `/stores/${storeId}/cart`);
 
 /** Agregar producto al carrito. Si ya existe, suma la cantidad. */
 export const addItem = (storeId, { productId, quantity }) =>

@@ -6,7 +6,8 @@
  * Requieren: Authorization: Bearer <jwt>  y  X-Store-Id: <uuid>
  */
 
-const API_ROOT = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
+const API_ROOT =
+  import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
 
 function buildHeaders(storeId) {
   return {
@@ -21,10 +22,13 @@ async function request(url, storeId, options = {}) {
     ...options,
     headers: buildHeaders(storeId),
   });
-  const ct   = res.headers.get("Content-Type") ?? "";
-  const body = ct.includes("application/json") ? await res.json() : await res.text();
+  const ct = res.headers.get("Content-Type") ?? "";
+  const body = ct.includes("application/json")
+    ? await res.json()
+    : await res.text();
   if (!res.ok) {
-    const msg = typeof body === "object" ? (body.message ?? `Error ${res.status}`) : body;
+    const msg =
+      typeof body === "object" ? (body.message ?? `Error ${res.status}`) : body;
     throw new Error(msg || `Error ${res.status}`);
   }
   return body?.data ?? body;
