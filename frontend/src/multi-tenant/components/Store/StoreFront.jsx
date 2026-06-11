@@ -227,6 +227,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
             justAdded={justAdded}
             searchCfg={searchCfg}
             onSearchChange={setSearchQuery}
+            storeId={storeId}
           />
         </div>
       </div>

@@ -1,13 +1,73 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, startTransition } from "react";
 import "./Report.css";
-import {
-  getDashboard,
-  getStockReport,
-  getOrdersReport,
-  getSalesReport,
-  formatCOP,
-  periodToDays,
-} from "../../services/ReportService";
+
+// ============================================================
+//  CONFIGURACIÓN DE API
+// ============================================================
+const BASE = "http://46.225.21.146:8080/api/v1";
+
+const buildHeaders = () => ({
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+  "X-Store-Id": localStorage.getItem("storeId"),
+});
+
+async function apiFetch(path) {
+  try {
+    const res = await fetch(`${BASE}${path}`, { headers: buildHeaders() });
+    if (res.status === 401) throw new Error("UNAUTHORIZED");
+    if (res.status === 400) throw new Error("STORE_ID_MISSING");
+    if (!res.ok) throw new Error(`HTTP_${res.status}`);
+    const text = await res.text();
+    if (!text) throw new Error("EMPTY_RESPONSE");
+    return JSON.parse(text);
+  } catch (e) {
+    if (e.message === "UNAUTHORIZED" || e.message === "STORE_ID_MISSING") throw e;
+    if (e.name === "TypeError" || e.message?.includes("Failed to fetch") || e.message?.includes("NetworkError")) {
+      throw new Error("EMPTY_RESPONSE");
+    }
+    throw e;
+  }
+}
+
+const getDashboard    = ()           => apiFetch("/reports/dashboard");
+const getStockReport  = ()           => apiFetch("/reports/stock");
+const getOrdersReport = (days = 30)  => apiFetch(`/reports/orders?days=${days}`);
+const getSalesReport  = (days = 30)  => apiFetch(`/reports/sales?days=${days}`);
+
+// ============================================================
+//  DATOS POR DEFECTO (cuando el servidor no responde)
+// ============================================================
+const FALLBACK_DASHBOARD = {
+  todayRevenue: 0, weekRevenue: 0, monthRevenue: 0, totalRevenue: 0,
+  activeProducts: 0, inactiveProducts: 0, lowStockVariants: 0, outOfStockVariants: 0,
+  pendingOrders: 0, confirmedOrders: 0, processingOrders: 0, shippedOrders: 0,
+  deliveredOrders: 0, cancelledOrders: 0, refundedOrders: 0, totalOrders: 0,
+  topProducts: [],
+};
+const FALLBACK_STOCK = {
+  summary: { healthyStockVariants: 0, lowStockVariants: 0, outOfStockVariants: 0, totalStockValue: 0 },
+  lowStockItems: [], outOfStockItems: [], byCategory: [],
+};
+const FALLBACK_ORDERS = {
+  summary: { total: 0, pending: 0, delivered: 0, averageOrderValue: 0, confirmed: 0, processing: 0, shipped: 0, cancelled: 0, refunded: 0 },
+  dailyBreakdown: [], topProducts: [],
+};
+const FALLBACK_SALES = {
+  summary: { todayRevenue: 0, weekRevenue: 0, monthRevenue: 0, averageTicket: 0 },
+  dailyBreakdown: [], byPaymentMethod: [], topProductsByRevenue: [],
+};
+
+// ============================================================
+//  UTILIDADES
+// ============================================================
+const formatCOP = (v) =>
+  new Intl.NumberFormat("es-CO", {
+    style: "currency", currency: "COP",
+    minimumFractionDigits: 0, maximumFractionDigits: 0,
+  }).format(v ?? 0);
+
+const periodToDays = (p) => ({ "7D": 7, "30D": 30, "90D": 90, "ALL": 0 }[p] ?? 30);
 
 const ORDER_STATUS_COLORS = {
   pendingOrders:    "#f59e0b",
@@ -839,73 +899,63 @@ export default function Report() {
 
   useEffect(() => {
     if (activeTab !== "dashboard" || dashboardData) return;
-    let cancelled = false;
-    (async () => {
-      setLoad("dashboard", true);
-      try {
-        const data = await getDashboard();
-        if (!cancelled) setDashboardData(data);
-      } catch (e) {
-        if (!cancelled) { handleAuthError(e); setError("dashboard", e.message); }
-      } finally {
-        if (!cancelled) setLoad("dashboard", false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [activeTab, dashboardData, handleAuthError]);
+    const t = setTimeout(() => {
+      startTransition(() => setLoad("dashboard", true));
+      getDashboard()
+        .then(d => startTransition(() => setDashboardData(d ?? FALLBACK_DASHBOARD)))
+        .catch(e => startTransition(() => {
+          if (e.message === "EMPTY_RESPONSE") { setDashboardData(FALLBACK_DASHBOARD); return; }
+          handleAuthError(e); setError("dashboard", e.message);
+        }))
+        .finally(() => startTransition(() => setLoad("dashboard", false)));
+    }, 0);
+    return () => clearTimeout(t);
+  }, [activeTab]);
 
   useEffect(() => {
     if (activeTab !== "stock" || stockData) return;
-    let cancelled = false;
-    (async () => {
-      setLoad("stock", true);
-      try {
-        const data = await getStockReport();
-        if (!cancelled) setStockData(data);
-      } catch (e) {
-        if (!cancelled) { handleAuthError(e); setError("stock", e.message); }
-      } finally {
-        if (!cancelled) setLoad("stock", false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [activeTab, stockData, handleAuthError]);
+    const t = setTimeout(() => {
+      startTransition(() => setLoad("stock", true));
+      getStockReport()
+        .then(d => startTransition(() => setStockData(d ?? FALLBACK_STOCK)))
+        .catch(e => startTransition(() => {
+          if (e.message === "EMPTY_RESPONSE") { setStockData(FALLBACK_STOCK); return; }
+          handleAuthError(e); setError("stock", e.message);
+        }))
+        .finally(() => startTransition(() => setLoad("stock", false)));
+    }, 0);
+    return () => clearTimeout(t);
+  }, [activeTab]);
 
   useEffect(() => {
     if (activeTab !== "orders") return;
-    let cancelled = false;
-    (async () => {
-      setLoad("orders", true);
-      setOrdersData(null);
-      try {
-        const data = await getOrdersReport(periodToDays(ordersPeriod));
-        if (!cancelled) setOrdersData(data);
-      } catch (e) {
-        if (!cancelled) { handleAuthError(e); setError("orders", e.message); }
-      } finally {
-        if (!cancelled) setLoad("orders", false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [activeTab, ordersPeriod, handleAuthError]);
+    const t = setTimeout(() => {
+      startTransition(() => { setLoad("orders", true); setOrdersData(null); });
+      getOrdersReport(periodToDays(ordersPeriod))
+        .then(d => startTransition(() => setOrdersData(d ?? FALLBACK_ORDERS)))
+        .catch(e => startTransition(() => {
+          if (e.message === "EMPTY_RESPONSE") { setOrdersData(FALLBACK_ORDERS); return; }
+          handleAuthError(e); setError("orders", e.message);
+        }))
+        .finally(() => startTransition(() => setLoad("orders", false)));
+    }, 0);
+    return () => clearTimeout(t);
+  }, [activeTab, ordersPeriod]);
 
   useEffect(() => {
     if (activeTab !== "sales") return;
-    let cancelled = false;
-    (async () => {
-      setLoad("sales", true);
-      setSalesData(null);
-      try {
-        const data = await getSalesReport(periodToDays(salesPeriod));
-        if (!cancelled) setSalesData(data);
-      } catch (e) {
-        if (!cancelled) { handleAuthError(e); setError("sales", e.message); }
-      } finally {
-        if (!cancelled) setLoad("sales", false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [activeTab, salesPeriod, handleAuthError]);
+    const t = setTimeout(() => {
+      startTransition(() => { setLoad("sales", true); setSalesData(null); });
+      getSalesReport(periodToDays(salesPeriod))
+        .then(d => startTransition(() => setSalesData(d ?? FALLBACK_SALES)))
+        .catch(e => startTransition(() => {
+          if (e.message === "EMPTY_RESPONSE") { setSalesData(FALLBACK_SALES); return; }
+          handleAuthError(e); setError("sales", e.message);
+        }))
+        .finally(() => startTransition(() => setLoad("sales", false)));
+    }, 0);
+    return () => clearTimeout(t);
+  }, [activeTab, salesPeriod]);
 
   const tabs = [
     { key: "dashboard", label: "Panel Principal", icon: "layout-dashboard" },
@@ -917,9 +967,10 @@ export default function Report() {
   return (
     <div className="rp-page">
       <div className="rp-topbar">
-        <div>
-          <h1 className="rp-title">Módulo de Reportes</h1>
-          <p className="rp-subtitle">Monitoreo de rendimiento comercial y control logístico en tiempo real.</p>
+        <h1 className="rp-title">Reportes</h1>
+        <div className="rp-topbar-right">
+          <i className="ti ti-bell"     style={{ fontSize: 18 }} aria-hidden="true" />
+          <i className="ti ti-settings" style={{ fontSize: 18 }} aria-hidden="true" />
         </div>
       </div>
 

@@ -9,8 +9,10 @@ const productApi = axios.create({
 });
 
 productApi.interceptors.request.use((config) => {
-  const jwt     = localStorage.getItem("jwt");
-  const storeId = localStorage.getItem("storeId");
+  const jwt = localStorage.getItem("jwt");
+  // ?sid query param takes priority — set by store product cards to avoid stale localStorage storeId
+  const urlStoreId = new URLSearchParams(window.location.search).get("sid");
+  const storeId = urlStoreId || localStorage.getItem("storeId");
 
   if (jwt && jwt !== "null") {
     config.headers.Authorization = `Bearer ${jwt}`;
@@ -245,7 +247,8 @@ export const fetchProductReviews = (_productId, _page = 0, _size = 10) =>
  * que no sean el producto actual.
  */
 export const fetchRelatedProducts = async (productId, limit = 4) => {
-  const storeId = localStorage.getItem("storeId");
+  const urlStoreId = new URLSearchParams(window.location.search).get("sid");
+  const storeId = urlStoreId || localStorage.getItem("storeId");
   if (!storeId || storeId === "null") return [];
 
   try {

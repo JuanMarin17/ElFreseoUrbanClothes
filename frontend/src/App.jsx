@@ -11,7 +11,6 @@ import { ProtectedRoute }                          from "./admin/modules/auth/pa
 import { TokenGuard }                              from "./admin/modules/auth/pages/hook/TokenGuard.jsx";
 import ProtectedStep                               from "./multi-tenant/components/ProtectStep.jsx";
 import SubscriptionGuard                           from "./admin/modules/auth/pages/hook/SubscriptionGuard.jsx";
-
 import MyStoreLayout                               from "./multi-tenant/pages/MyStoreLayout.jsx";
 
 // ── Suscripciones ─────────────────────────────────────────────────────────────
@@ -20,6 +19,7 @@ const SubscriptionSuccess   = lazy(() => import("./admin/modules/administration/
 const SubscriptionFailure   = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionFailure.jsx"));
 const SubscriptionPending   = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionPending.jsx"));
 
+// ── Admin ─────────────────────────────────────────────────────────────────────
 const AdminLayout         = lazy(() => import("./admin/modules/administration/components/AdminLayout/AdminLayout.jsx"));
 const Dashboard           = lazy(() => import("./admin/modules/administration/dashboard/Dashboard.jsx"));
 const UploadProduct       = lazy(() => import("./admin/modules/administration/pages/UploadProduct/UploadProduct.jsx"));
@@ -121,6 +121,8 @@ export default function App() {
             <Suspense fallback={<PageLoader />}>
               <AnimatePresence mode="wait">
                 <Routes key="main-content">
+
+                  {/* ── Público ──────────────────────────────────────────── */}
                   <Route path="/"                    element={<VexioLanding />} />
                   <Route path="/landing"             element={<VexioLanding />} />
                   <Route path="/market"              element={<MarketPage />} />
@@ -163,10 +165,10 @@ export default function App() {
                   <Route path="/resultado"     element={<ProtectedStep requiredStep={9}><StoreResult /></ProtectedStep>} />
 
                   {/* ── Suscripciones ────────────────────────────────────── */}
-                  <Route path="/planes"                              element={<SubscriptionPlansPage />} />
-                  <Route path="/dashboard/subscription/success"     element={<SubscriptionSuccess />} />
-                  <Route path="/dashboard/subscription/failure"     element={<SubscriptionFailure />} />
-                  <Route path="/dashboard/subscription/pending"     element={<SubscriptionPending />} />
+                  <Route path="/planes"                          element={<SubscriptionPlansPage />} />
+                  <Route path="/dashboard/subscription/success" element={<SubscriptionSuccess />} />
+                  <Route path="/dashboard/subscription/failure" element={<SubscriptionFailure />} />
+                  <Route path="/dashboard/subscription/pending" element={<SubscriptionPending />} />
 
                   {/* ── Tienda pública ───────────────────────────────────── */}
                   <Route path="/tienda/:slug"              element={<StorePage />} />

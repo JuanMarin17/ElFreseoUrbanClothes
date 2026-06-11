@@ -126,7 +126,7 @@ export default function OrdersManagement() {
         getOrders({ page: 0, size: 1 }),
         getOrders({ status: 'PENDING', page: 0, size: 1 }),
       ]);
-      setStats({ total: allRes.totalElements, pending: pendingRes.totalElements });
+      setStats({ total: allRes.totalElements ?? 0, pending: pendingRes.totalElements ?? 0 });
     } catch { /* KPIs son no críticos */ }
   }, []);
 
@@ -203,14 +203,14 @@ export default function OrdersManagement() {
           <div className="kpi-icon-wrapper blue"><Package size={20} /></div>
           <div className="kpi-data">
             <span className="kpi-label">Pedidos Totales</span>
-            <h3 className="kpi-value">{stats.total.toLocaleString('es-CO')}</h3>
+            <h3 className="kpi-value">{(stats.total ?? 0).toLocaleString('es-CO')}</h3>
           </div>
         </div>
         <div className="order-kpi-card">
           <div className="kpi-icon-wrapper orange"><Clock size={20} /></div>
           <div className="kpi-data">
             <span className="kpi-label">Pendientes</span>
-            <h3 className="kpi-value">{stats.pending.toLocaleString('es-CO')}</h3>
+            <h3 className="kpi-value">{(stats.pending ?? 0).toLocaleString('es-CO')}</h3>
             <span className="kpi-trend neutral">Por procesar</span>
           </div>
         </div>
