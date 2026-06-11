@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import "../components/styles/CustomatizacionPanel.css";
 import { useStore } from "../pages/useStore";
 import { useNavigate } from "react-router-dom";
@@ -80,16 +81,15 @@ const CustomizationPanel = () => {
             className="btn-back-arrow"
             title="Volver"
           >
-            
+            <ArrowLeft size={16} />
           </button>
 
           <div className="store-name">
             {state.store?.name ?? "EDITOR PROFESIONAL"}
           </div>
 
-          {/* ' Guarda y continua al paso 5 */}
           <button className="btn-save-primary" onClick={handleSave}>
-            GUARDAR Y CONTINUAR '
+            GUARDAR Y CONTINUAR <ArrowRight size={14} />
           </button>
         </header>
 

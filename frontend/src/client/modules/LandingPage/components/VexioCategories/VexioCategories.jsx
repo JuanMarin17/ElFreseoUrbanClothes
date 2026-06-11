@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './VexioCategories.css';
 
 const CATEGORIES = [
@@ -57,6 +58,7 @@ const FEATURED = [
 ];
 
 export default function VexioCategories() {
+  const navigate = useNavigate();
   const cardsRef = useRef([]);
   const headRef1 = useRef(null);
   const headRef2 = useRef(null);
@@ -103,6 +105,7 @@ export default function VexioCategories() {
             className={`vx-cat-card vx-cat-card--${cat.color} vx-reveal`}
             ref={(el) => (cardsRef.current[i] = el)}
             style={{ transitionDelay: `${i * 50}ms` }}
+            onClick={() => navigate('/market')}
           >
             <img src={cat.img} alt={cat.label} loading="lazy" className="vx-cat-img" />
             <div className="vx-cat-overlay">
@@ -125,7 +128,7 @@ export default function VexioCategories() {
             
             <h2 className="vx-section-title">Productos que están volando</h2>
           </div>
-          <button className="vx-ver-todo-btn">Ver todo →</button>
+          <button className="vx-ver-todo-btn" onClick={() => navigate('/market')}>Ver todo →</button>
         </div>
 
         {/* Grid productos */}

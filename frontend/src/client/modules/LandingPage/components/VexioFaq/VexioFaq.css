@@ -35,7 +35,10 @@
   font-size: .92rem;
   color: #FFFFFF;
   text-align: left;
-  transition: color .2s;
+  transition: color 200ms ease, opacity 120ms ease;
+}
+.vx-faq-q:active {
+  opacity: 0.7;
 }
 .vx-faq-item--open .vx-faq-q { color: #3B82F6; }
 
@@ -43,7 +46,7 @@
   font-size: 1.1rem;
   color: #9CA3AF;
   flex-shrink: 0;
-  transition: transform .28s;
+  transition: transform 250ms cubic-bezier(0.23, 1, 0.32, 1), color 200ms ease;
   line-height: 1;
 }
 .vx-faq-item--open .vx-faq-icon {
@@ -51,17 +54,24 @@
   color: #2563FF;
 }
 
-/* Acordeón — oculto por defecto, visible al abrir */
+/* Acordeón con grid-rows para animación suave y precisa */
 .vx-faq-a {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height .3s ease, padding .3s ease;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms cubic-bezier(0.23, 1, 0.32, 1);
   padding: 0 22px;
   font-size: .865rem;
   color: #9CA3AF;
   line-height: 1.8;
 }
+.vx-faq-a-inner {
+  overflow: hidden;
+  padding-bottom: 0;
+  transition: padding-bottom 300ms cubic-bezier(0.23, 1, 0.32, 1);
+}
 .vx-faq-item--open .vx-faq-a {
-  max-height: 300px;
-  padding: 0 22px 18px;
+  grid-template-rows: 1fr;
+}
+.vx-faq-item--open .vx-faq-a-inner {
+  padding-bottom: 18px;
 }

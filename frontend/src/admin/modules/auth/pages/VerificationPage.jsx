@@ -60,6 +60,10 @@ export default function VerificationPage({ email, onVerify, onBack, loading }) {
   };
 
   const handleKeyDown = (i, e) => {
+    if (e.key === "Enter") {
+      handleSubmit();
+      return;
+    }
     if (e.key === "Backspace") {
       const updated = [...digits];
       if (updated[i]) {

@@ -1,46 +1,61 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllStores } from '../../../../../multi-tenant/pages/services/storeService';
+import { getAllStores, getStoreSettingsByHeader } from '../../../../../multi-tenant/pages/services/storeService';
 import './VexioStores.css';
 
-const AVATAR_COLORS = ['pink', 'orange', 'teal', 'purple', 'blue'];
-const TAG_COLORS    = ['gold', 'green', 'blue', 'purple'];
-const TAG_LABELS    = ['Destacada', 'Popular', 'Nueva', 'Top ventas'];
+const TAG_COLORS = ['gold', 'green', 'blue', 'purple'];
+const TAG_LABELS = ['Destacada', 'Popular', 'Nueva', 'Top ventas'];
+
+const getCover = (store) => {
+  const banner = store.settings?.components?.banner;
+  if (banner?.image) return { type: 'image', src: banner.image };
+  if (banner?.bg)    return { type: 'color',  bg: banner.bg };
+  return { type: 'color', bg: '#111827' };
+};
+
+const getLogo = (store) => {
+  const logo = store.settings?.basic?.logoPreview
+    ?? store.settings?.components?.header?.logo;
+  return logo && logo.startsWith('http') ? logo : null;
+};
+
+const getAccent = (store) =>
+  store.settings?.styles?.colorBoton ?? '#3e78ff';
 
 export default function VexioStores() {
   const [stores,  setStores]  = useState([]);
   const [loading, setLoading] = useState(true);
-  const cardsRef = useRef([]);
   const navigate = useNavigate();
 
-  // Carga tiendas activas (máx 4)
   useEffect(() => {
     getAllStores()
-      .then((data) => {
+      .then(async (data) => {
         const list = Array.isArray(data)
           ? data
           : (data?.content ?? data?.stores ?? data?.data ?? []);
-        setStores(list.filter((s) => s.isActive !== false).slice(0, 4));
+
+        const active = list.filter((s) => s.isActive !== false).slice(0, 8);
+
+        const withSettings = await Promise.all(
+          active.map(async (store) => {
+            try {
+              const settings = await getStoreSettingsByHeader(store.storeId);
+              return { ...store, settings: settings ?? {} };
+            } catch {
+              return { ...store, settings: {} };
+            }
+          }),
+        );
+
+        setStores(withSettings);
       })
       .catch(() => setStores([]))
       .finally(() => setLoading(false));
   }, []);
 
-  // Animación de entrada con IntersectionObserver
-  useEffect(() => {
-    if (loading) return;
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => {
-        if (e.isIntersecting) e.target.classList.add('vx-visible');
-      }),
-      { threshold: 0.1 },
-    );
-    cardsRef.current.forEach((el) => el && observer.observe(el));
-    return () => observer.disconnect();
-  }, [loading, stores]);
-
-  // No renderizar si no hay tiendas y ya terminó de cargar
   if (!loading && stores.length === 0) return null;
+
+  const displayStores = stores.length > 0 ? [...stores, ...stores] : [];
 
   return (
     <section id="vx-stores" className="vx-section vx-section--dark">
@@ -53,79 +68,82 @@ export default function VexioStores() {
         </p>
       </div>
 
-      <div className="vx-stores-grid">
-        {loading
-          ? /* Skeleton mientras carga */
-            [...Array(4)].map((_, i) => (
-              <div key={i} className="vx-store-card" style={{ opacity: 0.35, pointerEvents: 'none' }}>
-                <div className="vx-store-header">
-                  <div
-                    className="vx-store-avatar vx-store-avatar--blue"
-                    style={{ background: 'rgba(37,99,255,0.06)' }}
-                  />
-                  <div className="vx-store-meta">
-                    <div style={{ height: 11, background: 'var(--vx-border)', borderRadius: 4, width: '65%', marginBottom: 6 }} />
-                    <div style={{ height: 9,  background: 'var(--vx-border)', borderRadius: 4, width: '45%' }} />
+      <div className="vx-marquee-wrapper">
+        <div className={`vx-marquee-track${loading ? ' vx-marquee-track--paused' : ''}`}>
+          {loading
+            ? [...Array(6)].map((_, i) => (
+                <div key={i} className="vx-store-card">
+                  <div className="vx-store-cover-wrap vx-skel-cover" />
+                  <div className="vx-store-logo-ring">
+                    <div className="vx-skel-logo" />
+                  </div>
+                  <div className="vx-store-info">
+                    <div className="vx-skel-line" style={{ width: '65%', marginBottom: 6 }} />
+                    <div className="vx-skel-line" style={{ width: '40%' }} />
+                    <div className="vx-skel-block" style={{ marginTop: 10 }} />
+                    <div className="vx-skel-btn" />
                   </div>
                 </div>
-                <div style={{ height: 60, background: 'var(--vx-border)', borderRadius: 10, opacity: 0.5 }} />
-                <div style={{ height: 34, background: 'var(--vx-border)', borderRadius: 7 }} />
-              </div>
-            ))
-          : stores.map((store, i) => {
-              const color    = AVATAR_COLORS[i % AVATAR_COLORS.length];
-              const tagColor = TAG_COLORS[i % TAG_COLORS.length];
-              const tagLabel = TAG_LABELS[i % TAG_LABELS.length];
-              const initial  = (store.name?.[0] ?? 'T').toUpperCase();
+              ))
+            : displayStores.map((store, i) => {
+                const cover    = getCover(store);
+                const logo     = getLogo(store);
+                const accent   = getAccent(store);
+                const tagColor = TAG_COLORS[i % TAG_COLORS.length];
+                const tagLabel = TAG_LABELS[i % TAG_LABELS.length];
+                const initial  = (store.name?.[0] ?? 'T').toUpperCase();
+                const desc     = store.description
+                  ?? store.settings?.components?.banner?.title
+                  ?? '';
 
-              return (
-                <div
-                  key={store.storeId}
-                  className="vx-store-card vx-reveal"
-                  ref={(el) => (cardsRef.current[i] = el)}
-                  style={{ transitionDelay: `${i * 80}ms` }}
-                >
-                  {/* Cabecera: avatar + nombre + tag */}
-                  <div className="vx-store-header">
-                    <div className={`vx-store-avatar vx-store-avatar--${color}`}>
-                      {initial}
+                return (
+                  <div
+                    key={`${store.storeId}-${i}`}
+                    className="vx-store-card"
+                    style={{ '--store-accent': accent }}
+                    aria-hidden={i >= stores.length}
+                  >
+                    {/* Banner / Cover */}
+                    <div className="vx-store-cover-wrap">
+                      {cover.type === 'image' ? (
+                        <img src={cover.src} alt="" className="vx-store-cover-img" loading="lazy" />
+                      ) : (
+                        <div className="vx-store-cover-color" style={{ background: cover.bg }} />
+                      )}
+                      <div className="vx-store-cover-overlay" />
+                      <span className={`vx-store-tag vx-store-tag--${tagColor}`}>{tagLabel}</span>
                     </div>
-                    <div className="vx-store-meta">
+
+                    {/* Logo superpuesto */}
+                    <div className="vx-store-logo-ring">
+                      {logo ? (
+                        <img src={logo} alt={store.name} className="vx-store-logo-img" />
+                      ) : (
+                        <div className="vx-store-logo-initial" style={{ background: accent }}>
+                          {initial}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div className="vx-store-info">
                       <div className="vx-store-name">{store.name}</div>
                       <div className="vx-store-category">{store.slug}.vexio.com</div>
+                      {desc && <p className="vx-store-desc">{desc}</p>}
+                      <button
+                        className="vx-store-btn"
+                        onClick={() => navigate(`/tienda/${store.slug}`)}
+                        tabIndex={i >= stores.length ? -1 : 0}
+                      >
+                        Visitar tienda →
+                      </button>
                     </div>
-                    <span className={`vx-store-tag vx-store-tag--${tagColor}`}>{tagLabel}</span>
                   </div>
-
-                  {/* Descripción si existe */}
-                  {store.description && (
-                    <p style={{
-                      fontSize: '0.82rem',
-                      color: 'var(--vx-muted)',
-                      lineHeight: 1.55,
-                      margin: 0,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                    }}>
-                      {store.description}
-                    </p>
-                  )}
-
-                  {/* Botón */}
-                  <button
-                    className="vx-store-btn"
-                    onClick={() => navigate(`/tienda/${store.slug}`)}
-                  >
-                    Visitar tienda →
-                  </button>
-                </div>
-              );
-            })}
+                );
+              })}
+        </div>
       </div>
 
-      {/* Footer de sección */}
       {!loading && stores.length > 0 && (
         <div className="vx-stores-footer">
           <p className="vx-stores-footer-text">

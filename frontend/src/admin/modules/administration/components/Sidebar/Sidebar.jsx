@@ -30,6 +30,8 @@ const Sidebar = ({
   useImageLogo,
   storeSlug,
   lowStockCount = 0,
+  isOpen        = false,
+  onClose,
 }) => {
   const navigate = useNavigate();
 
@@ -38,73 +40,91 @@ const Sidebar = ({
     else navigate('/login');
   };
 
+  const handleNavClick = () => {
+    if (onClose) onClose();
+  };
+
   const resolvedItems = menuItems.map((item) => ({
     ...item,
     path: storeSlug ? item.path.replace(':slug', storeSlug) : item.path,
   }));
 
   return (
-    <aside className="sidebar-container">
+    <>
+      {/* Mobile overlay backdrop */}
+      <div
+        className={`sidebar-overlay ${isOpen ? 'sidebar-overlay--visible' : ''}`}
+        onClick={onClose}
+        aria-hidden="true"
+      />
 
-      {/* ── Brand / Logo ─────────────────────────────────────────────── */}
-      <div className="sidebar-brand">
-        {useImageLogo ? (
-          <img
-            src={logoUrl || defaultLogo}
-            alt={brandName}
-            className="sidebar-logo-img"
-            onError={(e) => { e.target.onerror = null; e.target.src = defaultLogo; }}
-          />
-        ) : (
-          <img src={defaultLogo} alt="Logo" className="sidebar-logo-img" />
-        )}
-        <span className="brand-subtitle">{brandSub}</span>
-      </div>
+      <aside className={`sidebar-container ${isOpen ? 'sidebar-container--open' : ''}`}>
 
-      {/* ── Nav ──────────────────────────────────────────────────────── */}
-      <nav className="sidebar-nav">
-        {storeSlug && (
-          <NavLink to={`/tienda/${storeSlug}`} className="nav-link back-to-store">
-            <ArrowLeft size={18} />
-            <span>VOLVER A LA TIENDA</span>
-          </NavLink>
-        )}
+        {/* ── Brand / Logo ─────────────────────────────────────────────── */}
+        <div className="sidebar-brand">
+          {useImageLogo ? (
+            <img
+              src={logoUrl || defaultLogo}
+              alt={brandName}
+              className="sidebar-logo-img"
+              onError={(e) => { e.target.onerror = null; e.target.src = defaultLogo; }}
+            />
+          ) : (
+            <img src={defaultLogo} alt="Logo" className="sidebar-logo-img" />
+          )}
+          <span className="brand-subtitle">{brandSub}</span>
+        </div>
 
-        <div className="nav-group">
-          {resolvedItems.map((item) => {
-            const showStockAlert = item.alertKey === 'stock' && lowStockCount > 0;
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
-              >
-                <span className="nav-icon-wrapper">
-                  <item.icon size={18} />
+        {/* ── Nav ──────────────────────────────────────────────────────── */}
+        <nav className="sidebar-nav">
+          {storeSlug && (
+            <NavLink
+              to={`/tienda/${storeSlug}`}
+              className="nav-link back-to-store"
+              onClick={handleNavClick}
+            >
+              <ArrowLeft size={18} />
+              <span>VOLVER A LA TIENDA</span>
+            </NavLink>
+          )}
+
+          <div className="nav-group">
+            {resolvedItems.map((item) => {
+              const showStockAlert = item.alertKey === 'stock' && lowStockCount > 0;
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+                  onClick={handleNavClick}
+                >
+                  <span className="nav-icon-wrapper">
+                    <item.icon size={18} />
+                    {showStockAlert && (
+                      <span
+                        className="stock-alert-dot"
+                        title={`${lowStockCount} productos con stock bajo`}
+                      />
+                    )}
+                  </span>
+                  <span>{item.label}</span>
                   {showStockAlert && (
-                    <span
-                      className="stock-alert-dot"
-                      title={`${lowStockCount} productos con stock bajo`}
-                    />
+                    <span className="stock-alert-badge">{lowStockCount}</span>
                   )}
-                </span>
-                <span>{item.label}</span>
-                {showStockAlert && (
-                  <span className="stock-alert-badge">{lowStockCount}</span>
-                )}
-              </NavLink>
-            );
-          })}
-        </div>
+                </NavLink>
+              );
+            })}
+          </div>
 
-        <div className="nav-footer">
-          <button onClick={handleLogout} className="nav-link logout-btn">
-            <LogOut size={18} />
-            <span>CERRAR SESIÓN</span>
-          </button>
-        </div>
-      </nav>
-    </aside>
+          <div className="nav-footer">
+            <button onClick={handleLogout} className="nav-link logout-btn">
+              <LogOut size={18} />
+              <span>CERRAR SESIÓN</span>
+            </button>
+          </div>
+        </nav>
+      </aside>
+    </>
   );
 };
 

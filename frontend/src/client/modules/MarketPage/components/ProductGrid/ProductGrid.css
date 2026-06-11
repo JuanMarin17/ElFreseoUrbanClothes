@@ -1,5 +1,5 @@
 /* ==========================================================================
-   VEXIO — Carrusel de Productos Premium (Horizontal Flow)
+   PRODUCT CAROUSEL  —  clip-path curtain reveal
    ========================================================================== */
 
 .vx-pcarousel-root {
@@ -7,9 +7,17 @@
   padding-bottom: var(--vx-section-gap-sm, 24px);
   width: 100%;
   position: relative;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 500ms cubic-bezier(0.23, 1, 0.32, 1), transform 500ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-/* Cabecera con Controles Flexibles */
+.vx-pcarousel-root.pgc-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Header ────────────────────────────────────────────────────────────── */
 .vx-pcarousel-head {
   display: flex;
   align-items: center;
@@ -18,16 +26,29 @@
   gap: 16px;
 }
 
+.vx-pcarousel-title-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
 .vx-pcarousel-title-block h2 {
   font-family: var(--vx-font, sans-serif);
   font-size: clamp(1.25rem, 2.5vw, 1.6rem);
   font-weight: 800;
   color: var(--vx-text, #ffffff);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   margin: 0;
 }
 
-/* Botones de Navegación del Carrusel */
+.pgc-page-indicator {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--vx-muted);
+  letter-spacing: 0.04em;
+}
+
+/* ── Nav buttons ───────────────────────────────────────────────────────── */
 .vx-carousel-controls {
   display: flex;
   align-items: center;
@@ -37,178 +58,220 @@
 .vx-cc-btn {
   width: 38px;
   height: 38px;
-  border-radius: var(--vx-radius, 8px);
-  background: var(--vx-card, #121214);
-  border: 1px solid var(--vx-border, #202024);
-  color: var(--vx-text2, #a8a8b3);
+  border-radius: var(--vx-radius);
+  background: var(--vx-card);
+  border: 1px solid var(--vx-border);
+  color: var(--vx-text2);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: 
-    background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
-    color 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
-    border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.1s ease;
+  transition:
+    background 180ms cubic-bezier(0.23, 1, 0.32, 1),
+    color 180ms ease,
+    border-color 180ms ease,
+    transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.vx-cc-btn:hover {
-  background: var(--vx-card-hover, #1a1a1e);
-  border-color: var(--vx-border2, #323238);
-  color: var(--vx-text, #ffffff);
+@media (hover: hover) and (pointer: fine) {
+  .vx-cc-btn:hover {
+    background: var(--vx-cyan-dim);
+    border-color: var(--vx-cyan-mid);
+    color: var(--vx-cyan);
+  }
 }
 
-.vx-cc-btn:active {
-  transform: scale(0.93);
-}
+.vx-cc-btn:active { transform: scale(0.92); }
 
-/* ── Deslizador Horizontal NATIVO (Scroll Snap con aceleración de GPU) ── */
-.vx-pcarousel-slider {
-  display: flex;
+/* ── Cards grid ────────────────────────────────────────────────────────── */
+.pgc-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  padding-bottom: 16px; 
-  width: 100%;
-  will-change: scroll-position;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE10+ */
 }
 
-.vx-pcarousel-slider::-webkit-scrollbar {
-  display: none; /* Chrome, Safari y Opera */
+/* ── CLIP-PATH CURTAIN REVEAL — the signature animation ───────────────── */
+/*
+   Cards are "unveiled" from bottom to top, like a curtain being pulled up.
+   Each card in the page staggers 70ms apart.
+   This is distinctly different from the store carousel's 3D flip.
+*/
+@keyframes pgc-curtainUp {
+  from {
+    clip-path: inset(100% 0 0 0 round 10px);
+    opacity: 0.4;
+    transform: translateY(10px);
+  }
+  to {
+    clip-path: inset(0% 0 0 0 round 10px);
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* ── Tarjeta de Producto Individual (Diseño Estilizado) ── */
+.pgc-card-anim {
+  animation: pgc-curtainUp 480ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  animation-delay: calc(var(--pgc-i, 0) * 70ms);
+}
+
+/* ── Product card ──────────────────────────────────────────────────────── */
 .vx-product-card {
-  flex: 0 0 calc(16.666% - 17px); /* Por defecto: 6 elementos exactos en pantallas Ultra-Wide */
-  min-width: 195px;
-  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
-  opacity: 0;
-  transform: translateY(14px);
-  transition: 
-    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
-    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
 }
 
-/* Revelación progresiva controlada de forma segura por CSS */
-.vx-product-card.vx-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Envoltorio de Imagen */
 .vx-product-img-wrap {
   position: relative;
-  aspect-ratio: 1 / 1;
-  border-radius: var(--vx-radius-lg, 12px);
+  aspect-ratio: 3 / 4;
+  border-radius: var(--vx-radius-lg);
   overflow: hidden;
-  background: var(--vx-card, #121214);
-  border: 1px solid var(--vx-border, #202024);
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  background: var(--vx-card);
+  border: 1px solid var(--vx-border);
+  transition: border-color 250ms ease-out, box-shadow 250ms ease-out;
 }
 
-.vx-product-card:hover .vx-product-img-wrap {
-  border-color: var(--vx-cyan-mid, #00b4d8);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+@media (hover: hover) and (pointer: fine) {
+  .vx-product-card:hover .vx-product-img-wrap {
+    border-color: var(--vx-cyan-mid);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+  }
 }
 
 .vx-product-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 500ms cubic-bezier(0.23, 1, 0.32, 1);
   display: block;
 }
 
-.vx-product-card:hover .vx-product-img {
-  transform: scale(1.04);
+@media (hover: hover) and (pointer: fine) {
+  .vx-product-card:hover .vx-product-img { transform: scale(1.05); }
 }
 
-/* Chip / Badge superior */
+/* Badge */
 .vx-product-badge {
   position: absolute;
   top: 10px;
   left: 10px;
   padding: 4px 10px;
-  background: var(--vx-cyan, #00b4d8);
-  color: #ffffff;
+  background: linear-gradient(135deg, var(--vx-cyan) 0%, #7C3AED 100%);
+  color: #fff;
   font-size: 9px;
   font-weight: 700;
   border-radius: 99px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   z-index: 2;
+  box-shadow: 0 2px 8px rgba(37, 99, 255, 0.35);
 }
 
-/* Capa flotante de acciones */
-.vx-product-actions {
+/* Wishlist */
+.vx-product-wish {
   position: absolute;
-  bottom: 12px;
-  right: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  opacity: 0;
-  transform: translateX(6px);
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  z-index: 3;
-}
-
-.vx-product-card:hover .vx-product-actions {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.vx-product-action-btn {
-  width: 32px;
-  height: 32px;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: rgba(12, 12, 16, 0.75);
+  background: rgba(12, 12, 16, 0.6);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--vx-border2, #323238);
-  color: var(--vx-text, #ffffff);
+  border: 1px solid var(--vx-border2);
+  color: var(--vx-text);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: 
-    color 0.2s, 
-    border-color 0.2s, 
-    background-color 0.2s, 
-    transform 0.1s;
+  z-index: 3;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.vx-product-action-btn:hover {
-  border-color: var(--vx-cyan, #00b4d8);
-  color: var(--vx-cyan, #00b4d8);
-  background: var(--vx-card, #121214);
+@media (hover: hover) and (pointer: fine) {
+  .vx-product-wish:hover {
+    border-color: rgba(239, 68, 68, 0.5);
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+  }
 }
 
-.vx-product-action-btn:active {
-  transform: scale(0.9);
-}
+.vx-product-wish:active { transform: scale(0.88); }
 
-.vx-product-action-btn.is-wished {
+.vx-product-wish.is-wished {
   border-color: rgba(239, 68, 68, 0.4);
   background: rgba(239, 68, 68, 0.15);
   color: #ef4444;
 }
 
-/* Metadatos */
-.vx-product-meta {
-  padding: 12px 2px 0;
+/* CTA slides up on hover */
+.vx-product-cta {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  z-index: 3;
+  padding: 0 10px 10px;
+  transform: translateY(100%);
+  opacity: 0;
+  transition:
+    transform 220ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 200ms ease-out;
 }
+
+@media (hover: hover) and (pointer: fine) {
+  .vx-product-card:hover .vx-product-cta {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (hover: none) {
+  .vx-product-cta { transform: translateY(0); opacity: 1; }
+}
+
+.vx-product-cta-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 0;
+  background: rgba(12, 12, 16, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fff;
+  font-family: var(--vx-font);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vx-product-cta-btn:hover {
+    background: var(--vx-cyan);
+    border-color: transparent;
+  }
+}
+
+.vx-product-cta-btn:active { transform: scale(0.97); }
+
+/* Meta */
+.vx-product-meta { padding: 12px 2px 0; }
 
 .vx-product-title {
   font-size: 0.85rem;
   font-weight: 500;
-  color: var(--vx-text2, #a8a8b3);
-  margin: 0 0 4px 0;
+  color: var(--vx-text2);
+  margin: 0 0 5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -225,28 +288,51 @@
 .vx-product-price {
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--vx-text, #ffffff);
+  color: var(--vx-text);
 }
 
 .vx-product-sales {
   font-size: 0.72rem;
-  color: var(--vx-muted, #737380);
+  color: var(--vx-muted);
   font-weight: 500;
 }
 
-/* ── Esqueleto de Carga Receptivo (Skeletons) ── */
+/* ── Dots ──────────────────────────────────────────────────────────────── */
+.pgc-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.pgc-dot {
+  height: 4px;
+  border-radius: 99px;
+  border: none;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  transition: width 260ms cubic-bezier(0.23, 1, 0.32, 1), background 260ms ease;
+  width: 20px;
+}
+
+.pgc-dot--active {
+  width: 48px;
+  background: var(--vx-cyan);
+}
+
+.pgc-dot:active { transform: scaleY(1.5); }
+
+/* ── Skeletons ─────────────────────────────────────────────────────────── */
 .vx-product-skeleton-card {
-  flex: 0 0 calc(16.666% - 17px);
-  min-width: 195px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
 .vx-product-skeleton-card .sk-img {
-  aspect-ratio: 1 / 1;
-  border-radius: var(--vx-radius-lg, 12px);
-  background: linear-gradient(90deg, var(--vx-card, #121214) 25%, var(--vx-card2, #202024) 50%, var(--vx-card, #121214) 75%);
+  aspect-ratio: 3 / 4;
+  border-radius: var(--vx-radius-lg);
+  background: linear-gradient(90deg, var(--vx-card) 25%, var(--vx-card2) 50%, var(--vx-card) 75%);
   background-size: 200% 100%;
   animation: vx-shimmer 1.5s infinite linear;
 }
@@ -255,10 +341,11 @@
 .vx-product-skeleton-card .sk-text-2 {
   height: 12px;
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--vx-card, #121214) 25%, var(--vx-card2, #202024) 50%, var(--vx-card, #121214) 75%);
+  background: linear-gradient(90deg, var(--vx-card) 25%, var(--vx-card2) 50%, var(--vx-card) 75%);
   background-size: 200% 100%;
   animation: vx-shimmer 1.5s infinite linear;
 }
+
 .vx-product-skeleton-card .sk-text-1 { width: 75%; }
 .vx-product-skeleton-card .sk-text-2 { width: 40%; }
 
@@ -267,38 +354,25 @@
   100% { background-position: -200% 0; }
 }
 
-/* ==========================================================================
-   BREAKPOINTS RESPONSIVOS (Layout de Ajuste Elástico)
-   ========================================================================== */
-
-@media (max-width: 1400px) {
-  .vx-product-card, .vx-product-skeleton-card {
-    flex: 0 0 calc(20% - 16px); /* 5 columnas visibles */
-  }
+/* ── Responsive grid ───────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .pgc-cards { grid-template-columns: repeat(3, 1fr); }
 }
 
-@media (max-width: 1100px) {
-  .vx-product-card, .vx-product-skeleton-card {
-    flex: 0 0 calc(25% - 15px); /* 4 columnas visibles */
-  }
+@media (max-width: 720px) {
+  .pgc-cards { grid-template-columns: repeat(2, 1fr); gap: 14px; }
 }
 
-@media (max-width: 850px) {
-  .vx-product-card, .vx-product-skeleton-card {
-    flex: 0 0 calc(33.333% - 14px); /* 3 columnas visibles */
-  }
+@media (max-width: 480px) {
+  .pgc-cards { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 640px) {
-  .vx-product-card, .vx-product-skeleton-card {
-    flex: 0 0 calc(50% - 10px); /* 2 columnas visibles en mobile */
-    min-width: 145px;
+@media (prefers-reduced-motion: reduce) {
+  .pgc-card-anim {
+    animation: none;
+    opacity: 1;
+    clip-path: none !important;
+    transform: none;
   }
-  .vx-pcarousel-slider {
-    gap: 14px;
-  }
-  .vx-product-actions {
-    opacity: 1; 
-    transform: translateX(0);
-  }
+  .vx-product-img { transition: none; }
 }

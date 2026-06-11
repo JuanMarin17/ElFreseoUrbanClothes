@@ -1,6 +1,6 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import "./App.css";
 import "./animations.css";
 
@@ -11,6 +11,7 @@ import { ProtectedRoute }                          from "./admin/modules/auth/pa
 import { TokenGuard }                              from "./admin/modules/auth/pages/hook/TokenGuard.jsx";
 import ProtectedStep                               from "./multi-tenant/components/ProtectStep.jsx";
 import SubscriptionGuard                           from "./admin/modules/auth/pages/hook/SubscriptionGuard.jsx";
+import MyStoreLayout                               from "./multi-tenant/pages/MyStoreLayout.jsx";
 
 // ── Suscripciones ─────────────────────────────────────────────────────────────
 const SubscriptionPlansPage = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionPlansPage.jsx"));
@@ -101,6 +102,13 @@ function PageLoader() {
   );
 }
 
+// ── Scroll reset on route change ──────────────────────────────────────────────
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
   return (
@@ -108,6 +116,7 @@ export default function App() {
       <MultiTenantAuthProvider>
         <StoreProvider>
           <TokenGuard />
+          <ScrollToTop />
           <div className="main-container">
             <Suspense fallback={<PageLoader />}>
               <AnimatePresence mode="wait">
@@ -122,19 +131,19 @@ export default function App() {
                   <Route path="/reviews"             element={<ProductReviews />} />
 
                   {/* ── Auth ─────────────────────────────────────────────── */}
-                  <Route path="/login"                    element={<div className="ayuda"><Login mode="login" /></div>} />
-                  <Route path="/login/register"           element={<div className="ayuda"><Login mode="register" /></div>} />
-                  <Route path="/recuperar-contraseña"     element={<ForgotPassword />} />
-                  <Route path="/verificar-codigo"         element={<VerifyCode />} />
-                  <Route path="/nueva-contraseña"         element={<NewPassword />} />
-                  <Route path="/verificacion-pagina"      element={<VerificationPage />} />
+                  <Route path="/login"                element={<div className="ayuda"><Login mode="login" /></div>} />
+                  <Route path="/login/register"       element={<div className="ayuda"><Login mode="register" /></div>} />
+                  <Route path="/recuperar-contraseña" element={<ForgotPassword />} />
+                  <Route path="/verificar-codigo"     element={<VerifyCode />} />
+                  <Route path="/nueva-contraseña"     element={<NewPassword />} />
+                  <Route path="/verificacion-pagina"  element={<VerificationPage />} />
 
                   {/* ── Ayuda ────────────────────────────────────────────── */}
-                  <Route path="/ayuda"        element={<div className="ayuda"><HelpCenter /></div>} />
-                  <Route path="/pedidos"      element={<div className="ayuda"><HelpCenter /></div>} />
-                  <Route path="/pagos"        element={<div className="ayuda"><HelpCenter /></div>} />
-                  <Route path="/devoluciones" element={<div className="ayuda"><HelpCenter /></div>} />
-                  <Route path="/seguridad"    element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/ayuda"           element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/pedidos"         element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/pagos"           element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/devoluciones"    element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/seguridad"       element={<div className="ayuda"><HelpCenter /></div>} />
                   <Route path="/session-cerrada" element={<SessionClosed />} />
 
                   {/* ── Wizard creación de tienda ─────────────────────────── */}
@@ -162,13 +171,17 @@ export default function App() {
                   <Route path="/dashboard/subscription/pending" element={<SubscriptionPending />} />
 
                   {/* ── Tienda pública ───────────────────────────────────── */}
-                  <Route path="/tienda/:slug"             element={<StorePage />} />
-                  <Route path="/tienda/:slug/contacto"    element={<StoreContactPage />} />
-                  <Route path="/tienda/:slug/devoluciones"element={<StoreReturnsPage />} />
-                  <Route path="/tienda/:slug/faq"         element={<StoreFaqPage />} />
-                  <Route path="/tienda/:slug/nosotros"    element={<StoreAboutPage />} />
-                  <Route path="/transacciones" element={<Transaction />} />
-                  <Route path="/mis-tiendas"   element={<MyStore />} />
+                  <Route path="/tienda/:slug"              element={<StorePage />} />
+                  <Route path="/tienda/:slug/contacto"     element={<StoreContactPage />} />
+                  <Route path="/tienda/:slug/devoluciones" element={<StoreReturnsPage />} />
+                  <Route path="/tienda/:slug/faq"          element={<StoreFaqPage />} />
+                  <Route path="/tienda/:slug/nosotros"     element={<StoreAboutPage />} />
+
+                  {/* ── SuperAdmin shell ─────────────────────────────────── */}
+                  <Route element={<MyStoreLayout />}>
+                    <Route path="/mis-tiendas"   element={<MyStore />} />
+                    <Route path="/transacciones" element={<Transaction />} />
+                  </Route>
 
                   {/* ── Rutas protegidas ─────────────────────────────────── */}
                   <Route element={<ProtectedRoute />}>

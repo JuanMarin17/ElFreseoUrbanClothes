@@ -70,3 +70,10 @@ body *::before,
 body *::after {
   font-style: normal !important;
 }
+
+svg {
+  min-width: 16px;
+  min-height: 16px;
+  flex-shrink: 0;
+  display: inline-block;
+}
