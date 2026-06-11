@@ -23,6 +23,78 @@ function TypingIndicator() {
   );
 }
 
+// ─── Markdown renderer (sin dependencias externas) ───────────────────────────
+function parseInline(text) {
+  const parts = [];
+  const regex = /\*\*([^*]+)\*\*/g;
+  let lastIndex = 0;
+  let match;
+  let idx = 0;
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) parts.push(text.slice(lastIndex, match.index));
+    parts.push(<strong key={idx++}>{match[1]}</strong>);
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) parts.push(text.slice(lastIndex));
+  return parts;
+}
+
+function MarkdownText({ content }) {
+  if (!content) return null;
+
+  // Convierte listas numeradas inline ("intro 2. item 3. item") a líneas separadas
+  const normalized = content
+    .replace(/([^\n])\s+(\d+)\.\s+/g, (_, before, num) => `${before}\n${num}. `)
+    .trim();
+
+  const lines = normalized.split('\n');
+  const elements = [];
+  let listItems = [];
+  let listType = null;
+  let key = 0;
+
+  const flushList = () => {
+    if (!listItems.length) return;
+    const Tag = listType === 'ul' ? 'ul' : 'ol';
+    elements.push(
+      <Tag key={key++} className={`ai__md-${listType}`}>
+        {listItems.map((item, i) => (
+          <li key={i} className="ai__md-li">{parseInline(item)}</li>
+        ))}
+      </Tag>
+    );
+    listItems = [];
+    listType = null;
+  };
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) { flushList(); continue; }
+
+    const numMatch = line.match(/^(\d+)[.)]\s+(.+)/);
+    if (numMatch) {
+      if (listType === 'ul') flushList();
+      listType = 'ol';
+      listItems.push(numMatch[2]);
+      continue;
+    }
+
+    const bulletMatch = line.match(/^[-*•]\s+(.+)/);
+    if (bulletMatch) {
+      if (listType === 'ol') flushList();
+      listType = 'ul';
+      listItems.push(bulletMatch[1]);
+      continue;
+    }
+
+    flushList();
+    elements.push(<p key={key++} className="ai__md-p">{parseInline(line)}</p>);
+  }
+
+  flushList();
+  return <div className="ai__markdown">{elements}</div>;
+}
+
 // ─── Shared: Message Bubble ──────────────────────────────────────────────────
 function MessageBubble({ msg }) {
   const isUser = msg.role === "user";
@@ -52,7 +124,10 @@ function MessageBubble({ msg }) {
             className="ai__bubble-image"
           />
         )}
-        <p className="ai__bubble-text">{msg.content}</p>
+        {isUser
+          ? <p className="ai__bubble-text">{msg.content}</p>
+          : <MarkdownText content={msg.content} />
+        }
         {!isUser && msg.action && (
           <ActionRenderer
             action={msg.action}
@@ -184,7 +259,7 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
     newConversation,
   } = useIAAdmin();
 
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -193,7 +268,7 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
 
   useEffect(() => {
     if (isOpen && hasAccess) loadSessions();
-  }, [isOpen, hasAccess]);
+  }, [isOpen, hasAccess, loadSessions]);
 
   if (!hasAccess) return null;
 
@@ -333,17 +408,18 @@ function IAAdminPage() {
     newConversation,
   } = useIAAdmin();
 
-  const [darkMode, setDarkMode]           = useState(false);
+  const [darkMode, setDarkMode]           = useState(true);
   const [showSessions, setShowSessions]   = useState(true);
-  const bottomRef = useRef(null);
+  const messagesAreaRef = useRef(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = messagesAreaRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages, isLoading]);
 
   useEffect(() => {
     if (hasAccess) loadSessions();
-  }, [hasAccess]);
+  }, [hasAccess, loadSessions]);
 
   if (!hasAccess) {
     return (
@@ -460,7 +536,7 @@ function IAAdminPage() {
         </header>
 
         {/* Messages */}
-        <div className="ia-messages-area">
+        <div className="ia-messages-area" ref={messagesAreaRef}>
           {messages.length === 0 && !isLoading && (
             <div className="ia-welcome">
               <div className="ia-welcome-icon">
@@ -491,7 +567,6 @@ function IAAdminPage() {
             <MessageBubble key={msg.message_id} msg={msg} />
           ))}
           {isLoading && <TypingIndicator />}
-          <div ref={bottomRef} />
         </div>
 
         {/* Input */}

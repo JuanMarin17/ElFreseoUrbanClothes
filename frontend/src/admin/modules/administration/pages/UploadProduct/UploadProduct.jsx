@@ -384,7 +384,6 @@ const UploadProduct = () => {
       {/* ── Header ── */}
       <div className="up-header">
         <div className="up-header-left">
-          <button type="button" className="up-back-btn" onClick={handleCancelar} title="Volver">←</button>
           <div>
             <h1 className="up-page-title">Crear producto</h1>
             <nav className="up-breadcrumb">Productos › Crear nuevo producto</nav>

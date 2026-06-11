@@ -3,8 +3,28 @@
   background-color: #0d0d0d;
   border-right: 1px solid #1a1a1a;
   display: flex;
+  overflow: auto;
   flex-direction: column;
   padding: 20px 0;
+  scrollbar-width: thin;
+  scrollbar-color: #1e1e2e transparent;
+}
+
+.sidebar-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-container::-webkit-scrollbar-thumb {
+  background: #1e1e2e;
+  border-radius: 10px;
+}
+
+.sidebar-container::-webkit-scrollbar-thumb:hover {
+  background: #2a2a42;
 }
 
 .sidebar-brand {
