@@ -2,7 +2,7 @@
   display: flex; /* Esto pone el Sidebar y el Main uno al lado del otro */
   height: 100vh;
   width: 100vw;
-  overflow: auto;
+  overflow: hidden;
   background-color: #080808;
 }
 
@@ -19,7 +19,8 @@
   display: flex;
   flex-direction: row; /* Forzamos que el contenido y la IA se pongan lado a lado */
   flex: 1;            /* Ocupa todo el alto restante debajo del Header */
-  width: 100%;
+  width: auto;
+  min-height: 90vh;
   overflow: hidden;
   position: relative;
   background-color: #080808;
@@ -31,8 +32,14 @@
   overflow-y: auto;
   background-color: #080808;
   min-width: 0;
-  min-height: 0;      /* Permite que overflow-y: auto se active en flex items */
+  min-height: 100%;
   transition: flex 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Cuando la IA ocupa la página completa: quitar padding/scroll del wrapper */
+.admin-page-body:has(.ia-page) {
+  padding: 0;
+  overflow: hidden;
 }
 
 /* Scrollbar estilo terminal para el contenido */
