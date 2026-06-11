@@ -56,7 +56,11 @@ export default function SelectPlan({ showComponents }) {
 
       <div className="header-plan">
         {showComponents && (
-          <button className="back-btn" onClick={handleBack}></button>
+          <button className="back-btn" onClick={handleBack}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
         )}
         <div className="title-plan">
           <h1>Crear nueva tienda</h1>

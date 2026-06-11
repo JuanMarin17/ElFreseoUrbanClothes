@@ -117,7 +117,7 @@ body {
   color: var(--off);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  margin-bottom: 2rem;
+  margin-bottom: 0.75rem;
 }
 
 /* ── SEARCH ──────────────────────────────────────────────── */
@@ -1470,6 +1470,98 @@ body {
 
   .contact-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   MEJORAS DE UI
+══════════════════════════════════════════════════════════ */
+
+/* ── HERO META PILLS ─────────────────────────────────────── */
+.hc-hero-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.75rem;
+}
+
+.hc-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.71rem;
+  color: var(--off);
+  background: var(--surface);
+  border: 1px solid var(--edge2);
+  border-radius: 100px;
+  padding: 5px 13px;
+  letter-spacing: 0.02em;
+}
+
+/* ── GLASS CARD CTA ─────────────────────────────────────── */
+.hc-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--fire);
+  margin-top: 1rem;
+  letter-spacing: 0.04em;
+  opacity: 0;
+  transform: translateX(-5px);
+  transition: opacity 220ms ease-out, transform 220ms ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .glass-card:hover .hc-card-cta {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ── FAQ COUNT PILL ─────────────────────────────────────── */
+.hc-count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: var(--off);
+  background: var(--surface2);
+  border: 1px solid var(--edge2);
+  border-radius: 100px;
+  padding: 2px 10px;
+  vertical-align: middle;
+  margin-left: 10px;
+  letter-spacing: 0;
+}
+
+/* ── CATEGORY ARROW ──────────────────────────────────────── */
+.category-item {
+  position: relative;
+}
+
+.hc-cat-arrow {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  color: var(--off);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 200ms ease-out, transform 200ms ease-out, color 200ms ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .category-item:hover .hc-cat-arrow {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--fire);
   }
 }
 
