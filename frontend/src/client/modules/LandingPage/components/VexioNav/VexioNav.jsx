@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../../../../assets/LogoVexios/banervexio.png';
 import './VexioNav.css';
@@ -15,14 +15,25 @@ const NAV_LINKS = [
 
 export default function VexioNav() {
   const [scrolled,  setScrolled]  = useState(false);
+  const [hidden,    setHidden]    = useState(false);
   const [menuOpen,  setMenuOpen]  = useState(false);
   const [loggedIn,  setLoggedIn]  = useState(isAuthenticated);
+  const lastScrollY = useRef(0);
   const navigate = useNavigate();
 
-  // Detecta scroll
+  // Auto-hide on scroll-down, reveal on scroll-up
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', onScroll);
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 50);
+      if (y > lastScrollY.current && y > 120) {
+        setHidden(true);
+      } else if (y < lastScrollY.current) {
+        setHidden(false);
+      }
+      lastScrollY.current = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
@@ -52,7 +63,7 @@ export default function VexioNav() {
   };
 
   return (
-    <nav className={`vx-nav${scrolled ? ' vx-nav--scrolled' : ''}`}>
+    <nav className={`vx-nav${scrolled ? ' vx-nav--scrolled' : ''}${hidden ? ' vx-nav--hidden' : ''}`}>
       <div className="vx-nav-inner">
 
         {/* Logo */}

@@ -5,42 +5,9 @@ import {
   getUserReviews,
   addUserReview,
   hasUserAlreadyReviewed,
+  toggleLike,
 } from '../../../../../utils/reviewsStore';
 import './ReviewsSection.css';
-
-/* ── Reseñas base (compradores) ─────────────────────────────── */
-const SEED_REVIEWS = [
-  {
-    id: 's-1', name: 'Sofía Martínez', initials: 'SM', avatarColor: '#8b5cf6',
-    rating: 5, text: 'Encontré mi tienda favorita gracias a Vexio. La experiencia de compra es increíble, todo rápido y seguro. ¡Ya llevo 3 pedidos!',
-    date: 'hace 2 días', likes: 42,
-  },
-  {
-    id: 's-2', name: 'Carlos Durán', initials: 'CD', avatarColor: '#2563FF',
-    rating: 5, text: 'Monté mi tienda en menos de 10 minutos. Las herramientas son potentes y el soporte es de otro nivel. Mis ventas subieron un 40%.',
-    date: 'hace 5 días', likes: 87,
-  },
-  {
-    id: 's-3', name: 'Valentina Ríos', initials: 'VR', avatarColor: '#ec4899',
-    rating: 5, text: 'La variedad de productos es impresionante. Los filtros de búsqueda me ayudan a encontrar exactamente lo que busco. ¡Adictivo!',
-    date: 'hace 1 semana', likes: 63,
-  },
-  {
-    id: 's-4', name: 'Andrés Gómez', initials: 'AG', avatarColor: '#10b981',
-    rating: 4, text: 'Plataforma muy completa. La interfaz es limpia y moderna. Me encanta que puedo ver el historial de mis pedidos en tiempo real.',
-    date: 'hace 2 semanas', likes: 29,
-  },
-  {
-    id: 's-5', name: 'Isabella Torres', initials: 'IT', avatarColor: '#f59e0b',
-    rating: 5, text: 'Nunca pensé que comprar en línea pudiera ser tan fácil y confiable. El sistema de pagos es seguro y llega justo a tiempo.',
-    date: 'hace 3 semanas', likes: 51,
-  },
-  {
-    id: 's-6', name: 'Miguel Herrera', initials: 'MH', avatarColor: '#ef4444',
-    rating: 5, text: 'Emprendedor que siempre soñó con su propia tienda online. Vexio lo hizo posible sin complicaciones técnicas. 100% recomendado.',
-    date: 'hace 1 mes', likes: 112,
-  },
-];
 
 const STAR_LABELS = ['', 'Malo', 'Regular', 'Bueno', 'Muy bueno', 'Excelente'];
 const GAP = 20;
@@ -70,16 +37,32 @@ function Stars({ rating, size = 'md' }) {
 }
 
 /* ── Tarjeta de reseña ────────────────────────────────────── */
-function ReviewCard({ review, index, visible, cardW, isNew }) {
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(review.likes || 0);
-  const [burst, setBurst] = useState(false);
+function ReviewCard({ review, index, visible, cardW, isNew, isAuthenticated, onNavigateLogin }) {
+  const [liked, setLiked]           = useState(false);
+  const [likeCount, setLikeCount]   = useState(review.likes || 0);
+  const [burst, setBurst]           = useState(false);
+  const [likeLoading, setLikeLoading] = useState(false);
 
-  const handleLike = () => {
-    if (liked) { setLiked(false); setLikeCount((c) => c - 1); }
-    else {
-      setLiked(true); setLikeCount((c) => c + 1);
-      setBurst(true); setTimeout(() => setBurst(false), 600);
+  const handleLike = async () => {
+    if (!isAuthenticated) { onNavigateLogin?.(); return; }
+    if (likeLoading) return;
+    setLikeLoading(true);
+    try {
+      const result = await toggleLike(review.id);
+      setLiked(result.liked);
+      setLikeCount(result.likes);
+      if (result.liked) {
+        setBurst(true);
+        setTimeout(() => setBurst(false), 600);
+      }
+    } catch {
+      // optimistic fallback
+      const next = !liked;
+      setLiked(next);
+      setLikeCount((c) => next ? c + 1 : c - 1);
+      if (next) { setBurst(true); setTimeout(() => setBurst(false), 600); }
+    } finally {
+      setLikeLoading(false);
     }
   };
 
@@ -99,18 +82,15 @@ function ReviewCard({ review, index, visible, cardW, isNew }) {
         </div>
         <div className="rs-user-info">
           <span className="rs-user-name">{review.name}</span>
-          {review.isUserReview && review.email
+          {review.email
             ? <span className="rs-user-email">{review.email}</span>
             : <span className="rs-user-handle">{review.date}</span>
           }
         </div>
-        {review.isUserReview
-          ? <span className="rs-tag rs-tag--community">Comunidad</span>
-          : null
-        }
+        <span className="rs-tag rs-tag--community">Comunidad</span>
       </div>
 
-      {review.isUserReview && review.email && (
+      {review.email && (
         <span className="rs-card-date">{review.date}</span>
       )}
 
@@ -121,6 +101,7 @@ function ReviewCard({ review, index, visible, cardW, isNew }) {
         <button
           className={`rs-like-btn ${liked ? 'rs-like-btn--active' : ''}`}
           onClick={handleLike}
+          disabled={likeLoading}
           aria-label="Me gusta"
         >
           {burst && <span className="rs-like-burst" />}
@@ -175,13 +156,13 @@ function AuthGate() {
 }
 
 /* ── Formulario inline (logueado) ─────────────────────────── */
-function InlineReviewForm({ userName, userEmail, userId, onSubmit }) {
-  const [rating, setRating] = useState(0);
-  const [hovered, setHovered] = useState(0);
-  const [text, setText] = useState('');
+function InlineReviewForm({ userName, userEmail, alreadyReviewed, onSubmit }) {
+  const [rating, setRating]       = useState(0);
+  const [hovered, setHovered]     = useState(0);
+  const [text, setText]           = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const alreadyReviewed = hasUserAlreadyReviewed(userId);
+  const [success, setSuccess]     = useState(false);
+  const [apiError, setApiError]   = useState('');
 
   if (alreadyReviewed) {
     return (
@@ -197,20 +178,30 @@ function InlineReviewForm({ userName, userEmail, userId, onSubmit }) {
     );
   }
 
-  const canSubmit = rating > 0 && text.trim().length >= 10;
+  const canSubmit = rating > 0 && text.trim().length >= 10 && text.trim().length <= 300;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit || submitting) return;
     setSubmitting(true);
-    setTimeout(() => {
-      onSubmit({ userId, name: userName, email: userEmail, rating, text });
-      setSubmitting(false);
+    setApiError('');
+    try {
+      await onSubmit(rating, text);
       setSuccess(true);
       setRating(0);
       setText('');
       setTimeout(() => setSuccess(false), 3500);
-    }, 900);
+    } catch (err) {
+      if (err.code === 409) {
+        setApiError('Ya tienes una reseña publicada.');
+      } else if (err.code === 401 || err.code === 403) {
+        setApiError('Debes iniciar sesión para publicar una reseña.');
+      } else {
+        setApiError(err.message ?? 'Error al publicar. Inténtalo de nuevo.');
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -286,6 +277,9 @@ function InlineReviewForm({ userName, userEmail, userId, onSubmit }) {
                   ¡Reseña publicada!
                 </span>
               )}
+              {apiError && (
+                <span className="rs-form-error">{apiError}</span>
+              )}
               <button
                 type="submit"
                 className={`rs-form-submit ${submitting ? 'rs-form-submit--loading' : ''}`}
@@ -308,26 +302,63 @@ function InlineReviewForm({ userName, userEmail, userId, onSubmit }) {
   );
 }
 
+/* ── Skeleton de carga ────────────────────────────────────── */
+function ReviewSkeleton({ cardW }) {
+  return (
+    <article
+      className="rs-card rs-card--skeleton"
+      style={cardW ? { flex: `0 0 ${cardW}px`, width: `${cardW}px` } : {}}
+    >
+      <div className="rs-sk-avatar" />
+      <div className="rs-sk-line rs-sk-line--short" />
+      <div className="rs-sk-line rs-sk-line--stars" />
+      <div className="rs-sk-line" />
+      <div className="rs-sk-line rs-sk-line--medium" />
+    </article>
+  );
+}
+
 /* ── Componente principal ─────────────────────────────────── */
 export default function ReviewsSection() {
+  const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth() || {};
   const userName  = user?.userName || user?.name || '';
   const userEmail = user?.email || localStorage.getItem('last_email') || '';
-  const userId    = user?.userId || '';
 
-  const [reviews, setReviews] = useState(() => [
-    ...getUserReviews(), ...SEED_REVIEWS,
-  ]);
-  const [newId, setNewId] = useState(null);
-  const [visible, setVisible] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [perView, setPerView] = useState(3);
-  const [cardW, setCardW] = useState(null);
+  const [reviews, setReviews]             = useState([]);
+  const [loading, setLoading]             = useState(true);
+  const [totalReviews, setTotalReviews]   = useState(0);
+  const [newId, setNewId]                 = useState(null);
+  const [visible, setVisible]             = useState(false);
+  const [activeIndex, setActiveIndex]     = useState(0);
+  const [paused, setPaused]               = useState(false);
+  const [perView, setPerView]             = useState(3);
+  const [cardW, setCardW]                 = useState(null);
+  const [alreadyReviewed, setAlreadyReviewed] = useState(false);
 
   const sectionRef  = useRef(null);
   const viewportRef = useRef(null);
 
+  // Cargar reseñas desde la API
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    getUserReviews(1, 50, "newest").then(({ data, total }) => {
+      if (cancelled) return;
+      setReviews(data);
+      setTotalReviews(total);
+      setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Verificar si el usuario ya reseñó
+  useEffect(() => {
+    if (!isAuthenticated) { setAlreadyReviewed(false); return; }
+    hasUserAlreadyReviewed().then(setAlreadyReviewed);
+  }, [isAuthenticated]);
+
+  // IntersectionObserver para animaciones de entrada
   useEffect(() => {
     const obs = new IntersectionObserver(
       ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
@@ -337,6 +368,7 @@ export default function ReviewsSection() {
     return () => obs.disconnect();
   }, []);
 
+  // Cálculo de tarjetas visibles según ancho
   useEffect(() => {
     const calc = () => {
       if (!viewportRef.current) return;
@@ -363,26 +395,33 @@ export default function ReviewsSection() {
   }, [reviews.length, perView]);
 
   useEffect(() => {
-    if (paused || !visible) return;
+    if (paused || !visible || loading) return;
     const id = setInterval(() => go(1), 4000);
     return () => clearInterval(id);
-  }, [paused, visible, go]);
+  }, [paused, visible, loading, go]);
 
-  const handleNewReview = ({ userId, name, email, rating, text }) => {
-    const review = addUserReview({ userId, name, email, rating, text });
+  const handleNewReview = async (rating, text) => {
+    const review = await addUserReview(rating, text);
     setReviews((prev) => [review, ...prev]);
+    setTotalReviews((t) => t + 1);
     setNewId(review.id);
     setActiveIndex(0);
+    setAlreadyReviewed(true);
     setTimeout(() => setNewId(null), 4000);
   };
 
-  const avgRating = (reviews.slice(0, 20).reduce((a, r) => a + r.rating, 0) / Math.min(reviews.length, 20)).toFixed(1);
+  const displayReviews = reviews;
+  const avgRating = displayReviews.length
+    ? (displayReviews.slice(0, 20).reduce((a, r) => a + r.rating, 0) / Math.min(displayReviews.length, 20)).toFixed(1)
+    : "—";
   const dist = [5, 4, 3, 2, 1].map((s) => ({
     star: s,
-    pct: Math.round((reviews.filter((r) => r.rating === s).length / reviews.length) * 100),
+    pct: displayReviews.length
+      ? Math.round((displayReviews.filter((r) => r.rating === s).length / displayReviews.length) * 100)
+      : 0,
   }));
   const trackOffset   = cardW ? activeIndex * (cardW + GAP) : 0;
-  const currentMaxIdx = Math.max(0, reviews.length - perView);
+  const currentMaxIdx = Math.max(0, displayReviews.length - perView);
 
   return (
     <section className="rs-section" ref={sectionRef}>
@@ -411,7 +450,7 @@ export default function ReviewsSection() {
           <div className="rs-summary-score">
             <span className="rs-big-rating">{avgRating}</span>
             <Stars rating={5} size="lg" />
-            <span className="rs-total-reviews">{reviews.length} reseñas</span>
+            <span className="rs-total-reviews">{totalReviews || displayReviews.length} reseñas</span>
           </div>
           <div className="rs-summary-bars">
             {dist.map(({ star, pct }) => (
@@ -443,12 +482,29 @@ export default function ReviewsSection() {
 
           <div className="rs-track-viewport" ref={viewportRef}>
             <div className="rs-track" style={{ transform: `translateX(-${trackOffset}px)` }}>
-              {reviews.map((r, i) => (
-                <ReviewCard
-                  key={r.id} review={r} index={i}
-                  visible={visible} cardW={cardW} isNew={r.id === newId}
-                />
-              ))}
+              {loading
+                ? Array.from({ length: perView }).map((_, i) => (
+                    <ReviewSkeleton key={i} cardW={cardW} />
+                  ))
+                : displayReviews.length === 0
+                  ? (
+                    <div style={{ padding: '32px 0', color: 'var(--vx-muted)', fontSize: 15 }}>
+                      Aún no hay reseñas. ¡Sé el primero en opinar!
+                    </div>
+                  )
+                  : displayReviews.map((r, i) => (
+                    <ReviewCard
+                      key={r.id}
+                      review={r}
+                      index={i}
+                      visible={visible}
+                      cardW={cardW}
+                      isNew={r.id === newId}
+                      isAuthenticated={isAuthenticated}
+                      onNavigateLogin={() => navigate('/login')}
+                    />
+                  ))
+              }
             </div>
           </div>
 
@@ -460,23 +516,25 @@ export default function ReviewsSection() {
         </div>
 
         {/* Dots */}
-        <div className="rs-dots">
-          {Array.from({ length: currentMaxIdx + 1 }).map((_, i) => (
-            <button
-              key={i}
-              className={`rs-dot ${i === activeIndex ? 'rs-dot--active' : ''}`}
-              onClick={() => setActiveIndex(i)}
-              aria-label={`Página ${i + 1}`}
-            />
-          ))}
-        </div>
+        {!loading && displayReviews.length > 0 && (
+          <div className="rs-dots">
+            {Array.from({ length: currentMaxIdx + 1 }).map((_, i) => (
+              <button
+                key={i}
+                className={`rs-dot ${i === activeIndex ? 'rs-dot--active' : ''}`}
+                onClick={() => setActiveIndex(i)}
+                aria-label={`Página ${i + 1}`}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Form / Auth gate */}
         {isAuthenticated
           ? <InlineReviewForm
               userName={userName}
               userEmail={userEmail}
-              userId={userId}
+              alreadyReviewed={alreadyReviewed}
               onSubmit={handleNewReview}
             />
           : <AuthGate />

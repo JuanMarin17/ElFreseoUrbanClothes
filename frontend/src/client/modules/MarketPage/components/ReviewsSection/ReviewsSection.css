@@ -584,3 +584,59 @@
   .rs-track { transition: none; }
   .rs-orb { animation: none; opacity: 0.5; }
 }
+
+/* ══════════════════════════════════════
+   ERROR INLINE EN FORMULARIO
+   ══════════════════════════════════════ */
+.rs-form-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #ef4444;
+  animation: rs-success-fade 5s ease forwards;
+}
+
+/* ══════════════════════════════════════
+   SKELETON DE CARGA
+   ══════════════════════════════════════ */
+@keyframes rs-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+.rs-card--skeleton {
+  opacity: 1 !important;
+  transform: none !important;
+  pointer-events: none;
+}
+
+.rs-sk-avatar,
+.rs-sk-line {
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.09) 50%,
+    rgba(255,255,255,0.04) 75%
+  );
+  background-size: 800px 100%;
+  animation: rs-shimmer 1.4s ease-in-out infinite;
+}
+
+.rs-sk-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-bottom: 16px;
+}
+
+.rs-sk-line {
+  height: 12px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+.rs-sk-line--short  { width: 40%; }
+.rs-sk-line--medium { width: 70%; }
+.rs-sk-line--stars  { width: 90px; height: 14px; }

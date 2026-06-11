@@ -9,6 +9,7 @@ import { AuthProvider as MultiTenantAuthProvider } from "./multi-tenant/context/
 import { StoreProvider }                           from "./multi-tenant/pages/StoreContext.jsx";
 import { ProtectedRoute }                          from "./admin/modules/auth/pages/hook/ProtectedRoute.jsx";
 import { TokenGuard }                              from "./admin/modules/auth/pages/hook/TokenGuard.jsx";
+import ModalTastes                                 from "./client/modules/MainPage/components/ModalTastes/ModalTastes.jsx";
 import ProtectedStep                               from "./multi-tenant/components/ProtectStep.jsx";
 import SubscriptionGuard                           from "./admin/modules/auth/pages/hook/SubscriptionGuard.jsx";
 import MyStoreLayout                               from "./multi-tenant/pages/MyStoreLayout.jsx";
@@ -29,7 +30,11 @@ const Report           = lazy(() => import("./admin/modules/administration/pages
 const IAAdmin          = lazy(() => import("./admin/modules/administration/pages/IAAdmin/AIAdmin.jsx"));
 const OrdersManagement = lazy(() => import("./admin/modules/administration/pages/OrdersManagement/OrdersManagement.jsx"));
 const ShockAlerts      = lazy(() => import("./admin/modules/administration/pages/StockAlerts/StockAlert.jsx"));
-const SuppliersPage    = lazy(() => import("./admin/modules/administration/pages/Suppliers/SuppliersPage.jsx")); // ← nuevo
+const SuppliersPage       = lazy(() => import("./admin/modules/administration/pages/Suppliers/SuppliersPage.jsx"));
+const UsersManagement     = lazy(() => import("./admin/modules/administration/pages/UsersManagement/UsersManagement.jsx"));
+const PromotionsDashboard = lazy(() => import("./admin/modules/administration/promotions/PromotionsDashboards.jsx"));
+const AdminProductsPage   = lazy(() => import("./admin/modules/administration/pages/AdminProducts/AdminProductsPage.jsx"));
+const AdminProductDetail  = lazy(() => import("./admin/modules/administration/pages/AdminProducts/AdminProductDetail.jsx"));
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 const Login            = lazy(() => import("./admin/modules/auth/pages/Login/login.jsx"));
@@ -46,6 +51,7 @@ const MarketPage     = lazy(() => import("./client/modules/MarketPage/Pages/Mark
 const AccountPage    = lazy(() => import("./client/modules/account/pages/AccountPage/AccountPage.jsx"));
 const ProductPage    = lazy(() => import("./client/modules/ProductPage/ProductPage.jsx"));
 const ProductReviews = lazy(() => import("./client/modules/reviews/ProductReviews.jsx"));
+const CatalogoPage   = lazy(() => import("./client/modules/Catalogo/CatalogoPage.jsx"));
 
 // ── Multi-tenant ──────────────────────────────────────────────────────────────
 const StoreProductsAdmin  = lazy(() => import("./multi-tenant/pages/StoreProductsAdmin/StoreProductsAdmin.jsx"));
@@ -77,6 +83,13 @@ const StoreReturnsPage = lazy(() => import("./multi-tenant/components/Store/Stor
 const StoreFaqPage     = lazy(() => import("./multi-tenant/components/Store/StoreFaqPage.jsx"));
 const StoreAboutPage   = lazy(() => import("./multi-tenant/components/Store/StoreAboutPage.jsx"));
 
+// ── ScrollToTop ───────────────────────────────────────────────────────────────
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+
 // ── Loader ────────────────────────────────────────────────────────────────────
 function PageLoader() {
   return (
@@ -97,40 +110,14 @@ function PageLoader() {
   );
 }
 
-/* ─── Multi-tenant ─── */
-import CreateStore from "./multi-tenant/pages/CreateStore.jsx";
-import StepBasicPage from "./multi-tenant/pages/StepBasicPage.jsx";
-import StepLegalPage from "./multi-tenant/pages/StepLegalPage.jsx";
-import StepPaymentPage from "./multi-tenant/pages/StepPaymentPage.jsx";
-import SelectPlan from "./multi-tenant/pages/SelectPlan.jsx";
-import LayoutSelect from "./multi-tenant/components/SelectLayout/LayoutSelect.jsx";
-import CustomizationPanel from "./multi-tenant/components/CustomizationPanel.jsx";
-import ComponentCustomizer from "./multi-tenant/components/ComponentCustomizer.jsx";
-import WidgetsCustomizer from "./multi-tenant/components/WidgetsCustomizer.jsx";
-import OrdersDashboard from "./multi-tenant/components/OrdersDashboard.jsx";
-import MyStore from "./multi-tenant/pages/MyStore.jsx";
-import MyStoreLayout from "./multi-tenant/pages/MyStoreLayout.jsx"; // ← NUEVO
-import StorePage from "./multi-tenant/pages/StorePage.jsx";
-import Transactions from "./multi-tenant/pages/Transaction/Transaction.jsx";
-
-import ProductReviews from "./client/modules/reviews/ProductReviews.jsx";
-
-function App() {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // ── App ───────────────────────────────────────────────────────────────────────
-  export default function App() {
+export default function App() {
     return (
       <AuthProvider>
         <MultiTenantAuthProvider>
           <StoreProvider>
             <TokenGuard />
             <ScrollToTop />
+            <ModalTastes />
             <div className="main-container">
               <Suspense fallback={<PageLoader />}>
                 <AnimatePresence mode="wait">
@@ -140,6 +127,8 @@ function App() {
                     <Route path="/" element={<VexioLanding />} />
                     <Route path="/landing" element={<VexioLanding />} />
                     <Route path="/market" element={<MarketPage />} />
+                    <Route path="/catalogo" element={<CatalogoPage />} />
+                    <Route path="/producto/:productId" element={<ProductPage />} />
                     <Route path="/cuenta/*" element={<AccountPage />} />
 
                     {/* ── Auth ─────────────────────────────────────────────── */}
@@ -253,5 +242,4 @@ function App() {
         </MultiTenantAuthProvider>
       </AuthProvider>
     );
-  }
 }

@@ -1,23 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "./ModalTastes.css";
 
-// ─────────────────────────────────────────────────────────────
-// TODO: importa tu contexto de autenticación real aquí
-// import { AuthContext } from "../../../../context/AuthContext";
-// ─────────────────────────────────────────────────────────────
-
 const QUESTIONS = [
-  {
-    id: "estilos",
-    question: "¿Qué estilos de ropa te gustan más?",
-    type: "multi",
-    options: ["Urbano / Streetwear", "Casual", "Deportivo", "Oversize"],
-  },
   {
     id: "categorias",
     question: "¿Qué categorías te interesan más?",
     type: "multi",
-    options: ["Camisetas", "Hoodies", "Chaquetas", "Pantalones", "Gorras", "Accesorios"],
+    options: [
+      "Camisetas", "Hoodies", "Chaquetas", "Pantalones", "Gorras",
+      "Gaming / Videojuegos", "Tecnología / Electrónica",
+      "Ferretería / Herramientas", "Hogar / Decoración",
+      "Deportes / Fitness", "Accesorios", "Calzado",
+    ],
+  },
+  {
+    id: "estilos",
+    question: "¿Qué estilos te representan?",
+    type: "multi",
+    options: ["Urbano / Streetwear", "Casual", "Deportivo", "Oversize", "Clásico / Formal", "Sin preferencia"],
   },
   {
     id: "colores",
@@ -27,15 +27,15 @@ const QUESTIONS = [
   },
   {
     id: "presupuesto",
-    question: "¿Cuál es tu presupuesto promedio por prenda?",
+    question: "¿Cuál es tu presupuesto promedio por compra?",
     type: "single",
-    options: ["Menos de $50.000", "$50.000 - $100.000", "$100.000 - $150.000", "Más de $150.000"],
+    options: ["Menos de $50.000", "$50.000 - $100.000", "$100.000 - $200.000", "Más de $200.000"],
   },
   {
     id: "frecuencia",
-    question: "¿Con qué frecuencia compras ropa?",
+    question: "¿Con qué frecuencia compras online?",
     type: "single",
-    options: ["Cada semana", "Cada mes", "Cada temporada", "Solo cuando necesito"],
+    options: ["Varias veces a la semana", "Una vez al mes", "Cada temporada", "Solo cuando necesito"],
   },
 ];
 
@@ -52,31 +52,6 @@ const ModalTastes = () => {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [closing, setClosing] = useState(false);
-
-  // ─────────────────────────────────────────────────────────────
-  // TODO: reemplaza `isLoggedIn` con tu contexto real
-  // const { user } = useContext(AuthContext);
-  // const isLoggedIn = !!user;
-  // ─────────────────────────────────────────────────────────────
-  const isLoggedIn = true; // <- cambia esto por tu contexto
-
-  useEffect(() => {
-    if (!isLoggedIn) return;
-
-    // ─────────────────────────────────────────────────────────
-    // TODO: cuando tengas backend, reemplaza el localStorage por:
-    //
-    // fetch(`/api/users/${user.id}/tastes`)
-    //   .then(res => res.json())
-    //   .then(data => {
-    //     if (!data.completed) setVisible(true);
-    //   });
-    //
-    // Por ahora usamos localStorage como puente temporal.
-    // ─────────────────────────────────────────────────────────
-    // const alreadyAnswered = localStorage.getItem(STORAGE_KEY);
-    // if (!alreadyAnswered) setVisible(true);
-  }, [isLoggedIn]);
 
   const currentQuestion = QUESTIONS[step];
   const currentAnswer = answers[currentQuestion?.id] ?? [];
@@ -113,19 +88,6 @@ const ModalTastes = () => {
   };
 
   const handleSubmit = () => {
-    // ─────────────────────────────────────────────────────────
-    // TODO: cuando tengas backend, reemplaza esto por:
-    //
-    // fetch(`/api/users/${user.id}/tastes`, {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify(answers),
-    // }).then(() => {
-    //   closeModal();
-    // });
-    //
-    // Por ahora guardamos en localStorage como puente temporal.
-    // ─────────────────────────────────────────────────────────
     localStorage.setItem(STORAGE_KEY, JSON.stringify(answers));
     closeModal();
   };

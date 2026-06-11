@@ -3,6 +3,11 @@
    Fuente: Bricolage Grotesque + Plus Jakarta Sans
    ============================================================ */
 
+@keyframes vx-nav-enter {
+  from { opacity: 0; transform: translateY(-100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .vx-nav {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -15,7 +20,16 @@
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border-bottom: 1px solid transparent;
-  transition: background .3s, border-color .3s, box-shadow .3s;
+  transition:
+    top 280ms cubic-bezier(0.32, 0.72, 0, 1),
+    background .3s ease,
+    border-color .3s ease,
+    box-shadow .3s ease;
+  animation: vx-nav-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.vx-nav--hidden {
+  top: -80px;
 }
 .vx-nav::after {
   content: '';
@@ -188,4 +202,14 @@
   .vx-nav-link { text-align: left; width: 100%; padding: 11px 13px; font-size: 11px; }
   .vx-hamburger { display: flex; }
   .vx-nav-login { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vx-nav {
+    animation: none;
+    transition: background .3s ease, border-color .3s ease;
+  }
+  .vx-nav--hidden { top: 0; opacity: 0; pointer-events: none; }
+  .vx-nav-links   { transition: none; }
+  .vx-hamburger span { transition: none; }
 }

@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Grid2X2 } from 'lucide-react';
 // 🔌 Descomenta cuando conectes auth:
 // import { useAuth } from '../../../../../admin/modules/auth/pages/hook/Useauth';
 import HeaderMarket        from '../../../../../utils/Header/HeaderMarket';
@@ -69,6 +71,40 @@ export default function MarketPage() {
           <FeaturedStores />
         </div>
   
+
+        {/* Catalog CTA section */}
+        <section style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20,
+          padding: '56px 24px',
+          background: 'linear-gradient(135deg, rgba(37,99,255,0.07) 0%, rgba(37,99,255,0.02) 100%)',
+          borderTop: '1px solid rgba(37,99,255,0.14)',
+          borderBottom: '1px solid rgba(37,99,255,0.14)',
+          textAlign: 'center',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Grid2X2 size={22} style={{ color: '#2563FF' }} />
+            <h2 style={{ margin: 0, fontSize: 28, fontWeight: 800, letterSpacing: '0.04em', color: '#F0EDE8' }}>
+              CATÁLOGO COMPLETO
+            </h2>
+          </div>
+          <p style={{ margin: 0, color: '#777', fontSize: 15, maxWidth: 480, lineHeight: 1.6 }}>
+            Explora todos los productos de nuestras tiendas con filtros avanzados,
+            búsqueda instantánea y sugerencias personalizadas para ti.
+          </p>
+          <Link to="/catalogo" style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '13px 30px',
+            background: '#2563FF', color: '#fff',
+            borderRadius: 28, fontWeight: 800, fontSize: 14,
+            letterSpacing: '0.06em', textDecoration: 'none',
+            transition: 'all 0.22s cubic-bezier(0.22, 1, 0.36, 1)',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#3b74ff'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(37,99,255,0.4)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = '#2563FF'; e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
+          >
+            VER TODO EL CATÁLOGO <ArrowRight size={16} />
+          </Link>
+        </section>
 
         {/* 9 · Benefits / why choose us */}
         <WhyChooseUs />

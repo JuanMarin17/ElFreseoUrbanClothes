@@ -198,12 +198,13 @@ function normalizeProduct(response) {
 
   return {
     // Identidad
-    id: d.productId,
+    id: d.productId ?? d.id,
     name: d.name,
     description: d.description,
     brand: d.brandName,
     status: d.status,
     createdAt: d.createdAt,
+    storeId: d.storeId ?? d.store?.id ?? null,
 
     // Imágenes normalizadas para ProductGallery
     images: normalizeImages(d.images, d.name),
@@ -297,8 +298,10 @@ export const addToCart = async ({ productId, variantId, quantity }) => {
   if (!storeId || storeId === "null") {
     throw new Error("No se encontró la tienda. Inicia sesión nuevamente.");
   }
-  const { addItem } = await import("../../../multi-tenant/pages/services/cartService.js");
-  return addItem(storeId, { productId, variantId, quantity });
+  const { addItem } = await import("../../../../multi-tenant/pages/services/cartService.js");
+  const result = await addItem(storeId, { productId, variantId, quantity });
+  window.dispatchEvent(new CustomEvent("cart-updated", { detail: { storeId } }));
+  return result;
 };
 
 /**

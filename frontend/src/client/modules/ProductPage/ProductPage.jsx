@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { getStoreSettingsByHeader } from "../../../multi-tenant/pages/services/storeService";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { getStoreSettingsByHeader, getStoreById } from "../../../multi-tenant/pages/services/storeService";
 import StoreHeader from "../../../multi-tenant/components/Store/StoreHeader.jsx";
+import HeaderMarket from "../../../utils/Header/HeaderMarket.jsx";
 import { cf } from "../../../multi-tenant/components/Store/storeUtils.jsx";
 
 import "./ProductPage.css";
@@ -67,9 +68,24 @@ function buildTrustItems(settings) {
 /* ──────────────────────────────────────────────
    ProductPage — orquestador
    ────────────────────────────────────────────── */
+function getUserIdFromJwt() {
+  try {
+    const jwt = localStorage.getItem("jwt");
+    if (!jwt || jwt === "null") return null;
+    const payload = JSON.parse(atob(jwt.split(".")[1]));
+    return payload.user_id ?? payload.userId ?? payload.sub ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export default function ProductPage() {
   const { productId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const navSource = searchParams.get("src"); // "store" | "catalog" | null
+  const fromStore = navSource === "store";
+  const currentUserId = getUserIdFromJwt();
 
   const {
     // Datos
@@ -111,18 +127,37 @@ export default function ProductPage() {
     cartSuccess,
   } = useProduct(productId);
 
-  /* ── Settings de la tienda (header + trust strip) ── */
+  /* ── Conteo live de reseñas (se actualiza cuando ProductReviews carga) ── */
+  const [liveReviewCount, setLiveReviewCount] = useState(0);
+
+  /* ── Info básica de la tienda (nombre + slug para el card de descripción) ── */
+  const [storeInfo, setStoreInfo] = useState(null); // { name, slug }
+
+  useEffect(() => {
+    const sid = product?.storeId ?? localStorage.getItem("storeId");
+    if (!sid || sid === "null") return;
+    getStoreById(sid)
+      .then((store) => {
+        const name = store?.data?.name ?? store?.name ?? null;
+        const slug = store?.data?.slug ?? store?.slug ?? null;
+        if (name || slug) setStoreInfo({ name, slug });
+      })
+      .catch(() => {});
+  }, [product?.storeId]);
+
+  /* ── Settings de la tienda (header + trust strip — solo cuando viene de tienda) ── */
   const [storeSettings, setStoreSettings] = useState(null);
   const [isDark, setIsDark] = useState(true);
   const storeSlug = useMemo(() => localStorage.getItem("storeSlug"), []);
 
   useEffect(() => {
+    if (!fromStore) return;
     const storeId = localStorage.getItem("storeId");
     if (!storeId || storeId === "null") return;
     getStoreSettingsByHeader(storeId)
       .then(setStoreSettings)
       .catch(() => {});
-  }, []);
+  }, [fromStore]);
 
   /* Construye las props de StoreHeader a partir de los settings CMS de la tienda */
   const storeHeaderProps = useMemo(() => {
@@ -172,6 +207,19 @@ export default function ProductPage() {
     return { header, theme, searchCfg };
   }, [storeSettings, isDark]);
 
+  /* Info de la tienda para el card en descripción */
+  const storeCard = useMemo(() => {
+    const slug = storeInfo?.slug ?? storeSlug;
+    const name = storeInfo?.name ?? storeSettings?.components?.header?.logo ?? slug;
+    if (!slug && !name) return null;
+    return {
+      name:    name ?? slug,
+      slug:    slug,
+      logoUrl: storeSettings?.components?.header?.logoUrl ?? null,
+      accent:  storeSettings?.styles?.colorBoton ?? "#2563FF",
+    };
+  }, [storeInfo, storeSettings, storeSlug]);
+
   /* ── Scroll-reveal: activa .vx-visible cuando el elemento entra en viewport ── */
   const revealRef = useRef(null);
   useEffect(() => {
@@ -212,11 +260,11 @@ export default function ProductPage() {
 
   return (
     <div className="vx-page vx-noise">
-      {/* Header único de la tienda — usa la configuración CMS de cada tienda */}
-      {storeHeaderProps && (
+      {/* Header según origen de navegación */}
+      {fromStore && storeHeaderProps ? (
         <StoreHeader
           header={storeHeaderProps.header}
-           theme={storeHeaderProps.theme}
+          theme={storeHeaderProps.theme}
           searchCfg={storeHeaderProps.searchCfg}
           searchQuery=""
           onSearchChange={() => {}}
@@ -228,8 +276,25 @@ export default function ProductPage() {
           onToggleDark={() => setIsDark(d => !d)}
           topOffset={0}
         />
-      )}
+      ) : !fromStore ? (
+        <HeaderMarket />
+      ) : null}
       <main ref={revealRef}>
+        {/* Botón volver al catálogo */}
+        {navSource === "catalog" && (
+          <div className="vx-back-nav">
+            <div className="vx-wrap">
+              <button
+                className="vx-btn vx-btn--ghost vx-btn--sm"
+                onClick={() => navigate(-1)}
+              >
+                <i className="fa-solid fa-arrow-left" aria-hidden="true" />
+                Volver al catálogo
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* ══════════════════════════════
             HERO — Galería + Info
             ══════════════════════════════ */}
@@ -319,7 +384,7 @@ export default function ProductPage() {
                 tabs={TABS}
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
-                reviewCount={product.reviewCount}
+                reviewCount={liveReviewCount}
                 qaCount={product.qaCount}
               />
 
@@ -328,6 +393,7 @@ export default function ProductPage() {
                   description={product.description}
                   brand={product.brand}
                   categories={product.categories}
+                  storeCard={storeCard}
                 />
               )}
 
@@ -337,12 +403,9 @@ export default function ProductPage() {
 
               {activeTab === "reviews" && (
                 <TabReviews
-                  rating={product.rating}
-                  reviewCount={product.reviewCount}
-                  ratingDistribution={product.ratingDistribution}
-                  reviews={reviews}
-                  hasMoreReviews={hasMoreReviews}
-                  onLoadMore={loadMoreReviews}
+                  productId={productId}
+                  currentUserId={currentUserId}
+                  onCountChange={setLiveReviewCount}
                 />
               )}
 

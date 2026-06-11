@@ -1,17 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingCart, User, Menu, X, LogIn, Truck, HelpCircle, Settings, LogOut, Bell } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ShoppingCart, Heart, User, Menu, X, LogIn, Truck, HelpCircle, Settings, LogOut, Bell } from 'lucide-react';
 import { useAuth } from '../../admin/modules/auth/pages/hook/Useauth';
+import { useCart } from '../../multi-tenant/components/Store/hooks/useCart.js';
+import CartDrawer from '../../multi-tenant/components/Store/CartDrawer.jsx';
+import WishlistDrawer from './WishlistDrawer.jsx';
+import { getWishlist } from '../wishlistService.js';
 import Logo from '../../assets/LogoVexios/banervexio.png';
 import './HeaderMarket.css';
 
 const NAV_LINKS = [
-  { to: '/',       label: 'LANDING' },
-  { to: '/market', label: 'CATÁLOGO' },
-  { to: '/ayuda',  label: 'AYUDA' },
-  { to: '/market', label: 'HOME', accent: true },
-  { to: '/plan',   label: 'CREAR TIENDA' },
+  { to: '/',         label: 'LANDING'       },
+  { to: '/catalogo', label: 'CATÁLOGO'      },
+  { to: '/ayuda',    label: 'AYUDA'         },
+  { to: '/market',   label: 'HOME'          },
+  { to: '/plan',     label: 'CREAR TIENDA'  },
 ];
+
+function isActivePath(to, pathname) {
+  if (to === '/') return pathname === '/';
+  return pathname === to || pathname.startsWith(to + '/');
+}
 
 const HeaderMarket = () => {
   const { user, logout }     = useAuth();
@@ -22,6 +32,39 @@ const HeaderMarket = () => {
   const [lastScrollY, setLastScrollY]       = useState(0);
   const [isMobileOpen, setIsMobileOpen]     = useState(false);
   const [notificationCount]                 = useState(0);
+
+  // Cart: storeId tracked via localStorage + event
+  const [cartStoreId, setCartStoreId] = useState(() => {
+    const s = localStorage.getItem("storeId");
+    return s && s !== "null" && s !== "undefined" ? s : null;
+  });
+
+  const {
+    cart, cartCount, isOpen: cartOpen, loading: cartLoading,
+    itemLoading, error: cartError,
+    openCart, closeCart, updateQuantity, removeCartItem, emptyCart, clearError, refreshCart,
+  } = useCart(cartStoreId);
+
+  useEffect(() => {
+    const handler = () => {
+      const s = localStorage.getItem("storeId");
+      const newId = s && s !== "null" && s !== "undefined" ? s : null;
+      setCartStoreId(newId);
+      refreshCart();
+    };
+    window.addEventListener("cart-updated", handler);
+    return () => window.removeEventListener("cart-updated", handler);
+  }, [refreshCart]);
+
+  // Wishlist
+  const [wishlistItems, setWishlistItems] = useState(() => getWishlist());
+  const [wishlistOpen, setWishlistOpen]   = useState(false);
+
+  useEffect(() => {
+    const handler = () => setWishlistItems(getWishlist());
+    window.addEventListener("wishlist-updated", handler);
+    return () => window.removeEventListener("wishlist-updated", handler);
+  }, []);
 
   // Scroll behaviour
   useEffect(() => {
@@ -62,23 +105,48 @@ const HeaderMarket = () => {
 
           {/* Desktop nav */}
           <nav className="nav-menu" aria-label="Navegación principal">
-            {NAV_LINKS.map(({ to, label, accent }) => (
-              <Link
-                key={to}
-                to={to}
-                className={`nav-link${accent ? ' nav-link--accent' : ''}`}
-              >
-                {label}
-              </Link>
-            ))}
+            {NAV_LINKS.map(({ to, label }) => {
+              const active = isActivePath(to, location.pathname);
+              return (
+                <Link
+                  key={to}
+                  to={to}
+                  className={`nav-link${active ? ' nav-link--active' : ''}`}
+                >
+                  {label}
+                  {active && (
+                    <motion.span
+                      className="nav-active-indicator"
+                      layoutId="nav-indicator"
+                      transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Actions */}
           <div className="header-actions">
 
-            <button className="icon-btn cart-btn" aria-label="Carrito de compras">
+            <button className="icon-btn cart-btn" aria-label="Carrito de compras" onClick={openCart}>
               <ShoppingCart size={22} aria-hidden="true" />
-              <span className="cart-badge" aria-live="polite">0</span>
+              {cartCount > 0 && (
+                <span className="cart-badge" aria-live="polite">{cartCount > 99 ? "99+" : cartCount}</span>
+              )}
+            </button>
+
+            <button
+              className="icon-btn wishlist-btn"
+              aria-label="Lista de deseos"
+              onClick={() => setWishlistOpen(true)}
+            >
+              <Heart size={20} aria-hidden="true" className={wishlistItems.length > 0 ? "wishlist-icon--active" : ""} />
+              {wishlistItems.length > 0 && (
+                <span className="wishlist-badge" aria-live="polite">
+                  {wishlistItems.length > 99 ? "99+" : wishlistItems.length}
+                </span>
+              )}
             </button>
 
             {user && (
@@ -165,15 +233,25 @@ const HeaderMarket = () => {
         aria-hidden={!isMobileOpen}
       >
         <div className="mobile-nav-links" onClick={() => setIsMobileOpen(false)}>
-          {NAV_LINKS.map(({ to, label, accent }) => (
-            <Link
-              key={to}
-              to={to}
-              className={`mobile-nav-link${accent ? ' mobile-nav-link--accent' : ''}`}
-            >
-              {label}
-            </Link>
-          ))}
+          {NAV_LINKS.map(({ to, label }) => {
+            const active = isActivePath(to, location.pathname);
+            return (
+              <Link
+                key={to}
+                to={to}
+                className={`mobile-nav-link${active ? ' mobile-nav-link--active' : ''}`}
+              >
+                {active && (
+                  <motion.span
+                    className="mobile-nav-active-bar"
+                    layoutId="mobile-nav-indicator"
+                    transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+                  />
+                )}
+                {label}
+              </Link>
+            );
+          })}
         </div>
       </nav>
 
@@ -182,6 +260,27 @@ const HeaderMarket = () => {
         className={`mobile-nav-overlay ${isMobileOpen ? 'mobile-nav-overlay--visible' : ''}`}
         onClick={() => setIsMobileOpen(false)}
         aria-hidden="true"
+      />
+
+      {/* Cart drawer */}
+      <CartDrawer
+        isOpen={cartOpen}
+        onClose={closeCart}
+        cart={cart}
+        loading={cartLoading}
+        itemLoading={itemLoading}
+        error={cartError}
+        onUpdateQuantity={updateQuantity}
+        onRemoveItem={removeCartItem}
+        onClearCart={emptyCart}
+        onClearError={clearError}
+      />
+
+      {/* Wishlist drawer */}
+      <WishlistDrawer
+        isOpen={wishlistOpen}
+        onClose={() => setWishlistOpen(false)}
+        items={wishlistItems}
       />
     </>
   );
