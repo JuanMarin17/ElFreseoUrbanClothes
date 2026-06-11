@@ -16,12 +16,14 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  transition: border-color .25s, transform .22s, box-shadow .25s;
+  transition: border-color 250ms ease-out, transform 250ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 250ms ease-out;
 }
-.vx-store-card:hover {
-  border-color: rgba(37,99,255,.3);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 32px rgba(37,99,255,.07);
+@media (hover: hover) and (pointer: fine) {
+  .vx-store-card:hover {
+    border-color: rgba(37,99,255,.3);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 32px rgba(37,99,255,.07);
+  }
 }
 
 /* Header */
@@ -142,6 +144,9 @@
   color: var(--vx-accent1);
   background: var(--vx-accent1-dim);
 }
+.vx-store-btn:active {
+  transform: scale(0.97);
+}
 
 /* Footer con CTA global */
 .vx-stores-footer {
@@ -162,8 +167,8 @@
 /* ── Reveal ── */
 .vx-reveal {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity .5s ease, transform .5s ease;
+  transform: translateY(16px);
+  transition: opacity 500ms cubic-bezier(0.23, 1, 0.32, 1), transform 500ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .vx-reveal.vx-visible {
   opacity: 1;

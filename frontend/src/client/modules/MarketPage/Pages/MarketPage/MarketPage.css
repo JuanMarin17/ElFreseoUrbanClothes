@@ -107,7 +107,7 @@ body {
   align-items: center;
   gap: 8px;
   padding: 13px 28px;
-  background: var(--vx-cyan);
+  background: linear-gradient(135deg, var(--vx-cyan) 0%, #7C3AED 100%);
   color: #fff;
   font-family: var(--vx-font);
   font-weight: 600;
@@ -116,15 +116,24 @@ body {
   border-radius: var(--vx-radius);
   border: none;
   cursor: pointer;
-  transition: background 0.2s, transform 0.15s, box-shadow 0.25s;
+  transition: opacity 200ms ease-out, transform 160ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 200ms ease-out;
   text-decoration: none;
   white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(37, 99, 255, 0.28);
 }
 
-.vx-btn-cyan:hover {
-  background: var(--vx-blue-bright);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 32px var(--vx-cyan-glow);
+@media (hover: hover) and (pointer: fine) {
+  .vx-btn-cyan:hover {
+    opacity: 0.88;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(37, 99, 255, 0.42);
+  }
+}
+
+.vx-btn-cyan:active {
+  transform: scale(0.97);
+  box-shadow: none;
+  opacity: 1;
 }
 
 .vx-btn-ghost {
@@ -141,16 +150,22 @@ body {
   border-radius: var(--vx-radius);
   border: 1px solid var(--vx-border2);
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.15s;
+  transition: border-color 200ms ease-out, color 200ms ease-out, background 200ms ease-out, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
   text-decoration: none;
   white-space: nowrap;
 }
 
-.vx-btn-ghost:hover {
-  border-color: var(--vx-cyan);
-  color: var(--vx-cyan);
-  background: var(--vx-cyan-dim);
-  transform: translateY(-2px);
+@media (hover: hover) and (pointer: fine) {
+  .vx-btn-ghost:hover {
+    border-color: var(--vx-cyan);
+    color: var(--vx-cyan);
+    background: var(--vx-cyan-dim);
+    transform: translateY(-2px);
+  }
+}
+
+.vx-btn-ghost:active {
+  transform: scale(0.97);
 }
 
 /* ── Cabeceras de sección ── */
@@ -216,9 +231,20 @@ body {
 .vx-anim-item {
   opacity: 0;
   transform: translateY(16px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition: opacity 500ms cubic-bezier(0.23, 1, 0.32, 1), transform 500ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .vx-anim-item.vx-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vx-anim-item {
+    transition: opacity 200ms ease;
+    transform: none !important;
+  }
+  .vx-btn-cyan, .vx-btn-ghost {
+    transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+  }
+  .vx-btn-cyan:active, .vx-btn-ghost:active { transform: none; }
 }

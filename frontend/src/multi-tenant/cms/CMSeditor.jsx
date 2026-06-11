@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useStore } from "../pages/useStore";
 import { getCms } from "../pages/services/cmsService";
@@ -106,9 +107,11 @@ export default function CMSEditor() {
   return (
     <div className="admin-frame">
       <header className="admin-nav">
-        <button onClick={handleBack} className="btn-back-arrow" title="Volver"></button>
+        <button onClick={handleBack} className="btn-back-arrow" title="Volver">
+          <ArrowLeft size={16} />
+        </button>
         <div className="brand">{state.store?.name ?? "VEXIO"} <span>STUDIO V3</span></div>
-        <button className="btn-save-top" onClick={handleNext}>SIGUIENTE '</button>
+        <button className="btn-save-top" onClick={handleNext}>SIGUIENTE <ArrowRight size={14} /></button>
       </header>
 
       <StepProgress />
@@ -130,7 +133,7 @@ export default function CMSEditor() {
             Puedes saltar secciones y completarlas despues desde el panel de administracion.
           </p>
           <button className="btn-save-top" onClick={handleNext}>
-            FINALIZAR Y CREAR TIENDA
+            FINALIZAR Y CREAR TIENDA <ArrowRight size={14} />
           </button>
         </div>
       </main>

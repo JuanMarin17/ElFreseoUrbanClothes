@@ -1,5 +1,7 @@
 /* ==========================================================================
    VEXIO — Módulo de Tiendas Destacadas (Premium, Fluido e Interactivo)
+   TODOS los selectores .vx-store-* están scoped bajo .vx-fstores-root
+   para evitar conflictos con VexioStores.css de la landing.
    ========================================================================== */
 
 .vx-fstores-root {
@@ -8,7 +10,7 @@
   position: relative;
 }
 
-/* Grid Elástico y Distribución Limpia */
+/* Grid */
 .vx-fstores-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -16,8 +18,8 @@
   width: 100%;
 }
 
-/* ── Tarjeta de Tienda (Sin Encierros Rígidos) ── */
-.vx-store-card {
+/* ── Tarjeta de Tienda ── */
+.vx-fstores-root .vx-store-card {
   position: relative;
   background: var(--vx-card);
   border: 1px solid var(--vx-border);
@@ -35,35 +37,40 @@
     box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.vx-store-card.vx-visible {
+.vx-fstores-root .vx-store-card.vx-visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-/* Hover Cinemático Profundo */
-.vx-store-card:hover {
-  border-color: color-mix(in srgb, var(--store-accent) 45%, transparent);
-  transform: translateY(-6px);
-  box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.5),
-    0 0 0 1px color-mix(in srgb, var(--store-accent) 8%, transparent);
+@media (hover: hover) and (pointer: fine) {
+  .vx-fstores-root .vx-store-card:hover {
+    border-color: color-mix(in srgb, var(--store-accent) 45%, transparent);
+    transform: translateY(-6px);
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.5),
+      0 0 0 1px color-mix(in srgb, var(--store-accent) 8%, transparent);
+  }
 }
 
-.vx-store-card:focus-visible {
+.vx-fstores-root .vx-store-card:active {
+  transform: scale(0.98);
+}
+
+.vx-fstores-root .vx-store-card:focus-visible {
   outline: 2px solid var(--store-accent);
   outline-offset: 4px;
 }
 
-/* ── Cover de la Tienda ── */
-.vx-store-cover-wrap {
+/* ── Cover ── */
+.vx-fstores-root .vx-store-cover-wrap {
   position: relative;
   height: 130px;
   overflow: hidden;
   border-radius: 19px 19px 0 0;
 }
 
-.vx-store-cover,
-.vx-store-cover-gradient {
+.vx-fstores-root .vx-store-cover,
+.vx-fstores-root .vx-store-cover-gradient {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -72,26 +79,24 @@
   transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.vx-store-card:hover .vx-store-cover,
-.vx-store-card:hover .vx-store-cover-gradient {
-  transform: scale(1.05);
+@media (hover: hover) and (pointer: fine) {
+  .vx-fstores-root .vx-store-card:hover .vx-store-cover,
+  .vx-fstores-root .vx-store-card:hover .vx-store-cover-gradient {
+    transform: scale(1.05);
+  }
 }
 
-.vx-store-cover-overlay {
+.vx-fstores-root .vx-store-cover-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(6, 6, 8, 0) 0%,
-    rgba(6, 6, 8, 0.6) 100__
-  );
+  background: linear-gradient(to bottom, rgba(6,6,8,0) 0%, rgba(6,6,8,0.6) 100%);
   z-index: 1;
 }
 
-/* ── Avatar Flotante Premium ── */
-.vx-store-avatar-ring {
+/* ── Avatar Flotante ── */
+.vx-fstores-root .vx-store-avatar-ring {
   position: absolute;
-  top: 104px; /* Centrado asimétrico sobre el borde del banner */
+  top: 104px;
   left: 20px;
   width: 52px;
   height: 52px;
@@ -104,19 +109,22 @@
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.vx-store-card:hover .vx-store-avatar-ring {
-  transform: scale(1.08) translateY(-2px);
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--store-accent) 30%, rgba(0,0,0,0.5));
+@media (hover: hover) and (pointer: fine) {
+  .vx-fstores-root .vx-store-card:hover .vx-store-avatar-ring {
+    transform: scale(1.08) translateY(-2px);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--store-accent) 30%, rgba(0,0,0,0.5));
+  }
 }
 
-.vx-store-avatar {
+/* .vx-store-avatar aquí es una <img> dentro del ring, no el div de VexioStores */
+.vx-fstores-root .vx-store-avatar {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.vx-store-avatar-initials {
+.vx-fstores-root .vx-store-avatar-initials {
   width: 100%;
   height: 100%;
   display: flex;
@@ -127,8 +135,8 @@
   color: #ffffff;
 }
 
-/* Chip de Estado Minimalista */
-.vx-store-badge {
+/* Badge */
+.vx-fstores-root .vx-store-badge {
   position: absolute;
   top: 14px;
   right: 14px;
@@ -146,8 +154,8 @@
   z-index: 2;
 }
 
-/* ── Bloque de Contenido ── */
-.vx-store-info {
+/* ── Info ── */
+.vx-fstores-root .vx-store-info {
   padding: 38px 20px 20px;
   display: flex;
   flex-direction: column;
@@ -155,14 +163,14 @@
   gap: 8px;
 }
 
-.vx-store-header {
+.vx-fstores-root .vx-store-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 
-.vx-store-name {
+.vx-fstores-root .vx-store-name {
   font-size: 1rem;
   font-weight: 700;
   color: var(--vx-text);
@@ -172,8 +180,7 @@
   text-overflow: ellipsis;
 }
 
-/* Tag de Categoría de Plan */
-.vx-store-plan {
+.vx-fstores-root .vx-store-plan {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -187,7 +194,7 @@
   flex-shrink: 0;
 }
 
-.vx-store-tagline {
+.vx-fstores-root .vx-store-tagline {
   font-size: 0.8rem;
   color: var(--vx-text2);
   line-height: 1.5;
@@ -199,7 +206,7 @@
   flex: 1;
 }
 
-.vx-store-url {
+.vx-fstores-root .vx-store-url {
   font-size: 0.72rem;
   color: var(--vx-muted);
   font-family: var(--vx-font);
@@ -210,18 +217,18 @@
   transition: color 0.3s ease;
 }
 
-.vx-store-card:hover .vx-store-url {
+.vx-fstores-root .vx-store-card:hover .vx-store-url {
   color: var(--store-accent);
 }
 
-.vx-store-divider {
+.vx-fstores-root .vx-store-divider {
   height: 1px;
   background: linear-gradient(90deg, var(--vx-border), transparent);
   margin: 4px 0;
 }
 
-/* Botón de Acción Estilo Líquido */
-.vx-store-btn {
+/* ── Botón ── */
+.vx-fstores-root .vx-store-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -235,28 +242,34 @@
   border-radius: var(--vx-radius);
   background: transparent;
   cursor: pointer;
-  transition: 
-    background-color 0.3s ease, 
-    color 0.3s ease, 
-    border-color 0.3s ease;
+  transition:
+    background-color 250ms ease-out,
+    color 250ms ease-out,
+    border-color 250ms ease-out,
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
   margin-top: 6px;
+}
+
+.vx-fstores-root .vx-store-btn:active {
+  transform: scale(0.97);
 }
 
 .vx-btn-icon-move {
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.vx-store-card:hover .vx-store-btn {
-  background: var(--store-accent);
-  color: #ffffff;
-  border-color: transparent;
+@media (hover: hover) and (pointer: fine) {
+  .vx-fstores-root .vx-store-card:hover .vx-store-btn {
+    background: var(--store-accent);
+    color: #ffffff;
+    border-color: transparent;
+  }
+  .vx-fstores-root .vx-store-card:hover .vx-btn-icon-move {
+    transform: translate(2px, -2px);
+  }
 }
 
-.vx-store-card:hover .vx-btn-icon-move {
-  transform: translate(2px, -2px);
-}
-
-/* ── Vista de Error y Vacíos ── */
+/* ── Empty / Error ── */
 .vx-fstores-empty {
   display: flex;
   flex-direction: column;
@@ -273,7 +286,7 @@
   opacity: 0.6;
 }
 
-/* ── Skeletons Avanzados Receptivos ── */
+/* ── Skeletons ── */
 .vx-fstores-loading {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -291,38 +304,24 @@
   position: relative;
   overflow: hidden;
 }
-
-.vx-store-skeleton .sk-cover {
-  height: 130px;
-  background: var(--vx-card2);
-}
-
-.vx-store-skeleton .sk-avatar {
-  position: absolute;
-  top: 104px;
-  left: 20px;
-  width: 52px;
-  height: 52px;
+.vx-store-skeleton .sk-cover   { height: 130px; background: var(--vx-card2); }
+.vx-store-skeleton .sk-avatar  {
+  position: absolute; top: 104px; left: 20px;
+  width: 52px; height: 52px;
   border-radius: var(--vx-radius-lg);
   background: var(--vx-card2);
   border: 4px solid var(--vx-card);
 }
-
 .vx-store-skeleton .sk-body {
   padding: 38px 20px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  flex: 1;
+  display: flex; flex-direction: column; gap: 12px; flex: 1;
 }
-
 .vx-store-skeleton .sk-line {
   background: linear-gradient(90deg, var(--vx-card2) 25%, var(--vx-card-hover) 50%, var(--vx-card2) 75%);
   background-size: 200% 100%;
   animation: vx-shimmer 1.5s infinite linear;
   border-radius: 4px;
 }
-
 .vx-store-skeleton .sk-line-title { height: 16px; width: 60%; }
 .vx-store-skeleton .sk-line-text  { height: 12px; width: 90%; margin-bottom: auto; }
 .vx-store-skeleton .sk-line-btn   { height: 36px; width: 100%; border-radius: var(--vx-radius); }
@@ -332,19 +331,13 @@
   100% { background-position: -200% 0; }
 }
 
-/* ── Adaptabilidad Móvil ── */
+/* ── Responsive ── */
 @media (max-width: 640px) {
   .vx-fstores-grid, .vx-fstores-loading {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  .vx-store-card {
-    border-radius: var(--vx-radius-lg);
-  }
-  .vx-store-cover-wrap {
-    height: 115px;
-  }
-  .vx-store-avatar-ring {
-    top: 90px;
-  }
+  .vx-fstores-root .vx-store-card    { border-radius: var(--vx-radius-lg); }
+  .vx-fstores-root .vx-store-cover-wrap { height: 115px; }
+  .vx-fstores-root .vx-store-avatar-ring { top: 90px; }
 }

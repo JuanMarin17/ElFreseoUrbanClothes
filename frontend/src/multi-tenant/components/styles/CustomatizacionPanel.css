@@ -88,6 +88,9 @@
   transition: background 0.2s, box-shadow 0.2s;
   white-space: nowrap;
   margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .btn-save-primary:hover {

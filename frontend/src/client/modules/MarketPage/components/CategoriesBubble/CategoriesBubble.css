@@ -70,12 +70,18 @@
 }
 
 /* Efecto de elevación e iluminación sutil */
-.cb-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--vx-cyan-mid);
-  box-shadow: 
-    0 12px 30px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(37, 99, 255, 0.05);
+@media (hover: hover) and (pointer: fine) {
+  .cb-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--vx-cyan-mid);
+    box-shadow:
+      0 12px 30px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(37, 99, 255, 0.05);
+  }
+}
+
+.cb-card:active {
+  transform: scale(0.97);
 }
 
 .cb-card:focus-visible {
@@ -103,9 +109,11 @@
   will-change: transform;
 }
 
-.cb-card:hover .cb-image-container img {
-  transform: scale(1.06);
-  filter: brightness(0.75) saturate(1.05);
+@media (hover: hover) and (pointer: fine) {
+  .cb-card:hover .cb-image-container img {
+    transform: scale(1.06);
+    filter: brightness(0.75) saturate(1.05);
+  }
 }
 
 /* Degradado Suave Líquido */
@@ -133,9 +141,11 @@
   transition: transform 0.3s ease, color 0.3s ease;
 }
 
-.cb-card:hover .cb-label {
-  color: #ffffff;
-  transform: translateX(4px);
+@media (hover: hover) and (pointer: fine) {
+  .cb-card:hover .cb-label {
+    color: #ffffff;
+    transform: translateX(4px);
+  }
 }
 
 /* ── Estado Activo Eléctrico ── */
@@ -206,14 +216,15 @@
   transition: color 0.3s ease;
 }
 
-.cb-card--more:hover .cb-icon-box {
-  transform: scale(1.1) rotate(90deg);
-  background: var(--vx-cyan);
-  color: #ffffff;
-}
-
-.cb-card--more:hover .cb-label-more {
-  color: #ffffff;
+@media (hover: hover) and (pointer: fine) {
+  .cb-card--more:hover .cb-icon-box {
+    transform: scale(1.1) rotate(90deg);
+    background: var(--vx-cyan);
+    color: #ffffff;
+  }
+  .cb-card--more:hover .cb-label-more {
+    color: #ffffff;
+  }
 }
 
 /* ── Animación Escalada de Entrada (Staggered FadeUp) ── */

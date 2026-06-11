@@ -25,8 +25,8 @@ import "./HelpCenter.css";
 import HeaderMarket from "../../../../../utils/Header/HeaderMarket";
 import { useAuth } from "../../../../../admin/modules/auth/pages/hook/Useauth";
 
-/* Microservicio de soporte —
-const API_BASE = `${import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1/support";
+/* Microservicio de soporte */
+const API_BASE = `${import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080"}/api/v1/support`;
 
 
 const useCurrentUser = () => {
@@ -262,9 +262,9 @@ function FeedbackBanner({ feedback }) {
         padding: "10px 14px",
         borderRadius: 8,
         marginTop: 12,
-        background: isError ? "#fef2f2" : "#f0fdf4",
-        border: `1px solid ${isError ? "#fca5a5" : "#86efac"}`,
-        color: isError ? "#dc2626" : "#16a34a",
+        background: isError ? "rgba(220, 38, 38, 0.08)" : "rgba(22, 163, 74, 0.08)",
+        border: `1px solid ${isError ? "rgba(220, 38, 38, 0.35)" : "rgba(22, 163, 74, 0.35)"}`,
+        color: isError ? "#f87171" : "#4ade80",
         fontSize: ".84rem",
         fontWeight: 500,
       }}
@@ -284,25 +284,61 @@ const FAQS = [
     id: 1,
     question: "¿Cuánto tarda el envío?",
     answer:
-      "Los envíos nacionales tardan entre 2 y 5 días hábiles. Recibirás un número de guía en cuanto tu pedido salga de bodega.",
+      "Los envíos nacionales tardan entre 2 y 5 días hábiles. Recibirás un número de guía por email en cuanto tu pedido salga de bodega.",
   },
   {
     id: 2,
     question: "¿Cómo hago un cambio o devolución?",
     answer:
-      "Tienes 15 días tras recibir tu compra. La prenda debe estar en perfecto estado y con etiquetas originales. Abre un ticket de soporte y te guiamos.",
+      "Tienes 15 días tras recibir tu compra. La prenda debe estar en perfecto estado y con etiquetas originales. Abre un ticket de soporte y te guiamos paso a paso.",
   },
   {
     id: 3,
     question: "¿Qué métodos de pago aceptan?",
     answer:
-      "Aceptamos tarjetas de crédito y débito, PSE, Nequi, Daviplata y pago contra entrega en ciudades seleccionadas.",
+      "Aceptamos tarjetas de crédito y débito (Visa, Mastercard), PSE, Nequi, Daviplata y pago contra entrega en ciudades seleccionadas.",
   },
   {
     id: 4,
     question: "¿Cuándo recibiré respuesta a mi ticket?",
     answer:
       "Nuestro equipo responde en menos de 24 horas hábiles. Recibirás un email de notificación cuando te respondamos.",
+  },
+  {
+    id: 5,
+    question: "¿Puedo rastrear mi pedido?",
+    answer:
+      "Sí. Una vez despachado, te enviamos el número de guía y el enlace de rastreo de la transportadora directamente a tu email.",
+  },
+  {
+    id: 6,
+    question: "¿Qué tallas manejan?",
+    answer:
+      "Trabajamos tallas XS a 3XL en la mayoría de referencias. Cada producto tiene su tabla de medidas. Si tienes dudas sobre el tallaje, abre un ticket y te asesoramos.",
+  },
+  {
+    id: 7,
+    question: "¿Cómo creo mi tienda en Vexio?",
+    answer:
+      "Regístrate como vendedor, completa el perfil de tu tienda y sube tus primeros productos. El proceso toma menos de 10 minutos desde el panel de vendedor.",
+  },
+  {
+    id: 8,
+    question: "¿Cuánto cobra Vexio de comisión?",
+    answer:
+      "Las comisiones varían según el plan (Starter, Pro, Business). Puedes ver el detalle completo en la sección de Precios del sitio.",
+  },
+  {
+    id: 9,
+    question: "¿Puedo cancelar un pedido?",
+    answer:
+      "Puedes cancelar hasta 2 horas después de realizado el pago, siempre que el pedido no haya sido despachado. Abre un ticket con el número de orden para gestionarlo.",
+  },
+  {
+    id: 10,
+    question: "¿Mis datos de pago están seguros?",
+    answer:
+      "Sí. Vexio no almacena datos de tarjetas. Todos los pagos se procesan a través de pasarelas certificadas con cifrado SSL/TLS.",
   },
 ];
 
@@ -322,6 +358,7 @@ function TicketConversation({
   const [reply, setReply] = useState("");
   const [sending, setSending] = useState("");
   const [feedback, setFeedback] = useState(null);
+  const [confirmClose, setConfirmClose] = useState(false);
   const isOwner = user.role === "OWNER";
 
   // Promise chain directo en el efecto — el linter no detecta setState síncrono
@@ -365,12 +402,11 @@ function TicketConversation({
   };
 
   const handleClose = async () => {
-    if (
-      !window.confirm(
-        "¿Cerrar este ticket? El usuario recibirá un email de notificación.",
-      )
-    )
+    if (!confirmClose) {
+      setConfirmClose(true);
       return;
+    }
+    setConfirmClose(false);
     setFeedback(null);
     try {
       setSending("close");
@@ -420,21 +456,39 @@ function TicketConversation({
         </div>
         {/* Solo OWNER puede cerrar si no está cerrado */}
         {isOwner && ticket.status !== "CLOSED" && (
-          <button
-            className="hc-close-ticket-btn"
-            onClick={handleClose}
-            disabled={sending === "close"}
-          >
-            {sending === "close" ? (
-              <Loader
-                size={14}
-                style={{ animation: "spin 1s linear infinite" }}
-              />
-            ) : (
+          confirmClose ? (
+            <div className="hc-confirm-row">
+              <span>¿Confirmar cierre?</span>
+              <button
+                className="hc-confirm-yes"
+                onClick={handleClose}
+                disabled={sending === "close"}
+              >
+                {sending === "close" ? (
+                  <Loader size={13} style={{ animation: "spin 1s linear infinite" }} />
+                ) : (
+                  <CheckCircle size={13} />
+                )}
+                Sí, cerrar
+              </button>
+              <button
+                className="hc-confirm-cancel"
+                onClick={() => setConfirmClose(false)}
+                disabled={sending === "close"}
+              >
+                Cancelar
+              </button>
+            </div>
+          ) : (
+            <button
+              className="hc-close-ticket-btn"
+              onClick={handleClose}
+              disabled={sending === "close"}
+            >
               <X size={14} />
-            )}
-            Cerrar ticket
-          </button>
+              Cerrar ticket
+            </button>
+          )
         )}
       </div>
 
@@ -818,6 +872,30 @@ function CreateTicketModal({ user, onClose, onCreated, onToast }) {
 }
 
 /* ══════════════════════════════════════════════════════════
+   MÉTRICAS DE SOPORTE
+══════════════════════════════════════════════════════════ */
+
+function HcStats() {
+  const items = [
+    { icon: <CheckCircle size={20} />, value: "1.2K+", label: "Tickets resueltos" },
+    { icon: <Clock size={20} />,        value: "< 24h",  label: "Respuesta promedio" },
+    { icon: <Zap size={20} />,          value: "4.9★",   label: "Satisfacción media" },
+    { icon: <ShieldCheck size={20} />,  value: "100%",   label: "Datos encriptados" },
+  ];
+  return (
+    <div className="hc-stats hc-reveal">
+      {items.map((s) => (
+        <div key={s.label} className="hc-stat-item">
+          <div className="hc-stat-icon">{s.icon}</div>
+          <span className="hc-stat-value">{s.value}</span>
+          <span className="hc-stat-label">{s.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
    SECCIÓN FAQ
 ══════════════════════════════════════════════════════════ */
 
@@ -887,49 +965,49 @@ function QuickContactForm({ user, onToast }) {
 
   if (sent)
     return (
-      <div
-        style={{ textAlign: "center", padding: "2rem", color: "var(--off)" }}
-      >
-        <CheckCircle
-          size={32}
-          color="var(--fire)"
-          style={{ marginBottom: 12 }}
-        />
-        <p style={{ fontWeight: 600, color: "var(--white)" }}>
-          ¡Ticket creado!
-        </p>
-        <p style={{ fontSize: ".84rem", marginTop: 6 }}>
-          Revisa tu email. Te respondemos pronto.
+      <div className="hc-sent-state">
+        <div className="hc-sent-icon">
+          <CheckCircle size={28} />
+        </div>
+        <p className="hc-sent-title">¡Ticket creado!</p>
+        <p className="hc-sent-sub">
+          Revisa tu email. Te respondemos en menos de 24 h.
         </p>
       </div>
     );
 
   return (
-    <form className="contact-form" onSubmit={handleSubmit}>
-      <div className="input-group">
-        <input
-          type="text"
-          id="quick-subject"
-          required
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-        />
-        <label htmlFor="quick-subject">¿En qué podemos ayudarte?</label>
-        <div className="input-line" style={{ width: subject ? "100%" : 0 }} />
+    <form className="hc-quick-form" onSubmit={handleSubmit}>
+      <textarea
+        className="hc-quick-textarea"
+        placeholder="Cuéntanos tu situación... (ej: no recibí mi pedido #1234)"
+        value={subject}
+        onChange={(e) => setSubject(e.target.value)}
+        rows={3}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && e.ctrlKey) handleSubmit(e);
+        }}
+      />
+      <div className="hc-quick-footer">
+        <span className="hc-quick-hint">
+          {subject.trim().length > 0
+            ? `${subject.trim().length} / 120 chars`
+            : "Ctrl+Enter para enviar"}
+        </span>
+        <button
+          type="submit"
+          className="neon-button"
+          disabled={!subject.trim() || loading}
+          style={{ marginTop: 0 }}
+        >
+          {loading ? (
+            <Loader size={14} style={{ animation: "spin 1s linear infinite" }} />
+          ) : (
+            <Send size={14} />
+          )}
+          {loading ? "Enviando..." : "Enviar y crear ticket"}
+        </button>
       </div>
-      <button
-        type="submit"
-        className="neon-button"
-        disabled={!subject.trim() || loading}
-        style={{ marginTop: ".5rem" }}
-      >
-        {loading ? (
-          <Loader size={14} style={{ animation: "spin 1s linear infinite" }} />
-        ) : (
-          <Send size={14} />
-        )}
-        Enviar y crear ticket
-      </button>
     </form>
   );
 }
@@ -952,6 +1030,23 @@ const HelpCenter = () => {
 
   const showToast = (message, type = "success") => setToast({ message, type });
   const triggerRefresh = () => setRefreshKey((k) => k + 1);
+
+  useEffect(() => {
+    if (view !== "home") return;
+    const els = document.querySelectorAll(".hc-reveal");
+    const obs = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("hc-in-view");
+            obs.unobserve(e.target);
+          }
+        }),
+      { threshold: 0 },
+    );
+    const raf = requestAnimationFrame(() => els.forEach((el) => obs.observe(el)));
+    return () => { cancelAnimationFrame(raf); obs.disconnect(); };
+  }, [view]);
 
   const openTicket = (ticket) => {
     setTicket(ticket);
@@ -1045,6 +1140,10 @@ const HelpCenter = () => {
       <div className="help-container">
         {/* Header */}
         <header className="help-header">
+          <div className="system-status-wrapper">
+            <span className="status-dot" />
+            Todos los sistemas operativos
+          </div>
           <h1>
             Centro de Ayuda <span className="neon-text">VEXIO</span>
           </h1>
@@ -1068,7 +1167,7 @@ const HelpCenter = () => {
         </header>
 
         {/* Tarjetas de acción rápida */}
-        <section className="support-cards">
+        <section className="support-cards hc-reveal">
           {/* Ver mis tickets / Ver todos (OWNER) */}
           <div className="glass-card" onClick={() => setView("tickets")}>
             <div className="card-icon">
@@ -1103,8 +1202,11 @@ const HelpCenter = () => {
           </div>
         </section>
 
+        {/* Métricas */}
+        <HcStats />
+
         {/* Categorías */}
-        <section className="categories-section">
+        <section className="categories-section hc-reveal">
           <h2 className="section-title">Explorar por tema</h2>
           <div className="categories-grid">
             {[
@@ -1144,10 +1246,12 @@ const HelpCenter = () => {
         </section>
 
         {/* FAQ filtrable */}
-        <FaqSection searchQuery={searchQuery} />
+        <div className="hc-reveal">
+          <FaqSection searchQuery={searchQuery} />
+        </div>
 
         {/* Contacto */}
-        <section className="contact-section">
+        <section className="contact-section hc-reveal">
           <div className="contact-grid">
             <div className="contact-info">
               <h2>
@@ -1182,16 +1286,14 @@ const HelpCenter = () => {
 
             {/* Solo usuarios — formulario rápido que crea ticket */}
             {!isOwner && (
-              <div>
-                <p
-                  style={{
-                    color: "var(--off)",
-                    fontSize: ".84rem",
-                    marginBottom: "1.5rem",
-                  }}
-                >
-                  O escríbenos un mensaje y lo convertimos en un ticket
-                  automáticamente.
+              <div className="hc-contact-card">
+                <div className="hc-contact-card-header">
+                  <Send size={16} />
+                  <span>Mensaje rápido</span>
+                </div>
+                <p className="hc-contact-card-desc">
+                  Escríbenos y lo convertimos en un ticket automáticamente.
+                  Te responderemos por email.
                 </p>
                 <QuickContactForm user={user} onToast={showToast} />
               </div>

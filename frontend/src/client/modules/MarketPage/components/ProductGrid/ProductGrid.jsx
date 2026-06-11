@@ -103,12 +103,12 @@ export default function ProductGrid({ title, products = [], loading = false }) {
               </div>
             ))
           : products.map((product, i) => (
-              <article 
-                key={product.id} 
+              <article
+                key={product.id}
                 className="vx-product-card"
                 style={{ '--vx-index': i }}
               >
-                {/* Contenedor de Imagen de Producto */}
+                {/* Imagen */}
                 <div className="vx-product-img-wrap">
                   <img
                     src={product.image}
@@ -121,31 +121,31 @@ export default function ProductGrid({ title, products = [], loading = false }) {
                     <span className="vx-product-badge">{product.badge}</span>
                   )}
 
-                  {/* Acciones flotantes integradas (Glassmorphism) */}
-                  <div className="vx-product-actions">
-                    <button
-                      className="vx-product-action-btn"
-                      aria-label="Agregar al carrito"
-                    >
-                      <ShoppingCart size={14} />
-                    </button>
-                    <button
-                      className={`vx-product-action-btn ${wishlist.includes(product.id) ? 'is-wished' : ''}`}
-                      aria-label="Agregar a favoritos"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Evita navegar a la ficha de producto al cliquear favoritos
-                        toggleWish(product.id);
-                      }}
-                    >
-                      <Heart 
-                        size={14} 
-                        fill={wishlist.includes(product.id) ? 'var(--vx-red, #ef4444)' : 'none'} 
-                      />
+                  {/* Wishlist — siempre visible */}
+                  <button
+                    className={`vx-product-wish ${wishlist.includes(product.id) ? 'is-wished' : ''}`}
+                    aria-label="Agregar a favoritos"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleWish(product.id);
+                    }}
+                  >
+                    <Heart
+                      size={13}
+                      fill={wishlist.includes(product.id) ? '#ef4444' : 'none'}
+                    />
+                  </button>
+
+                  {/* CTA "Añadir" — sube desde abajo en hover */}
+                  <div className="vx-product-cta">
+                    <button className="vx-product-cta-btn" aria-label="Agregar al carrito">
+                      <ShoppingCart size={13} />
+                      Añadir al carrito
                     </button>
                   </div>
                 </div>
 
-                {/* Bloque Informativo de Metadatos */}
+                {/* Metadatos */}
                 <div className="vx-product-meta">
                   <p className="vx-product-title">{product.title}</p>
                   <div className="vx-product-bottom">

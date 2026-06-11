@@ -1,6 +1,6 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import "./App.css";
 import "./animations.css";
 
@@ -101,6 +101,13 @@ function PageLoader() {
   );
 }
 
+// ── Scroll reset on route change ──────────────────────────────────────────────
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
   return (
@@ -108,6 +115,7 @@ export default function App() {
       <MultiTenantAuthProvider>
         <StoreProvider>
           <TokenGuard />
+          <ScrollToTop />
           <div className="main-container">
             <Suspense fallback={<PageLoader />}>
               <AnimatePresence mode="wait">
