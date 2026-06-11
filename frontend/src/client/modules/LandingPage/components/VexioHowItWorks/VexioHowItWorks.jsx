@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, Package, Star, Store, ClipboardList, DollarSign, TrendingUp } from 'lucide-react';
 import './VexioHowItWorks.css';
 
@@ -18,6 +19,7 @@ const SELLER_STEPS = [
 
 export default function VexioHowItWorks() {
   const [mode, setMode] = useState('buyer');
+  const navigate = useNavigate();
   const stepsRef = useRef([]);
 
   const steps = mode === 'buyer' ? BUYER_STEPS : SELLER_STEPS;
@@ -83,9 +85,9 @@ export default function VexioHowItWorks() {
 
       <div className="vx-how-cta">
         {mode === 'buyer' ? (
-          <button className="vx-btn-primary">Empezar a explorar →</button>
+          <button className="vx-btn-primary" onClick={() => navigate('/market')}>Empezar a explorar →</button>
         ) : (
-          <button className="vx-btn-primary">Crear mi tienda gratis →</button>
+          <button className="vx-btn-primary" onClick={() => navigate('/plan')}>Crear mi tienda gratis →</button>
         )}
       </div>
     </section>

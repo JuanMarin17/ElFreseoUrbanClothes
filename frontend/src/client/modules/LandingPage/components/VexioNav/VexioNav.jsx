@@ -95,7 +95,7 @@ export default function VexioNav() {
               </button>
               <button
                 className="vx-nav-cta"
-                onClick={() => navigate('/registro')}
+                onClick={() => navigate('/login/register')}
               >
                 Comenzar ahora
               </button>

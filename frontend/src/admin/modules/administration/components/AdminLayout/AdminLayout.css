@@ -44,3 +44,19 @@
   background: #1a1a1a;
   border-radius: 10px;
 }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* On mobile, sidebar is a fixed overlay — main section takes full width */
+  .admin-terminal-wrapper {
+    overflow: hidden;
+  }
+
+  .admin-main-section {
+    width: 100vw;
+  }
+
+  .admin-page-body {
+    padding: 16px;
+  }
+}

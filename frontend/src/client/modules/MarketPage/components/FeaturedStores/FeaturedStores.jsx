@@ -79,9 +79,9 @@ export default function FeaturedStores() {
       <div className="vx-section-wrap">
         <div className="vx-section-head">
           <h2>Tiendas <span>destacadas</span></h2>
-          <a href="/tiendas" className="vx-section-link">
+          <button className="vx-section-link" onClick={() => navigate('/market')}>
             Ver todas <ArrowRight size={14} />
-          </a>
+          </button>
         </div>
 
         {loading && (

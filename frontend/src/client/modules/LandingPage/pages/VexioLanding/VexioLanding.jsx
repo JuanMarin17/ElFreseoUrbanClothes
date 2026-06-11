@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import VexioNav        from '../../components/VexioNav/VexioNav';
 import VexioHero       from '../../components/VexioHero/VexioHero';
 import VexioCategories from '../../components/VexioCategories/VexioCategories';
@@ -12,6 +13,7 @@ import VexioFooter     from '../../components/VexioFooter/VexioFooter';
 import './VexioLanding.css';
 
 export default function VexioLanding() {
+  const navigate = useNavigate();
   return (
     <div className="vx-landing">
       <VexioNav />
@@ -48,8 +50,8 @@ export default function VexioLanding() {
               Totalmente gratis para compradores.
             </p>
             <div className="vx-cta-actions">
-              <button className="vx-btn-primary">Explorar productos</button>
-              <button className="vx-btn-ghost">Ver tiendas →</button>
+              <button className="vx-btn-primary" onClick={() => navigate('/market')}>Explorar productos</button>
+              <button className="vx-btn-ghost" onClick={() => navigate('/market')}>Ver tiendas →</button>
             </div>
           </div>
         </section>

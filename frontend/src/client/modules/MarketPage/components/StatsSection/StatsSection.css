@@ -1,0 +1,106 @@
+/* ==========================================================================
+   STATS SECTION
+   ========================================================================== */
+.ss-section {
+  padding: 56px 0;
+  background: var(--vx-bg2);
+  border-top: 1px solid var(--vx-border);
+  border-bottom: 1px solid var(--vx-border);
+}
+
+.ss-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* ── Card ──────────────────────────────────────────────────────────────── */
+.ss-stat {
+  background: var(--vx-card);
+  border: 1px solid var(--vx-border);
+  border-radius: var(--vx-radius-lg);
+  padding: 28px 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 500ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 500ms cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+/* Top accent line */
+.ss-stat::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--vx-cyan), rgba(37, 99, 255, 0.1) 70%, transparent);
+}
+
+/* Staggered entrance */
+.ss-grid--visible .ss-stat { opacity: 1; transform: translateY(0); }
+.ss-grid--visible .ss-stat:nth-child(1) { transition-delay:   0ms; }
+.ss-grid--visible .ss-stat:nth-child(2) { transition-delay:  80ms; }
+.ss-grid--visible .ss-stat:nth-child(3) { transition-delay: 160ms; }
+.ss-grid--visible .ss-stat:nth-child(4) { transition-delay: 240ms; }
+
+@media (hover: hover) {
+  .ss-stat:hover {
+    border-color: rgba(37, 99, 255, 0.25);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* ── Icon ──────────────────────────────────────────────────────────────── */
+.ss-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--vx-cyan-dim);
+  color: var(--vx-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+/* ── Number ────────────────────────────────────────────────────────────── */
+.ss-stat-number {
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ss-stat-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--vx-text);
+  margin-bottom: 4px;
+}
+
+.ss-stat-sub {
+  font-size: 0.74rem;
+  color: var(--vx-muted);
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .ss-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .ss-grid { gap: 12px; }
+  .ss-stat { padding: 20px 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ss-stat { transition: opacity 200ms ease; transform: none !important; }
+}

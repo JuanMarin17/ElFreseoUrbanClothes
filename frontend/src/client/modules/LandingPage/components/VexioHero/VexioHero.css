@@ -340,6 +340,16 @@
   line-height: 1;
   margin-bottom: 5px;
 }
+
+.vx-orbit-card-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-bottom: 5px;
+  display: block;
+  border: 1px solid rgba(255,255,255,0.1);
+}
 .vx-orbit-card-name {
   font-family: var(--vx-font-body);
   font-size: 0.73rem;

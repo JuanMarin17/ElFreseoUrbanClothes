@@ -98,7 +98,6 @@ function useAnimatedCount(target, duration = 1000) {
     const step = (timestamp) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      // Función de desaceleración (Cubic Out)
       const easeProgress = 1 - Math.pow(1 - progress, 3);
       setValue(Math.floor(easeProgress * target));
       if (progress < 1) {
@@ -116,11 +115,11 @@ function useAnimatedCount(target, duration = 1000) {
 function StatCard({ label, value, prefix = "", suffix = "", color = "#4f8ef7", icon }) {
   const anim = useAnimatedCount(typeof value === "number" ? value : 0);
   return (
-    <div className="rp-stat-card">
+    <div className="rp-stat-card" style={{ "--rp-accent": color }}>
       <div className="rp-stat-header">
         <span className="rp-stat-label">{label}</span>
         {icon && (
-          <div className="rp-stat-icon-wrap" style={{ background: `${color}15` }}>
+          <div className="rp-stat-icon-wrap" style={{ background: `${color}18` }}>
             <i className={`ti ti-${icon} rp-stat-icon`} style={{ color }} aria-hidden="true" />
           </div>
         )}
@@ -161,8 +160,7 @@ function DonutChart({ slices, size = 160 }) {
     const canvas = canvasRef.current;
     if (!canvas || !slices?.length) return;
     const ctx = canvas.getContext("2d");
-    
-    // Configuración para pantallas de alta densidad (Retina Displays)
+
     const dpr = window.devicePixelRatio || 1;
     canvas.width = size * dpr;
     canvas.height = size * dpr;
@@ -172,7 +170,7 @@ function DonutChart({ slices, size = 160 }) {
     const cy = size / 2;
     const R = size * 0.4;
     const r = size * 0.26;
-    
+
     const total = slices.reduce((s, x) => s + (x.value || 0), 0) || 1;
     const DURATION = 1200;
     let start = null, raf;
@@ -183,32 +181,31 @@ function DonutChart({ slices, size = 160 }) {
       if (!start) start = ts;
       const progress = Math.min((ts - start) / DURATION, 1);
       const ease = easeOutQuart(progress);
-      
+
       ctx.clearRect(0, 0, size, size);
       let angle = -Math.PI / 2;
 
       slices.forEach(({ value, color }) => {
         const sliceAngle = (value / total) * 2 * Math.PI * ease;
-        
+
         ctx.beginPath();
         ctx.moveTo(cx, cy);
         ctx.arc(cx, cy, R, angle, angle + sliceAngle);
         ctx.closePath();
         ctx.fillStyle = color;
         ctx.fill();
-        
+
         angle += sliceAngle;
       });
 
-      // Recorte interior de la dona
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, 2 * Math.PI);
-      ctx.fillStyle = "#111116"; // Color del fondo de la tarjeta
+      ctx.fillStyle = "#121217";
       ctx.fill();
 
       if (progress < 1) raf = requestAnimationFrame(draw);
     }
-    
+
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
   }, [slices, size]);
@@ -233,7 +230,7 @@ function MiniBarChart({ data, labelKey = "date", valueKey = "orderCount", color 
     const canvas = canvasRef.current;
     if (!canvas || !data?.length) return;
     const ctx = canvas.getContext("2d");
-    
+
     const W = 600, H = 220;
     const dpr = window.devicePixelRatio || 1;
     canvas.width = W * dpr;
@@ -242,12 +239,12 @@ function MiniBarChart({ data, labelKey = "date", valueKey = "orderCount", color 
 
     const padB = 32, padT = 20, padL = 40, padR = 20;
     const max = Math.max(...data.map((d) => d[valueKey])) * 1.15 || 1;
-    
+
     const chartW = W - padL - padR;
     const chartH = H - padT - padB;
     const bw = (chartW / data.length) * 0.65;
     const gap = (chartW / data.length) * 0.35;
-    
+
     const DURATION = 1000;
     let start = null, raf;
 
@@ -257,11 +254,10 @@ function MiniBarChart({ data, labelKey = "date", valueKey = "orderCount", color 
       if (!start) start = ts;
       const progress = Math.min((ts - start) / DURATION, 1);
       const ease = easeOutExpo(progress);
-      
+
       ctx.clearRect(0, 0, W, H);
 
-      // Líneas de cuadrícula sutiles en el fondo
-      ctx.strokeStyle = "rgba(255,255,255,0.05)";
+      ctx.strokeStyle = "rgba(255,255,255,0.04)";
       ctx.lineWidth = 1;
       for (let i = 0; i <= 4; i++) {
         const yLine = padT + (chartH / 4) * i;
@@ -277,7 +273,6 @@ function MiniBarChart({ data, labelKey = "date", valueKey = "orderCount", color 
         const h = fullH * ease;
         const y = H - padB - h;
 
-        // Renderizado de las barras con degradado estilizado
         const gradient = ctx.createLinearGradient(x, y, x, H - padB);
         gradient.addColorStop(0, color);
         gradient.addColorStop(1, `${color}22`);
@@ -291,7 +286,6 @@ function MiniBarChart({ data, labelKey = "date", valueKey = "orderCount", color 
         }
         ctx.fill();
 
-        // Etiquetas del eje X (Fechas cortas)
         ctx.fillStyle = "#8a8a98";
         ctx.font = "10px Inter, sans-serif";
         ctx.textAlign = "center";
@@ -300,7 +294,6 @@ function MiniBarChart({ data, labelKey = "date", valueKey = "orderCount", color 
         ctx.fillText(lbl, x + bw / 2, H - 12);
       });
 
-      // Eje lateral numérico simplificado
       ctx.fillStyle = "#6b6b76";
       ctx.font = "10px Inter, sans-serif";
       ctx.textAlign = "right";
@@ -310,7 +303,7 @@ function MiniBarChart({ data, labelKey = "date", valueKey = "orderCount", color 
 
       if (progress < 1) raf = requestAnimationFrame(draw);
     }
-    
+
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
   }, [data, valueKey, color]);
@@ -335,7 +328,7 @@ function LineAreaChart({ data, dateKey = "date", valueKey = "revenue", color = "
     const canvas = canvasRef.current;
     if (!canvas || !data?.length) return;
     const ctx = canvas.getContext("2d");
-    
+
     const W = 800, H = 260;
     const dpr = window.devicePixelRatio || 1;
     canvas.width = W * dpr;
@@ -358,7 +351,6 @@ function LineAreaChart({ data, dateKey = "date", valueKey = "revenue", color = "
 
       ctx.clearRect(0, 0, W, H);
 
-      // Líneas horizontales de guía de métricas
       ctx.strokeStyle = "rgba(255,255,255,0.03)";
       ctx.lineWidth = 1;
       for (let i = 0; i <= 4; i++) {
@@ -372,20 +364,18 @@ function LineAreaChart({ data, dateKey = "date", valueKey = "revenue", color = "
       const pts = data.map((d, i) => ({ x: xP(i), y: yP(d[valueKey] * ease) }));
 
       if (pts.length >= 2) {
-        // Dibujar el área degradada bajo la curva
         ctx.beginPath();
         ctx.moveTo(pts[0].x, H - pad.b);
         pts.forEach((pt) => ctx.lineTo(pt.x, pt.y));
         ctx.lineTo(pts[pts.length - 1].x, H - pad.b);
         ctx.closePath();
-        
+
         const areaGrad = ctx.createLinearGradient(0, pad.t, 0, H - pad.b);
         areaGrad.addColorStop(0, `${color}25`);
         areaGrad.addColorStop(1, `${color}00`);
         ctx.fillStyle = areaGrad;
         ctx.fill();
 
-        // Dibujar la línea principal stroke suavizada
         ctx.strokeStyle = color;
         ctx.lineWidth = 3;
         ctx.lineJoin = "round";
@@ -395,10 +385,8 @@ function LineAreaChart({ data, dateKey = "date", valueKey = "revenue", color = "
         ctx.stroke();
       }
 
-      // Marcar las etiquetas cronológicas inferiores
       data.forEach((d, i) => {
-        if (i % Math.ceil(data.length / 10) === 0) { // Limitar firmas de etiquetas en pantallas compactas
-          ctx.styleStyle = "transparent";
+        if (i % Math.ceil(data.length / 10) === 0) {
           ctx.fillStyle = "#8a8a98";
           ctx.font = "10px Inter, sans-serif";
           ctx.textAlign = "center";
@@ -408,7 +396,6 @@ function LineAreaChart({ data, dateKey = "date", valueKey = "revenue", color = "
         }
       });
 
-      // Valores de referencia del eje Y lateral
       ctx.fillStyle = "#6b6b76";
       ctx.font = "10px Inter, sans-serif";
       ctx.textAlign = "right";
@@ -418,7 +405,7 @@ function LineAreaChart({ data, dateKey = "date", valueKey = "revenue", color = "
 
       if (progress < 1) raf = requestAnimationFrame(draw);
     }
-    
+
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
   }, [data, valueKey, dateKey, color]);
@@ -440,7 +427,7 @@ function ProgressBar({ current, max, color = "#f59e0b" }) {
   const pct = Math.min((current / max) * 100, 100);
   return (
     <div className="rp-progress-bg">
-      <div className="rp-progress-fill" style={{ width: `${pct}%`, background: color }} />
+      <div className="rp-progress-fill" style={{ width: `${pct}%`, background: color, boxShadow: `0 0 8px ${color}60` }} />
     </div>
   );
 }
@@ -472,7 +459,7 @@ function StatusBadge({ status }) {
 function PeriodSelector({ value, onChange }) {
   return (
     <div className="rp-period-btns">
-      {[["7D", "7D"], ["30D", "30D"], ["90D", "90D"], ["ALL", "Todo"]].map(([k, lbl]) => (
+      {[["7D", "7 días"], ["30D", "30 días"], ["90D", "90 días"], ["ALL", "Todo"]].map(([k, lbl]) => (
         <button
           key={k}
           className={`rp-period-btn ${value === k ? "active" : ""}`}
@@ -486,7 +473,21 @@ function PeriodSelector({ value, onChange }) {
 }
 
 // ============================================================
-//  SUBCOMPONENTE: Skeleton Loading (Diseño UI Moderno)
+//  SUBCOMPONENTE: EmptyState
+// ============================================================
+function EmptyState({ icon = "inbox", message = "Sin datos disponibles" }) {
+  return (
+    <div className="rp-empty">
+      <div className="rp-empty-icon">
+        <i className={`ti ti-${icon}`} aria-hidden="true" />
+      </div>
+      <p className="rp-empty-text">{message}</p>
+    </div>
+  );
+}
+
+// ============================================================
+//  SUBCOMPONENTE: Skeleton Loading
 // ============================================================
 function SkeletonLoader() {
   return (
@@ -524,76 +525,99 @@ function DashboardSection({ data, loading, error }) {
   return (
     <div className="rp-section animate-fade-in">
       {data.outOfStockVariants > 0 && (
-        <AlertBanner type="error" message={`⚠️ ${data.outOfStockVariants} variante(s) sin stock en almacén. Revisa el inventario.`} />
+        <AlertBanner type="error" message={`${data.outOfStockVariants} variante(s) sin stock en almacén. Revisa el inventario.`} />
       )}
       {data.lowStockVariants > 0 && (
-        <AlertBanner type="warning" message={`⚠️ Alerta: ${data.lowStockVariants} variante(s) con stock por debajo del límite mínimo.`} />
+        <AlertBanner type="warning" message={`Alerta: ${data.lowStockVariants} variante(s) con stock por debajo del límite mínimo.`} />
       )}
 
-      <div className="rp-section-title">Finanzas e Ingresos</div>
-      <div className="rp-kpi-row">
-        <StatCard label="Hoy"         value={data.todayRevenue}  prefix="$" color="#22c55e" icon="currency-dollar" />
-        <StatCard label="Esta semana" value={data.weekRevenue}   prefix="$" color="#3b82f6" icon="trending-up" />
-        <StatCard label="Este mes"    value={data.monthRevenue}  prefix="$" color="#8b5cf6" icon="chart-bar" />
-        <StatCard label="Total"       value={data.totalRevenue}  prefix="$" color="#f59e0b" icon="coins" />
+      <div className="rp-group">
+        <div className="rp-section-title">
+          <i className="ti ti-trending-up" aria-hidden="true" />
+          Finanzas e Ingresos
+        </div>
+        <div className="rp-kpi-row">
+          <StatCard label="Hoy"         value={data.todayRevenue}  prefix="$" color="#22c55e" icon="currency-dollar" />
+          <StatCard label="Esta semana" value={data.weekRevenue}   prefix="$" color="#3b82f6" icon="trending-up" />
+          <StatCard label="Este mes"    value={data.monthRevenue}  prefix="$" color="#8b5cf6" icon="chart-bar" />
+          <StatCard label="Total"       value={data.totalRevenue}  prefix="$" color="#f59e0b" icon="coins" />
+        </div>
       </div>
 
-      <div className="rp-section-title">Estado del Catálogo</div>
-      <div className="rp-kpi-row">
-        <StatCard label="Activos"      value={data.activeProducts}    color="#22c55e" icon="package" />
-        <StatCard label="Inactivos"    value={data.inactiveProducts}  color="#6b7280" icon="package-off" />
-        <StatCard label="Stock bajo"   value={data.lowStockVariants}  color="#f59e0b" icon="alert-triangle" />
-        <StatCard label="Sin stock"    value={data.outOfStockVariants} color="#ef4444" icon="package-import" />
+      <div className="rp-group">
+        <div className="rp-section-title">
+          <i className="ti ti-package" aria-hidden="true" />
+          Estado del Catálogo
+        </div>
+        <div className="rp-kpi-row">
+          <StatCard label="Activos"    value={data.activeProducts}     color="#22c55e" icon="package" />
+          <StatCard label="Inactivos"  value={data.inactiveProducts}   color="#6b7280" icon="package-off" />
+          <StatCard label="Stock bajo" value={data.lowStockVariants}   color="#f59e0b" icon="alert-triangle" />
+          <StatCard label="Sin stock"  value={data.outOfStockVariants} color="#ef4444" icon="package-import" />
+        </div>
       </div>
 
-      <div className="rp-section-title">Operaciones</div>
-      <div className="rp-kpi-row">
-        <StatCard label="Pendientes"  value={data.pendingOrders}  color="#f59e0b" icon="clock" />
-        <StatCard label="Entregadas"  value={data.deliveredOrders} color="#22c55e" icon="check" />
-        <StatCard label="Total"       value={data.totalOrders}     color="#3b82f6" icon="shopping-cart" />
-        <StatCard label="Canceladas"  value={data.cancelledOrders} color="#ef4444" icon="x" />
+      <div className="rp-group">
+        <div className="rp-section-title">
+          <i className="ti ti-shopping-cart" aria-hidden="true" />
+          Operaciones
+        </div>
+        <div className="rp-kpi-row">
+          <StatCard label="Pendientes" value={data.pendingOrders}  color="#f59e0b" icon="clock" />
+          <StatCard label="Entregadas" value={data.deliveredOrders} color="#22c55e" icon="check" />
+          <StatCard label="Total"      value={data.totalOrders}     color="#3b82f6" icon="shopping-cart" />
+          <StatCard label="Canceladas" value={data.cancelledOrders} color="#ef4444" icon="x" />
+        </div>
       </div>
 
       <div className="rp-charts-row">
         <div className="rp-card">
-          <div className="rp-card-title">Distribución de órdenes</div>
+          <div className="rp-card-title">
+            <i className="ti ti-chart-donut" aria-hidden="true" />
+            Distribución de órdenes
+          </div>
           <div className="rp-chart-container-donut">
             <DonutChart slices={donutSlices} size={150} />
           </div>
           <div className="rp-donut-legend">
-            {donutSlices.map((s) => (
+            {donutSlices.length > 0 ? donutSlices.map((s) => (
               <div key={s.label} className="rp-legend-item">
                 <span className="rp-legend-dot" style={{ background: s.color }} />
                 <span className="rp-legend-label">{s.label}</span>
                 <span className="rp-legend-val">{s.value}</span>
               </div>
-            ))}
+            )) : <EmptyState icon="chart-donut" message="Sin órdenes registradas" />}
           </div>
         </div>
 
         <div className="rp-card">
-          <div className="rp-card-title">Top 5 productos más vendidos</div>
+          <div className="rp-card-title">
+            <i className="ti ti-trophy" aria-hidden="true" />
+            Top 5 productos más vendidos
+          </div>
           <div className="rp-table-wrap">
-            <table className="rp-table">
-              <thead>
-                <tr>
-                  <th>Puesto</th>
-                  <th>Producto</th>
-                  <th className="text-right">Unidades</th>
-                  <th className="text-right">Ingresos</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(data.topProducts || []).slice(0, 5).map((p, i) => (
-                  <tr key={p.productId || i}>
-                    <td className="rp-rank"><span>#{i + 1}</span></td>
-                    <td className="font-medium text-white">{p.productName}</td>
-                    <td className="text-right font-mono">{p.unitsSold.toLocaleString("es-CO")}</td>
-                    <td className="text-right font-mono text-green">{formatCOP(p.revenue)}</td>
+            {(data.topProducts || []).length > 0 ? (
+              <table className="rp-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Producto</th>
+                    <th className="text-right">Unidades</th>
+                    <th className="text-right">Ingresos</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {(data.topProducts || []).slice(0, 5).map((p, i) => (
+                    <tr key={p.productId || i}>
+                      <td className="rp-rank"><span>#{i + 1}</span></td>
+                      <td className="font-medium text-white">{p.productName}</td>
+                      <td className="text-right font-mono">{p.unitsSold.toLocaleString("es-CO")}</td>
+                      <td className="text-right font-mono text-green">{formatCOP(p.revenue)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : <EmptyState icon="trophy" message="Sin datos de productos aún" />}
           </div>
         </div>
       </div>
@@ -614,21 +638,28 @@ function StockSection({ data, loading, error }) {
   return (
     <div className="rp-section animate-fade-in">
       <div className="rp-kpi-row">
-        <StatCard label="Variantes sanas"  value={summary.healthyStockVariants} color="#22c55e" icon="circle-check" />
-        <StatCard label="Stock bajo"       value={summary.lowStockVariants}     color="#f59e0b" icon="alert-triangle" />
-        <StatCard label="Sin stock"        value={summary.outOfStockVariants}   color="#ef4444" icon="circle-x" />
-        <StatCard label="Valor del stock"  value={summary.totalStockValue}      prefix="$" color="#3b82f6" icon="coins" />
+        <StatCard label="Variantes sanas" value={summary.healthyStockVariants} color="#22c55e" icon="circle-check" />
+        <StatCard label="Stock bajo"      value={summary.lowStockVariants}     color="#f59e0b" icon="alert-triangle" />
+        <StatCard label="Sin stock"       value={summary.outOfStockVariants}   color="#ef4444" icon="circle-x" />
+        <StatCard label="Valor del stock" value={summary.totalStockValue}      prefix="$" color="#3b82f6" icon="coins" />
       </div>
 
       {outOfStockItems?.length > 0 && (
         <div className="rp-card border-red-dim">
           <div className="rp-card-title text-red">
-            <i className="ti ti-circle-x" aria-hidden="true" /> Variantes Críticas Sin Stock ({outOfStockItems.length})
+            <i className="ti ti-circle-x" aria-hidden="true" />
+            Variantes Críticas Sin Stock
+            <span className="rp-card-badge rp-card-badge--red">{outOfStockItems.length}</span>
           </div>
           <div className="rp-table-wrap">
             <table className="rp-table">
               <thead>
-                <tr><th>Producto</th><th>SKU de Control</th><th>Precio Base</th><th className="text-right">Stock Mín. Requerido</th></tr>
+                <tr>
+                  <th>Producto</th>
+                  <th>SKU</th>
+                  <th>Precio Base</th>
+                  <th className="text-right">Stock Mín.</th>
+                </tr>
               </thead>
               <tbody>
                 {outOfStockItems.map((item) => (
@@ -636,7 +667,7 @@ function StockSection({ data, loading, error }) {
                     <td className="text-white font-medium">{item.productName}</td>
                     <td><code className="rp-sku">{item.sku}</code></td>
                     <td className="font-mono">{formatCOP(item.price)}</td>
-                    <td className="text-right font-mono text-red">{item.minStock} unidades</td>
+                    <td className="text-right font-mono text-red">{item.minStock} uds.</td>
                   </tr>
                 ))}
               </tbody>
@@ -648,12 +679,19 @@ function StockSection({ data, loading, error }) {
       {lowStockItems?.length > 0 && (
         <div className="rp-card border-orange-dim">
           <div className="rp-card-title text-orange">
-            <i className="ti ti-alert-triangle" aria-hidden="true" /> Reposición Necesaria — Stock Bajo ({lowStockItems.length})
+            <i className="ti ti-alert-triangle" aria-hidden="true" />
+            Reposición Necesaria — Stock Bajo
+            <span className="rp-card-badge rp-card-badge--orange">{lowStockItems.length}</span>
           </div>
           <div className="rp-table-wrap">
             <table className="rp-table">
               <thead>
-                <tr><th>Producto</th><th>SKU de Control</th><th>Actual / Mínimo</th><th style={{ width: "30%" }}>Nivel Crítico</th></tr>
+                <tr>
+                  <th>Producto</th>
+                  <th>SKU</th>
+                  <th>Actual / Mínimo</th>
+                  <th style={{ width: "30%" }}>Nivel Crítico</th>
+                </tr>
               </thead>
               <tbody>
                 {lowStockItems.map((item) => (
@@ -674,14 +712,17 @@ function StockSection({ data, loading, error }) {
 
       {byCategory?.length > 0 && (
         <div className="rp-card">
-          <div className="rp-card-title">Análisis de Almacén por Categoría</div>
+          <div className="rp-card-title">
+            <i className="ti ti-layout-grid" aria-hidden="true" />
+            Análisis de Almacén por Categoría
+          </div>
           <div className="rp-table-wrap">
             <table className="rp-table">
               <thead>
                 <tr>
                   <th>Categoría</th>
                   <th className="text-right">Productos</th>
-                  <th className="text-right">Stock Físico Total</th>
+                  <th className="text-right">Stock Total</th>
                   <th className="text-right">Stock Bajo</th>
                   <th className="text-right">Agotado</th>
                 </tr>
@@ -693,10 +734,14 @@ function StockSection({ data, loading, error }) {
                     <td className="text-right font-mono">{cat.productCount}</td>
                     <td className="text-right font-mono">{cat.totalStock.toLocaleString("es-CO")}</td>
                     <td className="text-right font-mono">
-                      {cat.lowStockCount > 0 ? <span className="text-orange font-bold">{cat.lowStockCount}</span> : <span className="text-green">0</span>}
+                      {cat.lowStockCount > 0
+                        ? <span className="rp-badge-inline rp-badge-orange">{cat.lowStockCount}</span>
+                        : <span className="text-green">—</span>}
                     </td>
                     <td className="text-right font-mono">
-                      {cat.outOfStockCount > 0 ? <span className="text-red font-bold">{cat.outOfStockCount}</span> : <span className="text-green">0</span>}
+                      {cat.outOfStockCount > 0
+                        ? <span className="rp-badge-inline rp-badge-red">{cat.outOfStockCount}</span>
+                        : <span className="text-green">—</span>}
                     </td>
                   </tr>
                 ))}
@@ -719,50 +764,71 @@ function OrdersSection({ data, loading, error, period, onPeriodChange }) {
   return (
     <div className="rp-section animate-fade-in">
       <div className="rp-section-header">
-        <span className="rp-section-title">Auditoría de Órdenes</span>
+        <div className="rp-section-title" style={{ margin: 0 }}>
+          <i className="ti ti-shopping-cart" aria-hidden="true" />
+          Auditoría de Órdenes
+        </div>
         <PeriodSelector value={period} onChange={onPeriodChange} />
       </div>
 
-      {!data ? <div className="rp-card text-center text-muted">Seleccionando período temporal...</div> : (
+      {!data ? (
+        <div className="rp-card"><EmptyState icon="clock" message="Seleccionando período temporal..." /></div>
+      ) : (
         <>
           <div className="rp-kpi-row">
-            <StatCard label="Total Recibidas"  value={data.summary.total}             color="#3b82f6" icon="shopping-cart" />
-            <StatCard label="Pendientes"       value={data.summary.pending}           color="#f59e0b" icon="clock" />
-            <StatCard label="Entregadas con Éxito" value={data.summary.delivered}     color="#22c55e" icon="check" />
-            <StatCard label="Ticket Promedio"  value={data.summary.averageOrderValue} prefix="$" color="#8b5cf6" icon="receipt" />
+            <StatCard label="Total Recibidas"      value={data.summary.total}             color="#3b82f6" icon="shopping-cart" />
+            <StatCard label="Pendientes"           value={data.summary.pending}           color="#f59e0b" icon="clock" />
+            <StatCard label="Entregadas con Éxito" value={data.summary.delivered}         color="#22c55e" icon="check" />
+            <StatCard label="Ticket Promedio"      value={data.summary.averageOrderValue} prefix="$" color="#8b5cf6" icon="receipt" />
           </div>
 
           <div className="rp-status-grid">
             {[
-              { key: "confirmed",  label: "Confirmadas",  color: "#3b82f6" },
-              { key: "processing", label: "En Proceso",   color: "#6366f1" },
-              { key: "shipped",    label: "Enviadas",     color: "#0ea5e9" },
-              { key: "cancelled",  label: "Canceladas",   color: "#ef4444" },
-              { key: "refunded",   label: "Reembolsadas", color: "#f43f5e" },
-            ].map(({ key, label, color }) => (
-              <div key={key} className="rp-status-chip" style={{ borderColor: `${color}25`, color }}>
-                <span className="rp-status-count">{data.summary[key] || 0}</span>
-                <span className="rp-status-lbl">{label}</span>
+              { key: "confirmed",  label: "Confirmadas",  color: "#3b82f6", icon: "circle-check" },
+              { key: "processing", label: "En Proceso",   color: "#6366f1", icon: "loader" },
+              { key: "shipped",    label: "Enviadas",     color: "#0ea5e9", icon: "truck" },
+              { key: "cancelled",  label: "Canceladas",   color: "#ef4444", icon: "circle-x" },
+              { key: "refunded",   label: "Reembolsadas", color: "#f43f5e", icon: "receipt-refund" },
+            ].map(({ key, label, color, icon }) => (
+              <div key={key} className="rp-status-chip" style={{ "--chip-color": color }}>
+                <div className="rp-status-chip-icon" style={{ background: `${color}15`, color }}>
+                  <i className={`ti ti-${icon}`} aria-hidden="true" />
+                </div>
+                <div className="rp-status-chip-body">
+                  <span className="rp-status-count" style={{ color }}>{data.summary[key] || 0}</span>
+                  <span className="rp-status-lbl">{label}</span>
+                </div>
               </div>
             ))}
           </div>
 
-          {data.dailyBreakdown?.length > 0 && (
+          {data.dailyBreakdown?.length > 0 ? (
             <div className="rp-card">
-              <div className="rp-card-title">Volumen de Órdenes Diarias</div>
+              <div className="rp-card-title">
+                <i className="ti ti-chart-bar" aria-hidden="true" />
+                Volumen de Órdenes Diarias
+              </div>
               <div className="rp-canvas-wrapper">
                 <MiniBarChart data={data.dailyBreakdown} labelKey="date" valueKey="orderCount" color="#3b82f6" />
               </div>
             </div>
-          )}
+          ) : null}
 
           {data.topProducts?.length > 0 && (
             <div className="rp-card">
-              <div className="rp-card-title">Productos Más Solicitados</div>
+              <div className="rp-card-title">
+                <i className="ti ti-star" aria-hidden="true" />
+                Productos Más Solicitados
+              </div>
               <div className="rp-table-wrap">
                 <table className="rp-table">
                   <thead>
-                    <tr><th>Puesto</th><th>Nombre del Producto</th><th className="text-right">Unidades Corrientes</th><th className="text-right">Bruto Generado</th></tr>
+                    <tr>
+                      <th>#</th>
+                      <th>Nombre del Producto</th>
+                      <th className="text-right">Unidades</th>
+                      <th className="text-right">Bruto Generado</th>
+                    </tr>
                   </thead>
                   <tbody>
                     {data.topProducts.slice(0, 5).map((p, i) => (
@@ -794,22 +860,30 @@ function SalesSection({ data, loading, error, period, onPeriodChange }) {
   return (
     <div className="rp-section animate-fade-in">
       <div className="rp-section-header">
-        <span className="rp-section-title">Informe Estadístico de Ventas</span>
+        <div className="rp-section-title" style={{ margin: 0 }}>
+          <i className="ti ti-chart-line" aria-hidden="true" />
+          Informe Estadístico de Ventas
+        </div>
         <PeriodSelector value={period} onChange={onPeriodChange} />
       </div>
 
-      {!data ? <div className="rp-card text-center text-muted">Cargando desglose de caja...</div> : (
+      {!data ? (
+        <div className="rp-card"><EmptyState icon="clock" message="Cargando desglose de caja..." /></div>
+      ) : (
         <>
           <div className="rp-kpi-row">
-            <StatCard label="Caja Hoy"         value={data.summary.todayRevenue}   prefix="$" color="#22c55e" icon="currency-dollar" />
-            <StatCard label="Canal Semanal"   value={data.summary.weekRevenue}    prefix="$" color="#3b82f6" icon="trending-up" />
-            <StatCard label="Consolidado Mensual" value={data.summary.monthRevenue}prefix="$" color="#8b5cf6" icon="chart-bar" />
-            <StatCard label="Ticket Medio"     value={data.summary.averageTicket}  prefix="$" color="#f59e0b" icon="receipt" />
+            <StatCard label="Caja Hoy"            value={data.summary.todayRevenue}   prefix="$" color="#22c55e" icon="currency-dollar" />
+            <StatCard label="Canal Semanal"        value={data.summary.weekRevenue}    prefix="$" color="#3b82f6" icon="trending-up" />
+            <StatCard label="Consolidado Mensual"  value={data.summary.monthRevenue}   prefix="$" color="#8b5cf6" icon="chart-bar" />
+            <StatCard label="Ticket Medio"         value={data.summary.averageTicket}  prefix="$" color="#f59e0b" icon="receipt" />
           </div>
 
           {data.dailyBreakdown?.length > 0 && (
             <div className="rp-card">
-              <div className="rp-card-title">Flujo Continuo de Ingresos</div>
+              <div className="rp-card-title">
+                <i className="ti ti-activity" aria-hidden="true" />
+                Flujo Continuo de Ingresos
+              </div>
               <div className="rp-canvas-wrapper">
                 <LineAreaChart data={data.dailyBreakdown} dateKey="date" valueKey="revenue" color="#22c55e" />
               </div>
@@ -819,7 +893,10 @@ function SalesSection({ data, loading, error, period, onPeriodChange }) {
           <div className="rp-charts-row">
             {data.byPaymentMethod?.length > 0 && (
               <div className="rp-card">
-                <div className="rp-card-title">Preferencia de Métodos de Pago</div>
+                <div className="rp-card-title">
+                  <i className="ti ti-credit-card" aria-hidden="true" />
+                  Métodos de Pago
+                </div>
                 <div className="rp-chart-container-donut">
                   <DonutChart
                     slices={data.byPaymentMethod.map((m, i) => ({
@@ -845,11 +922,19 @@ function SalesSection({ data, loading, error, period, onPeriodChange }) {
 
             {data.topProductsByRevenue?.length > 0 && (
               <div className="rp-card">
-                <div className="rp-card-title">Productos Líderes en Facturación</div>
+                <div className="rp-card-title">
+                  <i className="ti ti-flame" aria-hidden="true" />
+                  Productos Líderes en Facturación
+                </div>
                 <div className="rp-table-wrap">
                   <table className="rp-table">
                     <thead>
-                      <tr><th>Puesto</th><th>Producto</th><th className="text-right">Uds.</th><th className="text-right">Ingreso Bruto</th></tr>
+                      <tr>
+                        <th>#</th>
+                        <th>Producto</th>
+                        <th className="text-right">Uds.</th>
+                        <th className="text-right">Ingreso Bruto</th>
+                      </tr>
                     </thead>
                     <tbody>
                       {data.topProductsByRevenue.slice(0, 5).map((p, i) => (
@@ -966,27 +1051,47 @@ export default function Report() {
 
   return (
     <div className="rp-page">
-      <div className="rp-topbar">
-        <h1 className="rp-title">Reportes</h1>
-        <div className="rp-topbar-right">
-          <i className="ti ti-bell"     style={{ fontSize: 18 }} aria-hidden="true" />
-          <i className="ti ti-settings" style={{ fontSize: 18 }} aria-hidden="true" />
+
+      {/* ── Header Banner Premium ──────────────────────────── */}
+      <header className="rp-header">
+        <div className="rp-header-glow rp-header-glow--blue" />
+        <div className="rp-header-glow rp-header-glow--purple" />
+        <div className="rp-header-content">
+          <div className="rp-header-text">
+            <div className="rp-header-eyebrow">
+              <i className="ti ti-chart-dots" aria-hidden="true" />
+              Analytics
+            </div>
+            <h1 className="rp-title">Centro de Reportes</h1>
+            <p className="rp-subtitle">Analítica en tiempo real de tu tienda</p>
+          </div>
+          <div className="rp-header-actions">
+            <div className="rp-live-badge">
+              <span className="rp-live-dot" />
+              En vivo
+            </div>
+          
+          </div>
+        </div>
+      </header>
+
+      {/* ── Navegación por tabs ────────────────────────────── */}
+      <div className="rp-tabs-wrap">
+        <div className="rp-tabs">
+          {tabs.map((t) => (
+            <button
+              key={t.key}
+              className={`rp-tab ${activeTab === t.key ? "active" : ""}`}
+              onClick={() => setActiveTab(t.key)}
+            >
+              <i className={`ti ti-${t.icon}`} aria-hidden="true" />
+              <span>{t.label}</span>
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="rp-tabs">
-        {tabs.map((t) => (
-          <button
-            key={t.key}
-            className={`rp-tab ${activeTab === t.key ? "active" : ""}`}
-            onClick={() => setActiveTab(t.key)}
-          >
-            <i className={`ti ti-${t.icon}`} aria-hidden="true" />
-            <span>{t.label}</span>
-          </button>
-        ))}
-      </div>
-
+      {/* ── Contenido ─────────────────────────────────────── */}
       <div className="rp-content">
         {activeTab === "dashboard" && (
           <DashboardSection data={dashboardData} loading={loading.dashboard} error={errors.dashboard} />

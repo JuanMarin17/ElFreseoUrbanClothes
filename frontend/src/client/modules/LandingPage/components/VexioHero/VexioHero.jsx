@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getAllStores } from '../../../../../multi-tenant/pages/services/storeService';
+import { getAllStores, getStoreSettingsByHeader } from '../../../../../multi-tenant/pages/services/storeService';
 import './VexioHero.css';
 
 const AVATARS = ['SR', 'MC', 'DP', 'AL'];
@@ -24,12 +24,24 @@ export default function VexioHero() {
 
   useEffect(() => {
     getAllStores()
-      .then((data) => {
+      .then(async (data) => {
         const list = Array.isArray(data)
           ? data
           : (data?.content ?? data?.stores ?? data?.data ?? []);
         const active = list.filter((s) => s.isActive !== false).slice(0, 6);
-        if (active.length >= 3) setApiStores(active);
+        if (active.length < 3) return;
+
+        const withSettings = await Promise.all(
+          active.map(async (store) => {
+            try {
+              const settings = await getStoreSettingsByHeader(store.storeId);
+              return { ...store, settings: settings ?? {} };
+            } catch {
+              return { ...store, settings: {} };
+            }
+          }),
+        );
+        setApiStores(withSettings);
       })
       .catch(() => {/* usa fallback */});
   }, []);
@@ -94,15 +106,23 @@ export default function VexioHero() {
                 const color = ORBIT_COLORS[i % ORBIT_COLORS.length];
                 const initial = (store.name?.[0] ?? 'T').toUpperCase();
 
-                return (
+                const logo = store.settings?.basic?.logoPreview
+                    ?? store.settings?.components?.header?.logo;
+                  const logoUrl = logo && logo.startsWith('http') ? logo : null;
+
+                  return (
                   <div
                     key={store.storeId}
                     className="vx-orbit-card"
                     style={{ '--angle': angle, '--color': color }}
                   >
-                    <span className="vx-orbit-card-initial" style={{ color }}>
-                      {initial}
-                    </span>
+                    {logoUrl ? (
+                      <img src={logoUrl} alt="" className="vx-orbit-card-logo" />
+                    ) : (
+                      <span className="vx-orbit-card-initial" style={{ color }}>
+                        {initial}
+                      </span>
+                    )}
                     <span className="vx-orbit-card-name">{store.name}</span>
                     <span className="vx-orbit-card-cat">
                       {store.slug}.vexio.com
@@ -116,7 +136,7 @@ export default function VexioHero() {
             {/* Centro estático */}
             <div className="vx-orbit-center">
               <span className="vx-orbit-center-num">
-                {orbitStores === apiStores ? `${apiStores.length}` : '12K+'}
+                {orbitStores === apiStores ? `${apiStores.length}` : '100+'}
               </span>
               <span className="vx-orbit-center-label">tiendas</span>
             </div>
