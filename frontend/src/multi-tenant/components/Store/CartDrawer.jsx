@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./CartDrawer.css";
 
 const formatCOP = (n) =>
@@ -107,6 +108,9 @@ export default function CartDrawer({
   onClearCart,
   onClearError,
 }) {
+  const navigate = useNavigate();
+  const slug = window.location.pathname.match(/\/tienda\/([^/]+)/)?.[1];
+
   // Bloquear scroll del body mientras está abierto
   useEffect(() => {
     if (isOpen) {
@@ -269,7 +273,10 @@ export default function CartDrawer({
               Envío e impuestos calculados al finalizar
             </p>
 
-            <button className="cd-btn-checkout">
+            <button
+              className="cd-btn-checkout"
+              onClick={() => { onClose(); navigate(`/tienda/${slug}/checkout`); }}
+            >
               Proceder al pago
               <svg
                 width="14"

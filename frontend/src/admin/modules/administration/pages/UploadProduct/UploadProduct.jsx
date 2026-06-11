@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import "./UploadProduct.css";
 import { getCategories, createCategory } from "../../services/categoryService";
 import { createProduct } from "../../services/productService";
@@ -278,6 +279,10 @@ const VarianteRow = ({ variante, onChange, disabled }) => {
 
 // ─── Componente Principal ─────────────────────────────────────────────────────
 const UploadProduct = () => {
+  const navigate   = useNavigate();
+  const { slug }   = useParams();
+  const adminBase  = slug ? `/tienda/${slug}/admin` : '/admin';
+
   const [producto, setProducto] = useState(estadoInicial);
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
@@ -461,10 +466,8 @@ const UploadProduct = () => {
         variants,
       });
 
-      setSuccess("✅ Producto guardado correctamente.");
       producto.imagenes.forEach(img => URL.revokeObjectURL(img.previewUrl));
-      setProducto(estadoInicial());
-      setPrecioBase(""); setStockBase(""); setStockMinBase("");
+      navigate(`${adminBase}/productos`);
     } catch (err) {
       setError(err.message ?? "Error al guardar el producto.");
     } finally {

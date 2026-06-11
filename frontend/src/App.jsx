@@ -67,6 +67,15 @@ const MyStore             = lazy(() => import("./multi-tenant/pages/MyStore.jsx"
 const StorePage           = lazy(() => import("./multi-tenant/pages/StorePage.jsx"));
 const Transaction         = lazy(() => import("./multi-tenant/pages/Transaction/Transaction.jsx"));
 
+// ── Pagos ─────────────────────────────────────────────────────────────────────
+const PaymentSettings = lazy(() => import("./admin/modules/administration/pages/PaymentSettings/PaymentSettings.jsx"));
+const CheckoutPage    = lazy(() => import("./multi-tenant/pages/Checkout/CheckoutPage.jsx"));
+const CheckoutSuccess = lazy(() => import("./multi-tenant/pages/CheckoutResult/CheckoutSuccess.jsx"));
+const CheckoutFailure = lazy(() => import("./multi-tenant/pages/CheckoutResult/CheckoutFailure.jsx"));
+const CheckoutPending = lazy(() => import("./multi-tenant/pages/CheckoutResult/CheckoutPending.jsx"));
+const MyOrders        = lazy(() => import("./multi-tenant/pages/MyOrders/MyOrders.jsx"));
+const OrderDetail     = lazy(() => import("./multi-tenant/pages/OrderDetail/OrderDetail.jsx"));
+
 // ── CMS ───────────────────────────────────────────────────────────────────────
 const CMSEditor    = lazy(() => import("./multi-tenant/cms/CMSeditor.jsx"));
 const CMSAbout     = lazy(() => import("./multi-tenant/cms/CMSabout.jsx"));
@@ -167,6 +176,14 @@ export default function App() {
                   <Route path="/tienda/:slug/devoluciones"element={<StoreReturnsPage />} />
                   <Route path="/tienda/:slug/faq"         element={<StoreFaqPage />} />
                   <Route path="/tienda/:slug/nosotros"    element={<StoreAboutPage />} />
+
+                  {/* ── Checkout del cliente ─────────────────────────────── */}
+                  <Route path="/tienda/:slug/checkout"           element={<CheckoutPage />} />
+                  <Route path="/tienda/:slug/checkout/exitoso"   element={<CheckoutSuccess />} />
+                  <Route path="/tienda/:slug/checkout/fallido"   element={<CheckoutFailure />} />
+                  <Route path="/tienda/:slug/checkout/pendiente" element={<CheckoutPending />} />
+                  <Route path="/tienda/:slug/orders"             element={<MyOrders />} />
+                  <Route path="/tienda/:slug/orders/:orderId"    element={<OrderDetail />} />
                   <Route path="/transacciones" element={<Transaction />} />
                   <Route path="/mis-tiendas"   element={<MyStore />} />
 
@@ -194,6 +211,7 @@ export default function App() {
                     <Route path="promociones"         element={<PromotionsDashboard />} />
                     <Route path="productos"           element={<AdminProductsPage />} />
                     <Route path="productos/:id"       element={<AdminProductDetail />} />
+                    <Route path="pagos"               element={<PaymentSettings />} />
                     <Route path="cms"                 element={<CMSEditor />} />
                     <Route path="cms/about"           element={<CMSAbout />} />
                     <Route path="cms/contact"         element={<CMSContact />} />
@@ -219,6 +237,7 @@ export default function App() {
                       <Route path="promociones"         element={<PromotionsDashboard />} />
                       <Route path="productos"           element={<AdminProductsPage />} />
                       <Route path="productos/:id"       element={<AdminProductDetail />} />
+                      <Route path="pagos"               element={<PaymentSettings />} />
                       <Route path="cms"                 element={<CMSEditor />} />
                       <Route path="cms/about"           element={<CMSAbout />} />
                       <Route path="cms/contact"         element={<CMSContact />} />
