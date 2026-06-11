@@ -1,143 +1,304 @@
-/* ── ProductGrid ── */
-.vx-pgrid-root {
+/* ==========================================================================
+   VEXIO — Carrusel de Productos Premium (Horizontal Flow)
+   ========================================================================== */
+
+.vx-pcarousel-root {
+  padding-top: var(--vx-section-gap-sm, 24px);
+  padding-bottom: var(--vx-section-gap-sm, 24px);
   width: 100%;
-  padding: 0 0 60px;
+  position: relative;
 }
 
-.vx-pgrid-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+/* Cabecera con Controles Flexibles */
+.vx-pcarousel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
   gap: 16px;
 }
-@media (min-width: 640px)  { .vx-pgrid-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 1024px) { .vx-pgrid-grid { grid-template-columns: repeat(6, 1fr); } }
 
-/* ─ Card ─ */
-.vx-product-card {
+.vx-pcarousel-title-block h2 {
+  font-family: var(--vx-font, sans-serif);
+  font-size: clamp(1.25rem, 2.5vw, 1.6rem);
+  font-weight: 800;
+  color: var(--vx-text, #ffffff);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+/* Botones de Navegación del Carrusel */
+.vx-carousel-controls {
   display: flex;
-  flex-direction: column;
-  cursor: pointer;
+  align-items: center;
+  gap: 8px;
 }
 
-.vx-product-img-wrap {
-  position: relative;
-  aspect-ratio: 1 / 1;
-  border-radius: var(--vx-radius-lg);
-  overflow: hidden;
-  background: var(--vx-card2);
-  border: 1px solid var(--vx-border);
-  transition: border-color 0.25s;
-}
-.vx-product-card:hover .vx-product-img-wrap {
-  border-color: var(--vx-cyan-mid);
-}
-.vx-product-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.35s ease;
-  display: block;
-}
-.vx-product-card:hover .vx-product-img { transform: scale(1.05); }
-
-/* Badge */
-.vx-product-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 3px 9px;
-  background: var(--vx-cyan);
-  color: #ffffff;
-  font-size: 10px;
-  font-weight: 700;
-  border-radius: 99px;
-  letter-spacing: 0.04em;
-}
-
-/* Acciones hover */
-.vx-product-actions {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  opacity: 0;
-  transform: translateX(8px);
-  transition: opacity 0.25s, transform 0.25s;
-}
-.vx-product-card:hover .vx-product-actions {
-  opacity: 1;
-  transform: translateX(0);
-}
-.vx-product-action-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: rgba(5,5,5,0.75);
-  backdrop-filter: blur(6px);
-  border: 1px solid var(--vx-border2);
-  color: var(--vx-text);
+.vx-cc-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--vx-radius, 8px);
+  background: var(--vx-card, #121214);
+  border: 1px solid var(--vx-border, #202024);
+  color: var(--vx-text2, #a8a8b3);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  transition: 
+    background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
+    color 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
+    border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.1s ease;
 }
-.vx-product-action-btn:hover {
-  border-color: var(--vx-cyan);
-  color: var(--vx-cyan);
-}
-.vx-product-action-btn.is-wished { color: #ef4444; border-color: #ef4444; }
 
-/* Meta */
-.vx-product-meta {
-  padding: 10px 2px 0;
+.vx-cc-btn:hover {
+  background: var(--vx-card-hover, #1a1a1e);
+  border-color: var(--vx-border2, #323238);
+  color: var(--vx-text, #ffffff);
 }
+
+.vx-cc-btn:active {
+  transform: scale(0.93);
+}
+
+/* ── Deslizador Horizontal NATIVO (Scroll Snap con aceleración de GPU) ── */
+.vx-pcarousel-slider {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding-bottom: 16px; 
+  width: 100%;
+  will-change: scroll-position;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE10+ */
+}
+
+.vx-pcarousel-slider::-webkit-scrollbar {
+  display: none; /* Chrome, Safari y Opera */
+}
+
+/* ── Tarjeta de Producto Individual (Diseño Estilizado) ── */
+.vx-product-card {
+  flex: 0 0 calc(16.666% - 17px); /* Por defecto: 6 elementos exactos en pantallas Ultra-Wide */
+  min-width: 195px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: 
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Revelación progresiva controlada de forma segura por CSS */
+.vx-product-card.vx-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Envoltorio de Imagen */
+.vx-product-img-wrap {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--vx-radius-lg, 12px);
+  overflow: hidden;
+  background: var(--vx-card, #121214);
+  border: 1px solid var(--vx-border, #202024);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.vx-product-card:hover .vx-product-img-wrap {
+  border-color: var(--vx-cyan-mid, #00b4d8);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+.vx-product-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  display: block;
+}
+
+.vx-product-card:hover .vx-product-img {
+  transform: scale(1.04);
+}
+
+/* Chip / Badge superior */
+.vx-product-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 10px;
+  background: var(--vx-cyan, #00b4d8);
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  border-radius: 99px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+/* Capa flotante de acciones */
+.vx-product-actions {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 3;
+}
+
+.vx-product-card:hover .vx-product-actions {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.vx-product-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(12, 12, 16, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--vx-border2, #323238);
+  color: var(--vx-text, #ffffff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 
+    color 0.2s, 
+    border-color 0.2s, 
+    background-color 0.2s, 
+    transform 0.1s;
+}
+
+.vx-product-action-btn:hover {
+  border-color: var(--vx-cyan, #00b4d8);
+  color: var(--vx-cyan, #00b4d8);
+  background: var(--vx-card, #121214);
+}
+
+.vx-product-action-btn:active {
+  transform: scale(0.9);
+}
+
+.vx-product-action-btn.is-wished {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* Metadatos */
+.vx-product-meta {
+  padding: 12px 2px 0;
+}
+
 .vx-product-title {
-  font-size: 0.83rem;
-  font-weight: 400;
-  color: var(--vx-muted);
-  margin-bottom: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--vx-text2, #a8a8b3);
+  margin: 0 0 4px 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.3;
+  line-height: 1.4;
 }
+
 .vx-product-bottom {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
-}
-.vx-product-price {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--vx-text);
-}
-.vx-product-sales {
-  font-size: 0.72rem;
-  color: var(--vx-muted2);
-  white-space: nowrap;
+  gap: 8px;
 }
 
-/* Skeleton */
-.vx-product-skeleton {
-  aspect-ratio: 1 / 1;
-  border-radius: var(--vx-radius-lg);
-  background: linear-gradient(90deg, var(--vx-card) 25%, var(--vx-card2) 50%, var(--vx-card) 75%);
-  background-size: 200% 100%;
-  animation: vx-shimmer 1.4s infinite;
+.vx-product-price {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--vx-text, #ffffff);
 }
-.vx-product-card {
+
+.vx-product-sales {
+  font-size: 0.72rem;
+  color: var(--vx-muted, #737380);
+  font-weight: 500;
+}
+
+/* ── Esqueleto de Carga Receptivo (Skeletons) ── */
+.vx-product-skeleton-card {
+  flex: 0 0 calc(16.666% - 17px);
+  min-width: 195px;
   display: flex;
   flex-direction: column;
-  cursor: pointer;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity .4s ease, transform .4s ease;
+  gap: 10px;
 }
-.vx-product-card.vx-visible {
-  opacity: 1;
-  transform: translateY(0);
+
+.vx-product-skeleton-card .sk-img {
+  aspect-ratio: 1 / 1;
+  border-radius: var(--vx-radius-lg, 12px);
+  background: linear-gradient(90deg, var(--vx-card, #121214) 25%, var(--vx-card2, #202024) 50%, var(--vx-card, #121214) 75%);
+  background-size: 200% 100%;
+  animation: vx-shimmer 1.5s infinite linear;
+}
+
+.vx-product-skeleton-card .sk-text-1,
+.vx-product-skeleton-card .sk-text-2 {
+  height: 12px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--vx-card, #121214) 25%, var(--vx-card2, #202024) 50%, var(--vx-card, #121214) 75%);
+  background-size: 200% 100%;
+  animation: vx-shimmer 1.5s infinite linear;
+}
+.vx-product-skeleton-card .sk-text-1 { width: 75%; }
+.vx-product-skeleton-card .sk-text-2 { width: 40%; }
+
+@keyframes vx-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ==========================================================================
+   BREAKPOINTS RESPONSIVOS (Layout de Ajuste Elástico)
+   ========================================================================== */
+
+@media (max-width: 1400px) {
+  .vx-product-card, .vx-product-skeleton-card {
+    flex: 0 0 calc(20% - 16px); /* 5 columnas visibles */
+  }
+}
+
+@media (max-width: 1100px) {
+  .vx-product-card, .vx-product-skeleton-card {
+    flex: 0 0 calc(25% - 15px); /* 4 columnas visibles */
+  }
+}
+
+@media (max-width: 850px) {
+  .vx-product-card, .vx-product-skeleton-card {
+    flex: 0 0 calc(33.333% - 14px); /* 3 columnas visibles */
+  }
+}
+
+@media (max-width: 640px) {
+  .vx-product-card, .vx-product-skeleton-card {
+    flex: 0 0 calc(50% - 10px); /* 2 columnas visibles en mobile */
+    min-width: 145px;
+  }
+  .vx-pcarousel-slider {
+    gap: 14px;
+  }
+  .vx-product-actions {
+    opacity: 1; 
+    transform: translateX(0);
+  }
 }

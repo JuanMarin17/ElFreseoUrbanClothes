@@ -11,17 +11,23 @@ const ia = axios.create({
 ia.interceptors.request.use((config) => {
   const token = localStorage.getItem("jwt");
   const storeId = localStorage.getItem("storeId");
-  const role = localStorage.getItem("userRole");
+  // Store-specific role takes priority over JWT global role
+  const storedRole = localStorage.getItem("userRole");
 
   if (token) config.headers.Authorization = `Bearer ${token}`;
   if (storeId) config.headers["X-Store-Id"] = storeId;
-  if (role) config.headers["X-User-Role"] = role;
 
   if (token) {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
       if (payload.user_id) config.headers["X-User-Id"] = payload.user_id;
-    } catch {}
+      const role = (storedRole && storedRole !== "null") ? storedRole : payload.role;
+      if (role) config.headers["X-User-Role"] = role;
+    } catch {
+      if (storedRole && storedRole !== "null") config.headers["X-User-Role"] = storedRole;
+    }
+  } else if (storedRole && storedRole !== "null") {
+    config.headers["X-User-Role"] = storedRole;
   }
 
   return config;

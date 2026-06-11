@@ -55,6 +55,7 @@ export default function StorePage() {
 
         setStoreName(store.name ?? slug);
         setStoreId(resolvedStoreId);
+        localStorage.setItem("storeId", resolvedStoreId);
 
         // Verificar ownership via backend
         const myUserId = getUserIdFromJwt();

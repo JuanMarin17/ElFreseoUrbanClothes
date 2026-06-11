@@ -58,7 +58,7 @@ export default function CreateStoreSection() {
         {/* Header */}
         <div className="vx-cstore-header">
           <span className="vx-cstore-eyebrow">
-            <Store size={13} /> Para emprendedores
+            <Store size={13} />
           </span>
         <h2 className="vx-cstore-title">
           ¿Tienes un emprendimiento?<br />

@@ -2,13 +2,16 @@ import { useState, useCallback } from "react";
 import { sendChat, getSessions, getSessionHistory } from "./iaService";
 
 function getRole() {
+  // Store-specific role (OWNER, STORE_USER, ADMIN) takes priority over JWT global role (USER)
+  const stored = localStorage.getItem("userRole");
+  if (stored && stored !== "null") return stored;
   const jwt = localStorage.getItem("jwt");
-  if (!jwt) return localStorage.getItem("userRole") || null;
+  if (!jwt) return null;
   try {
     const payload = JSON.parse(atob(jwt.split(".")[1]));
-    return payload.role || localStorage.getItem("userRole") || null;
+    return payload.role || null;
   } catch {
-    return localStorage.getItem("userRole") || null;
+    return null;
   }
 }
 
@@ -23,7 +26,7 @@ function toBase64(file) {
 
 export function useIAAdmin() {
   const role = getRole();
-  const hasAccess = role === "ADMIN" || role === "OWNER";
+  const hasAccess = role === "ADMIN" || role === "OWNER" || role === "STORE_USER";
 
   const [sessionId, setSessionId]         = useState(null);
   const [messages, setMessages]           = useState([]);
