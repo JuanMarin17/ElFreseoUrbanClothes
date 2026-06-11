@@ -7,6 +7,7 @@ export default function StoreCatalog({
   searchQuery, clearFilters,
   addToCart, justAdded,
   searchCfg, onSearchChange,
+  storeId = null,
 }) {
   const { accent, btnR, fT, catalogBg, isDark, isMin, isUrb, isCls } = theme;
   const sectionTitle = isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.35)";
@@ -90,6 +91,7 @@ export default function StoreCatalog({
               theme={theme}
               isJustAdded={justAdded === i}
               onAddToCart={addToCart}
+              storeId={storeId}
             />
           ))}
         </div>

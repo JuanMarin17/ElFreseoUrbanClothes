@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Bell, Settings, Bot } from 'lucide-react';
+import { Search, Bell, Settings, Bot, Menu } from 'lucide-react';
 import './AdminHeader.css';
 import NotifModal from '../Modals/NotifModal/NotifModal.jsx';
 import SettingsModal from '../Modals/SettingsModal/SettingsModal';
@@ -16,6 +16,8 @@ const AdminHeader = ({
   showSettings = true,
   showAi = true,
   isSuperAdmin = false,
+  onToggleSidebar,
+  pageTitle,
 }) => {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -23,13 +25,30 @@ const AdminHeader = ({
   return (
     <>
       <header className="admin-top-bar">
+        {onToggleSidebar && (
+          <button
+            className="tool-btn hamburger-btn"
+            onClick={onToggleSidebar}
+            title="Menú"
+          >
+            <Menu size={20} />
+          </button>
+        )}
+
+        {pageTitle && (
+          <div className="top-bar-breadcrumb">
+            <span className="top-bar-breadcrumb-sep">/</span>
+            <span className="top-bar-breadcrumb-label">{pageTitle}</span>
+          </div>
+        )}
+
         <div className="search-box-terminal">
           <Search size={16} className="s-icon" />
           <input
             type="text"
             placeholder={searchPlaceholder}
             value={searchValue ?? ""}
-            onChange={onSearchChange}
+            onChange={onSearchChange ?? (() => {})}
           />
         </div>
 
@@ -45,14 +64,14 @@ const AdminHeader = ({
           )}
 
           {showBell && (
-            <button className="tool-btn" onClick={() => setIsNotifOpen(true)}>
+            <button className="tool-btn" onClick={() => setIsNotifOpen(true)} title="Notificaciones">
               <Bell size={18} />
               <span className="dot-alert" />
             </button>
           )}
 
           {showSettings && (
-            <button className="tool-btn" onClick={() => setIsSettingsOpen(true)}>
+            <button className="tool-btn" onClick={() => setIsSettingsOpen(true)} title="Configuración">
               <Settings size={18} />
             </button>
           )}

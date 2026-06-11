@@ -138,6 +138,7 @@ function extractBackendError(err) {
     for (const [key, value] of Object.entries(businessMap)) {
       if (msg.includes(key)) return value;
     }
+    return msg;
   }
 
   if (status === 400)

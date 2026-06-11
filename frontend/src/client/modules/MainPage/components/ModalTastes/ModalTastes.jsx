@@ -39,7 +39,7 @@ const QUESTIONS = [
   },
 ];
 
-const STORAGE_KEY = "freseo_tastes_completed";
+const STORAGE_KEY = "vexio_tastes_completed";
 
 const ModalTastes = () => {
   const [visible, setVisible] = useState(() => {

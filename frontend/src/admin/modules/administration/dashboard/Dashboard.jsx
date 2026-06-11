@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Plus } from 'lucide-react';
+import { Users, Plus, ShieldCheck, Ban, Activity } from 'lucide-react';
 import StatCard from '../components/StatCard/StatCard';
 import InfoCard from '../components/InfoCard/InfoCard';
 import UserTable from './components/UserTable/UserTable';
@@ -25,28 +25,50 @@ const Dashboard = () => {
     toggleStatus,
   } = useUsers(initialUsers);
 
+  const activeCount  = users.filter(u => u.status === 'ACTIVO').length;
+  const bannedCount  = users.filter(u => u.status === 'BANEADO').length;
+
   return (
     <div className="dashboard-view">
-      <header className="view-header">
-        <div className="header-title">
-          <h1>Gestión de Usuarios</h1>
-          <p>DIRECTORIO PRINCIPAL • {users.length} MOSTRADOS</p>
+
+      {/* ── Header Banner ──────────────────────────────────── */}
+      <header className="db-header">
+        <div className="db-glow db-glow--blue" />
+        <div className="db-glow db-glow--purple" />
+        <div className="db-header-content">
+          <div className="db-header-text">
+            <div className="db-eyebrow">
+              <Users size={11} />
+              Gestión de Usuarios
+            </div>
+            <h1 className="db-title">Panel de Administración</h1>
+            <p className="db-subtitle">
+              Directorio principal &middot; {users.length} usuarios registrados
+            </p>
+          </div>
+          <button className="btn-add" onClick={() => setIsModalOpen(true)}>
+            <Plus size={16} />
+            Añadir Usuario
+          </button>
         </div>
-        <button className="btn-add" onClick={() => setIsModalOpen(true)}>
-          <Plus size={18} /> AÑADIR USUARIO
-        </button>
       </header>
 
+      {/* ── Stats ──────────────────────────────────────────── */}
       <section className="dashboard-stats">
-        <StatCard label="ACTIVIDAD 24 H" value="482" percentage="12" icon={Users} />
+        <StatCard label="Actividad 24H"    value="482"          percentage="12" icon={Activity}     color="#3b82f6" />
+        <StatCard label="Usuarios Activos" value={activeCount}  percentage="8"  icon={ShieldCheck}  color="#22c55e" />
+        <StatCard label="Cuentas Baneadas" value={bannedCount}  percentage="0"  icon={Ban}          color="#ef4444" />
+        <StatCard label="Total Registros"  value={users.length} percentage="5"  icon={Users}        color="#8b5cf6" />
       </section>
 
+      {/* ── Tabla ──────────────────────────────────────────── */}
       <UserTable users={users} onEdit={handleEdit} onToggleStatus={toggleStatus} />
 
+      {/* ── Alertas ────────────────────────────────────────── */}
       <footer className="dashboard-footer-alerts">
-        <InfoCard color="blue"   title="BACKUP COMPLETADO"   desc="La base de datos se sincronizó hace 14 min." />
-        <InfoCard color="purple" title="NUEVAS SOLICITUDES"  desc="8 usuarios pendientes de verificación." />
-        <InfoCard color="red"    title="SEGURIDAD"           desc="3 intentos de login fallidos detectados." />
+        <InfoCard color="blue"   title="Backup Completado"   desc="La base de datos se sincronizó hace 14 min." />
+        <InfoCard color="purple" title="Nuevas Solicitudes"  desc="8 usuarios pendientes de verificación." />
+        <InfoCard color="red"    title="Alerta de Seguridad" desc="3 intentos de login fallidos detectados." />
       </footer>
 
       {isModalOpen && (

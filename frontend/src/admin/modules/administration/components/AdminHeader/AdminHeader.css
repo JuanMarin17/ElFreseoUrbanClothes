@@ -1,65 +1,148 @@
+/* ==========================================================================
+   ADMIN HEADER
+   ========================================================================== */
 .admin-top-bar {
-  height: 65px;
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  height: 10vh;
+  min-height: 10vh;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 30px;
-  border-bottom: 1px solid #141414;
+  border-bottom: 1px solid #1e1e2e;
   background: #080808;
+  flex-shrink: 0;
 }
 
+/* ── Hamburger (mobile-only) ───────────────────────────────────────────── */
+.hamburger-btn {
+  padding: 6px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+/* ── Search ────────────────────────────────────────────────────────────── */
 .search-box-terminal {
   display: flex;
   align-items: center;
   background: #111;
+  padding: 8px 14px;
+  border-radius: 8px;
+  width: 320px;
+  max-width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.search-box-terminal:focus-within {
+  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+  background: #0a0a14;
   padding: 8px 16px;
   border-radius: 6px;
   width: 350px;
-  border: 1px solid #1a1a1a;
+  border: 1px solid #252535;
 }
 
-.s-icon { color: #444; margin-right: 12px; }
+.s-icon { color: #3f3f46; margin-right: 10px; flex-shrink: 0; }
 
 .search-box-terminal input {
   background: transparent;
   border: none;
-  color: #fff;
+  color: #f4f4f5;
   outline: none;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   width: 100%;
 }
 
+.search-box-terminal input::placeholder {
+  color: #3f3f46;
+}
+
+/* ── Tool buttons ──────────────────────────────────────────────────────── */
 .top-bar-tools {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .tool-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
   background: transparent;
-  border: none;
-  outline: none;
-  color: #555;
+  border: 1px solid transparent;
+  color: #52525b;
   cursor: pointer;
   position: relative;
-  transition: 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition:
+    color 140ms ease,
+    background 140ms ease,
+    border-color 140ms ease,
+    transform 140ms ease;
+  outline: none;
 }
 
-.tool-btn:focus { outline: none; }
-.tool-btn:hover { color: #fff; }
+@media (hover: hover) {
+  .tool-btn:hover {
+    color: #f4f4f5;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.07);
+  }
+}
+
+.tool-btn:active {
+  transform: scale(0.93);
+}
+
+/* Hidden on desktop — comes AFTER .tool-btn to win the specificity tie */
+.admin-top-bar .hamburger-btn {
+  display: none;
+}
+
+/* ── Breadcrumb ────────────────────────────────────────────────────────── */
+.top-bar-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+
+.top-bar-breadcrumb-sep {
+  font-size: 0.78rem;
+  color: #27272a;
+  line-height: 1;
+  user-select: none;
+}
+
+.top-bar-breadcrumb-label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #52525b;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
 
 .tool-btn.ai-active {
   color: #3b82f6;
-  filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.6));
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.2);
 }
 
 .dot-alert {
   position: absolute;
-  top: 5px;
-  right: 10px;
+  top: 7px;
+  right: 7px;
   width: 6px;
   height: 6px;
   background: #3b82f6;
@@ -67,13 +150,14 @@
   box-shadow: 0 0 5px #3b82f6;
 }
 
-/* ── User pill ───────────────────────────────────────────────────────────── */
+/* ── User pill ─────────────────────────────────────────────────────────── */
 .top-bar-user {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding-left: 20px;
-  border-left: 1px solid #1a1a1a;
+  padding-left: 16px;
+  margin-left: 4px;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .top-bar-user-info {
@@ -86,25 +170,83 @@
   font-size: 0.55rem;
   color: #3b82f6;
   font-weight: 800;
-  letter-spacing: 1px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .top-bar-user-name {
   font-size: 0.72rem;
-  color: #aaa;
+  color: #a1a1aa;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .top-bar-avatar {
   width: 32px;
   height: 32px;
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  border-radius: 8px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.75rem;
   font-weight: 800;
   color: #3b82f6;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+/* Tablet: shrink search, hide user info text */
+@media (max-width: 900px) {
+  .search-box-terminal {
+    width: 220px;
+  }
+
+  .top-bar-user-info {
+    display: none;
+  }
+
+  .top-bar-user {
+    padding-left: 10px;
+  }
+}
+
+/* Mobile: hamburger appears, search goes full-flex */
+@media (max-width: 768px) {
+  .admin-top-bar {
+    padding: 0 16px;
+  }
+
+  .admin-top-bar .hamburger-btn {
+    display: flex;
+  }
+
+  .top-bar-breadcrumb {
+    display: none;
+  }
+
+  .search-box-terminal {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+  }
+
+  .top-bar-tools {
+    gap: 2px;
+  }
+}
+
+/* Very small: hide search entirely, tools stay visible */
+@media (max-width: 480px) {
+  .search-box-terminal {
+    display: none;
+  }
+
+  .top-bar-tools {
+    margin-left: auto;
+  }
 }

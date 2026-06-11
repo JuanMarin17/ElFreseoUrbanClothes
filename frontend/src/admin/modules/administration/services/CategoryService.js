@@ -3,14 +3,24 @@
 // Requiere: Authorization, X-Store-Id (GET); + X-User-Role (escritura)
 // ══════════════════════════════════════════════════════════════════════════════
 
-const BASE_URL = "http://46.225.21.146:8080/api/v1";
+const BASE_URL = import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
 
 const readHeaders = () => {
-  const jwt = localStorage.getItem("jwt");
+  const jwt     = localStorage.getItem("jwt");
   const storeId = localStorage.getItem("storeId");
   const h = {};
-  if (jwt) h["Authorization"] = `Bearer ${jwt}`;
-  if (storeId) h["X-Store-Id"] = storeId;
+  if (jwt) {
+    h["Authorization"] = `Bearer ${jwt}`;
+    try {
+      const payload = JSON.parse(atob(jwt.split(".")[1]));
+      if (payload.user_id) h["X-User-Id"] = payload.user_id;
+    } catch {}
+  }
+  if (storeId && storeId !== "null" && storeId !== "undefined") {
+    h["X-Store-Id"] = storeId;
+  } else {
+    throw new Error("No se encontró la tienda activa. Recarga la página e intenta de nuevo.");
+  }
   return h;
 };
 
@@ -24,7 +34,7 @@ const writeHeaders = () => ({
 const unwrap = async (res) => {
   const text = await res.text();
   if (res.status === 204 || !text) return [];
-  if (!res.ok) throw new Error(text || `Error ${res.status}`);
+  if (!res.ok) throw new Error(text || `Error   ${res.status}`);
   try {
     const parsed = JSON.parse(text);
     return parsed?.data ?? parsed;

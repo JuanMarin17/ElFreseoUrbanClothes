@@ -1,9 +1,9 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useStore } from "../pages/StoreContext";
+import { useStore } from "../pages/useStore";
 
 /**
  * Redirige al usuario al paso correcto si intenta saltar pasos.
- * requiredStep: número mínimo de completedStep necesario para acceder.
+ * requiredStep: numero minimo de completedStep necesario para acceder.
  */
 const STEP_PATHS = {
   0: "/plan",

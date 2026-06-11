@@ -50,7 +50,7 @@ const InventoryDashboard = () => {
     <div className="dashboard-container">
       <aside className="sidebar">
         <div className="sidebar-brand">
-          <h2>EL FRESEO</h2>
+          <h2>EL VEXIO</h2>
           <span>ADMIN DASHBOARD</span>
         </div>
         <nav className="sidebar-nav">

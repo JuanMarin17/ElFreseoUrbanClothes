@@ -2,8 +2,8 @@
   display: flex; /* Esto pone el Sidebar y el Main uno al lado del otro */
   height: 100vh;
   width: 100vw;
-  background-color: #080808;
   overflow: hidden;
+  background-color: #080808;
 }
 
 .admin-main-section {
@@ -19,19 +19,27 @@
   display: flex;
   flex-direction: row; /* Forzamos que el contenido y la IA se pongan lado a lado */
   flex: 1;            /* Ocupa todo el alto restante debajo del Header */
-  width: 100%;
+  width: auto;
+  min-height: 90vh;
   overflow: hidden;
   position: relative;
   background-color: #080808;
 }
 
 .admin-page-body {
-  flex: 1;            /* Se encogerá automáticamente cuando la IA se abra */
+  flex: 1;
   padding: 30px;
-  overflow-y: auto;   /* Solo esta parte tiene scroll si el contenido es largo */
+  overflow-y: auto;
   background-color: #080808;
-  min-width: 0;       /* ¡IMPORTANTE! Evita que las tablas grandes rompan el Flexbox */
-  transition: flex 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Transición suave de encogimiento */
+  min-width: 0;
+  min-height: 100%;
+  transition: flex 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Cuando la IA ocupa la página completa: quitar padding/scroll del wrapper */
+.admin-page-body:has(.ia-page) {
+  padding: 0;
+  overflow: hidden;
 }
 
 /* Scrollbar estilo terminal para el contenido */
@@ -42,4 +50,20 @@
 .admin-page-body::-webkit-scrollbar-thumb {
   background: #1a1a1a;
   border-radius: 10px;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* On mobile, sidebar is a fixed overlay — main section takes full width */
+  .admin-terminal-wrapper {
+    overflow: hidden;
+  }
+
+  .admin-main-section {
+    width: 100vw;
+  }
+
+  .admin-page-body {
+    padding: 16px;
+  }
 }

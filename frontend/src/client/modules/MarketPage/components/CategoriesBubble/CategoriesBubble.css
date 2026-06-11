@@ -1,84 +1,279 @@
-/* ── CategoriesBubble ── */
-.vx-cats-root {
-  width: 100%;
-  padding: 0 0 52px;
+/* ==========================================================================
+   VEXIO — Componente de Categorías Fluido y Moderno
+   ========================================================================== */
+
+.cb-root {
+  padding-top: var(--vx-section-gap-sm);
+  padding-bottom: var(--vx-section-gap-sm);
+  width: 100vw;
 }
 
-.vx-cats-scroll {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  overflow-x: auto;
-  padding: 8px 0 12px;
-  scrollbar-width: none;
-  justify-content: space-between;
-}
-.vx-cats-scroll::-webkit-scrollbar { display: none; }
-
-.vx-cat-item {
+/* ── Cabecera ── */
+.cb-header {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  flex-shrink: 0;
-  min-width: 86px;
-  background: none;
-  border: none;
-  padding: 0;
-  transition: transform 0.2s;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 40px;
 }
-.vx-cat-item:hover { transform: translateY(-3px); }
-.vx-cat-item:hover .vx-cat-circle {
-  border-color: var(--vx-cyan);
-  box-shadow: 0 0 0 3px var(--vx-cyan-dim), 0 0 18px var(--vx-cyan-mid);
-}
-.vx-cat-item.is-active .vx-cat-circle {
-  border-color: var(--vx-cyan);
-  box-shadow: 0 0 0 3px var(--vx-cyan-mid);
-}
-.vx-cat-item.is-active .vx-cat-label { color: var(--vx-cyan); }
 
-.vx-cat-circle {
-  width: 82px;
-  height: 82px;
+.cb-chip-dot {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  border: 2px solid var(--vx-border2);
+  background: var(--vx-cyan);
+  animation: cb-pulse 2s infinite ease-in-out;
+}
+
+@keyframes cb-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.8); }
+}
+
+.cb-title {
+  font-family: var(--vx-font);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: var(--vx-text);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+/* ── Grid Asimétrico y Fluido ── */
+.cb-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+/* ── Tarjetas Base (Look Orgánico Sin Encierro Pesado) ── */
+.cb-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 160px;
+  border-radius: var(--vx-radius-lg);
   overflow: hidden;
   background: var(--vx-card);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border-color 0.25s, box-shadow 0.25s;
+  border: 1px solid var(--vx-border);
+  padding: 20px;
+  cursor: pointer;
+  text-align: left;
+  background-clip: padding-box;
+  transition: 
+    border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.vx-cat-circle img {
+
+/* Efecto de elevación e iluminación sutil */
+@media (hover: hover) and (pointer: fine) {
+  .cb-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--vx-cyan-mid);
+    box-shadow:
+      0 12px 30px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(37, 99, 255, 0.05);
+  }
+}
+
+.cb-card:active {
+  transform: scale(0.97);
+}
+
+.cb-card:focus-visible {
+  outline: 2px solid var(--vx-cyan);
+  outline-offset: 4px;
+}
+
+/* ── Contenedor Multimedia ── */
+.cb-image-container {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.cb-image-container img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s;
+  filter: brightness(0.65) saturate(0.9);
+  transform: scale(1);
+  transition: 
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.6s ease;
+  will-change: transform;
 }
-.vx-cat-item:hover .vx-cat-circle img { transform: scale(1.1); }
 
-.vx-cat-circle--more {
-  background: var(--vx-card2);
+@media (hover: hover) and (pointer: fine) {
+  .cb-card:hover .cb-image-container img {
+    transform: scale(1.06);
+    filter: brightness(0.75) saturate(1.05);
+  }
+}
+
+/* Degradado Suave Líquido */
+.cb-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    var(--vx-bg) 0%,
+    rgba(6, 6, 8, 0.3) 60%,
+    transparent 100%
+  );
+  z-index: 2;
+}
+
+/* ── Texto de Etiquetas ── */
+.cb-label {
+  position: relative;
+  z-index: 3;
+  font-family: var(--vx-font);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--vx-text);
+  letter-spacing: -0.01em;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cb-card:hover .cb-label {
+    color: #ffffff;
+    transform: translateX(4px);
+  }
+}
+
+/* ── Estado Activo Eléctrico ── */
+.cb-card.cb-active {
+  border-color: var(--vx-cyan);
+  box-shadow: 
+    0 0 20px var(--vx-cyan-dim),
+    0 8px 24px rgba(37, 99, 255, 0.15);
+}
+
+.cb-card.cb-active .cb-label {
+  color: var(--vx-blue-bright);
+}
+
+.cb-card-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--vx-cyan);
+  border-radius: var(--vx-radius-lg);
+  z-index: 4;
+  pointer-events: none;
+  animation: cb-ring-expand 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes cb-ring-expand {
+  from { opacity: 0; transform: scale(1.04); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Tarjeta "Ver más" Estilo Glassmorphism Minimalista ── */
+.cb-card--more {
+  background: linear-gradient(135deg, var(--vx-card2) 0%, var(--vx-bg2) 100%);
+  border-color: var(--vx-border);
+  justify-content: center;
+  align-items: center;
+}
+
+.cb-more-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  z-index: 3;
+}
+
+.cb-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--vx-radius-lg);
+  background: var(--vx-cyan-dim);
+  border: 1px solid var(--vx-cyan-mid);
   color: var(--vx-cyan);
+  transition: 
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
-.vx-cat-label {
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: var(--vx-muted);
-  text-align: center;
-  font-family: var(--vx-font-body);
-  line-height: 1.2;
-  transition: color 0.2s;
+.cb-label-more {
+  font-family: var(--vx-font);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--vx-text2);
+  transition: color 0.3s ease;
 }
-.vx-cats-root {
+
+@media (hover: hover) and (pointer: fine) {
+  .cb-card--more:hover .cb-icon-box {
+    transform: scale(1.1) rotate(90deg);
+    background: var(--vx-cyan);
+    color: #ffffff;
+  }
+  .cb-card--more:hover .cb-label-more {
+    color: #ffffff;
+  }
+}
+
+/* ── Animación Escalada de Entrada (Staggered FadeUp) ── */
+.cb-reveal {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity .5s ease, transform .5s ease;
+  transform: translateY(24px);
+  transition: 
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.vx-cats-root.vx-visible {
+
+.cb-reveal.cb-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* ── Divisor de Flujo ── */
+.cb-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--vx-border) 20%, var(--vx-border) 80%, transparent);
+  margin-top: var(--vx-section-gap-sm);
+}
+
+/* ── Ajustes Responsivos Profesionales ── */
+@media (max-width: 1024px) {
+  .cb-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .cb-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .cb-card {
+    height: 130px;
+    padding: 16px;
+    border-radius: var(--vx-radius-lg);
+  }
+  .cb-label {
+    font-size: 0.9rem;
+  }
+  .cb-icon-box {
+    width: 40px;
+    height: 40px;
+  }
 }

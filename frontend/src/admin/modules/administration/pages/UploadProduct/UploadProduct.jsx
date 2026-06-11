@@ -6,14 +6,65 @@ import { getBrands, createBrand } from "../../services/BrandService";
 import { uploadFile } from "../../../../../utils/uploadService";
 
 const TALLAS = ["XS", "S", "M", "L", "XL", "XXL"];
-const COLORES = ["Negro", "Blanco", "Gris", "Rojo", "Azul", "Verde", "Amarillo", "Naranja", "Morado", "Rosa"];
+const COLORES = [
+  { name: "Negro",    hex: "#111111" },
+  { name: "Blanco",   hex: "#F0F0F0" },
+  { name: "Gris",     hex: "#6B7280" },
+  { name: "Rojo",     hex: "#DC2626" },
+  { name: "Azul",     hex: "#1D4ED8" },
+  { name: "Verde",    hex: "#16A34A" },
+  { name: "Amarillo", hex: "#CA8A04" },
+  { name: "Naranja",  hex: "#EA580C" },
+  { name: "Morado",   hex: "#7C3AED" },
+  { name: "Rosa",     hex: "#EC4899" },
+];
 const MAX_IMAGENES = 6;
 
 let _varId = 0;
-const newVariante = () => ({
-  _id: ++_varId,
-  sku: "", precio: "", stock: "", stockMin: "", talla: "", color: "",
-});
+
+// ─── SKU auto-generado ────────────────────────────────────────────────────────
+function generateSku(productName, color, size) {
+  const namePart = (productName || "PRD")
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9\s]/g, "")
+    .trim()
+    .split(/\s+/)
+    .map(w => w.slice(0, 3))
+    .slice(0, 2)
+    .join("");
+  const colorPart = color
+    ? color.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().slice(0, 3)
+    : "";
+  const sizePart = size ?? "";
+  return [namePart, colorPart, sizePart].filter(Boolean).join("-");
+}
+
+// ─── Combinaciones de variantes ───────────────────────────────────────────────
+function getCombos(tallas, colores) {
+  if (!tallas.length && !colores.length) return [{ talla: "", color: "" }];
+  if (!tallas.length) return colores.map(c => ({ talla: "", color: c }));
+  if (!colores.length) return tallas.map(t => ({ talla: t, color: "" }));
+  return colores.flatMap(c => tallas.map(t => ({ talla: t, color: c })));
+}
+
+function syncVariantes(prev, tallas, colores, productName) {
+  const combos = getCombos(tallas, colores);
+  const map = new Map(prev.map(v => [`${v.color}|${v.talla}`, v]));
+  return combos.map(({ talla, color }) => {
+    const existing = map.get(`${color}|${talla}`);
+    if (existing) return existing;
+    return {
+      _id: ++_varId,
+      sku: generateSku(productName, color, talla),
+      precio: "",
+      stock: "",
+      stockMin: "",
+      talla,
+      color,
+    };
+  });
+}
 
 const estadoInicial = () => ({
   name: "",
@@ -21,8 +72,9 @@ const estadoInicial = () => ({
   categoryIds: [],
   brandId: "",
   imagenes: [],
-  tiposVariante: { talla: true, color: true },
-  variantes: [newVariante()],
+  selectedTallas: [],
+  selectedColores: [],
+  variantes: [{ _id: ++_varId, sku: "", precio: "", stock: "", stockMin: "", talla: "", color: "" }],
 });
 
 // ─── BrandSelector ────────────────────────────────────────────────────────────
@@ -157,70 +209,69 @@ const CategoryChips = ({ categories, selectedIds, onToggle, onCategoryCreated, d
   );
 };
 
-// ─── VarianteCard ─────────────────────────────────────────────────────────────
-const VarianteCard = ({ variante, index, mostrarTalla, mostrarColor, onChange, onEliminar, disabled }) => {
+// ─── Fila de variante (tabla) ─────────────────────────────────────────────────
+const VarianteRow = ({ variante, onChange, disabled }) => {
   const set = (field, value) => onChange(variante._id, field, value);
+  const colorObj = COLORES.find(c => c.name === variante.color);
+  const hasColor = !!variante.color;
+  const hasTalla = !!variante.talla;
+  const label =
+    hasColor && hasTalla ? `${variante.color} · ${variante.talla}`
+    : hasColor            ? variante.color
+    : hasTalla            ? variante.talla
+    :                       "Única";
 
   return (
-    <div className="up-variante-card">
-      <div className="up-variante-header">
-        <span className="up-variante-title">Variante #{index + 1}</span>
-        <button type="button" className="up-btn-eliminar" onClick={() => onEliminar(variante._id)} disabled={disabled}>
-          🗑 Eliminar
-        </button>
+    <div className="up-vt-row">
+      <div className="up-vt-cell up-vt-cell--label">
+        <span className="up-vt-badge">
+          {colorObj && <span className="up-color-dot" style={{ background: colorObj.hex }} />}
+          {label}
+        </span>
       </div>
-      <div className="up-variante-row4">
-        <div className="up-field">
-          <label className="up-label">SKU <span className="up-req">*</span></label>
-          <input type="text" value={variante.sku} onChange={e => set("sku", e.target.value)}
-            placeholder="CAM-URBAN-NEG-S" disabled={disabled} className="up-input" />
-        </div>
-        <div className="up-field">
-          <label className="up-label">Precio <span className="up-req">*</span></label>
-          <input type="number" value={variante.precio} onChange={e => set("precio", e.target.value)}
-            placeholder="45000" min="0" disabled={disabled} className="up-input" />
-        </div>
-        <div className="up-field">
-          <label className="up-label">Stock <span className="up-req">*</span></label>
-          <input type="number" value={variante.stock} onChange={e => set("stock", e.target.value)}
-            placeholder="0" min="0" disabled={disabled} className="up-input" />
-        </div>
-        <div className="up-field">
-          <label className="up-label">Stock mín. <span className="up-req">*</span></label>
-          <input type="number" value={variante.stockMin} onChange={e => set("stockMin", e.target.value)}
-            placeholder="0" min="0" disabled={disabled} className="up-input" />
-        </div>
+      <div className="up-vt-cell">
+        <input
+          type="text"
+          value={variante.sku}
+          onChange={e => set("sku", e.target.value)}
+          placeholder="SKU"
+          disabled={disabled}
+          className="up-vt-input"
+        />
       </div>
-      {(mostrarTalla || mostrarColor) && (
-        <div className="up-variante-row2">
-          {mostrarTalla && (
-            <div className="up-field">
-              <label className="up-label">Talla</label>
-              <div className="up-select-wrap">
-                <select value={variante.talla} onChange={e => set("talla", e.target.value)}
-                  disabled={disabled} className="up-select">
-                  <option value="">Seleccionar</option>
-                  {TALLAS.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-                <span className="up-select-arrow">▾</span>
-              </div>
-            </div>
-          )}
-          {mostrarColor && (
-            <div className="up-field">
-              <label className="up-label">Color</label>
-              <div className="up-select-wrap">
-                <select value={variante.color} onChange={e => set("color", e.target.value)}
-                  disabled={disabled} className="up-select">
-                  <option value="">Seleccionar</option>
-                  {COLORES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-                <span className="up-select-arrow">▾</span>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+      <div className="up-vt-cell">
+        <input
+          type="number"
+          value={variante.precio}
+          onChange={e => set("precio", e.target.value)}
+          placeholder="45000"
+          min="0"
+          disabled={disabled}
+          className="up-vt-input"
+        />
+      </div>
+      <div className="up-vt-cell">
+        <input
+          type="number"
+          value={variante.stock}
+          onChange={e => set("stock", e.target.value)}
+          placeholder="0"
+          min="0"
+          disabled={disabled}
+          className="up-vt-input"
+        />
+      </div>
+      <div className="up-vt-cell">
+        <input
+          type="number"
+          value={variante.stockMin}
+          onChange={e => set("stockMin", e.target.value)}
+          placeholder="0"
+          min="0"
+          disabled={disabled}
+          className="up-vt-input"
+        />
+      </div>
     </div>
   );
 };
@@ -235,6 +286,12 @@ const UploadProduct = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [dragging, setDragging] = useState(false);
+
+  // Valores de "aplicar a todas"
+  const [precioBase, setPrecioBase] = useState("");
+  const [stockBase, setStockBase] = useState("");
+  const [stockMinBase, setStockMinBase] = useState("");
+
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -268,15 +325,64 @@ const UploadProduct = () => {
     }));
   };
 
+  // ── Tallas y Colores ──
+  const toggleTalla = (talla) => {
+    setProducto(prev => {
+      const newTallas = prev.selectedTallas.includes(talla)
+        ? prev.selectedTallas.filter(t => t !== talla)
+        : [...prev.selectedTallas, talla];
+      return {
+        ...prev,
+        selectedTallas: newTallas,
+        variantes: syncVariantes(prev.variantes, newTallas, prev.selectedColores, prev.name),
+      };
+    });
+  };
+
+  const toggleColor = (color) => {
+    setProducto(prev => {
+      const newColores = prev.selectedColores.includes(color)
+        ? prev.selectedColores.filter(c => c !== color)
+        : [...prev.selectedColores, color];
+      return {
+        ...prev,
+        selectedColores: newColores,
+        variantes: syncVariantes(prev.variantes, prev.selectedTallas, newColores, prev.name),
+      };
+    });
+  };
+
+  // ── Aplicar a todas ──
+  const handleApplyPrecio = () => {
+    if (!precioBase) return;
+    setProducto(prev => ({
+      ...prev,
+      variantes: prev.variantes.map(v => ({ ...v, precio: precioBase })),
+    }));
+  };
+
+  const handleApplyStock = () => {
+    if (!stockBase) return;
+    setProducto(prev => ({
+      ...prev,
+      variantes: prev.variantes.map(v => ({ ...v, stock: stockBase })),
+    }));
+  };
+
+  const handleApplyStockMin = () => {
+    if (!stockMinBase) return;
+    setProducto(prev => ({
+      ...prev,
+      variantes: prev.variantes.map(v => ({ ...v, stockMin: stockMinBase })),
+    }));
+  };
+
   // ── Imágenes ──
   const agregarImagen = async (file) => {
     if (!file?.type.startsWith("image/")) return;
     const previewUrl = URL.createObjectURL(file);
     setProducto(prev => {
-      if (prev.imagenes.length >= MAX_IMAGENES) {
-        URL.revokeObjectURL(previewUrl);
-        return prev;
-      }
+      if (prev.imagenes.length >= MAX_IMAGENES) { URL.revokeObjectURL(previewUrl); return prev; }
       return { ...prev, imagenes: [...prev.imagenes, { previewUrl, cloudinaryUrl: null, uploading: true }] };
     });
     try {
@@ -287,10 +393,10 @@ const UploadProduct = () => {
           img.previewUrl === previewUrl ? { ...img, cloudinaryUrl, uploading: false } : img
         ),
       }));
-    } catch (e){
+    } catch (e) {
       URL.revokeObjectURL(previewUrl);
       setProducto(prev => ({ ...prev, imagenes: prev.imagenes.filter(img => img.previewUrl !== previewUrl) }));
-      setError("Error al subir la imagen. Intenta de nuevo." + e);
+      setError("Error al subir la imagen. " + e);
     }
   };
 
@@ -301,16 +407,15 @@ const UploadProduct = () => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files ?? []);
-    const slots = MAX_IMAGENES - producto.imagenes.length;
-    files.slice(0, slots).forEach(f => agregarImagen(f));
+    files.slice(0, MAX_IMAGENES - producto.imagenes.length).forEach(f => agregarImagen(f));
     e.target.value = "";
   };
 
   const handleDrop = (e) => {
     e.preventDefault(); setDragging(false);
-    const files = Array.from(e.dataTransfer.files ?? []);
-    const slots = MAX_IMAGENES - producto.imagenes.length;
-    files.slice(0, slots).forEach(f => agregarImagen(f));
+    Array.from(e.dataTransfer.files ?? [])
+      .slice(0, MAX_IMAGENES - producto.imagenes.length)
+      .forEach(f => agregarImagen(f));
   };
 
   // ── Variantes ──
@@ -320,12 +425,6 @@ const UploadProduct = () => {
       variantes: prev.variantes.map(v => v._id === varId ? { ...v, [field]: value } : v),
     }));
   };
-
-  const agregarVariante = () => setProducto(prev => ({ ...prev, variantes: [...prev.variantes, newVariante()] }));
-  const eliminarVariante = (varId) => setProducto(prev => ({
-    ...prev,
-    variantes: prev.variantes.filter(v => v._id !== varId),
-  }));
 
   // ── Submit ──
   const handleSubmit = async () => {
@@ -344,7 +443,6 @@ const UploadProduct = () => {
 
     setLoading(true);
     try {
-      const imageUrls = producto.imagenes.map(img => img.cloudinaryUrl);
       const variants = producto.variantes.map(v => ({
         sku: v.sku.trim(),
         price: Number(v.precio),
@@ -359,13 +457,14 @@ const UploadProduct = () => {
         description: producto.description ?? "",
         brandId: producto.brandId || null,
         categoryIds: producto.categoryIds,
-        images: imageUrls,
+        images: producto.imagenes.map(img => img.cloudinaryUrl),
         variants,
       });
 
       setSuccess("✅ Producto guardado correctamente.");
       producto.imagenes.forEach(img => URL.revokeObjectURL(img.previewUrl));
       setProducto(estadoInicial());
+      setPrecioBase(""); setStockBase(""); setStockMinBase("");
     } catch (err) {
       setError(err.message ?? "Error al guardar el producto.");
     } finally {
@@ -376,15 +475,18 @@ const UploadProduct = () => {
   const handleCancelar = () => {
     producto.imagenes.forEach(img => URL.revokeObjectURL(img.previewUrl));
     setProducto(estadoInicial());
+    setPrecioBase(""); setStockBase(""); setStockMinBase("");
     setError(null); setSuccess(null);
   };
+
+  const totalVariantes = producto.variantes.length;
+  const hayVariantes = totalVariantes > 0;
 
   return (
     <div className="up-wrapper">
       {/* ── Header ── */}
       <div className="up-header">
         <div className="up-header-left">
-          <button type="button" className="up-back-btn" onClick={handleCancelar} title="Volver">←</button>
           <div>
             <h1 className="up-page-title">Crear producto</h1>
             <nav className="up-breadcrumb">Productos › Crear nuevo producto</nav>
@@ -405,13 +507,12 @@ const UploadProduct = () => {
         {success && <div className="up-alert up-alert--success">{success}</div>}
         {loadingMeta && <div className="up-alert up-alert--info">Cargando datos…</div>}
 
-        {/* ── Sección 1: Información básica ── */}
+        {/* ── 1. Información básica ── */}
         <section className="up-section">
           <div className="up-section-head">
             <h2 className="up-section-title">1. Información básica</h2>
             <p className="up-section-desc">Completa los datos principales de tu producto.</p>
           </div>
-
           <div className="up-two-col">
             <div className="up-field">
               <label className="up-label">Nombre del producto <span className="up-req">*</span></label>
@@ -422,25 +523,22 @@ const UploadProduct = () => {
             <BrandSelector brands={brands} value={producto.brandId} onChange={handleChange}
               onBrandCreated={handleBrandCreated} disabled={loading || loadingMeta} />
           </div>
-
           <div className="up-field">
             <label className="up-label">Descripción <span className="up-opt">(opcional)</span></label>
             <textarea name="description" value={producto.description} onChange={handleChange}
               placeholder="Camiseta de algodón 100% unisex" disabled={loading} className="up-textarea" />
           </div>
-
           <CategoryChips categories={categories} selectedIds={producto.categoryIds}
             onToggle={handleCategoryToggle} onCategoryCreated={handleCategoryCreated}
             disabled={loading || loadingMeta} />
         </section>
 
-        {/* ── Sección 2: Imágenes ── */}
+        {/* ── 2. Imágenes ── */}
         <section className="up-section">
           <div className="up-section-head">
             <h2 className="up-section-title">2. Imágenes del producto</h2>
-            <p className="up-section-desc">Sube hasta 6 imágenes. Solo se permiten URLs de Cloudinary.</p>
+            <p className="up-section-desc">Sube hasta 6 imágenes.</p>
           </div>
-
           <div
             className={`up-drop-zone${dragging ? " up-drop-zone--active" : ""}`}
             onClick={() => producto.imagenes.length < MAX_IMAGENES && fileInputRef.current?.click()}
@@ -456,7 +554,6 @@ const UploadProduct = () => {
             <span className="up-drop-text">+ Subir imagen</span>
             <small className="up-drop-hint">PNG / JPG · Máx {MAX_IMAGENES} imágenes · Cloudinary</small>
           </div>
-
           {producto.imagenes.length > 0 && (
             <div className="up-image-grid">
               {producto.imagenes.map((img, i) => (
@@ -485,47 +582,142 @@ const UploadProduct = () => {
           )}
         </section>
 
-        {/* ── Sección 3: Variantes ── */}
+        {/* ── 3. Tallas, colores y variantes ── */}
         <section className="up-section">
           <div className="up-section-head">
-            <h2 className="up-section-title">3. Variantes del producto <span className="up-req">*</span></h2>
-            <p className="up-section-desc">Todo producto necesita al menos una variante con SKU, precio y stock.</p>
+            <h2 className="up-section-title">3. Tallas y colores <span className="up-req">*</span></h2>
+            <p className="up-section-desc">
+              Selecciona las tallas y colores disponibles. Las variantes se generan automáticamente.
+            </p>
           </div>
 
-          <div className="up-variant-config">
-            <div className="up-config-row">
-              <span className="up-config-label">¿Este producto maneja tallas o colores?</span>
-              <label className="up-check-label">
-                <input type="checkbox" checked={producto.tiposVariante.talla}
-                  onChange={e => setProducto(prev => ({ ...prev, tiposVariante: { ...prev.tiposVariante, talla: e.target.checked } }))} />
-                Talla
-              </label>
-              <label className="up-check-label">
-                <input type="checkbox" checked={producto.tiposVariante.color}
-                  onChange={e => setProducto(prev => ({ ...prev, tiposVariante: { ...prev.tiposVariante, color: e.target.checked } }))} />
-                Color
-              </label>
-              <button type="button" className="up-btn-add-variant" onClick={agregarVariante} disabled={loading}>
-                + Agregar variante
-              </button>
+          {/* Selector de tallas y colores */}
+          <div className="up-matrix">
+            <div className="up-matrix-row">
+              <span className="up-matrix-label">Tallas</span>
+              <div className="up-size-chips">
+                {TALLAS.map(t => (
+                  <button
+                    key={t}
+                    type="button"
+                    className={`up-size-chip${producto.selectedTallas.includes(t) ? " up-size-chip--on" : ""}`}
+                    onClick={() => toggleTalla(t)}
+                    disabled={loading}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="up-matrix-row">
+              <span className="up-matrix-label">Colores</span>
+              <div className="up-color-pills">
+                {COLORES.map(({ name, hex }) => (
+                  <button
+                    key={name}
+                    type="button"
+                    className={`up-color-pill${producto.selectedColores.includes(name) ? " up-color-pill--on" : ""}`}
+                    onClick={() => toggleColor(name)}
+                    disabled={loading}
+                  >
+                    <span className="up-color-dot" style={{ background: hex }} />
+                    {name}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          {producto.variantes.map((v, i) => (
-            <VarianteCard key={v._id} variante={v} index={i}
-              mostrarTalla={producto.tiposVariante.talla} mostrarColor={producto.tiposVariante.color}
-              onChange={handleVarianteChange} onEliminar={eliminarVariante} disabled={loading} />
-          ))}
-
-          <div className="up-add-variant-bottom">
-            <button type="button" className="up-btn-add-variant" onClick={agregarVariante} disabled={loading}>
-              + Agregar variante
-            </button>
+          {/* Resumen */}
+          <div className="up-variants-summary">
+            <span className="up-variants-count">
+              {totalVariantes === 1 && !producto.selectedTallas.length && !producto.selectedColores.length
+                ? "1 variante (sin talla ni color)"
+                : `${totalVariantes} variante${totalVariantes !== 1 ? "s" : ""}`}
+            </span>
           </div>
+
+          {/* Aplicar a todas */}
+          {hayVariantes && (
+            <div className="up-apply-bar">
+              <div className="up-apply-group">
+                <span className="up-apply-label">Precio base</span>
+                <div className="up-apply-row">
+                  <input
+                    type="number"
+                    className="up-apply-input"
+                    placeholder="45000"
+                    value={precioBase}
+                    onChange={e => setPrecioBase(e.target.value)}
+                    min="0"
+                    disabled={loading}
+                  />
+                  <button type="button" className="up-apply-btn" onClick={handleApplyPrecio} disabled={loading || !precioBase}>
+                    Aplicar a todas
+                  </button>
+                </div>
+              </div>
+              <div className="up-apply-group">
+                <span className="up-apply-label">Stock base</span>
+                <div className="up-apply-row">
+                  <input
+                    type="number"
+                    className="up-apply-input"
+                    placeholder="10"
+                    value={stockBase}
+                    onChange={e => setStockBase(e.target.value)}
+                    min="0"
+                    disabled={loading}
+                  />
+                  <button type="button" className="up-apply-btn" onClick={handleApplyStock} disabled={loading || !stockBase}>
+                    Aplicar a todas
+                  </button>
+                </div>
+              </div>
+              <div className="up-apply-group">
+                <span className="up-apply-label">Stock mínimo base</span>
+                <div className="up-apply-row">
+                  <input
+                    type="number"
+                    className="up-apply-input"
+                    placeholder="3"
+                    value={stockMinBase}
+                    onChange={e => setStockMinBase(e.target.value)}
+                    min="0"
+                    disabled={loading}
+                  />
+                  <button type="button" className="up-apply-btn" onClick={handleApplyStockMin} disabled={loading || !stockMinBase}>
+                    Aplicar a todas
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tabla de variantes */}
+          {hayVariantes && (
+            <div className="up-vt-wrapper">
+              <div className="up-vt-head">
+                <div className="up-vt-cell up-vt-cell--label">Variante</div>
+                <div className="up-vt-cell">SKU <span className="up-req">*</span></div>
+                <div className="up-vt-cell">Precio <span className="up-req">*</span></div>
+                <div className="up-vt-cell">Stock <span className="up-req">*</span></div>
+                <div className="up-vt-cell">Stock mín.</div>
+              </div>
+              {producto.variantes.map(v => (
+                <VarianteRow
+                  key={v._id}
+                  variante={v}
+                  onChange={handleVarianteChange}
+                  disabled={loading}
+                />
+              ))}
+            </div>
+          )}
         </section>
 
         <div className="up-footer-note">
-          ℹ Al guardar, recibirás los IDs de cada variante. Úsalos para agregar productos al carrito y gestionar pedidos.
+          ℹ Puedes cambiar el precio o stock de cualquier variante individualmente después de aplicar los valores base.
         </div>
       </div>
     </div>

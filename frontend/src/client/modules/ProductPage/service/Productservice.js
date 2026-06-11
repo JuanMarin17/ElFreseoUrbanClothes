@@ -1,7 +1,6 @@
 import axios from "axios";
 
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL || "http://46.225.21.146:8080/api";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://46.225.21.146:8080/api/v1";
 
 const productApi = axios.create({
   baseURL: API_BASE,
@@ -9,9 +8,33 @@ const productApi = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+/** Resuelve el storeId desde localStorage o desde un query param (?storeId=) en la URL */
+function resolveStoreId() {
+  const fromStorage = localStorage.getItem("storeId");
+  if (fromStorage && fromStorage !== "null" && fromStorage !== "undefined") return fromStorage;
+  const fromUrl = new URLSearchParams(window.location.search).get("storeId");
+  if (fromUrl) {
+    localStorage.setItem("storeId", fromUrl);
+    return fromUrl;
+  }
+  return null;
+}
+
 productApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem("vx_token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  const jwt     = localStorage.getItem("jwt");
+  const storeId = resolveStoreId();
+
+  if (jwt && jwt !== "null") {
+    config.headers.Authorization = `Bearer ${jwt}`;
+    try {
+      const decoded = JSON.parse(atob(jwt.split(".")[1]));
+      if (decoded.user_id) config.headers["X-User-Id"]   = decoded.user_id;
+      if (decoded.role)    config.headers["X-User-Role"] = decoded.role;
+    } catch { /* token malformado */ }
+  }
+  if (storeId) {
+    config.headers["X-Store-Id"] = storeId;
+  }
   return config;
 });
 
@@ -84,6 +107,7 @@ function normalizeColors(variants = []) {
   const seen = new Set();
   return variants
     .filter((v) => {
+      if (!v.color) return false;          // descarta variantes sin color
       if (seen.has(v.color)) return false;
       seen.add(v.color);
       return true;
@@ -110,6 +134,7 @@ function normalizeSizes(variants = []) {
   const sizeMap = new Map();
 
   variants.forEach((v) => {
+    if (!v.size) return;                   // descarta variantes sin talla
     if (!sizeMap.has(v.size)) {
       sizeMap.set(v.size, { available: false });
     }
@@ -163,7 +188,11 @@ function totalStock(variants = []) {
  * @param {{ message, status, data }} response
  */
 function normalizeProduct(response) {
-  const d = response.data;
+  const d = response?.data ?? response;
+
+  if (!d || (!d.productId && !d.id)) {
+    throw new Error("El producto no fue encontrado o la respuesta es inválida.");
+  }
 
   const price = d.variants?.[0]?.price ?? 0;
 
@@ -216,30 +245,65 @@ export const fetchProductById = async (productId) => {
 };
 
 /**
- * Obtiene las reseñas paginadas de un producto.
- * GET /api/products/:id/reviews?page=0&size=10
+ * Reseñas: el endpoint no está implementado en el backend todavía.
+ * Retorna estructura vacía para no bloquear la carga de la página.
  */
-export const fetchProductReviews = (productId, page = 0, size = 10) =>
-  productApi.get(`/products/${productId}/reviews`, { params: { page, size } });
+export const fetchProductReviews = (_productId, _page = 0, _size = 10) =>
+  Promise.resolve({ content: [], last: true, totalElements: 0 });
 
 /**
- * Obtiene productos relacionados.
- * GET /api/products/:id/related?limit=4
+ * Productos relacionados: el backend no tiene un endpoint /related.
+ * Obtiene todos los productos de la tienda y filtra los primeros `limit`
+ * que no sean el producto actual.
  */
-export const fetchRelatedProducts = (productId, limit = 4) =>
-  productApi.get(`/products/${productId}/related`, { params: { limit } });
+export const fetchRelatedProducts = async (productId, limit = 4) => {
+  const urlStoreId = new URLSearchParams(window.location.search).get("sid");
+  const storeId = urlStoreId || localStorage.getItem("storeId");
+  if (!storeId || storeId === "null") return [];
+
+  try {
+    const wrapper = await productApi.get("/products/all");
+    const list = Array.isArray(wrapper?.data) ? wrapper.data
+               : Array.isArray(wrapper)        ? wrapper
+               : [];
+
+    const fmt = new Intl.NumberFormat("es-CO", {
+      style: "currency", currency: "COP", maximumFractionDigits: 0,
+    });
+
+    return list
+      .filter((p) => (p.productId ?? p.id) !== productId && p.status === "ACTIVE")
+      .slice(0, limit)
+      .map((p) => ({
+        id:             p.productId ?? p.id,
+        name:           p.name,
+        categoryName:   p.categories?.[0] ?? "",
+        priceFormatted: fmt.format(p.variants?.[0]?.price ?? 0),
+        rating:         null,
+        reviewCount:    0,
+        thumbnailUrl:   p.images?.[0]?.url ?? null,
+      }));
+  } catch {
+    return [];
+  }
+};
 
 /**
- * Agrega un ítem al carrito.
- * POST /api/cart/items
- *
- * @param {{ variantId, quantity }} payload
+ * Agrega un ítem al carrito usando el cartService real.
+ * Requiere storeId en localStorage y JWT activo.
  */
-export const addToCart = (payload) => productApi.post("/cart/items", payload);
+export const addToCart = async ({ productId, variantId, quantity }) => {
+  const storeId = localStorage.getItem("storeId");
+  if (!storeId || storeId === "null") {
+    throw new Error("No se encontró la tienda. Inicia sesión nuevamente.");
+  }
+  const { addItem } = await import("../../../multi-tenant/pages/services/cartService.js");
+  return addItem(storeId, { productId, variantId, quantity });
+};
 
 /**
  * Alterna el estado de wishlist.
- * POST /api/wishlist/toggle
+ * Endpoint pendiente de implementación en el backend.
  */
-export const toggleWishlist = (payload) =>
-  productApi.post("/wishlist/toggle", payload);
+export const toggleWishlist = (_payload) =>
+  Promise.resolve({ wishlisted: true });

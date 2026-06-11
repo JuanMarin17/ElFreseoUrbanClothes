@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useStore } from "../../pages/StoreContext";
+import { useStore } from "../../pages/useStore";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import "../../components/styles/LayoutSelect.css";
 import SelectLayout from "./SelectLayout.jsx";
 import { Layout1 } from "./Layout1.jsx";
@@ -14,19 +15,19 @@ const layouts = [
   {
     id: "minimalista",
     title: "MINIMALISTA",
-    description: "Diseño limpio y elegante, enfocado en el producto.",
+    description: "Diseno limpio y elegante, enfocado en el producto.",
     img: layout1,
   },
   {
     id: "urbano",
     title: "URBANO / STREETWEAR",
-    description: "Diseño impactante y moderno, ideal para marcas urbanas.",
+    description: "Diseno impactante y moderno, ideal para marcas urbanas.",
     img: layout2,
   },
   {
     id: "clasico",
-    title: "CLÁSICO ECOMMERCE",
-    description: "Diseño tradicional, enfocado en conversión y catálogo.",
+    title: "CLASICO ECOMMERCE",
+    description: "Diseno tradicional, enfocado en conversion y catalogo.",
     img: layout3,
   },
 ];
@@ -39,18 +40,18 @@ const LayoutSelect = () => {
   const [selected, setSelected] = useState(state.layout?.id ?? "minimalista");
   const [showPreview, setShowPreview] = useState(false);
 
-  // Cuando elige un layout: guarda selección y muestra preview
+  // Cuando elige un layout: guarda seleccion y muestra preview
   const handleSelect = (id) => {
     setSelected(id);
     setShowPreview(true);
   };
 
-  // Flecha atrás — guarda progreso y vuelve al paso anterior (pagos)
+  // Flecha atras " guarda progreso y vuelve al paso anterior (pagos)
   const handleBack = () => {
     navigate("/crear-tienda/pagos");
   };
 
-  // Continuar — guarda layout y avanza al paso 4
+  // Continuar " guarda layout y avanza al paso 4
   const handleContinue = () => {
     const layoutData = layouts.find((l) => l.id === selected);
     completeStep(3, layoutData);
@@ -63,12 +64,12 @@ const LayoutSelect = () => {
 
       <main className="layout-main-content">
 
-        {/* — VISTA: Selección de layout — */}
+        {/* " VISTA: Seleccion de layout " */}
         {!showPreview && (
           <section className="selection-area">
 
             <div className="selection-header">
-              {/* Flecha atrás */}
+              {/* Flecha atras */}
               <button
                 onClick={handleBack}
                 style={{
@@ -80,9 +81,7 @@ const LayoutSelect = () => {
                   padding: "0",
                 }}
                 title="Volver al paso anterior"
-              >
-                ←
-              </button>
+              ><ArrowLeft size={16} /></button>
               <div>
                 <h1>ELEGIR LAYOUT</h1>
                 <p>Selecciona la estructura base de tu tienda</p>
@@ -108,17 +107,17 @@ const LayoutSelect = () => {
           </section>
         )}
 
-        {/* — VISTA: Preview del layout elegido — */}
+        {/* " VISTA: Preview del layout elegido " */}
         {showPreview && (
           <section className="preview-area">
 
             <div className="preview-topbar">
-              {/* Volver a la selección */}
+              {/* Volver a la seleccion */}
               <button
                 className="btn-back-preview"
                 onClick={() => setShowPreview(false)}
               >
-                ← Cambiar layout
+                <ArrowLeft size={14} /> Cambiar layout
               </button>
 
               <span className="preview-label">
@@ -129,7 +128,7 @@ const LayoutSelect = () => {
               </span>
 
               <button className="btn-continue-small" onClick={handleContinue}>
-                CONFIRMAR Y CONTINUAR →
+                CONFIRMAR Y CONTINUAR <ArrowRight size={14} />
               </button>
             </div>
 
