@@ -1,37 +1,45 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Outlet, useParams, useLocation } from 'react-router-dom';
-import Sidebar from '../Sidebar/Sidebar';
-import AdminHeader from '../AdminHeader/AdminHeader';
-import IAAdmin from '../../pages/IAAdmin/AIAdmin';
-import { getStoreBySlug, getStoresByUser } from '../../../../../multi-tenant/pages/services/storeService';
+import { useEffect, useMemo, useState } from "react";
+import { Outlet, useLocation, useParams } from "react-router-dom";
+import {
+  getStoreBySlug,
+  getStoresByUser,
+} from "../../../../../multi-tenant/pages/services/storeService";
+import IAAdmin from "../../pages/IAAdmin/AIAdmin";
+import AdminHeader from "../AdminHeader/AdminHeader";
+import Sidebar from "../Sidebar/Sidebar";
 
-import './AdminLayout.css';
+import "./AdminLayout.css";
 
 const ROUTE_TITLES = {
-  dashboard:         'Dashboard',
-  'subir-producto':  'Subir Producto',
-  'editar-producto': 'Editar Producto',
-  inventario:        'Inventario',
-  usuarios:          'Gestionar Usuarios',
-  report:            'Informes',
-  pedidos:           'Ver Pedidos',
-  alertas:           'Alertas de Stock',
-  proveedores:       'Proveedores',
-  promociones:       'Promociones',
-  productos:         'Productos',
-  cms:               'Contenido CMS',
-  IA:                'Asistente IA',
+  dashboard: "Dashboard",
+  "subir-producto": "Subir Producto",
+  "editar-producto": "Editar Producto",
+  inventario: "Inventario",
+  usuarios: "Gestionar Usuarios",
+  report: "Informes",
+  pedidos: "Ver Pedidos",
+  alertas: "Alertas de Stock",
+  proveedores: "Proveedores",
+  promociones: "Promociones",
+  productos: "Productos",
+  cms: "Contenido CMS",
+  IA: "Asistente IA",
 };
 
 function parseUserFromJwt() {
   try {
-    const jwt = localStorage.getItem('jwt');
+    const jwt = localStorage.getItem("jwt");
     if (!jwt) return null;
-    const decoded = JSON.parse(atob(jwt.split('.')[1]));
+    const decoded = JSON.parse(atob(jwt.split(".")[1]));
     return {
       userName: decoded.sub ?? null,
-      userRole: localStorage.getItem('userRole') ?? decoded.role ?? 'OWNER',
+      userRole: localStorage.getItem("userRole") ?? decoded.role ?? "OWNER",
     };
+  } catch {
+    return null;
+  }
+}
+
 function getUserIdFromJwt() {
   try {
     const jwt = localStorage.getItem("jwt");
@@ -56,7 +64,7 @@ const AdminLayout = () => {
   const userInfo = useMemo(() => parseUserFromJwt(), []);
 
   const pageTitle = useMemo(() => {
-    const segments = location.pathname.split('/').filter(Boolean);
+    const segments = location.pathname.split("/").filter(Boolean);
     const last = segments[segments.length - 1];
     return ROUTE_TITLES[last] ?? null;
   }, [location.pathname]);
@@ -108,7 +116,8 @@ const AdminLayout = () => {
       getStoresByUser(userId)
         .then((data) => {
           const list = Array.isArray(data) ? data : (data?.data ?? []);
-          const id = list[0]?.storeId ?? list[0]?.store_id ?? list[0]?.id ?? null;
+          const id =
+            list[0]?.storeId ?? list[0]?.store_id ?? list[0]?.id ?? null;
           if (id) {
             localStorage.setItem("storeId", id);
             const role = list[0]?.role ?? "OWNER";
@@ -135,7 +144,7 @@ const AdminLayout = () => {
           showBell={true}
           showSettings={true}
           isSuperAdmin={false}
-          onToggleSidebar={() => setIsSidebarOpen(o => !o)}
+          onToggleSidebar={() => setIsSidebarOpen((o) => !o)}
           userName={userInfo?.userName}
           userRole={userInfo?.userRole}
           pageTitle={pageTitle}
