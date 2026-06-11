@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://46.225.21.146:8080/api";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://46.225.21.146:8080/api/v1";
 
 const productApi = axios.create({
   baseURL: API_BASE,
@@ -8,11 +8,28 @@ const productApi = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+/** Resuelve el storeId desde localStorage o desde un query param (?storeId=) en la URL */
+function resolveStoreId() {
+  const fromStorage = localStorage.getItem("storeId");
+  if (fromStorage && fromStorage !== "null" && fromStorage !== "undefined") return fromStorage;
+  const fromUrl = new URLSearchParams(window.location.search).get("storeId");
+  if (fromUrl) {
+    localStorage.setItem("storeId", fromUrl);
+    return fromUrl;
+  }
+  return null;
+}
+
 productApi.interceptors.request.use((config) => {
+<<<<<<< HEAD
   const jwt = localStorage.getItem("jwt");
   // ?sid query param takes priority — set by store product cards to avoid stale localStorage storeId
   const urlStoreId = new URLSearchParams(window.location.search).get("sid");
   const storeId = urlStoreId || localStorage.getItem("storeId");
+=======
+  const jwt     = localStorage.getItem("jwt");
+  const storeId = resolveStoreId();
+>>>>>>> a40250fda6fc179c3f9ad65912cae7e59d05f9da
 
   if (jwt && jwt !== "null") {
     config.headers.Authorization = `Bearer ${jwt}`;
@@ -20,9 +37,9 @@ productApi.interceptors.request.use((config) => {
       const decoded = JSON.parse(atob(jwt.split(".")[1]));
       if (decoded.user_id) config.headers["X-User-Id"]   = decoded.user_id;
       if (decoded.role)    config.headers["X-User-Role"] = decoded.role;
-    } catch { /* token malformado, se ignora */ }
+    } catch { /* token malformado */ }
   }
-  if (storeId && storeId !== "null") {
+  if (storeId) {
     config.headers["X-Store-Id"] = storeId;
   }
   return config;
@@ -279,12 +296,17 @@ export const fetchRelatedProducts = async (productId, limit = 4) => {
 };
 
 /**
- * Agrega un ítem al carrito.
- * Endpoint pendiente de implementación en el backend.
- * Por ahora resuelve con éxito para no bloquear la UX.
+ * Agrega un ítem al carrito usando el cartService real.
+ * Requiere storeId en localStorage y JWT activo.
  */
-export const addToCart = (_payload) =>
-  Promise.resolve({ success: true });
+export const addToCart = async ({ productId, variantId, quantity }) => {
+  const storeId = localStorage.getItem("storeId");
+  if (!storeId || storeId === "null") {
+    throw new Error("No se encontró la tienda. Inicia sesión nuevamente.");
+  }
+  const { addItem } = await import("../../../multi-tenant/pages/services/cartService.js");
+  return addItem(storeId, { productId, variantId, quantity });
+};
 
 /**
  * Alterna el estado de wishlist.

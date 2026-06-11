@@ -55,7 +55,6 @@ export default function StorePage() {
 
         setStoreName(store.name ?? slug);
         setStoreId(resolvedStoreId);
-        localStorage.setItem("storeId", resolvedStoreId);
 
         // Verificar ownership via backend
         const myUserId = getUserIdFromJwt();
@@ -112,17 +111,19 @@ export default function StorePage() {
         let products = [];
         try {
           const rawProducts = await getPublicActiveProducts(resolvedStoreId);
-          if (Array.isArray(rawProducts) && rawProducts.length > 0) {
-            products = rawProducts.map(p => ({
-              id:          p.productId,
-              name:        p.name,
-              description: p.description ?? "",
-              price:       formatCOP(p.variants?.[0]?.price ?? 0),
-              images:      p.images ?? [],
-            }));
-          }
-        } catch {
-          // La tienda se muestra aunque no carguen productos
+          // El backend puede devolver array directo o respuesta paginada { content: [...] }
+          const items = Array.isArray(rawProducts)
+            ? rawProducts
+            : (rawProducts?.content ?? rawProducts?.items ?? []);
+          products = items.map(p => ({
+            id:          p.productId ?? p.id,
+            name:        p.name,
+            description: p.description ?? "",
+            price:       formatCOP(p.variants?.[0]?.price ?? p.price ?? 0),
+            images:      p.images ?? [],
+          }));
+        } catch (e) {
+          console.warn("[StorePage] Error cargando productos:", e.message);
         }
 
         setLayoutType(layout.id ?? "minimalista");

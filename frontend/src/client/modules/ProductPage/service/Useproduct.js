@@ -159,6 +159,7 @@ export function useProduct(productId) {
     setCartSuccess(false);
     try {
       await addToCart({
+        productId: product?.id,
         variantId: activeVariant.variantId,
         quantity,
       });
@@ -169,7 +170,7 @@ export function useProduct(productId) {
     } finally {
       setCartLoading(false);
     }
-  }, [activeVariant, quantity]);
+  }, [activeVariant, product, quantity]);
 
   // ── Wishlist con optimistic update ──────────────────
   const handleToggleWishlist = useCallback(async () => {
