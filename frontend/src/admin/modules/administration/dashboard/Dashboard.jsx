@@ -1,53 +1,64 @@
 import React from 'react';
-import { Users, Plus } from 'lucide-react';
+import { Users, ShoppingBag, Clock, Package } from 'lucide-react';
 import StatCard from '../components/StatCard/StatCard';
-import InfoCard from '../components/InfoCard/InfoCard';
 import UserTable from './components/UserTable/UserTable';
 import UserModal from './components/UserModal/UserModal';
 import { useUsers } from './hooks/UseUser';
+import { formatCOP } from '../services/ReportService';
 import './Dashboard.css';
 
 const Dashboard = () => {
-  const initialUsers = [
-    { id: 1, name: "Marcos Rivera",  email: "marcos.r@elfreseo.com", role: "ADMIN",     status: "ACTIVO", date: "12 OCT 2023" },
-    { id: 2, name: "Elena Soler",    email: "e.soler@gmail.com",     role: "MODERADOR", status: "ACTIVO", date: "28 SEP 2023" },
-    { id: 3, name: "Ricardo Gomez",  email: "rgomez_99@hotmail.com", role: "CLIENTE",   status: "BANEADO",date: "15 AGO 2023" },
-    { id: 4, name: "Lucia Perez",    email: "lperez_art@icloud.com", role: "CLIENTE",   status: "ACTIVO", date: "02 AGO 2023" },
-  ];
-
   const {
     users,
+    stats,
+    loading,
     selectedUser,
     isModalOpen,
     setIsModalOpen,
     handleEdit,
     handleUpdate,
     toggleStatus,
-  } = useUsers(initialUsers);
+  } = useUsers();
 
   return (
     <div className="dashboard-view">
       <header className="view-header">
         <div className="header-title">
           <h1>Gestión de Usuarios</h1>
-          <p>DIRECTORIO PRINCIPAL • {users.length} MOSTRADOS</p>
+          <p>DIRECTORIO PRINCIPAL • {loading ? '—' : `${users.length} MOSTRADOS`}</p>
         </div>
-        <button className="btn-add" onClick={() => setIsModalOpen(true)}>
-          <Plus size={18} /> AÑADIR USUARIO
-        </button>
       </header>
 
       <section className="dashboard-stats">
-        <StatCard label="ACTIVIDAD 24 H" value="482" percentage="12" icon={Users} />
+        <StatCard
+          label="USUARIOS"
+          value={loading ? '…' : users.length}
+          icon={Users}
+        />
+        <StatCard
+          label="PEDIDOS TOTALES"
+          value={loading || !stats ? '…' : (stats.totalOrders ?? 0).toLocaleString('es-CO')}
+          icon={ShoppingBag}
+        />
+        <StatCard
+          label="PENDIENTES"
+          value={loading || !stats ? '…' : (stats.pendingOrders ?? 0).toLocaleString('es-CO')}
+          icon={Clock}
+        />
+        <StatCard
+          label="INGRESOS HOY"
+          value={loading || !stats ? '…' : formatCOP(stats.todayRevenue ?? 0)}
+          icon={Package}
+        />
       </section>
 
-      <UserTable users={users} onEdit={handleEdit} onToggleStatus={toggleStatus} />
-
-      <footer className="dashboard-footer-alerts">
-        <InfoCard color="blue"   title="BACKUP COMPLETADO"   desc="La base de datos se sincronizó hace 14 min." />
-        <InfoCard color="purple" title="NUEVAS SOLICITUDES"  desc="8 usuarios pendientes de verificación." />
-        <InfoCard color="red"    title="SEGURIDAD"           desc="3 intentos de login fallidos detectados." />
-      </footer>
+      {loading ? (
+        <p className="dashboard-loading">Cargando usuarios…</p>
+      ) : users.length === 0 ? (
+        <p className="dashboard-empty">No hay usuarios registrados en esta tienda.</p>
+      ) : (
+        <UserTable users={users} onEdit={handleEdit} onToggleStatus={toggleStatus} />
+      )}
 
       {isModalOpen && (
         <UserModal

@@ -21,15 +21,9 @@ function resolveStoreId() {
 }
 
 productApi.interceptors.request.use((config) => {
-<<<<<<< HEAD
   const jwt = localStorage.getItem("jwt");
-  // ?sid query param takes priority — set by store product cards to avoid stale localStorage storeId
   const urlStoreId = new URLSearchParams(window.location.search).get("sid");
   const storeId = urlStoreId || localStorage.getItem("storeId");
-=======
-  const jwt     = localStorage.getItem("jwt");
-  const storeId = resolveStoreId();
->>>>>>> a40250fda6fc179c3f9ad65912cae7e59d05f9da
 
   if (jwt && jwt !== "null") {
     config.headers.Authorization = `Bearer ${jwt}`;

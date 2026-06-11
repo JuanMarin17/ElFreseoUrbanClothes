@@ -7,9 +7,11 @@ const StatCard = ({ label, value, percentage, icon: Icon }) => {
       <div className="stat-info">
         <span className="stat-label">{label}</span>
         <h2 className="stat-value">{value}</h2>
-        <span className="stat-percentage">
-          <Icon size={12} /> +{percentage}%
-        </span>
+        {percentage != null && (
+          <span className="stat-percentage">
+            <Icon size={12} /> +{percentage}%
+          </span>
+        )}
       </div>
     </div>
   );
