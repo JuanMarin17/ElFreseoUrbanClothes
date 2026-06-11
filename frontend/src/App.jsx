@@ -12,13 +12,14 @@ import { TokenGuard }                              from "./admin/modules/auth/pa
 import ProtectedStep                               from "./multi-tenant/components/ProtectStep.jsx";
 import SubscriptionGuard                           from "./admin/modules/auth/pages/hook/SubscriptionGuard.jsx";
 
+import MyStoreLayout                               from "./multi-tenant/pages/MyStoreLayout.jsx";
+
 // ── Suscripciones ─────────────────────────────────────────────────────────────
 const SubscriptionPlansPage = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionPlansPage.jsx"));
 const SubscriptionSuccess   = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionSuccess.jsx"));
 const SubscriptionFailure   = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionFailure.jsx"));
 const SubscriptionPending   = lazy(() => import("./admin/modules/administration/pages/Subscription/SubscriptionPending.jsx"));
 
-// ── Admin ─────────────────────────────────────────────────────────────────────
 const AdminLayout         = lazy(() => import("./admin/modules/administration/components/AdminLayout/AdminLayout.jsx"));
 const Dashboard           = lazy(() => import("./admin/modules/administration/dashboard/Dashboard.jsx"));
 const UploadProduct       = lazy(() => import("./admin/modules/administration/pages/UploadProduct/UploadProduct.jsx"));
@@ -120,8 +121,6 @@ export default function App() {
             <Suspense fallback={<PageLoader />}>
               <AnimatePresence mode="wait">
                 <Routes key="main-content">
-
-                  {/* ── Público ──────────────────────────────────────────── */}
                   <Route path="/"                    element={<VexioLanding />} />
                   <Route path="/landing"             element={<VexioLanding />} />
                   <Route path="/market"              element={<MarketPage />} />
@@ -130,19 +129,19 @@ export default function App() {
                   <Route path="/reviews"             element={<ProductReviews />} />
 
                   {/* ── Auth ─────────────────────────────────────────────── */}
-                  <Route path="/login"                    element={<div className="ayuda"><Login mode="login" /></div>} />
-                  <Route path="/login/register"           element={<div className="ayuda"><Login mode="register" /></div>} />
-                  <Route path="/recuperar-contraseña"     element={<ForgotPassword />} />
-                  <Route path="/verificar-codigo"         element={<VerifyCode />} />
-                  <Route path="/nueva-contraseña"         element={<NewPassword />} />
-                  <Route path="/verificacion-pagina"      element={<VerificationPage />} />
+                  <Route path="/login"                element={<div className="ayuda"><Login mode="login" /></div>} />
+                  <Route path="/login/register"       element={<div className="ayuda"><Login mode="register" /></div>} />
+                  <Route path="/recuperar-contraseña" element={<ForgotPassword />} />
+                  <Route path="/verificar-codigo"     element={<VerifyCode />} />
+                  <Route path="/nueva-contraseña"     element={<NewPassword />} />
+                  <Route path="/verificacion-pagina"  element={<VerificationPage />} />
 
                   {/* ── Ayuda ────────────────────────────────────────────── */}
-                  <Route path="/ayuda"        element={<div className="ayuda"><HelpCenter /></div>} />
-                  <Route path="/pedidos"      element={<div className="ayuda"><HelpCenter /></div>} />
-                  <Route path="/pagos"        element={<div className="ayuda"><HelpCenter /></div>} />
-                  <Route path="/devoluciones" element={<div className="ayuda"><HelpCenter /></div>} />
-                  <Route path="/seguridad"    element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/ayuda"           element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/pedidos"         element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/pagos"           element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/devoluciones"    element={<div className="ayuda"><HelpCenter /></div>} />
+                  <Route path="/seguridad"       element={<div className="ayuda"><HelpCenter /></div>} />
                   <Route path="/session-cerrada" element={<SessionClosed />} />
 
                   {/* ── Wizard creación de tienda ─────────────────────────── */}
@@ -164,19 +163,23 @@ export default function App() {
                   <Route path="/resultado"     element={<ProtectedStep requiredStep={9}><StoreResult /></ProtectedStep>} />
 
                   {/* ── Suscripciones ────────────────────────────────────── */}
-                  <Route path="/planes"                          element={<SubscriptionPlansPage />} />
-                  <Route path="/dashboard/subscription/success" element={<SubscriptionSuccess />} />
-                  <Route path="/dashboard/subscription/failure" element={<SubscriptionFailure />} />
-                  <Route path="/dashboard/subscription/pending" element={<SubscriptionPending />} />
+                  <Route path="/planes"                              element={<SubscriptionPlansPage />} />
+                  <Route path="/dashboard/subscription/success"     element={<SubscriptionSuccess />} />
+                  <Route path="/dashboard/subscription/failure"     element={<SubscriptionFailure />} />
+                  <Route path="/dashboard/subscription/pending"     element={<SubscriptionPending />} />
 
                   {/* ── Tienda pública ───────────────────────────────────── */}
-                  <Route path="/tienda/:slug"             element={<StorePage />} />
-                  <Route path="/tienda/:slug/contacto"    element={<StoreContactPage />} />
-                  <Route path="/tienda/:slug/devoluciones"element={<StoreReturnsPage />} />
-                  <Route path="/tienda/:slug/faq"         element={<StoreFaqPage />} />
-                  <Route path="/tienda/:slug/nosotros"    element={<StoreAboutPage />} />
-                  <Route path="/transacciones" element={<Transaction />} />
-                  <Route path="/mis-tiendas"   element={<MyStore />} />
+                  <Route path="/tienda/:slug"              element={<StorePage />} />
+                  <Route path="/tienda/:slug/contacto"     element={<StoreContactPage />} />
+                  <Route path="/tienda/:slug/devoluciones" element={<StoreReturnsPage />} />
+                  <Route path="/tienda/:slug/faq"          element={<StoreFaqPage />} />
+                  <Route path="/tienda/:slug/nosotros"     element={<StoreAboutPage />} />
+
+                  {/* ── SuperAdmin shell ─────────────────────────────────── */}
+                  <Route element={<MyStoreLayout />}>
+                    <Route path="/mis-tiendas"   element={<MyStore />} />
+                    <Route path="/transacciones" element={<Transaction />} />
+                  </Route>
 
                   {/* ── Rutas protegidas ─────────────────────────────────── */}
                   <Route element={<ProtectedRoute />}>
