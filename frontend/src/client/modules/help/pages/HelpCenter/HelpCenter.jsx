@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Search,
   ChevronDown,
+  ChevronRight,
   Plus,
   Send,
   X,
@@ -20,6 +21,7 @@ import {
   Package,
   CreditCard,
   Ticket,
+  ArrowRight,
 } from "lucide-react";
 import "./HelpCenter.css";
 import HeaderMarket from "../../../../../utils/Header/HeaderMarket";
@@ -284,7 +286,7 @@ const FAQS = [
     id: 1,
     question: "¿Cuánto tarda el envío?",
     answer:
-      "Los envíos nacionales tardan entre 2 y 5 días hábiles. Recibirás un número de guía por email en cuanto tu pedido salga de bodega.",
+      "Los envíos nacionales tardan entre 2 y 5 días hábiles. Recibirás una confirmación por email cuando tu pedido sea despachado.",
   },
   {
     id: 2,
@@ -303,12 +305,6 @@ const FAQS = [
     question: "¿Cuándo recibiré respuesta a mi ticket?",
     answer:
       "Nuestro equipo responde en menos de 24 horas hábiles. Recibirás un email de notificación cuando te respondamos.",
-  },
-  {
-    id: 5,
-    question: "¿Puedo rastrear mi pedido?",
-    answer:
-      "Sí. Una vez despachado, te enviamos el número de guía y el enlace de rastreo de la transportadora directamente a tu email.",
   },
   {
     id: 6,
@@ -908,7 +904,10 @@ function FaqSection({ searchQuery }) {
   );
   return (
     <section className="faq-section">
-      <h2 className="section-title">Preguntas Frecuentes</h2>
+      <h2 className="section-title">
+        Preguntas Frecuentes
+        <span className="hc-count-pill">{filtered.length}</span>
+      </h2>
       {filtered.length === 0 ? (
         <p style={{ color: "var(--off)", fontSize: ".9rem" }}>
           No hay resultados para "{searchQuery}". Abre un ticket si necesitas
@@ -1140,10 +1139,7 @@ const HelpCenter = () => {
       <div className="help-container">
         {/* Header */}
         <header className="help-header">
-          <div className="system-status-wrapper">
-            <span className="status-dot" />
-            Todos los sistemas operativos
-          </div>
+
           <h1>
             Centro de Ayuda <span className="neon-text">VEXIO</span>
           </h1>
@@ -1152,6 +1148,12 @@ const HelpCenter = () => {
               ? "Panel de soporte — OWNER"
               : "Soporte de élite para tu estilo urbano"}
           </p>
+
+          <div className="hc-hero-meta">
+            <span className="hc-meta-pill"><Zap size={11} /> Respuesta &lt;24h</span>
+            <span className="hc-meta-pill"><CheckCircle size={11} /> 1.2K+ resueltos</span>
+            <span className="hc-meta-pill"><ShieldCheck size={11} /> Datos encriptados</span>
+          </div>
 
           {/* Buscador */}
           <div className="search-wrapper">
@@ -1176,9 +1178,12 @@ const HelpCenter = () => {
             <h3>{isOwner ? "Todos los tickets" : "Mis tickets"}</h3>
             <p>
               {isOwner
-                ? "Gestiona y responde solicitudes."
-                : "Consulta el estado de tus solicitudes."}
+                ? "Gestiona y responde las solicitudes de los usuarios."
+                : "Consulta y da seguimiento al estado de tus solicitudes."}
             </p>
+            <div className="hc-card-cta">
+              {isOwner ? "Gestionar" : "Ver mis tickets"} <ChevronRight size={12} />
+            </div>
           </div>
 
           {/* Crear ticket (solo usuarios normales) */}
@@ -1188,17 +1193,22 @@ const HelpCenter = () => {
                 <Plus size={30} />
               </div>
               <h3>Abrir ticket</h3>
-              <p>Cuéntanos tu problema y te ayudamos en menos de 24 h.</p>
+              <p>Cuéntanos tu problema y nuestro equipo te ayuda en menos de 24 h.</p>
+              <div className="hc-card-cta">Crear ticket <ChevronRight size={12} /></div>
             </div>
           )}
 
-          {/* Categorías de soporte */}
-          <div className="glass-card">
+          {/* Email de soporte */}
+          <div
+            className="glass-card"
+            onClick={() => document.querySelector(".contact-section")?.scrollIntoView({ behavior: "smooth" })}
+          >
             <div className="card-icon">
-              <MessageCircle size={30} />
+              <Mail size={30} />
             </div>
-            <h3>WhatsApp</h3>
-            <p>Asesoría personalizada e inmediata.</p>
+            <h3>Email soporte</h3>
+            <p>soporte@vexio.co — respondemos en menos de 24 h hábiles.</p>
+            <div className="hc-card-cta">Escribir ahora <ChevronRight size={12} /></div>
           </div>
         </section>
 
@@ -1240,6 +1250,7 @@ const HelpCenter = () => {
                 <div className="category-icon">{cat.icon}</div>
                 <h4>{cat.title}</h4>
                 <p>{cat.desc}</p>
+                <ArrowRight size={13} className="hc-cat-arrow" />
               </div>
             ))}
           </div>
