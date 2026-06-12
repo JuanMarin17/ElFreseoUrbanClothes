@@ -1,11 +1,23 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { PRICE_RANGES } from '../storeUtils.jsx';
 
 export function useFilters(products) {
-  const [searchQuery,    setSearchQuery]    = useState('');
+  const [searchQuery,    setSearchQueryRaw] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState(0);
   const [activePrices,   setActivePrices]   = useState([]);
   const [activeSizes,    setActiveSizes]    = useState([]);
+  const [sortBy,         setSortBy]         = useState('relevant');
+
+  const timerRef = useRef(null);
+
+  const setSearchQuery = useCallback((val) => {
+    setSearchQueryRaw(val);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setDebouncedQuery(val), 250);
+  }, []);
+
+  useEffect(() => () => clearTimeout(timerRef.current), []);
 
   const togglePrice = (i) =>
     setActivePrices(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]);
@@ -13,38 +25,63 @@ export function useFilters(products) {
   const toggleSize = (size) =>
     setActiveSizes(prev => prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]);
 
-  const clearFilters = () => {
-    setSearchQuery('');
+  const clearFilters = useCallback(() => {
+    setSearchQueryRaw('');
+    setDebouncedQuery('');
     setActiveCategory(0);
     setActivePrices([]);
     setActiveSizes([]);
-  };
+    setSortBy('relevant');
+  }, []);
+
+  // Parse COP-formatted price string ("$ 50.000") to number (50000)
+  const parsePrice = (raw) => parseFloat((raw ?? '0').replace(/[^\d]/g, '')) || 0;
 
   const filteredProducts = useMemo(() => {
     let result = products;
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
+
+    if (debouncedQuery.trim()) {
+      const q = debouncedQuery.toLowerCase();
       result = result.filter(p =>
         p.name?.toLowerCase().includes(q) ||
         p.description?.toLowerCase().includes(q)
       );
     }
+
     if (activePrices.length > 0) {
       result = result.filter(p => {
-        const price = parseFloat((p.price ?? '0').replace(/[^0-9.]/g, ''));
+        const price = parsePrice(p.price);
         return activePrices.some(i => price >= PRICE_RANGES[i][0] && price < PRICE_RANGES[i][1]);
       });
     }
-    return result;
-  }, [products, searchQuery, activePrices]);
 
-  const hasActiveFilters = searchQuery.trim() !== '' || activePrices.length > 0 || activeSizes.length > 0;
+    if (activeSizes.length > 0) {
+      result = result.filter(p =>
+        p.sizes?.some(s => activeSizes.includes(s))
+      );
+    }
+
+    if (sortBy === 'price_asc') {
+      result = [...result].sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
+    } else if (sortBy === 'price_desc') {
+      result = [...result].sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
+    }
+
+    return result;
+  }, [products, debouncedQuery, activePrices, activeSizes, sortBy]);
+
+  const hasActiveFilters =
+    searchQuery.trim() !== '' ||
+    activePrices.length > 0 ||
+    activeSizes.length > 0 ||
+    sortBy !== 'relevant';
 
   return {
     searchQuery, setSearchQuery,
     activeCategory, setActiveCategory,
     activePrices, togglePrice,
     activeSizes, toggleSize,
+    sortBy, setSortBy,
     clearFilters, filteredProducts, hasActiveFilters,
   };
 }

@@ -1,0 +1,185 @@
+/**
+ * catalogoService.js
+ * Obtiene productos de TODAS las tiendas.
+ * Estrategia: primero sin X-Store-Id, luego con storeId de localStorage si falla.
+ */
+
+const API_BASE =
+  import.meta.env.VITE_API_URL ??
+  import.meta.env.VITE_API_BASE_URL ??
+  "http://46.225.21.146:8080/api/v1";
+
+const COLOR_HEX_MAP = {
+  BLANCO: "#F8F8F8", NEGRO: "#111111", AZUL: "#1D4ED8", ROJO: "#DC2626",
+  VERDE: "#16A34A", AMARILLO: "#CA8A04", GRIS: "#6B7280", BEIGE: "#D4B896",
+  ROSADO: "#EC4899", MORADO: "#7C3AED", NARANJA: "#EA580C", CAFE: "#92400E",
+};
+
+function buildHeaders(withStoreId = false) {
+  const jwt     = localStorage.getItem("jwt");
+  const storeId = localStorage.getItem("storeId");
+  const h = { "Content-Type": "application/json", Accept: "application/json" };
+  if (jwt && jwt !== "null") {
+    h.Authorization = `Bearer ${jwt}`;
+    try {
+      const decoded = JSON.parse(atob(jwt.split(".")[1]));
+      if (decoded.user_id) h["X-User-Id"]   = decoded.user_id;
+      if (decoded.role)    h["X-User-Role"]  = decoded.role;
+    } catch { /* silent */ }
+  }
+  if (withStoreId && storeId && storeId !== "null" && storeId !== "undefined") {
+    h["X-Store-Id"] = storeId;
+  }
+  return h;
+}
+
+function normalizeProduct(p) {
+  const variants = Array.isArray(p.variants) ? p.variants : [];
+  const price = variants[0]?.price ?? 0;
+
+  const colors = [];
+  const colorSeen = new Set();
+  variants.forEach(v => {
+    if (v.color && !colorSeen.has(v.color)) {
+      colorSeen.add(v.color);
+      colors.push({ name: v.color, hex: COLOR_HEX_MAP[v.color.toUpperCase()] ?? "#6B7280" });
+    }
+  });
+
+  const sizes = [];
+  const sizeSeen = new Set();
+  variants.forEach(v => {
+    if (v.size && !sizeSeen.has(v.size)) {
+      sizeSeen.add(v.size);
+      sizes.push(v.size);
+    }
+  });
+
+  const stock = variants.reduce((s, v) => s + (v.stock ?? 0), 0);
+
+  return {
+    id:             p.productId ?? p.id,
+    name:           p.name ?? "Producto",
+    description:    p.description ?? "",
+    brand:          p.brandName ?? p.brand ?? "",
+    storeId:        p.storeId ?? null,
+    storeName:      p.storeName ?? p.storeSlug ?? null,
+    status:         p.status,
+    categories:     Array.isArray(p.categories) ? p.categories : [],
+    price,
+    priceFormatted: new Intl.NumberFormat("es-CO", {
+      style: "currency", currency: "COP", maximumFractionDigits: 0,
+    }).format(price),
+    image:          p.images?.[0]?.url ?? null,
+    images:         Array.isArray(p.images) ? p.images : [],
+    colors,
+    sizes,
+    stock,
+    rawVariants:    variants,
+    tags:           Array.isArray(p.tags) ? p.tags : [],
+    rating:         parseFloat(p.rating ?? p.averageRating ?? p.avgRating ?? p.score) || null,
+    reviewCount:    p.reviewCount ?? p.reviewsCount ?? p.totalReviews ?? p.numReviews ?? 0,
+  };
+}
+
+function isActive(p) {
+  if (!p.status) return true; // sin status → incluir
+  const s = p.status.toUpperCase();
+  return s === "ACTIVE" || s === "PUBLISHED" || s === "AVAILABLE";
+}
+
+function extractList(json) {
+  if (Array.isArray(json?.data))    return json.data;
+  if (Array.isArray(json))          return json;
+  if (Array.isArray(json?.content)) return json.content;
+  if (Array.isArray(json?.items))   return json.items;
+  return null;
+}
+
+async function tryEndpoints(headers) {
+  const endpoints = [
+    "/products/all/active",
+    "/products/all",
+    "/products/active",
+    "/products",
+  ];
+  for (const ep of endpoints) {
+    try {
+      const res = await fetch(`${API_BASE}${ep}`, { headers });
+      if (!res.ok) continue;
+      const json = await res.json();
+      const list = extractList(json);
+      if (list && list.length > 0) return list;
+    } catch { /* intentar siguiente */ }
+  }
+  return null;
+}
+
+/**
+ * Obtiene todos los productos activos.
+ * Intenta sin storeId primero (todas las tiendas), luego con storeId como fallback.
+ */
+export async function fetchCatalogProducts() {
+  // 1er intento: sin X-Store-Id
+  let raw = await tryEndpoints(buildHeaders(false));
+
+  // 2do intento: con X-Store-Id de localStorage
+  if (!raw) {
+    raw = await tryEndpoints(buildHeaders(true));
+  }
+
+  if (!raw) return [];
+
+  return raw.filter(isActive).map(normalizeProduct);
+}
+
+// ── Tastes ────────────────────────────────────────────────────────────────────
+
+export function getUserTastes() {
+  try {
+    const val = localStorage.getItem("vexio_tastes_completed");
+    if (!val || val === "skipped") return null;
+    const parsed = JSON.parse(val);
+    return typeof parsed === "object" && parsed !== null ? parsed : null;
+  } catch { return null; }
+}
+
+const COLOR_TASTE_MAP = {
+  "neutros (negro, blanco, gris)": ["negro", "blanco", "gris"],
+  "colores vivos":                  ["rojo", "naranja", "amarillo", "rosado", "morado"],
+  "azules":                         ["azul"],
+  "verdes":                         ["verde"],
+};
+
+const PRICE_RANGE_MAP = {
+  "menos de $50.000":    [0, 50000],
+  "$50.000 - $100.000":  [50000, 100000],
+  "$100.000 - $150.000": [100000, 150000],
+  "más de $150.000":     [150000, Infinity],
+};
+
+export function scoreProductForTastes(product, tastes) {
+  if (!tastes) return 0;
+  let score = 0;
+
+  const cats = (tastes.categorias ?? []).map(c => c.toLowerCase());
+  if (cats.length) {
+    const pCats = product.categories.map(c => c.toLowerCase());
+    if (pCats.some(pc => cats.some(tc => pc.includes(tc) || tc.includes(pc)))) score += 3;
+  }
+
+  const colorPrefs = (tastes.colores ?? []).map(c => c.toLowerCase());
+  if (colorPrefs.length && !colorPrefs.includes("sin preferencia")) {
+    const wanted = colorPrefs.flatMap(cp => COLOR_TASTE_MAP[cp] ?? []);
+    const pColors = product.colors.map(c => c.name.toLowerCase());
+    if (pColors.some(pc => wanted.some(w => pc.includes(w)))) score += 2;
+  }
+
+  const budgets = (tastes.presupuesto ?? []).map(b => b.toLowerCase());
+  if (budgets.length) {
+    const range = PRICE_RANGE_MAP[budgets[0]];
+    if (range && product.price >= range[0] && product.price <= range[1]) score += 1;
+  }
+
+  return score;
+}

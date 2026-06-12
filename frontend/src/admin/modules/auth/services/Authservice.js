@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { uploadFile } from '../../../../utils/uploadService';
+import axios from "axios";
+import { uploadUserImage } from "../../../../utils/uploadService";
 
 const BASE_URL =
   import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
@@ -76,7 +76,8 @@ API.interceptors.response.use(
 
 function parseJwt(jwt) {
   try {
-    const decoded = JSON.parse(atob(jwt.split('.')[1]));
+    const decoded = JSON.parse(atob(jwt.split(".")[1]));
+    if (decoded.exp * 1000 < Date.now()) return null;
     return {
       userId: decoded.user_id,
       userName: decoded.sub,
@@ -88,23 +89,46 @@ function parseJwt(jwt) {
 }
 
 function extractBackendError(err) {
-  /* Sin internet */
-  if (!navigator.onLine || err.code === 'ERR_NETWORK') {
-    return 'Sin conexión a internet. Verifica tu red e intenta de nuevo.';
+  if (!navigator.onLine || err.code === "ERR_NETWORK") {
+    return "Sin conexión a internet. Verifica tu red e intenta de nuevo.";
   }
 
-  const msg = err?.response?.data?.message || '';
+  const status = err?.response?.status;
+  const raw = err?.response?.data;
+  const msg = (
+    typeof raw === "string" ? raw : (raw?.message ?? raw?.error ?? "")
+  ).toLowerCase();
 
-  /* Mapeo de mensajes técnicos → amigables */
-  const map = {
-    'correo o contraseña incorrectos': 'Correo o contraseña incorrectos',
-    'incorrectcredentials':            'Correo o contraseña incorrectos',
-    'user not found':                  'No existe una cuenta con ese correo',
-    'invalid otp':                     'Código inválido o expirado',
-    'otp':                             'Código inválido o expirado',
-    'user already exists':             'Ya existe una cuenta con ese correo',
-    'already exists':                  'Ya existe una cuenta con ese correo',
-    'role not found':                  'Error de configuración, contacta soporte',
+  if (import.meta.env.DEV) {
+    console.warn("[AuthError raw]", err?.response?.data);
+    if (raw?.errors)
+      console.warn("[AuthError fields]", JSON.stringify(raw.errors, null, 2));
+  }
+
+  const validationMap = {
+    "password must be longer than or equal to 8":
+      "La contraseña debe tener al menos 8 caracteres",
+    "password must be at least":
+      "La contraseña debe tener al menos 8 caracteres",
+    "password is too short": "La contraseña debe tener al menos 8 caracteres",
+    "email must be an email": "El formato del correo no es válido",
+    "email is not valid": "El formato del correo no es válido",
+    "username must be longer": "El nombre de usuario es muy corto",
+    "phone must be a number": "El teléfono solo debe contener números",
+    "must be shorter than or equal":
+      "Uno de los campos supera el largo permitido",
+    "should not be empty": "Hay campos obligatorios vacíos",
+  };
+
+  const businessMap = {
+    "correo o contraseña incorrectos": "Correo o contraseña incorrectos",
+    incorrectcredentials: "Correo o contraseña incorrectos",
+    "user not found": "No existe una cuenta con ese correo",
+    "invalid otp": "Código inválido o expirado",
+    otp: "Código inválido o expirado",
+    "user already exists": "Ya existe una cuenta con ese correo",
+    "already exists": "Ya existe una cuenta con ese correo",
+    "role not found": "Error de configuración, contacta soporte",
   };
 
   if (msg) {
@@ -117,31 +141,28 @@ function extractBackendError(err) {
     return msg;
   }
 
-  /* Errores HTTP genéricos */
-  const status = err?.response?.status;
-  if (status === 401) return 'Correo o contraseña incorrectos';
-  if (status === 404) return 'No existe una cuenta con ese correo';
-  if (status === 409) return 'Ya existe una cuenta con ese correo';
-  if (status === 500) return 'Error del servidor, intenta más tarde';
+  if (status === 400)
+    return "Datos inválidos, revisa los campos e intenta de nuevo";
+  if (status === 401) return "Correo o contraseña incorrectos";
+  if (status === 404) return "No existe una cuenta con ese correo";
+  if (status === 409) return "Ya existe una cuenta con ese correo";
+  if (status === 500) return "Error del servidor, intenta más tarde";
 
   return "Ocurrió un error inesperado, intenta de nuevo";
 }
 
 const authService = {
+  uploadAvatar: (file) => uploadUserImage(file),
 
-  uploadAvatar: (file) => uploadFile(file),
-
-  /* ─── Login paso 1 ─── */
- async login({ email, password }) {
-  try {
-    /* Guardar email ANTES del request para que quede aunque falle */
-    localStorage.setItem('last_email', email);
-    const { data } = await API.post('/auth/login', { email, password });
-    return data;
-  } catch (err) {
-    throw new Error(extractBackendError(err));
-  }
-},
+  async login({ email, password }) {
+    try {
+      localStorage.setItem("last_email", email);
+      const { data } = await API.post("/auth/login", { email, password });
+      return data;
+    } catch (err) {
+      throw new Error(extractBackendError(err));
+    }
+  },
 
   async loginSecondStep({ email, code }) {
     try {
@@ -159,9 +180,18 @@ const authService = {
 
   async register({ userName, email, password, phone, imageProfile }) {
     try {
-      const { data } = await API.post('/auth/register', {
-        userName, email, password, phone, imageProfile,
-      });
+      // El microservicio de usuarios valida phone como numérico → quitar +, espacios, guiones
+      const cleanPhone = phone ? phone.replace(/\D/g, "") : "";
+      const payload = {
+        userName,
+        email,
+        password,
+        phone: cleanPhone,
+        imageProfile,
+      };
+      if (import.meta.env.DEV)
+        console.log("[Register payload]", JSON.stringify(payload, null, 2));
+      const { data } = await API.post("/auth/register", payload);
       return data;
     } catch (err) {
       throw new Error(extractBackendError(err));

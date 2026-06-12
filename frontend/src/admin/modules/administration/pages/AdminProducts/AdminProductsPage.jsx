@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import {
   PackagePlus, Search, RefreshCw, Eye, Pencil,
   ToggleLeft, ToggleRight, Package, AlertTriangle, CheckCircle2,
-  ArrowUpRight,
+  ArrowUpRight, SlidersHorizontal, X, TrendingDown,
 } from 'lucide-react';
 import { getAllProducts, activateProduct, inactivateProduct } from '../../services/productService';
 import './AdminProductsPage.css';
 
-// ── Utilidades ───────────────────────────────────────────────────────────────
+// ── Utilities ─────────────────────────────────────────────────────────────────
 
 const formatCOP = (val) =>
   new Intl.NumberFormat('es-CO', {
@@ -21,33 +21,44 @@ const totalStock = (variants) =>
 const priceRange = (variants) => {
   const prices = (variants ?? []).map((v) => v.price ?? 0).filter(Boolean);
   if (!prices.length) return 'Sin precio';
-  const min = Math.min(...prices);
-  const max = Math.max(...prices);
+  const [min, max] = [Math.min(...prices), Math.max(...prices)];
   return min === max ? formatCOP(min) : `${formatCOP(min)} – ${formatCOP(max)}`;
+};
+
+const minPrice = (variants) => {
+  const prices = (variants ?? []).map((v) => v.price ?? 0).filter(Boolean);
+  return prices.length ? Math.min(...prices) : 0;
 };
 
 const stockStatus = (variants) => {
   if (!variants?.length) return 'empty';
   if (variants.every((v) => v.stock === 0)) return 'out';
-  if (variants.some((v) => v.stock > 0 && v.stock <= v.minStock)) return 'low';
+  if (variants.some((v) => v.stock > 0 && v.stock <= (v.minStock ?? 5))) return 'low';
   return 'ok';
 };
 
-// Extrae el ID de forma defensiva (productId o id)
 const getPid = (p) => p?.productId ?? p?.id ?? '';
 
-// ── Componente principal ─────────────────────────────────────────────────────
+// ── Main component ────────────────────────────────────────────────────────────
 
 export default function AdminProductsPage() {
   const { slug } = useParams();
   const { key: locationKey } = useLocation();
 
-  const [products, setProducts] = useState([]);
-  const [loading,  setLoading]  = useState(false);
-  const [search,   setSearch]   = useState('');
-  const [filter,   setFilter]   = useState('all'); // all | active | inactive
-  const [toast,    setToast]    = useState(null);
-  const [toggling, setToggling] = useState(null);
+  const [products, setProducts]             = useState([]);
+  const [loading, setLoading]               = useState(false);
+  const [search, setSearch]                 = useState('');
+  const [filter, setFilter]                 = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [brandFilter, setBrandFilter]       = useState('');
+  const [stockFilter, setStockFilter]       = useState('');
+  const [sortBy, setSortBy]                 = useState('name');
+  const [toast, setToast]                   = useState(null);
+  const [toggling, setToggling]             = useState(null);
+  const [filterKey, setFilterKey]           = useState(0);
+  const isFirstRender = useRef(true);
+
+  const adminBase = slug ? `/tienda/${slug}/admin` : '/admin';
 
   const showToast = (type, msg) => {
     setToast({ type, msg });
@@ -59,15 +70,18 @@ export default function AdminProductsPage() {
     showToast('error', err.message || 'Error del servidor, intenta de nuevo');
   }, []);
 
-  // Construye la ruta base respetando el contexto tienda/admin
-  const adminBase = slug ? `/tienda/${slug}/admin` : '/admin';
-
-  // ── Carga ──────────────────────────────────────────────────────────────────
+  // ── Load ──────────────────────────────────────────────────────────────────────
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getAllProducts();
+      // AdminLayout sets storeId asynchronously — wait up to 700ms
+      let storeId = localStorage.getItem('storeId');
+      if (!storeId || storeId === 'null') {
+        await new Promise((r) => setTimeout(r, 700));
+        storeId = localStorage.getItem('storeId');
+      }
+      const data = await getAllProducts(storeId ?? undefined);
       setProducts(Array.isArray(data) ? data : []);
     } catch (err) {
       handleError(err);
@@ -81,12 +95,32 @@ export default function AdminProductsPage() {
     run();
   }, [locationKey, loadProducts]);
 
-  // ── Filtrado ───────────────────────────────────────────────────────────────
+  // Re-trigger card stagger animation when any filter changes
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    setFilterKey((k) => k + 1);
+  }, [filter, search, categoryFilter, brandFilter, stockFilter, sortBy]);
+
+  // ── Filter options derived from loaded products ───────────────────────────────
+
+  const filterOptions = useMemo(() => ({
+    categories: [...new Set(products.flatMap((p) => p.categories ?? []))].sort(),
+    brands:     [...new Set(products.map((p) => p.brandName).filter(Boolean))].sort(),
+  }), [products]);
+
+  const activeFilterCount = [categoryFilter, brandFilter, stockFilter].filter(Boolean).length;
+
+  // ── Filtered + sorted list ────────────────────────────────────────────────────
 
   const displayed = useMemo(() => {
     let list = products;
+
     if (filter === 'active')   list = list.filter((p) => p.status === 'ACTIVE');
     if (filter === 'inactive') list = list.filter((p) => p.status !== 'ACTIVE');
+    if (categoryFilter)        list = list.filter((p) => (p.categories ?? []).includes(categoryFilter));
+    if (brandFilter)           list = list.filter((p) => p.brandName === brandFilter);
+    if (stockFilter)           list = list.filter((p) => stockStatus(p.variants) === stockFilter);
+
     if (search.trim()) {
       const t = search.toLowerCase();
       list = list.filter(
@@ -96,10 +130,15 @@ export default function AdminProductsPage() {
           (p.categories ?? []).some((c) => c.toLowerCase().includes(t)),
       );
     }
-    return list;
-  }, [products, filter, search]);
 
-  // ── Activar / Inactivar ────────────────────────────────────────────────────
+    return [...list].sort((a, b) => {
+      if (sortBy === 'price') return minPrice(a.variants) - minPrice(b.variants);
+      if (sortBy === 'stock') return totalStock(b.variants) - totalStock(a.variants);
+      return (a.name ?? '').localeCompare(b.name ?? '', 'es');
+    });
+  }, [products, filter, categoryFilter, brandFilter, stockFilter, search, sortBy]);
+
+  // ── Toggle active / inactive ──────────────────────────────────────────────────
 
   const handleToggle = async (product) => {
     const pid = getPid(product);
@@ -125,7 +164,7 @@ export default function AdminProductsPage() {
     }
   };
 
-  // ── KPIs ───────────────────────────────────────────────────────────────────
+  // ── KPIs ──────────────────────────────────────────────────────────────────────
 
   const kpi = useMemo(() => ({
     total:    products.length,
@@ -134,7 +173,15 @@ export default function AdminProductsPage() {
     outStock: products.filter((p) => stockStatus(p.variants) === 'out').length,
   }), [products]);
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  const clearFilters = () => {
+    setCategoryFilter('');
+    setBrandFilter('');
+    setStockFilter('');
+    setSearch('');
+    setFilter('all');
+  };
+
+  // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
     <div className="ap-container">
@@ -146,8 +193,12 @@ export default function AdminProductsPage() {
       {/* Header */}
       <div className="ap-header">
         <div>
-          <h1 className="ap-title">Productos</h1>
-          <p className="ap-subtitle">Gestiona el catálogo completo de tu tienda.</p>
+          <h1 className="ap-title">Inventario</h1>
+          <p className="ap-subtitle">
+            {products.length > 0
+              ? `${products.length} producto${products.length !== 1 ? 's' : ''} registrado${products.length !== 1 ? 's' : ''}`
+              : 'Gestiona el catálogo completo de tu tienda.'}
+          </p>
         </div>
         <div className="ap-header-actions">
           <button className="ap-btn-ghost" onClick={loadProducts} disabled={loading} title="Recargar">
@@ -161,37 +212,23 @@ export default function AdminProductsPage() {
 
       {/* KPIs */}
       <div className="ap-kpi-row">
-        <div className="ap-kpi-card">
-          <Package size={18} className="ap-kpi-icon blue" />
-          <div>
-            <span className="ap-kpi-label">Total</span>
-            <span className="ap-kpi-value">{kpi.total}</span>
+        {[
+          { icon: <Package size={18} className="ap-kpi-icon blue" />,        label: 'Total',      value: kpi.total    },
+          { icon: <CheckCircle2 size={18} className="ap-kpi-icon green" />,  label: 'Activos',    value: kpi.active   },
+          { icon: <TrendingDown size={18} className="ap-kpi-icon orange" />, label: 'Stock bajo', value: kpi.lowStock },
+          { icon: <AlertTriangle size={18} className="ap-kpi-icon red" />,   label: 'Sin stock',  value: kpi.outStock },
+        ].map(({ icon, label, value }, i) => (
+          <div key={label} className="ap-kpi-card" style={{ animationDelay: `${i * 60}ms` }}>
+            {icon}
+            <div>
+              <span className="ap-kpi-label">{label}</span>
+              <span className="ap-kpi-value">{value}</span>
+            </div>
           </div>
-        </div>
-        <div className="ap-kpi-card">
-          <CheckCircle2 size={18} className="ap-kpi-icon green" />
-          <div>
-            <span className="ap-kpi-label">Activos</span>
-            <span className="ap-kpi-value">{kpi.active}</span>
-          </div>
-        </div>
-        <div className="ap-kpi-card">
-          <AlertTriangle size={18} className="ap-kpi-icon orange" />
-          <div>
-            <span className="ap-kpi-label">Stock bajo</span>
-            <span className="ap-kpi-value">{kpi.lowStock}</span>
-          </div>
-        </div>
-        <div className="ap-kpi-card">
-          <AlertTriangle size={18} className="ap-kpi-icon red" />
-          <div>
-            <span className="ap-kpi-label">Sin stock</span>
-            <span className="ap-kpi-value">{kpi.outStock}</span>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Barra de filtros */}
+      {/* Status tabs + search */}
       <div className="ap-toolbar">
         <div className="ap-filter-tabs">
           {[['all', 'Todos'], ['active', 'Activos'], ['inactive', 'Inactivos']].map(([k, lbl]) => (
@@ -215,14 +252,85 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* Grid de productos */}
+      {/* Advanced filters */}
+      <div className="ap-advanced-filters">
+        <div className="ap-filter-row">
+          <SlidersHorizontal size={13} className="ap-filter-icon" />
+
+          {filterOptions.categories.length > 0 && (
+            <select
+              className={`ap-select ${categoryFilter ? 'ap-select--active' : ''}`}
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+            >
+              <option value="">Categoría</option>
+              {filterOptions.categories.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          )}
+
+          {filterOptions.brands.length > 0 && (
+            <select
+              className={`ap-select ${brandFilter ? 'ap-select--active' : ''}`}
+              value={brandFilter}
+              onChange={(e) => setBrandFilter(e.target.value)}
+            >
+              <option value="">Marca</option>
+              {filterOptions.brands.map((b) => (
+                <option key={b} value={b}>{b}</option>
+              ))}
+            </select>
+          )}
+
+          <select
+            className={`ap-select ${stockFilter ? 'ap-select--active' : ''}`}
+            value={stockFilter}
+            onChange={(e) => setStockFilter(e.target.value)}
+          >
+            <option value="">Stock</option>
+            <option value="ok">Normal</option>
+            <option value="low">Bajo</option>
+            <option value="out">Sin stock</option>
+            <option value="empty">Sin variantes</option>
+          </select>
+
+          <select
+            className="ap-select ap-select--sort"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <option value="name">A–Z</option>
+            <option value="price">Precio ↑</option>
+            <option value="stock">Stock ↓</option>
+          </select>
+
+          {activeFilterCount > 0 && (
+            <button className="ap-clear-btn" onClick={clearFilters}>
+              <X size={11} /> Limpiar ({activeFilterCount})
+            </button>
+          )}
+        </div>
+
+        {!loading && displayed.length !== products.length && (
+          <span className="ap-result-count">
+            {displayed.length} de {products.length} productos
+          </span>
+        )}
+      </div>
+
+      {/* Grid */}
       {loading ? (
-        <div className="ap-state-placeholder">Cargando productos...</div>
-      ) : displayed.length === 0 ? (
-        <div className="ap-state-placeholder">No se encontraron productos.</div>
-      ) : (
         <div className="ap-grid">
-          {displayed.map((product) => {
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonCard key={i} delay={i * 70} />
+          ))}
+        </div>
+      ) : displayed.length === 0 ? (
+        <EmptyState hasFilters={activeFilterCount > 0 || !!search} onClear={clearFilters} />
+      ) : (
+        <div className="ap-grid" key={filterKey}>
+          {displayed.map((product, index) => {
             const pid = getPid(product);
             return (
               <ProductCard
@@ -230,9 +338,10 @@ export default function AdminProductsPage() {
                 product={product}
                 detailPath={`${adminBase}/productos/${pid}`}
                 editPath={`${adminBase}/editar-producto/${pid}`}
-                publicPath={`/products/${pid}`}
+                publicPath={`/producto/${pid}`}
                 toggling={toggling === pid}
                 onToggle={() => handleToggle(product)}
+                entryDelay={Math.min(index * 40, 300)}
               />
             );
           })}
@@ -242,9 +351,51 @@ export default function AdminProductsPage() {
   );
 }
 
-// ── Tarjeta de producto ──────────────────────────────────────────────────────
+// ── Skeleton card ─────────────────────────────────────────────────────────────
 
-function ProductCard({ product, detailPath, editPath, publicPath, toggling, onToggle }) {
+function SkeletonCard({ delay = 0 }) {
+  return (
+    <div className="ap-card ap-card--skeleton" style={{ animationDelay: `${delay}ms` }}>
+      <div className="ap-skel-img" />
+      <div className="ap-card-body">
+        <div className="ap-skel-line ap-skel-line--lg" />
+        <div className="ap-skel-line ap-skel-line--sm" />
+        <div className="ap-skel-line ap-skel-line--md" />
+        <div className="ap-skel-line ap-skel-line--xs" />
+      </div>
+      <div className="ap-skel-actions" />
+    </div>
+  );
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+
+function EmptyState({ hasFilters, onClear }) {
+  return (
+    <div className="ap-empty">
+      <div className="ap-empty-icon">
+        <Package size={36} />
+      </div>
+      <p className="ap-empty-title">
+        {hasFilters ? 'Sin resultados' : 'Sin productos'}
+      </p>
+      <p className="ap-empty-desc">
+        {hasFilters
+          ? 'No hay productos que coincidan con los filtros aplicados.'
+          : 'Aún no tienes productos registrados en tu tienda.'}
+      </p>
+      {hasFilters && (
+        <button className="ap-btn-ghost" style={{ marginTop: 12, gap: 6 }} onClick={onClear}>
+          <X size={13} /> Limpiar filtros
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ── Product card ──────────────────────────────────────────────────────────────
+
+function ProductCard({ product, detailPath, editPath, publicPath, toggling, onToggle, entryDelay }) {
   const thumb    = product.images?.[0]?.url ?? null;
   const stock    = totalStock(product.variants);
   const price    = priceRange(product.variants);
@@ -259,9 +410,10 @@ function ProductCard({ product, detailPath, editPath, publicPath, toggling, onTo
   }[ss];
 
   return (
-    <div className={`ap-card ${isActive ? '' : 'ap-card-inactive'}`}>
-
-      {/* Imagen → detalle admin */}
+    <div
+      className={`ap-card ${isActive ? '' : 'ap-card-inactive'}`}
+      style={{ animationDelay: `${entryDelay}ms` }}
+    >
       <Link to={detailPath} className="ap-card-img-link">
         <div className="ap-card-img">
           {thumb
@@ -273,7 +425,6 @@ function ProductCard({ product, detailPath, editPath, publicPath, toggling, onTo
         </div>
       </Link>
 
-      {/* Info */}
       <div className="ap-card-body">
         <h3 className="ap-card-name">{product.name}</h3>
         <p className="ap-card-brand">{product.brandName ?? 'Sin marca'}</p>
@@ -298,15 +449,13 @@ function ProductCard({ product, detailPath, editPath, publicPath, toggling, onTo
           {product.variants?.length ?? 0} variante{product.variants?.length !== 1 ? 's' : ''}
         </p>
 
-        {/* Ver más → página pública del producto */}
         <Link to={publicPath} className="ap-ver-mas" target="_blank" rel="noopener noreferrer">
           Ver más <ArrowUpRight size={13} />
         </Link>
       </div>
 
-      {/* Acciones admin */}
       <div className="ap-card-actions">
-        <Link to={detailPath} className="ap-action-btn ap-action-view" title="Ver detalle admin">
+        <Link to={detailPath} className="ap-action-btn ap-action-view" title="Ver detalle">
           <Eye size={14} /> Detalle
         </Link>
         <Link to={editPath} className="ap-action-btn ap-action-edit" title="Editar">
@@ -319,8 +468,8 @@ function ProductCard({ product, detailPath, editPath, publicPath, toggling, onTo
           title={isActive ? 'Desactivar' : 'Activar'}
         >
           {isActive
-            ? <><ToggleLeft size={14} /> {toggling ? '...' : 'Desactivar'}</>
-            : <><ToggleRight size={14} /> {toggling ? '...' : 'Activar'}</>}
+            ? <><ToggleLeft size={14} /> {toggling ? '…' : 'Desactivar'}</>
+            : <><ToggleRight size={14} /> {toggling ? '…' : 'Activar'}</>}
         </button>
       </div>
     </div>

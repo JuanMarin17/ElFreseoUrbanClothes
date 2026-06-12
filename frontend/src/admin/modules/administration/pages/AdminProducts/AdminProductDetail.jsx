@@ -12,6 +12,7 @@ import {
   decreaseStock,
 } from '../../services/productService';
 import './AdminProductDetail.css';
+import PageSpinner from '../../../../../components/ui/PageSpinner.jsx';
 
 // ── Utilidades ───────────────────────────────────────────────────────────────
 
@@ -149,7 +150,7 @@ export default function AdminProductDetail() {
   if (loading) {
     return (
       <div className="apd-container">
-        <div className="apd-state-placeholder">Cargando producto...</div>
+        <PageSpinner label="Cargando producto..." />
       </div>
     );
   }

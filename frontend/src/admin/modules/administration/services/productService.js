@@ -3,8 +3,7 @@
  * Integración con el microservicio de productos.
  */
 
-const BASE = import.meta.env.VITE_API_URL ??  "http://46.225.21.146:8080/api/v1";
-
+const BASE = import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
 
 // ─── Headers ─────────────────────────────────────────────────────────────────
 const buildHeaders = (extra = {}) => {
@@ -23,7 +22,6 @@ const buildHeaders = (extra = {}) => {
       if (decoded.user_id) h["X-User-Id"] = decoded.user_id;
     } catch { /* silent */ }
   }
-
   if (storeId && storeId !== "null") h["X-Store-Id"] = storeId;
 
   return { ...h, ...extra };
@@ -74,7 +72,6 @@ export const getActiveProducts = (page = 0, size = 10) =>
 
 export const getAllProducts = (storeId) => {
   const id = storeId ?? localStorage.getItem("storeId");
-  
   if (!id || id === "null")
     throw new Error("Se requiere el storeId para obtener productos.");
   return request("GET", "/products", { extraHeaders: { "X-Store-Id": id } });
@@ -82,9 +79,9 @@ export const getAllProducts = (storeId) => {
 
 export const getAllActiveProducts = (storeId) => {
   const id = storeId ?? localStorage.getItem("storeId");
-  return request("GET", "/products/all/active", {
-    ...(id && id !== "null" ? { extraHeaders: { "X-Store-Id": id } } : {}),
-  });
+  return request("GET", "/products/all/active",
+    id && id !== "null" ? { extraHeaders: { "X-Store-Id": id } } : undefined
+  );
 };
 export const getNewProducts = () => request("GET", "/products/new");
 export const getNewActiveProducts = () =>

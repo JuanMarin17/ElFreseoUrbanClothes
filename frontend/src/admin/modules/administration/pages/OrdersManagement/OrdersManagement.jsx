@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { getOrders, updateOrderStatus } from '../../services/OrdersService';
 import './OrdersManagement.css';
+import PageSpinner from '../../../../../components/ui/PageSpinner.jsx';
 
 // ── Constantes de dominio ────────────────────────────────────────────────────
 
@@ -265,7 +266,7 @@ export default function OrdersManagement() {
       {/* Tabla */}
       <div className="orders-table-wrapper">
         {loading ? (
-          <div className="orders-state-placeholder">Cargando pedidos...</div>
+          <PageSpinner label="Cargando pedidos..." />
         ) : filteredOrders.length === 0 ? (
           <div className="orders-state-placeholder">No se encontraron pedidos.</div>
         ) : (

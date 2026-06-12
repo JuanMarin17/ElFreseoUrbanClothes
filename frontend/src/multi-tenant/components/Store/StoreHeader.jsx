@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingBag, Sun, Moon, Settings, ArrowLeft } from "lucide-react";
 import StoreSearchBar from "./StoreSearchBar.jsx";
@@ -42,6 +43,7 @@ export default function StoreHeader({
   topOffset = 0,
 }) {
   const navigate = useNavigate();
+  const [logoError, setLogoError] = useState(false);
   const { accent, btnR, hBg, hColor, hFont, isMin, isUrb, isCls } = theme;
 
   const btnBg     = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)";
@@ -122,19 +124,32 @@ export default function StoreHeader({
       )}
 
       {/* Logo */}
-      <div
-        style={{
+      <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 10 }}>
+        {header.logoUrl && !logoError && (
+          <img
+            src={header.logoUrl}
+            alt={header.logo ?? "Logo"}
+            onError={() => setLogoError(true)}
+            style={{
+              height: isUrb ? 42 : 36,
+              width: "auto",
+              maxWidth: 120,
+              objectFit: "contain",
+              display: "block",
+            }}
+          />
+        )}
+        <span style={{
           fontFamily: `"${hFont}",sans-serif`,
           fontWeight: 900,
-          fontSize: "clamp(14px,2.2vw,20px)",
+          fontSize: "clamp(13px,2vw,18px)",
           letterSpacing: isUrb ? 6 : 3,
           color: hColor,
           textTransform: "uppercase",
           whiteSpace: "nowrap",
-          flexShrink: 0,
-        }}
-      >
-        {header.logo}
+        }}>
+          {header.storeName ?? header.logo}
+        </span>
       </div>
 
       {/* Buscador en header (urbano y clásico) */}

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Store, Rocket, BarChart3, Globe, ArrowRight, CheckCircle2 } from 'lucide-react';
 import './CreateStoreSection.css';
 
@@ -96,12 +97,12 @@ export default function CreateStoreSection() {
             ))}
           </div>
           <div className="vx-cstore-ctas">
-            <a href="/crear-tienda" className="vx-btn-cyan">
+            <Link to="/plan" className="vx-btn-cyan">
               Crear mi tienda gratis <ArrowRight size={16} />
-            </a>
-            <a href="/como-funciona" className="vx-btn-ghost">
+            </Link>
+            <Link to="/" className="vx-btn-ghost">
               ¿Cómo funciona?
-            </a>
+            </Link>
           </div>
         </div>
       </div>

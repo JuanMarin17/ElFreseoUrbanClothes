@@ -7,6 +7,7 @@ export default function StoreCatalog({
   searchQuery, clearFilters,
   addToCart, justAdded,
   searchCfg, onSearchChange,
+  sortBy = 'relevant', onSortChange,
   storeId = null,
 }) {
   const { accent, btnR, fT, catalogBg, isDark, isMin, isUrb, isCls } = theme;
@@ -54,17 +55,21 @@ export default function StoreCatalog({
             {filteredProducts.length}{filteredProducts.length !== totalProducts ? ` / ${totalProducts}` : ""} artículo{filteredProducts.length !== 1 ? "s" : ""}
           </span>
           {isCls && (
-            <select style={{
-              marginLeft: "auto",
-              background: isDark ? "#0e1118" : "#ffffff",
-              border: `1px solid ${isDark ? "#1e2230" : "#dde4f0"}`,
-              borderRadius: 7, padding: "6px 12px",
-              fontSize: 11, color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
-              cursor: "pointer", outline: "none",
-            }}>
-              <option>Más relevantes</option>
-              <option>Menor precio</option>
-              <option>Mayor precio</option>
+            <select
+              value={sortBy}
+              onChange={e => onSortChange?.(e.target.value)}
+              style={{
+                marginLeft: "auto",
+                background: isDark ? "#0e1118" : "#ffffff",
+                border: `1px solid ${isDark ? "#1e2230" : "#dde4f0"}`,
+                borderRadius: 7, padding: "6px 12px",
+                fontSize: 11, color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
+                cursor: "pointer", outline: "none",
+              }}
+            >
+              <option value="relevant">Más relevantes</option>
+              <option value="price_asc">Menor precio</option>
+              <option value="price_desc">Mayor precio</option>
             </select>
           )}
           {isMin && (

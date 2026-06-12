@@ -40,8 +40,8 @@ async function request(method, path, body) {
 }
 
 /** POST /stores/{storeId}/orders — convierte el carrito en orden */
-export const createOrder = (storeId, body) =>
-  request('POST', `/stores/${storeId}/orders`, body);
+export const createOrder = (storeId, payload) =>
+  request('POST', `/stores/${storeId}/orders`, payload);
 
 /** POST /stores/{storeId}/orders/{orderId}/payment — procesa el pago */
 export const processPayment = (storeId, orderId, body) =>
@@ -62,3 +62,23 @@ export const getOrderPayment = (storeId, orderId) =>
 /** DELETE /stores/{storeId}/orders/{orderId} — cancelar orden */
 export const cancelOrder = (storeId, orderId) =>
   request('DELETE', `/stores/${storeId}/orders/${orderId}`);
+
+/**
+ * Simulación de orden — usar mientras el endpoint real no esté disponible.
+ * ELIMINAR cuando el API de pagos esté integrado.
+ */
+export const simulateOrder = (payload) => {
+  const id =
+    'ORD-' +
+    Date.now().toString(36).toUpperCase() +
+    '-' +
+    Math.random().toString(36).slice(2, 6).toUpperCase();
+
+  return Promise.resolve({
+    orderId: id,
+    status: 'PENDING',
+    createdAt: new Date().toISOString(),
+    ...payload,
+    _simulated: true,
+  });
+};

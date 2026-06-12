@@ -4,7 +4,7 @@ export const cf = (f = "Inter") => {
   return m ? m[1] : (f ?? "Inter");
 };
 
-export const PRICE_RANGES = [[0, 50], [50, 100], [100, 200], [200, Infinity]];
+export const PRICE_RANGES = [[0, 50000], [50000, 100000], [100000, 200000], [200000, Infinity]];
 
 export const DEMO = {
   header:   { logo: "MI TIENDA", items: ["HOME", "SHOP", "ABOUT", "CONTACTO"], color: "#fff", bg: "#000000", font: "Inter", size: 14 },

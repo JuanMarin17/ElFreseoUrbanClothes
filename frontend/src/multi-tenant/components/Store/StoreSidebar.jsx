@@ -12,17 +12,29 @@ export default function StoreSidebar({
   const { accent, btnR, isUrb } = theme;
   const { bg, color, borderColor, borderWidth, width, font, items } = cfg;
 
+  const PRICE_LABELS = [
+    "Menos de $50.000",
+    "$50.000 – $100.000",
+    "$100.000 – $200.000",
+    "Más de $200.000",
+  ];
+
   return (
     <aside style={{
       width,
+      flexShrink: 0,
       background: bg,
       borderRight: `${borderWidth}px solid ${borderColor}`,
       fontFamily: `"${font}",sans-serif`,
-      flexShrink: 0,
-      overflow: "auto",
+      position: "sticky",
+      top: 64,
+      height: "calc(100vh - 64px)",
+      overflowY: "auto",
+      scrollbarWidth: "thin",
+      scrollbarColor: `${borderColor} transparent`,
     }}>
 
-      {/* Cabecera */}
+      {/* Cabecera categorías */}
       <div style={{
         padding: "9px 14px 8px",
         borderBottom: `1px solid ${borderColor}`,
@@ -31,12 +43,17 @@ export default function StoreSidebar({
         <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color, opacity: 0.55 }}>
           Categorías
         </span>
-        <span style={{ fontSize: 10, color: accent, letterSpacing: 0.5, cursor: "pointer" }}>
-          Ver todo
-        </span>
+        {hasActiveFilters && (
+          <button onClick={clearFilters} style={{
+            background: "none", border: "none", cursor: "pointer",
+            fontSize: 10, color: accent, letterSpacing: 0.5, padding: 0,
+          }}>
+            Limpiar ×
+          </button>
+        )}
       </div>
 
-      {/* Ítems */}
+      {/* Ítems de categoría */}
       <div style={{ padding: "2px 0" }}>
         {items.map((item, i) => (
           <div key={i} onClick={() => setActiveCategory(i)} style={{
@@ -48,33 +65,27 @@ export default function StoreSidebar({
             borderLeft: `3px solid ${i === activeCategory ? accent : "transparent"}`,
             background: i === activeCategory ? `${accent}12` : "transparent",
             cursor: "pointer", letterSpacing: 0.2, userSelect: "none",
+            transition: "background 0.15s, color 0.15s",
           }}>
             <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
               {item}
             </span>
-            <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
-              <span style={{
-                fontSize: 9,
-                background: i === activeCategory ? `${accent}22` : borderColor,
-                color: i === activeCategory ? accent : color,
-                opacity: i === activeCategory ? 1 : 0.5,
-                borderRadius: 20, padding: "1px 5px", fontWeight: 600,
-              }}>
-                {[24, 18, 31, 12, 7][i] ?? 0}
-              </span>
-              <ChevronRight color={i === activeCategory ? accent : color} size={9} />
-            </div>
+            <ChevronRight color={i === activeCategory ? accent : color} size={9} />
           </div>
         ))}
       </div>
 
       {/* Filtro precio */}
       <div style={{ padding: "8px 14px 10px", borderTop: `1px solid ${borderColor}` }}>
-        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color, opacity: 0.55, display: "block", marginBottom: 7 }}>
+        <span style={{
+          fontSize: 10, fontWeight: 700, letterSpacing: 2,
+          textTransform: "uppercase", color, opacity: 0.55,
+          display: "block", marginBottom: 7,
+        }}>
           Precio
         </span>
         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-          {["Menos de $50", "$50 – $100", "$100 – $200", "Más de $200"].map((r, i) => {
+          {PRICE_LABELS.map((label, i) => {
             const checked = activePrices.includes(i);
             return (
               <label key={i} onClick={() => togglePrice(i)} style={{
@@ -92,7 +103,7 @@ export default function StoreSidebar({
                 }}>
                   {checked && <span style={{ fontSize: 8, color: "#fff", lineHeight: 1 }}>✓</span>}
                 </span>
-                {r}
+                {label}
               </label>
             );
           })}
@@ -100,8 +111,12 @@ export default function StoreSidebar({
       </div>
 
       {/* Filtro talla */}
-      <div style={{ padding: "8px 14px 10px", borderTop: `1px solid ${borderColor}` }}>
-        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color, opacity: 0.55, display: "block", marginBottom: 7 }}>
+      <div style={{ padding: "8px 14px 12px", borderTop: `1px solid ${borderColor}` }}>
+        <span style={{
+          fontSize: 10, fontWeight: 700, letterSpacing: 2,
+          textTransform: "uppercase", color, opacity: 0.55,
+          display: "block", marginBottom: 7,
+        }}>
           Talla
         </span>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
@@ -123,9 +138,9 @@ export default function StoreSidebar({
         </div>
       </div>
 
-      {/* Botones */}
-      <div style={{ padding: "0 14px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
-        {hasActiveFilters && (
+      {/* Limpiar filtros */}
+      {hasActiveFilters && (
+        <div style={{ padding: "0 14px 12px" }}>
           <button onClick={clearFilters} style={{
             width: "100%", padding: "7px 0",
             background: "transparent", border: `1px solid ${borderColor}`,
@@ -135,17 +150,8 @@ export default function StoreSidebar({
           }}>
             Limpiar filtros ×
           </button>
-        )}
-        <button onClick={clearFilters} style={{
-          width: "100%", padding: "8px 0",
-          background: accent, border: "none", borderRadius: btnR,
-          color: isUrb ? "#000" : "#fff",
-          fontSize: 11, fontWeight: 700, letterSpacing: 1.5,
-          textTransform: "uppercase", cursor: "pointer",
-        }}>
-          Aplicar filtros
-        </button>
-      </div>
+        </div>
+      )}
 
     </aside>
   );

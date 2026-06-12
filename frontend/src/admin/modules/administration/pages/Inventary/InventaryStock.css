@@ -7,9 +7,10 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  border: 1px solid #222;
+  border: 1px solid var(--at-border, #222);
   border-radius: 6px;
   overflow: hidden;
+  transition: border-color 0.25s;
 }
 
 /* Cabecera */
@@ -17,13 +18,14 @@
   display: grid;
   grid-template-columns: 60px 1fr 110px;
   padding: 8px 16px;
-  background: #0a0a0a;
-  border-bottom: 1px solid #222;
+  background: var(--at-bg, #0a0a0a);
+  border-bottom: 1px solid var(--at-border, #222);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 1.5px;
-  color: #555;
+  color: var(--at-text-3, #555);
   text-transform: uppercase;
+  transition: background 0.25s, border-color 0.25s;
 }
 
 /* Filas */
@@ -37,18 +39,17 @@
   grid-template-columns: 60px 1fr 110px;
   align-items: center;
   padding: 10px 16px;
-  border-bottom: 1px solid #1a1a1a;
+  border-bottom: 1px solid var(--at-border, #1a1a1a);
   transition: background 0.15s ease;
 }
 
 .fila-talla:last-child { border-bottom: none; }
-
-.fila-talla:hover { background: rgba(255, 255, 255, 0.02); }
+.fila-talla:hover { background: var(--at-border-soft, rgba(255, 255, 255, 0.02)); }
 
 .fila-talla__nombre {
   font-size: 13px;
   font-weight: 700;
-  color: #fff;
+  color: var(--at-text-1, #fff);
   letter-spacing: 1px;
 }
 
@@ -63,37 +64,38 @@
 .stepper__btn {
   width: 28px;
   height: 28px;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  color: #fff;
+  background: var(--at-elevated, #1a1a1a);
+  border: 1px solid var(--at-border, #333);
+  color: var(--at-text-1, #fff);
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s;
   user-select: none;
 }
 
 .stepper__btn:first-child { border-radius: 4px 0 0 4px; }
 .stepper__btn:last-child  { border-radius: 0 4px 4px 0; }
 
-.stepper__btn:hover:not(:disabled) { background: #2e6ff2; border-color: #2e6ff2; }
+.stepper__btn:hover:not(:disabled) { background: #2563eb; border-color: #2563eb; }
 .stepper__btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
 .stepper__input {
   width: 54px;
   height: 28px;
-  background: #000;
-  border: 1px solid #333;
+  background: var(--at-input-bg, #000);
+  border: 1px solid var(--at-border, #333);
   border-left: none;
   border-right: none;
-  color: #fff;
+  color: var(--at-text-1, #fff);
   text-align: center;
   font-size: 13px;
   font-family: 'Inter', monospace;
   -moz-appearance: textfield;
+  transition: background 0.25s, color 0.25s;
 }
 
 .stepper__input::-webkit-inner-spin-button,
@@ -101,8 +103,8 @@
 
 .stepper__input:focus {
   outline: none;
-  background: #0d1b3e;
-  border-color: #2e6ff2;
+  background: var(--at-accent-bg, rgba(37,99,235,0.1));
+  border-color: #2563eb;
 }
 
 /* ── Badges de estado ─────────────────────────────────────── */
@@ -128,22 +130,23 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 16px;
-  background: #0a0a0a;
-  border-top: 1px solid #222;
+  background: var(--at-bg, #0a0a0a);
+  border-top: 1px solid var(--at-border, #222);
+  transition: background 0.25s, border-color 0.25s;
 }
 
 .footer__label {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 1.5px;
-  color: #555;
+  color: var(--at-text-3, #555);
   text-transform: uppercase;
 }
 
 .footer__total {
   font-size: 14px;
   font-weight: 700;
-  color: #2e6ff2;
+  color: #2563eb;
 }
 
 /* ── Estado vacío ─────────────────────────────────────────── */
@@ -154,7 +157,7 @@
   justify-content: center;
   gap: 10px;
   padding: 28px 16px;
-  border: 1px dashed #222;
+  border: 1px dashed var(--at-border, #222);
   border-radius: 6px;
   text-align: center;
 }
@@ -163,7 +166,7 @@
 
 .inventario-vacio p {
   font-size: 11px;
-  color: #555;
+  color: var(--at-text-3, #555);
   margin: 0;
   line-height: 1.5;
 }

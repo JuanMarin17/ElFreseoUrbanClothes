@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { HelpCircle, Plus, ExternalLink, Terminal, History, Send } from 'lucide-react';
+import { HelpCircle, Plus, ExternalLink, MessageSquare, History, Send, X, Package, CreditCard, RefreshCw, ShieldCheck } from 'lucide-react';
 import accountService from '../../services/accountService';
 import './HelpSupport.css';
 
 const TICKET_STATUS = {
-  Resuelto:   { color: '#00ffff', label: 'RESOLVED' },
-  'En Espera': { color: '#f28a60', label: 'PENDING_REVIEW' },
-  Abierto:    { color: '#7880fd', label: 'ACTIVE_QUERY' },
+  Resuelto:    { color: '#22c55e', bg: 'rgba(34,197,94,0.1)',   label: 'Resuelto' },
+  'En Espera': { color: '#f59e0b', bg: 'rgba(245,158,11,0.1)',  label: 'En revisión' },
+  Abierto:     { color: '#3b82f6', bg: 'rgba(59,130,246,0.1)',  label: 'Abierto' },
 };
+
+const QUICK_TOPICS = [
+  { icon: Package,     label: 'Problemas con mi pedido',   desc: 'Seguimiento, retrasos y cancelaciones' },
+  { icon: CreditCard,  label: 'Pagos y facturación',        desc: 'Cobros, reembolsos y métodos de pago' },
+  { icon: RefreshCw,   label: 'Devoluciones',               desc: 'Cómo gestionar una devolución' },
+  { icon: ShieldCheck, label: 'Seguridad de la cuenta',     desc: 'Contraseña, acceso y privacidad' },
+];
 
 export default function HelpSupport() {
   const [tickets, setTickets]   = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm]         = useState({ subject: '', message: '' });
+  const [sending, setSending]   = useState(false);
 
   useEffect(() => {
     accountService.getTickets()
@@ -21,107 +29,153 @@ export default function HelpSupport() {
   }, []);
 
   const handleCreate = async () => {
+    if (!form.subject.trim() || !form.message.trim()) return;
+    setSending(true);
     try {
       const { data } = await accountService.createTicket(form);
       setTickets(t => [data, ...t]);
       setForm({ subject: '', message: '' });
       setShowForm(false);
-    } catch (e) {
-      console.error("SYS_LOG: Error al crear el ticket.");
+    } catch {
+      /* error silencioso */
+    } finally {
+      setSending(false);
     }
   };
 
+  const handleTopicClick = (label) => {
+    setForm(f => ({ ...f, subject: label }));
+    setShowForm(true);
+  };
+
   return (
-    <div className="support-section">
-      <div className="support-header-main">
-        <span className="info-tag">SOPORTE_TECNICO_CENTRAL</span>
-        <div className="header-actions">
-          <h2 className="section-title">AYUDA Y SOPORTE</h2>
-          <button className="new-ticket-btn" onClick={() => setShowForm(s => !s)}>
-            <Plus size={16} /> <span>OPEN_NEW_TICKET</span>
-          </button>
+    <div className="hs-root">
+
+      {/* ── Header ── */}
+      <div className="hs-header">
+        <div>
+          <p className="hs-eyebrow">Centro de soporte</p>
+          <h2 className="hs-title">Ayuda y Soporte</h2>
+          <p className="hs-subtitle">¿Tienes un problema? Estamos aquí para resolverlo.</p>
         </div>
+        <button className="hs-new-btn" onClick={() => setShowForm(s => !s)}>
+          {showForm ? <X size={16} /> : <Plus size={16} />}
+          <span>{showForm ? 'Cancelar' : 'Nuevo ticket'}</span>
+        </button>
       </div>
 
+      {/* ── Atajos rápidos ── */}
+      {!showForm && (
+        <div className="hs-topics">
+          {QUICK_TOPICS.map(({ icon: Icon, label, desc }) => (
+            <button key={label} className="hs-topic-card" onClick={() => handleTopicClick(label)}>
+              <span className="hs-topic-icon"><Icon size={18} /></span>
+              <div>
+                <p className="hs-topic-label">{label}</p>
+                <p className="hs-topic-desc">{desc}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* ── Formulario ── */}
       {showForm && (
-        <div className="sec-card form-card-entry animate-fade">
-          <div className="card-header-tech">
-            <Terminal size={14} /> <span>NUEVO_REPORTE_INCIDENCIA</span>
+        <div className="hs-form-card hs-animate-in">
+          <div className="hs-card-header">
+            <MessageSquare size={15} />
+            <span>Nuevo ticket de soporte</span>
           </div>
-          <div className="sec-form-body">
-            <div className="field-box">
-              <label>ASUNTO_TEMA</label>
+          <div className="hs-form-body">
+            <div className="hs-field">
+              <label>Asunto</label>
               <input
-                className="tech-input"
-                placeholder="Ej. Incidencia con envío ID-99..."
+                className="hs-input"
+                placeholder="Ej: Problema con mi pedido #1234"
                 value={form.subject}
                 onChange={e => setForm(f => ({ ...f, subject: e.target.value }))}
               />
             </div>
-            <div className="field-box">
-              <label>LOG_MENSAJE</label>
+            <div className="hs-field">
+              <label>Describe tu problema</label>
               <textarea
-                className="tech-input support-textarea"
-                placeholder="Describe el caso detalladamente..."
+                className="hs-input hs-textarea"
+                placeholder="Cuéntanos con detalle qué pasó para poder ayudarte más rápido..."
                 value={form.message}
                 onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
               />
             </div>
-            <button className="submit-ticket-btn" onClick={handleCreate}>
-              <Send size={15} /> <span>SUBMIT_TO_CORE</span>
-            </button>
+            <div className="hs-form-footer">
+              <p className="hs-form-hint">Tiempo de respuesta habitual: menos de 24 h</p>
+              <button
+                className="hs-submit-btn"
+                onClick={handleCreate}
+                disabled={sending || !form.subject.trim() || !form.message.trim()}
+              >
+                {sending ? <span className="hs-spinner" /> : <Send size={15} />}
+                <span>{sending ? 'Enviando…' : 'Enviar ticket'}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Historial de Tickets */}
-      <div className="sec-card history-card">
-        <div className="card-header-tech">
-          <History size={14} /> <span>LOG_HISTORIAL_TICKETS</span>
+      {/* ── Historial de Tickets ── */}
+      <div className="hs-history-card">
+        <div className="hs-card-header">
+          <History size={15} />
+          <span>Mis tickets</span>
+          {tickets.length > 0 && <span className="hs-count-badge">{tickets.length}</span>}
         </div>
-        
+
         {tickets.length === 0 ? (
-          <div className="empty-state">
-            <p className="sec-desc">NULL: NO SE ENCONTRARON REGISTROS DE SOPORTE.</p>
+          <div className="hs-empty">
+            <div className="hs-empty-icon"><HelpCircle size={32} /></div>
+            <p className="hs-empty-title">Sin tickets por ahora</p>
+            <p className="hs-empty-desc">Cuando abras un ticket de soporte, aparecerá aquí con su estado en tiempo real.</p>
+            <button className="hs-empty-cta" onClick={() => setShowForm(true)}>
+              <Plus size={14} /> Abrir mi primer ticket
+            </button>
           </div>
         ) : (
-          <div className="table-responsive">
-            <table className="tickets-table">
+          <div className="hs-table-wrap">
+            <table className="hs-table">
               <thead>
                 <tr>
-                  <th>TICKET_ID</th>
-                  <th>ASUNTO</th>
-                  <th>ESTADO</th>
-                  <th>UPDATE_TIMESTAMP</th>
-                  <th className="text-right">ACCIONES</th>
+                  <th>#</th>
+                  <th>Asunto</th>
+                  <th>Estado</th>
+                  <th className="hs-hide-sm">Actualizado</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
-                {tickets.map(t => (
-                  <tr key={t.id}>
-                    <td className="id-cell">#{t.id}</td>
-                    <td className="subject-cell">{t.subject.toUpperCase()}</td>
-                    <td>
-                      <span 
-                        className="status-badge-tech" 
-                        style={{ color: TICKET_STATUS[t.status]?.color }}
-                      >
-                        {TICKET_STATUS[t.status]?.label || t.status}
-                      </span>
-                    </td>
-                    <td className="date-cell">{t.updatedAt}</td>
-                    <td className="text-right">
-                      <button className="ticket-link-btn">
-                        <ExternalLink size={14} /> <span>LOGS</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {tickets.map(t => {
+                  const s = TICKET_STATUS[t.status] ?? TICKET_STATUS['Abierto'];
+                  return (
+                    <tr key={t.id}>
+                      <td className="hs-id-cell">#{t.id}</td>
+                      <td className="hs-subject-cell">{t.subject}</td>
+                      <td>
+                        <span className="hs-badge" style={{ color: s.color, background: s.bg }}>
+                          {s.label}
+                        </span>
+                      </td>
+                      <td className="hs-hide-sm hs-date-cell">{t.updatedAt}</td>
+                      <td className="hs-action-cell">
+                        <button className="hs-view-btn">
+                          <ExternalLink size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </div>
+
     </div>
   );
 }

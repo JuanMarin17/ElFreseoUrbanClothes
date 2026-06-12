@@ -277,6 +277,19 @@ const VarianteRow = ({ variante, onChange, disabled }) => {
   );
 };
 
+// ─── Step Badge ──────────────────────────────────────────────────────────────
+const StepBadge = ({ n, done, label }) => (
+  <div className={`up-step ${done ? 'up-step--done' : ''}`}>
+    <div className="up-step-circle">
+      {done
+        ? <svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5 6.5-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        : <span>{n}</span>
+      }
+    </div>
+    <span className="up-step-label">{label}</span>
+  </div>
+);
+
 // ─── Componente Principal ─────────────────────────────────────────────────────
 const UploadProduct = () => {
   const navigate   = useNavigate();
@@ -485,8 +498,21 @@ const UploadProduct = () => {
   const totalVariantes = producto.variantes.length;
   const hayVariantes = totalVariantes > 0;
 
+  const step1Done = producto.name.trim().length > 0;
+  const step2Done = producto.imagenes.length > 0 && producto.imagenes.every(i => !i.uploading);
+  const step3Done = producto.variantes.some(v => v.precio && Number(v.precio) > 0);
+
   return (
     <div className="up-wrapper">
+      {/* ── Stepper ── */}
+      <div className="up-stepper">
+        <StepBadge n={1} done={step1Done} label="Información" />
+        <div className={`up-step-line ${step1Done ? 'up-step-line--done' : ''}`} />
+        <StepBadge n={2} done={step2Done} label="Imágenes" />
+        <div className={`up-step-line ${step2Done ? 'up-step-line--done' : ''}`} />
+        <StepBadge n={3} done={step3Done} label="Variantes" />
+      </div>
+
       {/* ── Header ── */}
       <div className="up-header">
         <div className="up-header-left">
@@ -553,8 +579,13 @@ const UploadProduct = () => {
           >
             <input ref={fileInputRef} type="file" accept="image/*" multiple className="up-hidden-input"
               onChange={handleFileChange} tabIndex={-1} aria-hidden="true" />
-            <span className="up-drop-icon">⬆</span>
-            <span className="up-drop-text">+ Subir imagen</span>
+            <span className={`up-drop-icon ${dragging ? 'up-drop-icon--active' : ''}`}>
+              <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 28V12M20 12L14 18M20 12L26 18" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M10 32h20" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+              </svg>
+            </span>
+            <span className="up-drop-text">{dragging ? 'Suelta para subir' : '+ Subir imagen'}</span>
             <small className="up-drop-hint">PNG / JPG · Máx {MAX_IMAGENES} imágenes · Cloudinary</small>
           </div>
           {producto.imagenes.length > 0 && (

@@ -6,6 +6,7 @@
  */
 
 import React, { useState } from "react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import "../components/styles/ComponentCustomizer.css";
 import { useStore } from "../pages/useStore";
 import { useNavigate } from "react-router-dom";
@@ -152,13 +153,13 @@ const ComponentCustomizer = () => {
               className="btn-back-arrow"
               title="Volver"
             >
-              
+              <ArrowLeft size={16} />
             </button>
             <div className="brand">
               {state.store?.name ?? "VEXIO"} <span>STUDIO V3</span>
             </div>
             <button className="btn-save-top" onClick={handleSave}>
-              SIGUIENTE '
+              SIGUIENTE <ArrowRight size={14} />
             </button>
           </header>
           <StepProgress />
@@ -707,14 +708,14 @@ const ComponentCustomizer = () => {
                 }}
                 title="Volver"
               >
-                
+                <ArrowLeft size={16} />
               </button>
               <button
                 className="btn-save-top"
                 onClick={handleSave}
                 style={{ padding: "10px 24px" }}
               >
-                SIGUIENTE '
+                SIGUIENTE <ArrowRight size={14} />
               </button>
             </div>
           )}

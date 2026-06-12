@@ -287,3 +287,49 @@
 @media (max-width: 760px) {
   .sub-plans__grid { grid-template-columns: 1fr; max-width: 380px; margin: 0 auto; }
 }
+
+/* ── Modo Claro ──────────────────────────────────────────── */
+.admin-terminal-wrapper[data-theme="light"] .sub-root {
+  background: var(--at-bg);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sub-brand__logo,
+.admin-terminal-wrapper[data-theme="light"] .sub-plans__title,
+.admin-terminal-wrapper[data-theme="light"] .sub-plan-card__price,
+.admin-terminal-wrapper[data-theme="light"] .sub-result__title {
+  color: var(--at-text-1);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sub-brand__tag,
+.admin-terminal-wrapper[data-theme="light"] .sub-plans__sub,
+.admin-terminal-wrapper[data-theme="light"] .sub-plan-card__name,
+.admin-terminal-wrapper[data-theme="light"] .sub-plan-card__period,
+.admin-terminal-wrapper[data-theme="light"] .sub-result__text {
+  color: var(--at-text-3);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sub-plan-card {
+  background: var(--at-elevated);
+  border-color: var(--at-border);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sub-plan-card--featured {
+  background: linear-gradient(160deg, var(--at-elevated) 60%, var(--at-surface));
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sub-plan-card__features li {
+  color: var(--at-text-2);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sub-btn--outline {
+  border-color: var(--at-border);
+  color: var(--at-text-2);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sub-result__card {
+  background: var(--at-elevated);
+  border-color: var(--at-border);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sub-result__row-label { color: var(--at-text-3); }
+.admin-terminal-wrapper[data-theme="light"] .sub-result__row-value { color: var(--at-text-1); }

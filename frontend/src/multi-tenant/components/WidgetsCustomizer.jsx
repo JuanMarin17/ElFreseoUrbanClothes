@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import "./styles/WidgetsCustomizer.css";
 import { useStore } from "../pages/useStore";
 import { useNavigate } from "react-router-dom";
@@ -87,12 +88,14 @@ const WidgetsCustomizer = () => {
       {!isFullscreen && (
         <>
           <header className="admin-nav">
-            <button onClick={handleBack} className="btn-back-arrow" title="Volver"></button>
+            <button onClick={handleBack} className="btn-back-arrow" title="Volver">
+              <ArrowLeft size={16} />
+            </button>
             <div className="brand">
               {state.store?.name ?? "EL vexio"} <span>WIDGETS</span>
             </div>
             <button className="btn-save-top" onClick={handleFinish}>
-              SIGUIENTE '
+              SIGUIENTE <ArrowRight size={14} />
             </button>
           </header>
           <StepProgress />
@@ -363,8 +366,10 @@ const WidgetsCustomizer = () => {
           {/* Botones fullscreen */}
           {isFullscreen && (
             <div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", gap: 10 }}>
-              <button onClick={handleBack} style={{ background: "#1a1a1a", border: "1px solid #555", color: "#aaa", padding: "10px 18px", borderRadius: 8, cursor: "pointer", fontSize: 18 }}></button>
-              <button className="btn-save-top" onClick={handleFinish} style={{ padding: "10px 24px" }}>SIGUIENTE '</button>
+              <button onClick={handleBack} style={{ background: "#1a1a1a", border: "1px solid #555", color: "#aaa", padding: "10px 18px", borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center" }}>
+                <ArrowLeft size={16} />
+              </button>
+              <button className="btn-save-top" onClick={handleFinish} style={{ padding: "10px 24px" }}>SIGUIENTE <ArrowRight size={14} /></button>
             </div>
           )}
         </section>

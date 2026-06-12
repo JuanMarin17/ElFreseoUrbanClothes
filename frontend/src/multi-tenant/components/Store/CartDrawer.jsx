@@ -107,9 +107,14 @@ export default function CartDrawer({
   onRemoveItem,
   onClearCart,
   onClearError,
+  storeSlug,
 }) {
   const navigate = useNavigate();
-  const slug = window.location.pathname.match(/\/tienda\/([^/]+)/)?.[1];
+
+  const handleCheckout = () => {
+    onClose();
+    navigate(`/tienda/${storeSlug}/checkout`, { state: { cart } });
+  };
 
   // Bloquear scroll del body mientras está abierto
   useEffect(() => {
@@ -273,10 +278,7 @@ export default function CartDrawer({
               Envío e impuestos calculados al finalizar
             </p>
 
-            <button
-              className="cd-btn-checkout"
-              onClick={() => { onClose(); navigate(`/tienda/${slug}/checkout`); }}
-            >
+            <button className="cd-btn-checkout" onClick={handleCheckout}>
               Proceder al pago
               <svg
                 width="14"

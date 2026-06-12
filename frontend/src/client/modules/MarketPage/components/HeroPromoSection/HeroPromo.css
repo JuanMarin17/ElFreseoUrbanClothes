@@ -4,11 +4,10 @@
 
 .vx-hero-root {
   width: 100%;
-  height: 65vh;
+  min-height: 72vh;
   padding: 100px 0 80px;
   position: relative;
-  background-color: #050507; /* Fondo oscuro cinematográfico */
-  overflow: hidden;
+  background-color: #050507;
 }
 
 .vx-hero-inner {
@@ -16,7 +15,6 @@
   grid-template-columns: 1.2fr 1fr;
   gap: 60px;
   align-items: center;
-  margin-bottom: 80px;
 }
 
 /* ─── Luces Líquidas de Fondo (Sin Cajas) ─── */
@@ -100,11 +98,22 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+  transition: opacity 200ms ease-out, transform 160ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 200ms ease-out;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.12);
 }
-.vx-btn-primary:hover {
-  transform: scale(1.05);
-  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.15);
+
+@media (hover: hover) and (pointer: fine) {
+  .vx-btn-primary:hover {
+    opacity: 0.92;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+  }
+}
+
+.vx-btn-primary:active {
+  transform: scale(0.97);
+  box-shadow: none;
+  opacity: 1;
 }
 
 .vx-btn-link {
@@ -118,11 +127,14 @@
   gap: 6px;
   cursor: pointer;
   text-decoration: none;
-  transition: gap 0.2s;
+  transition: gap 200ms cubic-bezier(0.23, 1, 0.32, 1), color 180ms ease-out;
 }
-.vx-btn-link:hover {
-  gap: 12px;
-  color: #06b6d4;
+
+@media (hover: hover) and (pointer: fine) {
+  .vx-btn-link:hover {
+    gap: 12px;
+    color: #06b6d4;
+  }
 }
 
 /* ─── Tarjetas Flotantes Orgánicas (Derecha) ─── */
@@ -142,7 +154,7 @@
   border-radius: 32px;
   overflow: hidden;
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 400ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 400ms ease-out, z-index 0s;
 }
 
 .card-top {
@@ -158,9 +170,12 @@
   transform: rotate(-6deg);
 }
 
-.floating-card:hover {
-  z-index: 4;
-  transform: scale(1.05) rotate(0deg) translateY(-10px);
+@media (hover: hover) and (pointer: fine) {
+  .floating-card:hover {
+    z-index: 4;
+    transform: translateY(-10px) rotate(0deg);
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7);
+  }
 }
 
 .floating-card-img {
@@ -208,6 +223,64 @@
   text-underline-offset: 4px;
 }
 
+/* ─── Botones del Hero ─── */
+.vx-btn-cyan {
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 14px 30px;
+  border-radius: 99px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: opacity 200ms ease-out, transform 160ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 200ms ease-out;
+  box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vx-btn-cyan:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(6, 182, 212, 0.45);
+  }
+}
+
+.vx-btn-cyan:active {
+  transform: scale(0.97);
+  box-shadow: none;
+}
+
+.vx-btn-ghost {
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 14px 30px;
+  border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: background 200ms ease-out, border-color 200ms ease-out, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vx-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
+}
+
+.vx-btn-ghost:active {
+  transform: scale(0.97);
+}
+
 /* ─── Características de Diseño Fluido (Abierto, sin grillas pesadas) ─── */
 .hero-features-fluid {
   display: grid;
@@ -251,8 +324,20 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-.hero-content-fluid { animation: floatUp 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-.hero-floating-display { animation: floatUp 1s .2s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.hero-content-fluid { animation: floatUp 0.7s cubic-bezier(0.23, 1, 0.32, 1) both; }
+.hero-floating-display { animation: floatUp 0.7s 0.15s cubic-bezier(0.23, 1, 0.32, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-content-fluid,
+  .hero-floating-display {
+    animation: none;
+    opacity: 1;
+  }
+  .floating-card,
+  .floating-card-img {
+    transition: none;
+  }
+}
 
 /* ─── Responsivo ─── */
 @media (max-width: 1024px) {

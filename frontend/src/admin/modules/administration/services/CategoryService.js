@@ -2,6 +2,7 @@
 // CategoryService.js — /api/v1/categories
 // Requiere: Authorization, X-Store-Id (GET); + X-User-Role (escritura)
 // ══════════════════════════════════════════════════════════════════════════════
+
 const BASE_URL = import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
 
 const readHeaders = () => {
