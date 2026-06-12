@@ -28,7 +28,7 @@ const Report              = lazy(() => import("./admin/modules/administration/pa
 const IAAdmin             = lazy(() => import("./admin/modules/administration/pages/IAAdmin/AIAdmin.jsx"));
 const OrdersManagement    = lazy(() => import("./admin/modules/administration/pages/OrdersManagement/OrdersManagement.jsx"));
 const ShockAlerts         = lazy(() => import("./admin/modules/administration/pages/StockAlerts/StockAlert.jsx"));
-const SuppliersPage       = lazy(() => import("./admin/modules/administration/pages/Suppliers/SuppliersPage.jsx"));
+const SuppliersPage       = lazy(() => import("./admin/modules/administration/pages/Proveedor/SuppliersPage.jsx"));
 const PromotionsDashboard = lazy(() => import("./admin/modules/administration/promotions/PromotionsDashboards.jsx"));
 const UsersManagement     = lazy(() => import("./admin/modules/administration/pages/UsersManagement/UsersManagement.jsx"));
 const AdminProductsPage   = lazy(() => import("./admin/modules/administration/pages/AdminProducts/AdminProductsPage.jsx"));
