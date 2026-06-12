@@ -4,8 +4,8 @@ import {
   fetchProductReviews,
   fetchRelatedProducts,
   addToCart,
-  toggleWishlist,
 } from "./productService";
+import { isWishlisted, toggleInWishlist } from "../../../../utils/wishlistService.js";
 
 /**
  * useProduct
@@ -76,6 +76,7 @@ export function useProduct(productId) {
         const relatedData = relatedResult.status === "fulfilled" ? relatedResult.value : [];
 
         setProduct(productData);
+        setWishlisted(isWishlisted(productData.id));
         setReviews(reviewData?.content ?? []);
         setHasMoreReviews(reviewData ? !reviewData.last : false);
         setRelated(Array.isArray(relatedData) ? relatedData : []);
@@ -159,6 +160,7 @@ export function useProduct(productId) {
     setCartSuccess(false);
     try {
       await addToCart({
+        productId: product?.id,
         variantId: activeVariant.variantId,
         quantity,
       });
@@ -169,20 +171,22 @@ export function useProduct(productId) {
     } finally {
       setCartLoading(false);
     }
-  }, [activeVariant, quantity]);
+  }, [activeVariant, product, quantity]);
 
-  // ── Wishlist con optimistic update ──────────────────
-  const handleToggleWishlist = useCallback(async () => {
+  // ── Sincronizar corazón si cambia la wishlist desde otro componente (ej. drawer) ──
+  useEffect(() => {
+    if (!product?.id) return;
+    const sync = () => setWishlisted(isWishlisted(product.id));
+    window.addEventListener("wishlist-updated", sync);
+    return () => window.removeEventListener("wishlist-updated", sync);
+  }, [product?.id]);
+
+  // ── Wishlist persistida en localStorage ─────────────
+  const handleToggleWishlist = useCallback(() => {
     if (!product) return;
-    const prev = wishlisted;
-    setWishlisted(!prev);
-    try {
-      const result = await toggleWishlist({ productId: product.id });
-      setWishlisted(result.wishlisted);
-    } catch {
-      setWishlisted(prev);
-    }
-  }, [product, wishlisted]);
+    const newState = toggleInWishlist(product);
+    setWishlisted(newState);
+  }, [product]);
 
   // ── Cargar más reseñas ──────────────────────────────
   const loadMoreReviews = useCallback(async () => {

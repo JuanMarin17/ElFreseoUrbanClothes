@@ -125,16 +125,15 @@ export default function CreateStore() {
           >
             <ArrowLeft size={16} />
           </button>
-          <div>
-            <h1 className="step-title">Terminos y crear tienda</h1>
+          <div className="step-header-text">
+            <h1 className="step-title">Crear tu tienda</h1>
             <p className="step-subtitle">
               {state.plan && (
-                <>
-                  Plan: <strong>{state.plan.name}</strong>
-                </>
+                <>Plan: <strong>{state.plan.name}</strong></>
               )}
             </p>
           </div>
+          <span className="step-badge">Paso 10 / 11</span>
         </div>
 
         {/* Cuerpo */}

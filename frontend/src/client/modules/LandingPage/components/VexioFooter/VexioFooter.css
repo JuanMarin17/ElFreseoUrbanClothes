@@ -2,84 +2,263 @@
    VexioFooter.css
    ============================================================ */
 
+/* ── Base ───────────────────────────────────────────────────── */
 .vx-footer {
   background: #050505;
-  border-top: 1px solid #1A1A1A;
-  padding: 64px 6% 30px;
+  border-top: 1px solid #1a1a1a;
+  padding: 64px 6% 32px;
   position: relative;
   z-index: 1;
 }
 
+/* ── Top grid ───────────────────────────────────────────────── */
 .vx-footer-top {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 2.2fr 1fr 1fr 1fr;
   gap: 48px;
   margin-bottom: 52px;
 }
 
-/* Logo */
-.vx-footer-logo { height: 32px; width: auto; object-fit: contain; margin-bottom: 14px; display: block; }
-
-.vx-footer-tagline {
-  font-size: .83rem;
-  color: #6B7280;
-  line-height: 1.75;
-  max-width: 260px;
-  margin-bottom: 20px;
+/* ── Brand column ───────────────────────────────────────────── */
+.vx-footer-brand {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: vxFadeUp 0.55s ease forwards 0.05s;
 }
 
-.vx-footer-socials { display: flex; gap: 8px; }
-.vx-footer-social {
-  width: 32px; height: 32px;
-  border-radius: 7px;
-  background: transparent;
-  border: 1px solid #2A2A2A;
-  display: flex; align-items: center; justify-content: center;
-  font-size: .72rem; font-weight: 700;
-  text-transform: uppercase;
-  color: #6B7280;
-  text-decoration: none;
-  transition: background .2s, border-color .2s, color .2s;
-}
-.vx-footer-social:hover {
-  background: rgba(37,99,255,.10);
-  border-color: rgba(37,99,255,.30);
-  color: #FFFFFF;
-}
-
-/* Columnas */
-.vx-footer-col-title {
-  font-family: 'Syne', sans-serif;
-  font-size: .75rem;
-  font-weight: 700;
-  letter-spacing: .09em;
-  text-transform: uppercase;
-  color: #374151;
+.vx-footer-logo {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+  display: block;
   margin-bottom: 16px;
 }
-.vx-footer-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
-.vx-footer-col a { color: #6B7280; text-decoration: none; font-size: .84rem; transition: color .18s; }
-.vx-footer-col a:hover { color: #FFFFFF; }
 
-/* Bottom */
+.vx-footer-tagline {
+  font-size: 0.82rem;
+  color: #55606f;
+  line-height: 1.8;
+  max-width: 270px;
+  margin-bottom: 24px;
+}
+
+/* ── Social icons ───────────────────────────────────────────── */
+.vx-footer-socials {
+  display: flex;
+  gap: 8px;
+}
+
+.vx-footer-social {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4b5260;
+  text-decoration: none;
+  transition: background 0.22s, border-color 0.22s, color 0.22s, transform 0.2s;
+}
+
+.vx-footer-social:hover {
+  background: rgba(37, 99, 255, 0.09);
+  border-color: rgba(37, 99, 255, 0.35);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.vx-footer-social i {
+  font-size: 15px;
+}
+
+/* ── Link columns ───────────────────────────────────────────── */
+.vx-footer-col {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: vxFadeUp 0.5s ease forwards var(--col-delay, 0.2s);
+}
+
+.vx-footer-col-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: #2d3340;
+  margin-bottom: 18px;
+}
+
+.vx-footer-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.vx-footer-col a {
+  color: #505666;
+  text-decoration: none;
+  font-size: 0.83rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.18s, gap 0.18s;
+}
+
+.vx-link-arrow {
+  opacity: 0;
+  font-size: 12px;
+  transform: translateX(-5px);
+  transition: opacity 0.18s, transform 0.18s;
+}
+
+.vx-footer-col a:hover {
+  color: #e8eaf0;
+  gap: 7px;
+}
+
+.vx-footer-col a:hover .vx-link-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── Divider ─────────────────────────────────────────────────── */
+.vx-footer-divider {
+  border: none;
+  border-top: 1px solid #161616;
+  margin: 0 0 28px;
+  opacity: 0;
+  animation: vxFadeIn 0.5s ease forwards 0.55s;
+}
+
+/* ── Bottom bar ─────────────────────────────────────────────── */
 .vx-footer-bottom {
-  padding-top: 24px;
-  border-top: 1px solid #1A1A1A;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 14px;
+  opacity: 0;
+  animation: vxFadeUp 0.45s ease forwards 0.65s;
 }
-.vx-footer-copy { font-size: .77rem; color: #374151; }
-.vx-footer-legal { display: flex; gap: 18px; }
-.vx-footer-legal a { font-size: .77rem; color: #374151; text-decoration: none; transition: color .18s; }
-.vx-footer-legal a:hover { color: #9CA3AF; }
 
-@media (max-width: 900px) {
-  .vx-footer-top { grid-template-columns: 1fr 1fr; }
-  .vx-footer-brand { grid-column: 1 / -1; }
+.vx-footer-copy {
+  font-size: 0.74rem;
+  color: #2d3340;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-@media (max-width: 480px) {
-  .vx-footer-top { grid-template-columns: 1fr; }
+
+/* Pulsing status dot */
+.vx-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #16a34a;
+  flex-shrink: 0;
+  animation: vxPulse 2.4s ease-in-out infinite;
+}
+
+.vx-footer-legal {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.vx-footer-legal a {
+  font-size: 0.74rem;
+  color: #2d3340;
+  text-decoration: none;
+  transition: color 0.18s;
+}
+
+.vx-footer-legal a:hover {
+  color: #7a8090;
+}
+
+.vx-legal-sep {
+  width: 1px;
+  height: 12px;
+  background: #1e1e1e;
+  flex-shrink: 0;
+}
+
+/* ── Keyframes ───────────────────────────────────────────────── */
+@keyframes vxFadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes vxFadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes vxPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .vx-footer-brand,
+  .vx-footer-col,
+  .vx-footer-divider,
+  .vx-footer-bottom {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .vx-status-dot {
+    animation: none;
+  }
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+
+/* Tablet */
+@media (max-width: 900px) {
+  .vx-footer-top {
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+  }
+  .vx-footer-brand {
+    grid-column: 1 / -1;
+  }
+  .vx-footer-tagline {
+    max-width: 100%;
+  }
+}
+
+/* Large mobile */
+@media (max-width: 600px) {
+  .vx-footer {
+    padding: 48px 5% 28px;
+  }
+  .vx-footer-top {
+    gap: 28px;
+  }
+  .vx-footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .vx-footer-legal {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+/* Small mobile — single column */
+@media (max-width: 380px) {
+  .vx-footer-top {
+    grid-template-columns: 1fr;
+  }
 }

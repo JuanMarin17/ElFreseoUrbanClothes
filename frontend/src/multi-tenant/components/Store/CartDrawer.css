@@ -31,7 +31,7 @@
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
   box-shadow: -8px 0 40px rgba(0, 0, 0, 0.5);
   overflow: hidden;
 }
@@ -187,12 +187,25 @@
 }
 
 .cd-spinner {
+  position: relative;
   width: 28px;
   height: 28px;
-  border: 2px solid #1a2234;
+  border: 2px solid rgba(59, 130, 246, 0.1);
   border-top-color: #3b82f6;
   border-radius: 50%;
-  animation: cdSpin 0.7s linear infinite;
+  animation: cdSpin 1.1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+.cd-spinner::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3b82f6;
+  box-shadow: 0 0 8px 3px rgba(59, 130, 246, 0.8);
 }
 @keyframes cdSpin { to { transform: rotate(360deg); } }
 

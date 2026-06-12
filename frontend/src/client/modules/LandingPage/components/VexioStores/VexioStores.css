@@ -1,149 +1,224 @@
 /* ============================================================
-   VexioStores.css — Tiendas destacadas
+   VexioStores.css — Marquee con banner + logo
    ============================================================ */
 
-.vx-stores-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+/* Wrapper con fade en los bordes */
+.vx-marquee-wrapper {
+  position: relative;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 10%,
+    #000 90%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 10%,
+    #000 90%,
+    transparent 100%
+  );
 }
 
+.vx-marquee-track {
+  display: flex;
+  gap: 16px;
+  width: max-content;
+  animation: vx-marquee 38s linear infinite;
+  padding: 8px 0 20px;
+}
+
+.vx-marquee-wrapper:hover .vx-marquee-track {
+  animation-play-state: paused;
+}
+
+.vx-marquee-track--paused {
+  animation-play-state: paused !important;
+}
+
+@keyframes vx-marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── Card ── */
 .vx-store-card {
   background: var(--vx-card);
   border: 1px solid var(--vx-border);
   border-radius: 16px;
-  padding: 24px;
+  width: 260px;
+  flex-shrink: 0;
+  overflow: visible;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  transition: border-color .25s, transform .22s, box-shadow .25s;
-}
-.vx-store-card:hover {
-  border-color: rgba(37,99,255,.3);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 32px rgba(37,99,255,.07);
+  transition:
+    border-color 250ms ease-out,
+    transform 250ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 250ms ease-out;
 }
 
-/* Header */
-.vx-store-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+@media (hover: hover) and (pointer: fine) {
+  .vx-store-card:hover {
+    border-color: rgba(37, 99, 255, 0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 14px 40px rgba(37, 99, 255, 0.09);
+  }
 }
 
-.vx-store-avatar {
-  width: 48px; height: 48px;
+/* ── Banner (cover) ── */
+.vx-store-cover-wrap {
+  position: relative;
+  height: 88px;
+  border-radius: 14px 14px 0 0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.vx-store-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.vx-store-cover-color {
+  width: 100%;
+  height: 100%;
+}
+
+.vx-store-cover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.45) 100%);
+}
+
+/* Tag en esquina del banner */
+.vx-store-cover-wrap .vx-store-tag {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+/* ── Logo superpuesto ── */
+.vx-store-logo-ring {
+  width: 46px;
+  height: 46px;
   border-radius: 12px;
+  border: 2px solid var(--vx-card);
+  background: var(--vx-card);
+  margin-top: -23px;
+  margin-left: 14px;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+  z-index: 1;
+  position: relative;
+}
+
+.vx-store-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 10px;
+}
+
+.vx-store-logo-initial {
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--vx-font-display);
-  font-size: .95rem;
+  font-size: 1.1rem;
   font-weight: 800;
-  flex-shrink: 0;
+  color: #fff;
+  border-radius: 10px;
 }
 
-.vx-store-avatar--pink   { background: rgba(244,63,94,.12);  color: #f43f5e; border: 1px solid rgba(244,63,94,.25); }
-.vx-store-avatar--orange { background: rgba(249,115,22,.12); color: #f97316; border: 1px solid rgba(249,115,22,.25); }
-.vx-store-avatar--teal   { background: rgba(20,184,166,.12); color: #14b8a6; border: 1px solid rgba(20,184,166,.25); }
-.vx-store-avatar--purple { background: rgba(139,92,246,.12); color: #8b5cf6; border: 1px solid rgba(139,92,246,.25); }
-.vx-store-avatar--blue   { background: rgba(37,99,255,.12);  color: #3B82F6; border: 1px solid rgba(37,99,255,.25); }
-
-.vx-store-meta {
+/* ── Info ── */
+.vx-store-info {
+  padding: 10px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   flex: 1;
-  min-width: 0;
 }
+
 .vx-store-name {
   font-family: var(--vx-font-display);
-  font-size: .95rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--vx-text);
-  letter-spacing: -.02em;
-  margin-bottom: 2px;
+  letter-spacing: -0.02em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .vx-store-category {
-  font-size: .75rem;
+  font-size: 0.7rem;
   color: var(--vx-muted);
 }
 
-/* Tags */
+.vx-store-desc {
+  font-size: 0.76rem;
+  color: var(--vx-muted);
+  line-height: 1.5;
+  margin: 4px 0 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Tags ── */
 .vx-store-tag {
-  padding: 3px 9px;
+  padding: 3px 8px;
   border-radius: 5px;
-  font-size: .67rem;
+  font-size: 0.63rem;
   font-weight: 700;
-  letter-spacing: .06em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   flex-shrink: 0;
   font-family: var(--vx-font-body);
 }
-.vx-store-tag--gold   { background: rgba(234,179,8,.12);  color: #EAB308; border: 1px solid rgba(234,179,8,.25);  }
-.vx-store-tag--blue   { background: rgba(37,99,255,.12);  color: #3B82F6; border: 1px solid rgba(37,99,255,.25); }
-.vx-store-tag--green  { background: rgba(34,197,94,.12);  color: #22C55E; border: 1px solid rgba(34,197,94,.25);  }
-.vx-store-tag--purple { background: rgba(139,92,246,.12); color: #8b5cf6; border: 1px solid rgba(139,92,246,.25); }
 
-/* Stats row */
-.vx-store-stats {
-  display: flex;
-  gap: 0;
-  border: 1px solid var(--vx-border);
-  border-radius: 10px;
-  overflow: hidden;
-  background: var(--vx-bg);
-}
-.vx-store-stat {
-  flex: 1;
-  text-align: center;
-  padding: 12px 8px;
-  position: relative;
-}
-.vx-store-stat + .vx-store-stat::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 15%; bottom: 15%;
-  width: 1px;
-  background: var(--vx-border);
-}
-.vx-store-stat-num {
-  display: block;
-  font-family: var(--vx-font-display);
-  font-size: .95rem;
-  font-weight: 800;
-  color: var(--vx-text);
-  letter-spacing: -.02em;
-  line-height: 1;
-  margin-bottom: 3px;
-}
-.vx-store-stat-label {
-  font-size: .7rem;
-  color: var(--vx-muted);
-}
+.vx-store-tag--gold   { background: rgba(234,179,8,.15);  color: #eab308; border: 1px solid rgba(234,179,8,.3); }
+.vx-store-tag--blue   { background: rgba(37,99,255,.15);  color: #3b82f6; border: 1px solid rgba(37,99,255,.3); }
+.vx-store-tag--green  { background: rgba(34,197,94,.15);  color: #22c55e; border: 1px solid rgba(34,197,94,.3); }
+.vx-store-tag--purple { background: rgba(139,92,246,.15); color: #8b5cf6; border: 1px solid rgba(139,92,246,.3); }
 
-/* CTA button dentro de card */
+/* ── Botón ── */
 .vx-store-btn {
-  margin: 0px;
+  margin-top: auto;
+  padding-top: 12px;
   background: transparent;
   border: 1px solid var(--vx-border);
   color: var(--vx-muted);
-  padding: 9px 16px;
+  padding: 8px 14px;
   border-radius: 7px;
   font-family: var(--vx-font-body);
-  font-size: .82rem;
+  font-size: 0.78rem;
   font-weight: 500;
   cursor: pointer;
-  transition: border-color .2s, color .2s, background .2s;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
   text-align: center;
+  margin-top: 10px;
 }
+
 .vx-store-btn:hover {
   border-color: var(--vx-accent1);
   color: var(--vx-accent1);
   background: var(--vx-accent1-dim);
 }
 
-/* Footer con CTA global */
+.vx-store-btn:active { transform: scale(0.97); }
+
+/* ── Footer ── */
 .vx-stores-footer {
   display: flex;
   align-items: center;
@@ -154,25 +229,61 @@
   flex-wrap: wrap;
   gap: 12px;
 }
+
 .vx-stores-footer-text {
-  font-size: .9rem;
+  font-size: 0.9rem;
   color: var(--vx-muted);
 }
 
-/* ── Reveal ── */
-.vx-reveal {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity .5s ease, transform .5s ease;
+/* ── Skeleton ── */
+.vx-skel-cover {
+  background: var(--vx-border) !important;
+  animation: vx-skel-pulse 1.4s ease-in-out infinite;
 }
-.vx-reveal.vx-visible {
-  opacity: 1;
-  transform: translateY(0);
+
+.vx-skel-logo {
+  width: 100%;
+  height: 100%;
+  background: var(--vx-border);
+  border-radius: 10px;
+  animation: vx-skel-pulse 1.4s ease-in-out infinite;
+  animation-delay: 0.1s;
+}
+
+.vx-skel-line {
+  height: 10px;
+  background: var(--vx-border);
+  border-radius: 4px;
+  animation: vx-skel-pulse 1.4s ease-in-out infinite;
+}
+
+.vx-skel-block {
+  height: 42px;
+  background: var(--vx-border);
+  border-radius: 8px;
+  opacity: 0.5;
+  animation: vx-skel-pulse 1.4s ease-in-out infinite;
+  animation-delay: 0.15s;
+}
+
+.vx-skel-btn {
+  height: 32px;
+  background: var(--vx-border);
+  border-radius: 7px;
+  margin-top: 8px;
+  animation: vx-skel-pulse 1.4s ease-in-out infinite;
+  animation-delay: 0.2s;
+}
+
+@keyframes vx-skel-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%       { opacity: 0.65; }
 }
 
 /* ── Responsive ── */
 @media (max-width: 640px) {
-  .vx-stores-grid { grid-template-columns: 1fr; }
-  .vx-stores-footer { flex-direction: column; align-items: stretch; text-align: center; }
+  .vx-store-card            { width: 230px; }
+  .vx-store-cover-wrap      { height: 72px; }
+  .vx-stores-footer         { flex-direction: column; align-items: stretch; text-align: center; }
   .vx-stores-footer .vx-btn-ghost { width: 100%; justify-content: center; }
 }

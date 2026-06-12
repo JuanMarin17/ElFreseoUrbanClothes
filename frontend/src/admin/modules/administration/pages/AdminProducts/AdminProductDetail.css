@@ -65,32 +65,32 @@
 
 .apd-btn-ghost {
   background: transparent;
-  border: 1px solid #222222;
-  color: #666666;
+  border: 1px solid var(--at-border, #222222);
+  color: var(--at-text-3, #666666);
   padding: 8px;
   border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  transition: all 0.15s;
+  transition: color 0.15s, border-color 0.15s;
 }
-.apd-btn-ghost:hover { color: #ffffff; border-color: #444444; }
+.apd-btn-ghost:hover { color: var(--at-text-1, #ffffff); border-color: var(--at-text-3, #444444); }
 
 .apd-btn-secondary {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #1e293b;
-  border: 1px solid #334155;
-  color: #94a3b8;
+  background: var(--at-elevated, #1e293b);
+  border: 1px solid var(--at-border, #334155);
+  color: var(--at-text-2, #94a3b8);
   padding: 8px 16px;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: color 0.15s, border-color 0.15s, background 0.25s;
 }
-.apd-btn-secondary:hover { color: #ffffff; border-color: #475569; }
+.apd-btn-secondary:hover { color: var(--at-text-1, #ffffff); border-color: var(--at-text-3, #475569); }
 
 .apd-btn-toggle {
   display: flex;
@@ -124,7 +124,7 @@
 .apd-title {
   font-size: 24px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--at-text-1, #ffffff);
   margin: 0;
   letter-spacing: -0.5px;
 }
@@ -160,13 +160,14 @@
 .apd-main-img {
   width: 100%;
   aspect-ratio: 1 / 1;
-  background: #111111;
-  border: 1px solid #1a1a1a;
+  background: var(--at-elevated, #111111);
+  border: 1px solid var(--at-border, #1a1a1a);
   border-radius: 12px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.25s, border-color 0.25s;
 }
 .apd-main-img img {
   width: 100%;
@@ -174,13 +175,11 @@
   object-fit: cover;
 }
 
-.apd-img-placeholder {
-  color: #333333;
-}
+.apd-img-placeholder { color: var(--at-border, #333333); }
 
 .apd-no-images {
   font-size: 12px;
-  color: #444444;
+  color: var(--at-text-3, #444444);
   text-align: center;
   margin: 0;
 }
@@ -196,11 +195,11 @@
   height: 60px;
   border-radius: 8px;
   overflow: hidden;
-  border: 2px solid #222222;
+  border: 2px solid var(--at-border, #222222);
   cursor: pointer;
   padding: 0;
-  background: #111111;
-  transition: border-color 0.15s;
+  background: var(--at-elevated, #111111);
+  transition: border-color 0.15s, background 0.25s;
 }
 .apd-thumb img { width: 100%; height: 100%; object-fit: cover; }
 .apd-thumb-active { border-color: #2563eb; }
@@ -214,13 +213,14 @@
 }
 
 .apd-meta-section {
-  background: #111111;
-  border: 1px solid #1a1a1a;
+  background: var(--at-elevated, #111111);
+  border: 1px solid var(--at-border, #1a1a1a);
   border-radius: 12px;
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  transition: background 0.25s, border-color 0.25s;
 }
 
 .apd-meta-row {
@@ -232,10 +232,10 @@
 
 .apd-cats-row { align-items: flex-start; }
 
-.apd-meta-icon { color: #555555; flex-shrink: 0; }
+.apd-meta-icon { color: var(--at-text-3, #555555); flex-shrink: 0; }
 
 .apd-meta-label {
-  color: #666666;
+  color: var(--at-text-3, #666666);
   font-weight: 600;
   font-size: 11px;
   text-transform: uppercase;
@@ -243,9 +243,9 @@
   flex-shrink: 0;
 }
 
-.apd-meta-value { color: #cccccc; }
+.apd-meta-value { color: var(--at-text-2, #cccccc); }
 
-.apd-stock-total { color: #ffffff; font-weight: 700; font-size: 15px; }
+.apd-stock-total { color: var(--at-text-1, #ffffff); font-weight: 700; font-size: 15px; }
 
 .apd-cats {
   display: flex;
@@ -264,16 +264,17 @@
 }
 
 .apd-description {
-  background: #111111;
-  border: 1px solid #1a1a1a;
+  background: var(--at-elevated, #111111);
+  border: 1px solid var(--at-border, #1a1a1a);
   border-radius: 12px;
   padding: 18px 20px;
+  transition: background 0.25s, border-color 0.25s;
 }
 
 .apd-section-label {
   font-size: 11px;
   font-weight: 700;
-  color: #555555;
+  color: var(--at-text-3, #555555);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin: 0 0 8px 0;
@@ -281,7 +282,7 @@
 
 .apd-description p {
   font-size: 13px;
-  color: #aaaaaa;
+  color: var(--at-text-2, #aaaaaa);
   line-height: 1.6;
   margin: 0;
 }
@@ -289,10 +290,11 @@
 /* ── Sección de variantes ────────────────────────────────────────────────── */
 
 .apd-variants-section {
-  background: #0d0d0d;
-  border: 1px solid #141414;
+  background: var(--at-bg, #0d0d0d);
+  border: 1px solid var(--at-border, #141414);
   border-radius: 12px;
   overflow: hidden;
+  transition: background 0.25s, border-color 0.25s;
 }
 
 .apd-section-title {
@@ -300,26 +302,22 @@
   margin: 0;
   font-size: 14px;
   font-weight: 700;
-  color: #ffffff;
-  border-bottom: 1px solid #141414;
-  background: #111111;
+  color: var(--at-text-1, #ffffff);
+  border-bottom: 1px solid var(--at-border, #141414);
+  background: var(--at-elevated, #111111);
+  transition: background 0.25s, border-color 0.25s;
 }
 
-.apd-variants-count {
-  color: #555555;
-  font-weight: 400;
-}
+.apd-variants-count { color: var(--at-text-3, #555555); font-weight: 400; }
 
 .apd-state-placeholder {
   text-align: center;
   padding: 40px 20px;
-  color: #555555;
+  color: var(--at-text-3, #555555);
   font-size: 13px;
 }
 
-.apd-table-wrap {
-  overflow-x: auto;
-}
+.apd-table-wrap { overflow-x: auto; }
 
 .apd-table {
   width: 100%;
@@ -328,30 +326,31 @@
 }
 
 .apd-table th {
-  background: #111111;
+  background: var(--at-elevated, #111111);
   padding: 12px 16px;
-  color: #555555;
+  color: var(--at-text-3, #555555);
   font-weight: 600;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   text-align: left;
-  border-bottom: 1px solid #1a1a1a;
+  border-bottom: 1px solid var(--at-border, #1a1a1a);
   white-space: nowrap;
+  transition: background 0.25s;
 }
 
 .apd-table td {
   padding: 14px 16px;
-  border-bottom: 1px solid #141414;
-  color: #cccccc;
+  border-bottom: 1px solid var(--at-border, #141414);
+  color: var(--at-text-2, #cccccc);
   vertical-align: middle;
 }
 
 .apd-table tbody tr:last-child td { border-bottom: none; }
-.apd-table tbody tr:hover { background: rgba(255,255,255,0.01); }
+.apd-table tbody tr:hover { background: var(--at-border-soft, rgba(255,255,255,0.01)); }
 
 .apd-sku {
-  background: #1a1a1a;
+  background: var(--at-border, #1a1a1a);
   padding: 2px 7px;
   border-radius: 4px;
   font-size: 11px;
@@ -359,9 +358,9 @@
   font-family: monospace;
 }
 
-.apd-price      { font-weight: 600; color: #ffffff; }
-.apd-stock-num  { font-weight: 700; color: #ffffff; font-size: 14px; }
-.apd-text-muted { color: #666666; }
+.apd-price      { font-weight: 600; color: var(--at-text-1, #ffffff); }
+.apd-stock-num  { font-weight: 700; color: var(--at-text-1, #ffffff); font-size: 14px; }
+.apd-text-muted { color: var(--at-text-3, #666666); }
 
 .text-center { text-align: center; }
 
@@ -395,10 +394,10 @@
   align-items: center;
   justify-content: center;
   border-radius: 6px;
-  border: 1px solid #222222;
+  border: 1px solid var(--at-border, #222222);
   background: transparent;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background 0.15s, border-color 0.15s;
   flex-shrink: 0;
 }
 .apd-adj-btn:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -412,32 +411,23 @@
 .apd-adj-input {
   width: 52px;
   text-align: center;
-  background: #111111;
-  border: 1px solid #222222;
+  background: var(--at-elevated, #111111);
+  border: 1px solid var(--at-border, #222222);
   border-radius: 6px;
   padding: 4px 6px;
   font-size: 13px;
-  color: #ffffff;
+  color: var(--at-text-1, #ffffff);
   outline: none;
+  transition: border-color 0.2s, background 0.25s;
 }
 .apd-adj-input:focus { border-color: #2563eb; }
 .apd-adj-input:disabled { opacity: 0.4; }
 
-.apd-adj-loading {
-  font-size: 12px;
-  color: #666666;
-  width: 20px;
-}
+.apd-adj-loading { font-size: 12px; color: var(--at-text-3, #666666); width: 20px; }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
-  .apd-content-row {
-    grid-template-columns: 1fr;
-  }
-  .apd-gallery-col {
-    max-width: 400px;
-    margin: 0 auto;
-    width: 100%;
-  }
+  .apd-content-row { grid-template-columns: 1fr; }
+  .apd-gallery-col { max-width: 400px; margin: 0 auto; width: 100%; }
 }

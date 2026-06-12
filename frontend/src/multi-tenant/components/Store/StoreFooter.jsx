@@ -33,14 +33,22 @@ export default function StoreFooter({ footer, header, theme, storeSlug = null })
 
         {/* Marca */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 220 }}>
-          <span style={{
-            fontFamily: `"${hFont}",sans-serif`,
-            fontWeight: 900, fontSize: 14, letterSpacing: isUrb ? 5 : 2,
-            color: textPrimary,
-            textTransform: "uppercase",
-          }}>
-            {header.logo}
-          </span>
+          {header.logoUrl ? (
+            <img
+              src={header.logoUrl}
+              alt={header.logo ?? "Logo"}
+              style={{ height: 32, width: "auto", maxWidth: 140, objectFit: "contain", opacity: 0.85 }}
+            />
+          ) : (
+            <span style={{
+              fontFamily: `"${hFont}",sans-serif`,
+              fontWeight: 900, fontSize: 14, letterSpacing: isUrb ? 5 : 2,
+              color: textPrimary,
+              textTransform: "uppercase",
+            }}>
+              {header.storeName ?? header.logo}
+            </span>
+          )}
           <p style={{
             fontSize: 12, color: textMuted, lineHeight: 1.7, margin: 0,
           }}>
