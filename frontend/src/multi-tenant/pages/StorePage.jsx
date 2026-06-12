@@ -159,6 +159,6 @@ export default function StorePage() {
   }
 
   return (
-    <StoreFront layoutType={layoutType} data={previewData} isOwner={isOwner} storeId={storeId} storeSlug={slug} headerTopOffset={0} />
+    <StoreFront layoutType={layoutType} data={previewData} isOwner={isOwner} storeId={storeId} storeSlug={slug} storeName={storeName} headerTopOffset={0} />
   );
 }

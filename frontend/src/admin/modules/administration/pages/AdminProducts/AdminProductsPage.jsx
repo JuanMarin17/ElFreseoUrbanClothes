@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import {
   PackagePlus, Search, RefreshCw, Eye, Pencil,
   ToggleLeft, ToggleRight, Package, AlertTriangle, CheckCircle2,
@@ -40,6 +40,7 @@ const getPid = (p) => p?.productId ?? p?.id ?? '';
 
 export default function AdminProductsPage() {
   const { slug } = useParams();
+  const { key: locationKey } = useLocation();
 
   const [products, setProducts] = useState([]);
   const [loading,  setLoading]  = useState(false);
@@ -75,7 +76,10 @@ export default function AdminProductsPage() {
     }
   }, [handleError]);
 
-  useEffect(() => { loadProducts(); }, []);
+  useEffect(() => {
+    const run = async () => { await loadProducts(); };
+    run();
+  }, [locationKey, loadProducts]);
 
   // ── Filtrado ───────────────────────────────────────────────────────────────
 

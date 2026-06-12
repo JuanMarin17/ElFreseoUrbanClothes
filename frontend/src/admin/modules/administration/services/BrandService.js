@@ -14,7 +14,7 @@ const readHeaders = () => {
     try {
       const payload = JSON.parse(atob(jwt.split(".")[1]));
       if (payload.user_id) h["X-User-Id"] = payload.user_id;
-    } catch {}
+    } catch { /* JWT malformado — se omite X-User-Id */ }
   }
   if (storeId && storeId !== "null" && storeId !== "undefined") {
     h["X-Store-Id"] = storeId;
@@ -86,7 +86,7 @@ export const updateBrand = async (id, name) => {
 export const activateBrand = async (id) => {
   const res = await fetch(`${BASE_URL}/brands/active/${id}`, {
     method: "PUT",
-    headers: readHeaders(),
+    headers: writeHeaders(),
   });
   return unwrap(res);
 };
@@ -95,7 +95,7 @@ export const activateBrand = async (id) => {
 export const inactivateBrand = async (id) => {
   const res = await fetch(`${BASE_URL}/brands/inactive/${id}`, {
     method: "PUT",
-    headers: readHeaders(),
+    headers: writeHeaders(),
   });
   return unwrap(res);
 };

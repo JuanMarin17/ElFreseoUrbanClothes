@@ -14,7 +14,7 @@ const readHeaders = () => {
     try {
       const payload = JSON.parse(atob(jwt.split(".")[1]));
       if (payload.user_id) h["X-User-Id"] = payload.user_id;
-    } catch {}
+    } catch { /* JWT malformado — se omite X-User-Id */ }
   }
   if (storeId && storeId !== "null" && storeId !== "undefined") {
     h["X-Store-Id"] = storeId;
@@ -34,7 +34,7 @@ const writeHeaders = () => ({
 const unwrap = async (res) => {
   const text = await res.text();
   if (res.status === 204 || !text) return [];
-  if (!res.ok) throw new Error(text || `Error   ${res.status}`);
+  if (!res.ok) throw new Error(text || `Error ${res.status}`);
   try {
     const parsed = JSON.parse(text);
     return parsed?.data ?? parsed;
@@ -87,7 +87,7 @@ export const updateCategory = async (id, name) => {
 export const activateCategory = async (id) => {
   const res = await fetch(`${BASE_URL}/categories/active/${id}`, {
     method: "PUT",
-    headers: readHeaders(),
+    headers: writeHeaders(),
   });
   return unwrap(res);
 };
@@ -96,7 +96,7 @@ export const activateCategory = async (id) => {
 export const deleteCategory = async (id) => {
   const res = await fetch(`${BASE_URL}/categories/${id}`, {
     method: "DELETE",
-    headers: readHeaders(),
+    headers: writeHeaders(),
   });
   return unwrap(res);
 };

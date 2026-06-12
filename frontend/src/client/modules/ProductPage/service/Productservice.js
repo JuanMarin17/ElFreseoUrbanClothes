@@ -8,18 +8,6 @@ const productApi = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-/** Resuelve el storeId desde localStorage o desde un query param (?storeId=) en la URL */
-function resolveStoreId() {
-  const fromStorage = localStorage.getItem("storeId");
-  if (fromStorage && fromStorage !== "null" && fromStorage !== "undefined") return fromStorage;
-  const fromUrl = new URLSearchParams(window.location.search).get("storeId");
-  if (fromUrl) {
-    localStorage.setItem("storeId", fromUrl);
-    return fromUrl;
-  }
-  return null;
-}
-
 productApi.interceptors.request.use((config) => {
   const jwt     = localStorage.getItem("jwt");
   const storeId = resolveStoreId();
@@ -249,7 +237,7 @@ export const fetchProductById = async (productId) => {
  * Reseñas: el endpoint no está implementado en el backend todavía.
  * Retorna estructura vacía para no bloquear la carga de la página.
  */
-export const fetchProductReviews = (_productId, _page = 0, _size = 10) =>
+export const fetchProductReviews = () =>
   Promise.resolve({ content: [], last: true, totalElements: 0 });
 
 /**
@@ -258,8 +246,7 @@ export const fetchProductReviews = (_productId, _page = 0, _size = 10) =>
  * que no sean el producto actual.
  */
 export const fetchRelatedProducts = async (productId, limit = 4) => {
-  const urlStoreId = new URLSearchParams(window.location.search).get("sid");
-  const storeId = urlStoreId || localStorage.getItem("storeId");
+  const storeId = new URLSearchParams(window.location.search).get("sid") || localStorage.getItem("storeId");
   if (!storeId || storeId === "null") return [];
 
   try {
@@ -308,5 +295,5 @@ export const addToCart = async ({ productId, variantId, quantity }) => {
  * Alterna el estado de wishlist.
  * Endpoint pendiente de implementación en el backend.
  */
-export const toggleWishlist = (_payload) =>
+export const toggleWishlist = () =>
   Promise.resolve({ wishlisted: true });

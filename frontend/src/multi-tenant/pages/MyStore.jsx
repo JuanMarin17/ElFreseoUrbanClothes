@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useStore } from "./useStore";
 import { useAuth } from "../../admin/modules/auth/pages/hook/Useauth";
 import "../components/styles/MyStore.css";
@@ -25,7 +25,7 @@ const ADMIN_MENU = [
 const MyStore = () => {
   const navigate  = useNavigate();
   const location  = useLocation();
-  const { state } = useStore();
+  useStore();
   const { user, logout } = useAuth();
 
   const userId = user?.id ?? user?.userId ?? null;
@@ -74,7 +74,7 @@ const MyStore = () => {
       }
     };
     load();
-  }, [userId]);
+  }, [userId, location.key]);
 
   const handleCopyId = (id) => {
     navigator.clipboard.writeText(id);
