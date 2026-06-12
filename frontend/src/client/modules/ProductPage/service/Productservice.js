@@ -237,7 +237,7 @@ export const fetchProductById = async (productId) => {
  * Reseñas: el endpoint no está implementado en el backend todavía.
  * Retorna estructura vacía para no bloquear la carga de la página.
  */
-export const fetchProductReviews = (_productId, _page = 0, _size = 10) =>
+export const fetchProductReviews = () =>
   Promise.resolve({ content: [], last: true, totalElements: 0 });
 
 /**
@@ -293,5 +293,5 @@ export const addToCart = async ({ productId, variantId, quantity }) => {
  * Alterna el estado de wishlist.
  * Endpoint pendiente de implementación en el backend.
  */
-export const toggleWishlist = (_payload) =>
+export const toggleWishlist = () =>
   Promise.resolve({ wishlisted: true });
