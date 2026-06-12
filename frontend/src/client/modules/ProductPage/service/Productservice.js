@@ -2,6 +2,11 @@ import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://46.225.21.146:8080/api/v1";
 
+const resolveStoreId = () => {
+  const id = localStorage.getItem("storeId");
+  return id && id !== "null" ? id : null;
+};
+
 const productApi = axios.create({
   baseURL: API_BASE,
   timeout: 10000,

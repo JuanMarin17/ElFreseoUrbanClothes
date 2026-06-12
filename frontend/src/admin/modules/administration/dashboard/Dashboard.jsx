@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Package, PackagePlus, ShoppingCart, AlertTriangle,
@@ -9,15 +8,6 @@ import {
 } from 'lucide-react';
 import { getAllProducts } from '../services/productService';
 import { getStoreSettingsByHeader } from '../../../../multi-tenant/pages/services/storeService';
-=======
-import React from 'react';
-import { Users, ShoppingBag, Clock, Package } from 'lucide-react';
-import StatCard from '../components/StatCard/StatCard';
-import UserTable from './components/UserTable/UserTable';
-import UserModal from './components/UserModal/UserModal';
-import { useUsers } from './hooks/UseUser';
-import { formatCOP } from '../services/ReportService';
->>>>>>> d722bcdf12418f9ef4a313bbf32b00bb59171a8d
 import './Dashboard.css';
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
@@ -65,7 +55,6 @@ function SkeletonKpi() {
 // ── Main Component ────────────────────────────────────────────────────────────
 
 const Dashboard = () => {
-<<<<<<< HEAD
   const navigate  = useNavigate();
   const { slug }  = useParams();
   const adminBase = slug ? `/tienda/${slug}/admin` : '/admin';
@@ -73,15 +62,17 @@ const Dashboard = () => {
   const userInfo  = useMemo(() => parseUserFromJwt(), []);
 
   const [products,    setProducts]    = useState([]);
-  const [storeInfo,   setStoreInfo]   = useState({ name: null, logo: null });
+  const [storeInfo,   setStoreInfo]   = useState(() => {
+    const n = localStorage.getItem('storeName');
+    return { name: (n && n !== 'null') ? n : null, logo: null };
+  });
   const [loading,     setLoading]     = useState(true);
 
   // ── Load ───────────────────────────────────────────────────────────────────
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
-      // Intentar cargar configuración de la tienda
       const storeId = localStorage.getItem('storeId');
       if (storeId && storeId !== 'null') {
         getStoreSettingsByHeader(storeId)
@@ -96,7 +87,6 @@ const Dashboard = () => {
           .catch(() => {});
       }
 
-      // Productos reales
       let storeIdResolved = storeId;
       if (!storeIdResolved || storeIdResolved === 'null') {
         await new Promise((r) => setTimeout(r, 600));
@@ -111,16 +101,12 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    // Nombre de tienda desde localStorage (AdminLayout lo pone)
-    const storeName = localStorage.getItem('storeName');
-    if (storeName && storeName !== 'null') {
-      setStoreInfo((prev) => ({ ...prev, name: storeName }));
-    }
-    load();
-  }, []);
+    const run = async () => { await load(); };
+    run();
+  }, [load]);
 
   // ── KPIs desde productos reales ────────────────────────────────────────────
 
@@ -136,14 +122,14 @@ const Dashboard = () => {
   // ── Acciones rápidas ────────────────────────────────────────────────────────
 
   const QUICK_ACTIONS = [
-    { icon: Package,     label: 'Inventario',     path: `${adminBase}/productos`,       color: 'blue'   },
-    { icon: PackagePlus, label: 'Nuevo Producto',  path: `${adminBase}/subir-producto`,  color: 'green'  },
-    { icon: ShoppingCart,label: 'Pedidos',         path: `${adminBase}/pedidos`,         color: 'purple' },
-    { icon: AlertTriangle,label:'Alertas Stock',   path: `${adminBase}/alertas`,         color: 'orange' },
-    { icon: Building2,   label: 'Proveedores',     path: `${adminBase}/proveedores`,     color: 'teal'   },
-    { icon: BarChart3,   label: 'Informes',        path: `${adminBase}/report`,          color: 'indigo' },
-    { icon: Users,       label: 'Usuarios',        path: `${adminBase}/usuarios`,        color: 'pink'   },
-    { icon: FileText,    label: 'CMS',             path: `${adminBase}/cms`,             color: 'gray'   },
+    { icon: Package,      label: 'Inventario',    path: `${adminBase}/productos`,      color: 'blue'   },
+    { icon: PackagePlus,  label: 'Nuevo Producto', path: `${adminBase}/subir-producto`, color: 'green'  },
+    { icon: ShoppingCart, label: 'Pedidos',        path: `${adminBase}/pedidos`,        color: 'purple' },
+    { icon: AlertTriangle,label: 'Alertas Stock',  path: `${adminBase}/alertas`,        color: 'orange' },
+    { icon: Building2,    label: 'Proveedores',    path: `${adminBase}/proveedores`,    color: 'teal'   },
+    { icon: BarChart3,    label: 'Informes',       path: `${adminBase}/report`,         color: 'indigo' },
+    { icon: Users,        label: 'Usuarios',       path: `${adminBase}/usuarios`,       color: 'pink'   },
+    { icon: FileText,     label: 'CMS',            path: `${adminBase}/cms`,            color: 'gray'   },
   ];
 
   const storeName = storeInfo.name
@@ -159,7 +145,6 @@ const Dashboard = () => {
         <div className="db-banner-glow db-banner-glow--b" />
 
         <div className="db-banner-inner">
-          {/* Logo de la tienda */}
           {storeInfo.logo ? (
             <img src={storeInfo.logo} alt={storeName} className="db-store-logo" />
           ) : storeName !== 'tu tienda' ? (
@@ -189,30 +174,9 @@ const Dashboard = () => {
           >
             <RefreshCw size={15} className={loading ? 'db-spin' : ''} />
           </button>
-=======
-  const {
-    users,
-    stats,
-    loading,
-    selectedUser,
-    isModalOpen,
-    setIsModalOpen,
-    handleEdit,
-    handleUpdate,
-    toggleStatus,
-  } = useUsers();
-
-  return (
-    <div className="dashboard-view">
-      <header className="view-header">
-        <div className="header-title">
-          <h1>Gestión de Usuarios</h1>
-          <p>DIRECTORIO PRINCIPAL • {loading ? '—' : `${users.length} MOSTRADOS`}</p>
->>>>>>> d722bcdf12418f9ef4a313bbf32b00bb59171a8d
         </div>
       </div>
 
-<<<<<<< HEAD
       {/* ── KPIs ─────────────────────────────────────────────────────────── */}
       <div className="db-kpi-grid">
         {loading ? (
@@ -258,18 +222,21 @@ const Dashboard = () => {
           <h2 className="db-section-title">Acciones rápidas</h2>
         </div>
         <div className="db-actions-grid">
-          {QUICK_ACTIONS.map(({ icon: Icon, label, path, color }, i) => (
-            <button
-              key={path}
-              className={`db-action-card db-action-card--${color}`}
-              onClick={() => navigate(path)}
-              style={{ animationDelay: `${i * 40}ms` }}
-            >
-              <Icon size={20} className="db-action-icon" />
-              <span className="db-action-label">{label}</span>
-              <ArrowRight size={13} className="db-action-arrow" />
-            </button>
-          ))}
+          {QUICK_ACTIONS.map((action, i) => {
+            const Icon = action.icon;
+            return (
+              <button
+                key={action.path}
+                className={`db-action-card db-action-card--${action.color}`}
+                onClick={() => navigate(action.path)}
+                style={{ animationDelay: `${i * 40}ms` }}
+              >
+                <Icon size={20} className="db-action-icon" />
+                <span className="db-action-label">{action.label}</span>
+                <ArrowRight size={13} className="db-action-arrow" />
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -286,38 +253,6 @@ const Dashboard = () => {
               Ver todo <ArrowRight size={13} />
             </button>
           </div>
-=======
-      <section className="dashboard-stats">
-        <StatCard
-          label="USUARIOS"
-          value={loading ? '…' : users.length}
-          icon={Users}
-        />
-        <StatCard
-          label="PEDIDOS TOTALES"
-          value={loading || !stats ? '…' : (stats.totalOrders ?? 0).toLocaleString('es-CO')}
-          icon={ShoppingBag}
-        />
-        <StatCard
-          label="PENDIENTES"
-          value={loading || !stats ? '…' : (stats.pendingOrders ?? 0).toLocaleString('es-CO')}
-          icon={Clock}
-        />
-        <StatCard
-          label="INGRESOS HOY"
-          value={loading || !stats ? '…' : formatCOP(stats.todayRevenue ?? 0)}
-          icon={Package}
-        />
-      </section>
-
-      {loading ? (
-        <p className="dashboard-loading">Cargando usuarios…</p>
-      ) : users.length === 0 ? (
-        <p className="dashboard-empty">No hay usuarios registrados en esta tienda.</p>
-      ) : (
-        <UserTable users={users} onEdit={handleEdit} onToggleStatus={toggleStatus} />
-      )}
->>>>>>> d722bcdf12418f9ef4a313bbf32b00bb59171a8d
 
           <div className="db-inventory-cards">
             <div className="db-inv-card">

@@ -108,7 +108,8 @@ const AdminLayout = () => {
 
   // Cerrar sidebar al navegar (móvil)
   useEffect(() => {
-    setIsSidebarOpen(false);
+    const run = async () => setIsSidebarOpen(false);
+    run();
   }, [location.pathname]);
 
   // ── Resolver storeId y cargar branding ──────────────────────────────────
@@ -160,15 +161,15 @@ const AdminLayout = () => {
 
   // ── Para admin sin slug: cargar la primera tienda del usuario ───────────
   useEffect(() => {
-    if (isValid(localStorage.getItem("storeId"))) {
-      // storeId ya está; intentar cargar branding y color de sidebar
-      const storeId = localStorage.getItem("storeId");
-      const localColor = localStorage.getItem(`sidebarColor_${storeId}`);
-      if (localColor) setSidebarColor(localColor);
+    const run = async () => {
+      if (isValid(localStorage.getItem("storeId"))) {
+        const storeId = localStorage.getItem("storeId");
+        const localColor = localStorage.getItem(`sidebarColor_${storeId}`);
+        if (localColor) setSidebarColor(localColor);
 
-      if (!storeInfo.name && !storeInfo.logo) {
-        getStoreSettingsByHeader(storeId)
-          .then((settings) => {
+        if (!storeInfo.name && !storeInfo.logo) {
+          try {
+            const settings = await getStoreSettingsByHeader(storeId);
             if (settings) {
               setStoreInfo((prev) => ({
                 name: prev.name,
@@ -180,15 +181,14 @@ const AdminLayout = () => {
                 localStorage.setItem(`sidebarColor_${storeId}`, savedColor);
               }
             }
-          })
-          .catch(() => {});
+          } catch { /* silent */ }
+        }
+        return;
       }
-      return;
-    }
 
-    if (slug) {
-      getStoreBySlug(slug)
-        .then(async (store) => {
+      if (slug) {
+        try {
+          const store = await getStoreBySlug(slug);
           const id = store?.storeId ?? store?.id ?? null;
           if (id) {
             localStorage.setItem("storeId", id);
@@ -206,13 +206,12 @@ const AdminLayout = () => {
               }
             } catch { /* silent */ }
           }
-        })
-        .catch(() => {});
-    } else {
-      const userId = getUserIdFromJwt();
-      if (!userId) return;
-      getStoresByUser(userId)
-        .then(async (data) => {
+        } catch { /* silent */ }
+      } else {
+        const userId = getUserIdFromJwt();
+        if (!userId) return;
+        try {
+          const data = await getStoresByUser(userId);
           const list = Array.isArray(data) ? data : (data?.data ?? []);
           const first = list[0];
           const id = first?.storeId ?? first?.store_id ?? first?.id ?? null;
@@ -233,9 +232,11 @@ const AdminLayout = () => {
               }
             } catch { /* silent */ }
           }
-        })
-        .catch(() => {});
-    }
+        } catch { /* silent */ }
+      }
+    };
+    run();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   return (

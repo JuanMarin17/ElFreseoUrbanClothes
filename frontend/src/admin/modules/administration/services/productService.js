@@ -79,9 +79,9 @@ export const getAllProducts = (storeId) => {
 
 export const getAllActiveProducts = (storeId) => {
   const id = storeId ?? localStorage.getItem("storeId");
-  return request("GET", "/products/all/active", {
-    ...(id && id !== "null" ? { extraHeaders: { "X-Store-Id": id } } : {}),
-  });
+  return request("GET", "/products/all/active",
+    id && id !== "null" ? { extraHeaders: { "X-Store-Id": id } } : undefined
+  );
 };
 export const getNewProducts = () => request("GET", "/products/new");
 export const getNewActiveProducts = () =>
