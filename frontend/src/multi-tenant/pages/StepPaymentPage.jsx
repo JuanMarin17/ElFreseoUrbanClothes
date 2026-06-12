@@ -115,10 +115,11 @@ export default function StepPaymentPage() {
           <button className="btn-back" onClick={handleBack} aria-label="Volver">
             <ArrowLeft size={16} />
           </button>
-          <div>
-            <h1 className="step-title">Pagos y envios</h1>
-            <p className="step-subtitle">Configura como cobras y envias</p>
+          <div className="step-header-text">
+            <h1 className="step-title">Pagos y envíos</h1>
+            <p className="step-subtitle">Configura cómo cobras y envías</p>
           </div>
+          <span className="step-badge">Paso 4 / 11</span>
         </div>
 
         <div className="step-body">

@@ -1,6 +1,6 @@
 .spa-root {
   min-height: 100vh;
-  background: #060810;
+  background: #080808;
   color: #fff;
 }
 
@@ -318,7 +318,7 @@
 }
 
 .spa-spin {
-  animation: spa-rotate 0.9s linear infinite;
+  animation: spa-rotate 0.9s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 }
 
 @keyframes spa-rotate {

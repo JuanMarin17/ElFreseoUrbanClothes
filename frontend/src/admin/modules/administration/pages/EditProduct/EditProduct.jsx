@@ -5,6 +5,7 @@ import { getCategories, createCategory } from "../../services/CategoryService";
 import { getBrands, createBrand } from "../../services/BrandService";
 import { uploadFile } from "../../../../../utils/uploadService";
 import "../UploadProduct/UploadProduct.css";
+import PageSpinner from "../../../../../components/ui/PageSpinner.jsx";
 
 const TALLAS_DISPONIBLES = ["S", "M", "L", "XL", "XXL"];
 
@@ -313,9 +314,7 @@ export default function EditProduct() {
     return (
       <div className="adminContainer">
         <main className="mainContent">
-          <p style={{ color: "#666", textAlign: "center", marginTop: 80, fontSize: 14 }}>
-            Cargando producto…
-          </p>
+          <PageSpinner label="Cargando producto..." />
         </main>
       </div>
     );

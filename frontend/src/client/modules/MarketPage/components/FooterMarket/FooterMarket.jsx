@@ -1,141 +1,65 @@
-import React, { useState } from 'react';
-import {
-  Zap, Store, HelpCircle, Gift, Smartphone,
-  Instagram, Twitter, Youtube, Facebook,
-  MapPin, Mail, Phone, ArrowRight,
-} from 'lucide-react';
-import './FooterMarket.css';
+import React from "react";
+import Logo from "../../../../../assets/LogoVexios/banervexio.png";
+import "./FooterMarket.css";
 
-// ─────────────────────────────────────────────
-// FooterMarket — Footer completo de Vexio
-// ─────────────────────────────────────────────
-
-const FOOTER_LINKS = {
-  "Marketplace": [
-    { label: "Explorar tiendas",   href: "/tiendas" },
-    { label: "Categorías",         href: "/categorias" },
-    { label: "Productos nuevos",   href: "/novedades" },
-    { label: "Mejores ofertas",    href: "/ofertas" },
-    { label: "Tiendas verificadas",href: "/verificadas" },
-  ],
-  "Emprendedores": [
-    { label: "Crear mi tienda",    href: "/crear-tienda" },
-    { label: "Cómo funciona",      href: "/como-funciona" },
-    { label: "Precios y planes",   href: "/planes" },
-    { label: "Centro de ayuda",    href: "/ayuda" },
-    { label: "Casos de éxito",     href: "/casos" },
-  ],
-  "Empresa": [
-    { label: "Sobre Vexio",        href: "/nosotros" },
-    { label: "Blog",               href: "/blog" },
-    { label: "Prensa",             href: "/prensa" },
-    { label: "Afiliados",          href: "/afiliados" },
-    { label: "Trabaja con nosotros",href: "/careers" },
-  ],
+const LINKS = {
+  Producto: ["Características", "Precios", "Integraciones"],
+  Empresa: ["Sobre nosotros", "Trabaja con nosotros"],
+  Soporte: ["Centro de ayuda", "Contacto"],
 };
 
-const SOCIAL = [
-  { icon: Instagram, href: "#", label: "Instagram" },
-  { icon: Twitter,   href: "#", label: "Twitter / X" },
-  { icon: Youtube,   href: "#", label: "YouTube" },
-  { icon: Facebook,  href: "#", label: "Facebook" },
+const SOCIALS = [
+  { label: "LinkedIn", icon: "ti-brand-linkedin", href: "#" },
+  { label: "Instagram", icon: "ti-brand-instagram", href: "#" },
+  { label: "X / Twitter", icon: "ti-brand-x", href: "#" },
+  { label: "YouTube", icon: "ti-brand-youtube", href: "#" },
 ];
 
 export default function FooterMarket() {
-  const [email, setEmail] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
-
-  const handleSubscribe = (e) => {
-    e.preventDefault();
-    if (!email.trim()) return;
-    // 🔌 API TODO: POST /api/newsletter { email }
-    setSubscribed(true);
-  };
-
   return (
-    <footer className="vx-footer-root">
-      {/* ─── Banda superior: pilares de conversión ─── */}
-      <div className="vx-footer-pillars">
-        <div className="vx-section-wrap vx-footer-pillars-inner">
-        
-          <div className="vx-footer-pillar vx-footer-pillar--cyan">
-            <Store size={22} />
-            <div>
-              <h5>Vende en Vexio</h5>
-              <p>Abre tu tienda gratis hoy</p>
-            </div>
-          </div>
-          <div className="vx-footer-pillar">
-            <HelpCircle size={22} />
-            <div>
-              <h5>Atención 24/7</h5>
-              <p>Siempre estamos para ayudarte</p>
-            </div>
-          </div>
-          
-        </div>
-      </div>
+    <footer className="vx-footer" role="contentinfo">
+      {/* ── TOP GRID ─────────────────────────────────────── */}
+      <div className="vx-footer-top">
+        {/* Brand */}
+        <div className="vx-footer-brand">
+          <img src={Logo} alt="Vexio" className="vx-footer-logo" />
 
-      {/* ─── Cuerpo del footer ─── */}
-      <div className="vx-section-wrap vx-footer-body">
-
-        {/* Col 1: Marca + suscripción */}
-        <div className="vx-footer-brand-col">
-          <a href="/" className="vx-footer-logo">
-            <span className="vx-footer-logo-icon"><Zap size={17} /></span>
-            <span>vexio</span>
-          </a>
-          <p className="vx-footer-brand-desc">
-            El marketplace descentralizado donde miles de emprendedores
-            conectan con compradores de todo el mundo.
+          <p className="vx-footer-tagline">
+            La plataforma de comercio unificado para negocios colombianos que
+            quieren crecer sin límites.
           </p>
 
-          <div className="vx-footer-contact">
-            <span><MapPin size={13} /> Colombia</span>
-            <span><Mail size={13} /> hola@vexio.com</span>
-            <span><Phone size={13} /> +57 300 000 0000</span>
-          </div>
-
-          {/* Newsletter */}
-          <div className="vx-footer-newsletter">
-            <p>Recibe novedades y ofertas</p>
-            {subscribed ? (
-              <p className="vx-footer-sub-ok">¡Suscrito! 🎉</p>
-            ) : (
-              <form className="vx-footer-sub-form" onSubmit={handleSubscribe}>
-                <input
-                  type="email"
-                  placeholder="tu@email.com"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  className="vx-footer-sub-input"
-                  required
-                />
-                <button type="submit" className="vx-footer-sub-btn" aria-label="Suscribirse">
-                  <ArrowRight size={15} />
-                </button>
-              </form>
-            )}
-          </div>
-
-          {/* Social */}
-          <div className="vx-footer-social">
-            {SOCIAL.map(({ icon: Icon, href, label }) => (
-              <a key={label} href={href} className="vx-footer-social-btn" aria-label={label}>
-                <Icon size={16} />
+          <div className="vx-footer-socials">
+            {SOCIALS.map(({ label, icon, href }) => (
+              <a
+                key={label}
+                href={href}
+                className="vx-footer-social"
+                aria-label={label}
+              >
+                <i className={`ti ${icon}`} aria-hidden="true" />
               </a>
             ))}
           </div>
         </div>
 
-        {/* Cols de links */}
-        {Object.entries(FOOTER_LINKS).map(([group, links]) => (
-          <div key={group} className="vx-footer-link-col">
-            <h6>{group}</h6>
+        {/* Link columns */}
+        {Object.entries(LINKS).map(([col, items], colIdx) => (
+          <div
+            key={col}
+            className="vx-footer-col"
+            style={{ "--col-delay": `${0.15 + colIdx * 0.1}s` }}
+          >
+            <h4 className="vx-footer-col-title">{col}</h4>
             <ul>
-              {links.map(link => (
-                <li key={link.label}>
-                  <a href={link.href}>{link.label}</a>
+              {items.map((item) => (
+                <li key={item}>
+                  <a href="#">
+                    {item}
+                    <span className="vx-link-arrow" aria-hidden="true">
+                      ›
+                    </span>
+                  </a>
                 </li>
               ))}
             </ul>
@@ -143,16 +67,23 @@ export default function FooterMarket() {
         ))}
       </div>
 
-      {/* ─── Pie legal ─── */}
-      <div className="vx-footer-legal">
-        <div className="vx-section-wrap vx-footer-legal-inner">
-          <p>© 2026 Vexio · Ecosistema multitienda descentralizado. Todos los derechos reservados.</p>
-          <div className="vx-footer-legal-links">
-            <a href="/privacidad">Privacidad</a>
-            <a href="/terminos">Términos</a>
-            <a href="/cookies">Cookies</a>
-          </div>
-        </div>
+      {/* ── DIVIDER ──────────────────────────────────────── */}
+      <hr className="vx-footer-divider" />
+
+      {/* ── BOTTOM BAR ───────────────────────────────────── */}
+      <div className="vx-footer-bottom">
+        <span className="vx-footer-copy">
+          <span className="vx-status-dot" title="Todos los sistemas operando" />
+          © {new Date().getFullYear()} Vexio. Todos los derechos reservados
+        </span>
+
+        <nav className="vx-footer-legal" aria-label="Legal">
+          <a href="#">Términos</a>
+          <span className="vx-legal-sep" aria-hidden="true" />
+          <a href="#">Privacidad</a>
+          <span className="vx-legal-sep" aria-hidden="true" />
+          <a href="#">Cookies</a>
+        </nav>
       </div>
     </footer>
   );

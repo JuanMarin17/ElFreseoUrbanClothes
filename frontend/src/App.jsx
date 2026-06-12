@@ -3,6 +3,7 @@ import { AnimatePresence } from "framer-motion";
 import { Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import "./animations.css";
+import PageSpinner from "./components/ui/PageSpinner.jsx";
 
 import { AuthProvider }                            from "./admin/modules/auth/pages/hook/Useauth.jsx";
 import { AuthProvider as MultiTenantAuthProvider } from "./multi-tenant/context/AuthContext.jsx";
@@ -28,7 +29,7 @@ const Report              = lazy(() => import("./admin/modules/administration/pa
 const IAAdmin             = lazy(() => import("./admin/modules/administration/pages/IAAdmin/AIAdmin.jsx"));
 const OrdersManagement    = lazy(() => import("./admin/modules/administration/pages/OrdersManagement/OrdersManagement.jsx"));
 const ShockAlerts         = lazy(() => import("./admin/modules/administration/pages/StockAlerts/StockAlert.jsx"));
-const SuppliersPage       = lazy(() => import("./admin/modules/administration/pages/Suppliers/SuppliersPage.jsx"));
+const SuppliersPage       = lazy(() => import("./admin/modules/administration/pages/Proveedor/SuppliersPage.jsx"));
 const PromotionsDashboard = lazy(() => import("./admin/modules/administration/promotions/PromotionsDashboards.jsx"));
 const UsersManagement     = lazy(() => import("./admin/modules/administration/pages/UsersManagement/UsersManagement.jsx"));
 const AdminProductsPage   = lazy(() => import("./admin/modules/administration/pages/AdminProducts/AdminProductsPage.jsx"));
@@ -67,6 +68,15 @@ const MyStore             = lazy(() => import("./multi-tenant/pages/MyStore.jsx"
 const StorePage           = lazy(() => import("./multi-tenant/pages/StorePage.jsx"));
 const Transaction         = lazy(() => import("./multi-tenant/pages/Transaction/Transaction.jsx"));
 
+// ── Pagos ─────────────────────────────────────────────────────────────────────
+const PaymentSettings = lazy(() => import("./admin/modules/administration/pages/PaymentSettings/PaymentSettings.jsx"));
+const CheckoutPage    = lazy(() => import("./multi-tenant/pages/Checkout/CheckoutPage.jsx"));
+const CheckoutSuccess = lazy(() => import("./multi-tenant/pages/CheckoutResult/CheckoutSuccess.jsx"));
+const CheckoutFailure = lazy(() => import("./multi-tenant/pages/CheckoutResult/CheckoutFailure.jsx"));
+const CheckoutPending = lazy(() => import("./multi-tenant/pages/CheckoutResult/CheckoutPending.jsx"));
+const MyOrders        = lazy(() => import("./multi-tenant/pages/MyOrders/MyOrders.jsx"));
+const OrderDetail     = lazy(() => import("./multi-tenant/pages/OrderDetail/OrderDetail.jsx"));
+
 // ── CMS ───────────────────────────────────────────────────────────────────────
 const CMSEditor    = lazy(() => import("./multi-tenant/cms/CMSeditor.jsx"));
 const CMSAbout     = lazy(() => import("./multi-tenant/cms/CMSabout.jsx"));
@@ -82,23 +92,10 @@ const StoreFaqPage     = lazy(() => import("./multi-tenant/components/Store/Stor
 const StoreAboutPage   = lazy(() => import("./multi-tenant/components/Store/StoreAboutPage.jsx"));
 
 // ── Loader ────────────────────────────────────────────────────────────────────
+// PageSpinner importado arriba — usa delay de 180ms para no aparecer en
+// cargas rápidas y fade-in suave para que no corte bruscamente.
 function PageLoader() {
-  return (
-    <div style={{
-      display: "flex", alignItems: "center", justifyContent: "center",
-      height: "100vh", gap: 12,
-      background: "#0c0e14", fontFamily: "Inter, sans-serif",
-      color: "#475569", fontSize: 13,
-    }}>
-      <div style={{
-        width: 30, height: 30,
-        border: "3px solid #1e2230", borderTopColor: "#6366f1",
-        borderRadius: "50%", animation: "spin 0.7s linear infinite",
-      }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      Cargando...
-    </div>
-  );
+  return <PageSpinner fullscreen />;
 }
 
 // ── App ───────────────────────────────────────────────────────────────────────
@@ -162,11 +159,19 @@ export default function App() {
                   <Route path="/dashboard/subscription/pending" element={<SubscriptionPending />} />
 
                   {/* ── Tienda pública ───────────────────────────────────── */}
-                  <Route path="/tienda/:slug"             element={<StorePage />} />
-                  <Route path="/tienda/:slug/contacto"    element={<StoreContactPage />} />
-                  <Route path="/tienda/:slug/devoluciones"element={<StoreReturnsPage />} />
-                  <Route path="/tienda/:slug/faq"         element={<StoreFaqPage />} />
-                  <Route path="/tienda/:slug/nosotros"    element={<StoreAboutPage />} />
+                  <Route path="/tienda/:slug"              element={<StorePage />} />
+                  <Route path="/tienda/:slug/contacto"     element={<StoreContactPage />} />
+                  <Route path="/tienda/:slug/devoluciones" element={<StoreReturnsPage />} />
+                  <Route path="/tienda/:slug/faq"          element={<StoreFaqPage />} />
+                  <Route path="/tienda/:slug/nosotros"     element={<StoreAboutPage />} />
+
+                  {/* ── Checkout del cliente ─────────────────────────────── */}
+                  <Route path="/tienda/:slug/checkout"           element={<CheckoutPage />} />
+                  <Route path="/tienda/:slug/checkout/exitoso"   element={<CheckoutSuccess />} />
+                  <Route path="/tienda/:slug/checkout/fallido"   element={<CheckoutFailure />} />
+                  <Route path="/tienda/:slug/checkout/pendiente" element={<CheckoutPending />} />
+                  <Route path="/tienda/:slug/orders"             element={<MyOrders />} />
+                  <Route path="/tienda/:slug/orders/:orderId"    element={<OrderDetail />} />
                   <Route path="/transacciones" element={<Transaction />} />
                   <Route path="/mis-tiendas"   element={<MyStore />} />
 
@@ -194,6 +199,7 @@ export default function App() {
                     <Route path="promociones"         element={<PromotionsDashboard />} />
                     <Route path="productos"           element={<AdminProductsPage />} />
                     <Route path="productos/:id"       element={<AdminProductDetail />} />
+                    <Route path="pagos"               element={<PaymentSettings />} />
                     <Route path="cms"                 element={<CMSEditor />} />
                     <Route path="cms/about"           element={<CMSAbout />} />
                     <Route path="cms/contact"         element={<CMSContact />} />
@@ -219,6 +225,7 @@ export default function App() {
                       <Route path="promociones"         element={<PromotionsDashboard />} />
                       <Route path="productos"           element={<AdminProductsPage />} />
                       <Route path="productos/:id"       element={<AdminProductDetail />} />
+                      <Route path="pagos"               element={<PaymentSettings />} />
                       <Route path="cms"                 element={<CMSEditor />} />
                       <Route path="cms/about"           element={<CMSAbout />} />
                       <Route path="cms/contact"         element={<CMSContact />} />

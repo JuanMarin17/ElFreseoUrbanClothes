@@ -72,4 +72,4 @@ const MyStoreLayout = () => {
   );
 };
 
-export default MyStoreLayout();
+export default MyStoreLayout;

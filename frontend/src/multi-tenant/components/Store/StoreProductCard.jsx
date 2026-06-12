@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { GCard } from "./storeUtils.jsx";
 
-export default function StoreProductCard({ product, index, theme, isJustAdded, onAddToCart }) {
+export default function StoreProductCard({ product, index, theme, isJustAdded, onAddToCart, storeId = null }) {
   const { accent, titleC, paraC, cardBg, b1, b2, bw, br, sh, btnR, fT, isUrb, isDark } = theme;
   const [hovered, setHovered] = useState(false);
 
@@ -171,7 +171,8 @@ export default function StoreProductCard({ product, index, theme, isJustAdded, o
 
           {/* Ver más → ProductPage */}
           <Link
-            to={`/products/${product.id ?? product.productId}`}
+            to={`/producto/${product.id ?? product.productId}?src=store${storeId ? `&sid=${storeId}` : ""}`}
+            onClick={() => { if (storeId) localStorage.setItem("storeId", storeId); }}
             style={{
               display: "flex",
               alignItems: "center",

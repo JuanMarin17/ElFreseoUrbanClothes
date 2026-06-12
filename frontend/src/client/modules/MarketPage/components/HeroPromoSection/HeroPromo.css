@@ -1,211 +1,362 @@
-/* ── HeroPromoSection ── */
+/* ==========================================================================
+   HERO PROMO - DISEÑO FLUIDO, ABIERTO Y ASIMÉTRICO
+   ========================================================================== */
+
 .vx-hero-root {
   width: 100%;
-  padding: 48px 0 56px;
+  min-height: 72vh;
+  padding: 100px 0 80px;
   position: relative;
+  background-color: #050507;
 }
 
 .vx-hero-inner {
   display: grid;
-  grid-template-columns: 1.55fr 1fr;
-  gap: 22px;
-  align-items: stretch;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 60px;
+  align-items: center;
 }
 
-@media (max-width: 1024px) { .vx-hero-inner { grid-template-columns: 1fr; } }
+/* ─── Luces Líquidas de Fondo (Sin Cajas) ─── */
+.blur-gradient {
+  position: absolute;
+  pointer-events: none;
+  filter: blur(140px);
+  opacity: 0.25;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+}
+.blur-gradient--1 {
+  top: -10%;
+  right: 20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, #06b6d4 0%, #3b82f6 100%);
+}
+.blur-gradient--2 {
+  bottom: 10%;
+  left: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #ec4899 0%, #8b5cf6 100%);
+}
 
-/* ─── Card principal ─── */
-.hero-main-card {
-  background: linear-gradient(145deg, #0A0A0A 0%, #050505 100%);
-  border: 1px solid var(--vx-border2);
-  border-radius: var(--vx-radius-xl);
-  padding: 52px 48px 44px;
-  position: relative;
-  overflow: hidden;
+/* ─── Bloque Izquierdo Abierto (No Cards) ─── */
+.hero-content-fluid {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  z-index: 2;
 }
 
-.hero-glow {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-}
-.hero-glow--top {
-  top: -80px; right: -60px;
-  width: 420px; height: 420px;
-  background: radial-gradient(circle, rgba(37, 99, 255, 0.11) 0%, transparent 70%);
-}
-.hero-glow--bottom {
-  bottom: -100px; left: -40px;
-  width: 300px; height: 300px;
-  background: radial-gradient(circle, rgba(37, 99, 255, 0.06) 0%, transparent 70%);
-}
 
-.hero-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 5px 14px;
-  background: var(--vx-cyan-dim);
-  border: 1px solid var(--vx-cyan-mid);
-  border-radius: 99px;
-  color: var(--vx-cyan);
-  font-weight: 700;
-  font-size: 11.5px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 22px;
-  width: fit-content;
+.icon-pulse {
+  animation: pulse 2s infinite;
 }
 
 .hero-title {
-  font-weight: 800;
-  font-size: clamp(2rem, 3.8vw, 3rem);
-  color: var(--vx-text);
-  line-height: 1.12;
-  letter-spacing: -0.8px;
-  margin-bottom: 18px;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  margin-bottom: 24px;
 }
-.hero-title--cyan {
-  color: var(--vx-cyan);
+.hero-title--gradient {
   display: block;
+  background: linear-gradient(135deg, #ffffff 30%, #a5f3fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .hero-subtitle {
-  color: var(--vx-muted);
-  font-size: 1rem;
+  color: #94a3b8;
+  font-size: 1.2rem;
   line-height: 1.6;
-  max-width: 480px;
-  font-weight: 300;
-  margin-bottom: 34px;
+  max-width: 520px;
+  font-weight: 400;
+  margin-bottom: 40px;
 }
 
+/* Botones Minimalistas */
 .hero-ctas {
   display: flex;
-  gap: 14px;
+  align-items: center;
+  gap: 28px;
   flex-wrap: wrap;
-  margin-bottom: 42px;
 }
 
-/* Bar de características */
-.hero-features-bar {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px 24px;
-  border-top: 1px solid var(--vx-border);
-  padding-top: 28px;
+.vx-btn-primary {
+  background: #ffffff;
+  color: #050507;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 16px 32px;
+  border-radius: 99px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: opacity 200ms ease-out, transform 160ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 200ms ease-out;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.12);
 }
 
-@media (min-width: 700px) {
-  .hero-features-bar { grid-template-columns: repeat(4, 1fr); }
+@media (hover: hover) and (pointer: fine) {
+  .vx-btn-primary:hover {
+    opacity: 0.92;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+  }
 }
 
-.hero-feat {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  color: var(--vx-muted);
-  font-size: 0.8rem;
-  line-height: 1.35;
-}
-.hero-feat svg { color: var(--vx-cyan); flex-shrink: 0; margin-top: 2px; }
-
-/* ─── Banners laterales ─── */
-.hero-side-banners {
-  display: flex;
-  gap: 18px;
+.vx-btn-primary:active {
+  transform: scale(0.97);
+  box-shadow: none;
+  opacity: 1;
 }
 
-.side-card {
-  flex: 1;
-  min-height: 190px;
-  border-radius: var(--vx-radius-xl);
-  overflow: hidden;
-  position: relative;
-  border: 1px solid var(--vx-border2);
-  display: flex;
-  align-items: flex-end;
-}
-
-.side-card-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
-}
-.side-card:hover .side-card-img { transform: scale(1.04); }
-
-.side-card-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(5,5,5,0.92) 0%,
-    rgba(5,5,5,0.5) 50%,
-    transparent 100%
-  );
-}
-
-.side-card-body {
-  position: relative;
-  z-index: 2;
-  padding: 22px 26px;
-}
-
-.side-tag {
-  display: inline-block;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-.side-tag--muted { color: var(--vx-muted2); }
-.side-tag--cyan  { color: var(--vx-cyan); }
-
-.side-card-body h3 {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: #fff;
-  margin: 0 0 14px;
-  letter-spacing: -0.3px;
-}
-
-.side-card-link {
+.vx-btn-link {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: none;
-  border: none;
-  color: var(--vx-text);
-  font-size: 0.85rem;
-  font-weight: 600;
   cursor: pointer;
   text-decoration: none;
-  transition: gap 0.2s;
-}
-.side-card-link:hover { gap: 10px; }
-.side-card-link--cyan { color: var(--vx-cyan); }
-
-@media (max-width: 768px) {
-  .hero-main-card { padding: 36px 26px 32px; }
-}
-/* ── Agrega al final de HeroPromo.css ── */
-@keyframes vx-fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  transition: gap 200ms cubic-bezier(0.23, 1, 0.32, 1), color 180ms ease-out;
 }
 
-.hero-eyebrow   { animation: vx-fadeUp .7s 0s    ease both; }
-.hero-title     { animation: vx-fadeUp .7s .10s  ease both; }
-.hero-subtitle  { animation: vx-fadeUp .7s .18s  ease both; }
-.hero-ctas      { animation: vx-fadeUp .7s .26s  ease both; }
-.hero-features-bar { animation: vx-fadeUp .7s .38s ease both; }
+@media (hover: hover) and (pointer: fine) {
+  .vx-btn-link:hover {
+    gap: 12px;
+    color: #06b6d4;
+  }
+}
 
-/* Banners laterales entran juntos con un delay mayor */
-.hero-side-banners { animation: vx-fadeUp .7s .20s ease both; }
+/* ─── Tarjetas Flotantes Orgánicas (Derecha) ─── */
+.hero-floating-display {
+  position: relative;
+  height: 480px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.floating-card {
+  position: absolute;
+  width: 280px;
+  height: 340px;
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+  transition: transform 400ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 400ms ease-out, z-index 0s;
+}
+
+.card-top {
+  top: 0;
+  right: 10%;
+  z-index: 3;
+  transform: rotate(3deg);
+}
+.card-bottom {
+  bottom: 0;
+  left: 5%;
+  z-index: 2;
+  transform: rotate(-6deg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .floating-card:hover {
+    z-index: 4;
+    transform: translateY(-10px) rotate(0deg);
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7);
+  }
+}
+
+.floating-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.7);
+  transition: transform 0.5s;
+}
+.floating-card:hover .floating-card-img {
+  transform: scale(1.08);
+}
+
+.floating-card-content {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(5,5,7,0.9) 0%, rgba(5,5,7,0.2) 60%, transparent);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.floating-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #a855f7;
+  margin-bottom: 4px;
+}
+.floating-tag.tag-cyan { color: #06b6d4; }
+
+.floating-card-content h3 {
+  font-size: 1.3rem;
+  color: #fff;
+  margin: 0 0 12px;
+  font-weight: 700;
+}
+
+.floating-link {
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* ─── Botones del Hero ─── */
+.vx-btn-cyan {
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 14px 30px;
+  border-radius: 99px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: opacity 200ms ease-out, transform 160ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 200ms ease-out;
+  box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vx-btn-cyan:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(6, 182, 212, 0.45);
+  }
+}
+
+.vx-btn-cyan:active {
+  transform: scale(0.97);
+  box-shadow: none;
+}
+
+.vx-btn-ghost {
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 14px 30px;
+  border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: background 200ms ease-out, border-color 200ms ease-out, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vx-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
+}
+
+.vx-btn-ghost:active {
+  transform: scale(0.97);
+}
+
+/* ─── Características de Diseño Fluido (Abierto, sin grillas pesadas) ─── */
+.hero-features-fluid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 40px;
+  padding-top: 60px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.feat-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.feat-item svg {
+  color: #06b6d4;
+  background: rgba(6, 182, 212, 0.05);
+  padding: 10px;
+  border-radius: 16px;
+}
+.feat-item h4 {
+  color: #ffffff;
+  font-size: 1rem;
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+.feat-item p {
+  color: #64748b;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* ─── Animaciones ─── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes floatUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-content-fluid { animation: floatUp 0.7s cubic-bezier(0.23, 1, 0.32, 1) both; }
+.hero-floating-display { animation: floatUp 0.7s 0.15s cubic-bezier(0.23, 1, 0.32, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-content-fluid,
+  .hero-floating-display {
+    animation: none;
+    opacity: 1;
+  }
+  .floating-card,
+  .floating-card-img {
+    transition: none;
+  }
+}
+
+/* ─── Responsivo ─── */
+@media (max-width: 1024px) {
+  .vx-hero-inner {
+    grid-template-columns: 1fr;
+    gap: 80px;
+    text-align: center;
+  }
+  .hero-content-fluid {
+    align-items: center;
+  }
+  .hero-ctas {
+    justify-content: center;
+  }
+  .hero-floating-display {
+    height: 380px;
+  }
+  .floating-card {
+    width: 220px;
+    height: 280px;
+  }
+}

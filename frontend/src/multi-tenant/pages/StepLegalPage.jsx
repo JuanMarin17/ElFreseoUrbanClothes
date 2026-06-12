@@ -101,10 +101,11 @@ export default function StepLegalPage() {
           <button className="btn-back" onClick={handleBack} aria-label="Volver">
             <ArrowLeft size={16} />
           </button>
-          <div>
-            <h1 className="step-title">Informacion legal</h1>
+          <div className="step-header-text">
+            <h1 className="step-title">Información legal</h1>
             <p className="step-subtitle">Datos para tu cuenta de vendedor</p>
           </div>
+          <span className="step-badge">Paso 3 / 11</span>
         </div>
 
         <div className="step-body">
@@ -176,8 +177,11 @@ export default function StepLegalPage() {
                 onChange={handleFile}
                 hidden
               />
-              <FileText size={16} />
-              <span>{form.documentName ?? "Subir documento"}</span>
+              <FileText size={22} />
+              <span>{form.documentName ?? "Haz clic para subir tu documento"}</span>
+              {!form.documentName && (
+                <span className="upload-area-hint">PDF, JPG o PNG · máx 10 MB</span>
+              )}
             </label>
             {form.documentName && (
               <span className="field-hint hint-ok">

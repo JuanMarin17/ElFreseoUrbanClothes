@@ -16,7 +16,7 @@ import AiChatDrawer from './AiChatDrawer.jsx';
      layoutType: "minimalista" | "urbano" | "clasico"
      data: { header, banner, footer, products, styles, widgets }
 ══════════════════════════════════════════ */
-export default function StoreFront({ layoutType = "minimalista", data = {}, isOwner = false, storeId = null, storeSlug = null, headerTopOffset = 0 }) {
+export default function StoreFront({ layoutType = "minimalista", data = {}, isOwner = false, storeId = null, storeSlug = null, storeName = null, headerTopOffset = 0 }) {
   const header   = data.header   ?? DEMO.header;
   const footer   = data.footer   ?? DEMO.footer;
   const products = data.products ?? DEMO.products;
@@ -152,6 +152,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
     activeCategory, setActiveCategory,
     activePrices, togglePrice,
     activeSizes, toggleSize,
+    sortBy, setSortBy,
     clearFilters, filteredProducts, hasActiveFilters,
   } = useFilters(products);
 
@@ -196,6 +197,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
         onRemoveItem={removeCartItem}
         onClearCart={emptyCart}
         onClearError={clearError}
+        storeSlug={storeSlug}
       />
 
       <StoreHero banner={banner} theme={theme} />
@@ -227,6 +229,9 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
             justAdded={justAdded}
             searchCfg={searchCfg}
             onSearchChange={setSearchQuery}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            storeId={storeId}
           />
         </div>
       </div>
@@ -238,7 +243,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
         onCartRefresh={handleIaCartRefresh}
         accentColor={accent}
         products={products}
-        storeName={banner.title ?? "Tienda"}
+        storeName={storeName ?? banner.title ?? "Tienda"}
       />
 
     </div>

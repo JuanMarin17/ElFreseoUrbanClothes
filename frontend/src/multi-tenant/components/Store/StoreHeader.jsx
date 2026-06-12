@@ -1,7 +1,32 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingBag, Sun, Moon, Settings, ArrowLeft } from "lucide-react";
 import StoreSearchBar from "./StoreSearchBar.jsx";
 import "./styles/styles.css"
+
+function getItemRoute(item, storeSlug) {
+  if (!storeSlug) return null;
+  const key = item?.toLowerCase().trim().replace(/[\sà-ÿ]/g, c =>
+    ({ á:'a',é:'e',í:'i',ó:'o',ú:'u',ñ:'n',' ':'' }[c] ?? c)
+  );
+  const map = {
+    home: '',
+    inicio: '',
+    shop: '',
+    tienda: '',
+    catalogo: '',
+    productos: '',
+    contacto: '/contacto',
+    contact: '/contacto',
+    nosotros: '/nosotros',
+    about: '/nosotros',
+    faq: '/faq',
+    devoluciones: '/devoluciones',
+  };
+  const suffix = map[key];
+  if (suffix === undefined) return null;
+  return `/tienda/${storeSlug}${suffix}`;
+}
 
 export default function StoreHeader({
   header,
@@ -18,6 +43,7 @@ export default function StoreHeader({
   topOffset = 0,
 }) {
   const navigate = useNavigate();
+  const [logoError, setLogoError] = useState(false);
   const { accent, btnR, hBg, hColor, hFont, isMin, isUrb, isCls } = theme;
 
   const btnBg     = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)";
@@ -59,7 +85,7 @@ export default function StoreHeader({
     >
       {/* Botón volver */}
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => navigate("/market")}
         title="Volver"
         style={{
           ...iconBtnStyle,
@@ -68,47 +94,62 @@ export default function StoreHeader({
         onMouseEnter={e => { e.currentTarget.style.background = btnBgHov; }}
         onMouseLeave={e => { e.currentTarget.style.background = btnBg; }}
       >
-        <ArrowLeft size={16} />
+        <ArrowLeft style={{minWidth: "15px", height: "15px"}}/>
       </button>
 
       {/* NAV izquierda — solo minimalista */}
       {isMin && (
         <nav style={{ display: "flex", gap: "clamp(12px,2vw,28px)" }}>
-          {(header.items ?? []).slice(0, 3).map((it, i) => (
-            <span
-              key={i}
-              style={{
-                fontSize: 11,
-                letterSpacing: 1.5,
-                color: hColor,
-                opacity: i === 0 ? 1 : 0.45,
-                fontWeight: i === 0 ? 700 : 400,
-                textTransform: "uppercase",
-                cursor: "pointer",
-                borderBottom: i === 0 ? `1.5px solid ${hColor}` : "1.5px solid transparent",
-                paddingBottom: 1,
-              }}
-            >
-              {it}
-            </span>
-          ))}
+          {(header.items ?? []).slice(0, 3).map((it, i) => {
+            const to = getItemRoute(it, storeSlug);
+            const baseStyle = {
+              fontSize: 11,
+              letterSpacing: 1.5,
+              color: hColor,
+              opacity: i === 0 ? 1 : 0.45,
+              fontWeight: i === 0 ? 700 : 400,
+              textTransform: "uppercase",
+              cursor: "pointer",
+              borderBottom: i === 0 ? `1.5px solid ${hColor}` : "1.5px solid transparent",
+              paddingBottom: 1,
+              textDecoration: "none",
+            };
+            return to ? (
+              <Link key={i} to={to} style={baseStyle}>{it}</Link>
+            ) : (
+              <span key={i} style={baseStyle}>{it}</span>
+            );
+          })}
         </nav>
       )}
 
       {/* Logo */}
-      <div
-        style={{
+      <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 10 }}>
+        {header.logoUrl && !logoError && (
+          <img
+            src={header.logoUrl}
+            alt={header.logo ?? "Logo"}
+            onError={() => setLogoError(true)}
+            style={{
+              height: isUrb ? 42 : 36,
+              width: "auto",
+              maxWidth: 120,
+              objectFit: "contain",
+              display: "block",
+            }}
+          />
+        )}
+        <span style={{
           fontFamily: `"${hFont}",sans-serif`,
           fontWeight: 900,
-          fontSize: "clamp(14px,2.2vw,20px)",
+          fontSize: "clamp(13px,2vw,18px)",
           letterSpacing: isUrb ? 6 : 3,
           color: hColor,
           textTransform: "uppercase",
           whiteSpace: "nowrap",
-          flexShrink: 0,
-        }}
-      >
-        {header.logo}
+        }}>
+          {header.storeName ?? header.logo}
+        </span>
       </div>
 
       {/* Buscador en header (urbano y clásico) */}
@@ -125,22 +166,24 @@ export default function StoreHeader({
       {/* NAV derecha — urbano y clásico */}
       {!isMin && (
         <nav style={{ display: "flex", gap: "clamp(12px,2vw,28px)" }}>
-          {(header.items ?? []).slice(0, 3).map((it, i) => (
-            <span
-              key={i}
-              style={{
-                fontSize: 11,
-                letterSpacing: isUrb ? 2.5 : 1,
-                color: hColor,
-                opacity: i === 0 ? (isUrb ? 1 : 0.8) : 0.4,
-                fontWeight: i === 0 ? 600 : 400,
-                textTransform: "uppercase",
-                cursor: "pointer",
-              }}
-            >
-              {it}
-            </span>
-          ))}
+          {(header.items ?? []).slice(0, 3).map((it, i) => {
+            const to = getItemRoute(it, storeSlug);
+            const baseStyle = {
+              fontSize: 11,
+              letterSpacing: isUrb ? 2.5 : 1,
+              color: hColor,
+              opacity: i === 0 ? (isUrb ? 1 : 0.8) : 0.4,
+              fontWeight: i === 0 ? 600 : 400,
+              textTransform: "uppercase",
+              cursor: "pointer",
+              textDecoration: "none",
+            };
+            return to ? (
+              <Link key={i} to={to} style={baseStyle}>{it}</Link>
+            ) : (
+              <span key={i} style={baseStyle}>{it}</span>
+            );
+          })}
         </nav>
       )}
 

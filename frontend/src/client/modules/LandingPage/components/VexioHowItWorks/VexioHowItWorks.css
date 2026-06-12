@@ -27,17 +27,23 @@
   padding: 9px 22px;
   border-radius: 7px;
   cursor: pointer;
-  transition: background .2s, color .2s;
+  transition: background 200ms ease-out, color 200ms ease-out, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
   white-space: nowrap;
 }
-.vx-how-tab:hover {
-  color: var(--vx-text);
-  background: rgba(255,255,255,.04);
+@media (hover: hover) and (pointer: fine) {
+  .vx-how-tab:hover {
+    color: var(--vx-text);
+    background: rgba(255,255,255,.04);
+  }
+}
+.vx-how-tab:active {
+  transform: scale(0.97);
 }
 .vx-how-tab.active {
-  background: var(--vx-accent1);
+  background: linear-gradient(135deg, #2563FF 0%, #7C3AED 100%);
   color: #FFFFFF;
   font-weight: 600;
+  box-shadow: 0 2px 14px rgba(124,58,237,.35);
 }
 
 /* ── Steps grid ── */
@@ -54,8 +60,8 @@
   top: 44px;
   left: 12%; right: 12%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #2563FF 30%, #2563FF 70%, transparent);
-  opacity: .18;
+  background: linear-gradient(90deg, transparent, #2563FF 25%, #7C3AED 75%, transparent);
+  opacity: .28;
   pointer-events: none;
 }
 
@@ -100,10 +106,12 @@
   border: 2px solid var(--vx-bg);
 }
 
-.vx-how-step:hover .vx-how-num {
-  border-color: rgba(37,99,255,.4);
-  background: rgba(37,99,255,.06);
-  box-shadow: 0 0 24px rgba(37,99,255,.15);
+@media (hover: hover) and (pointer: fine) {
+  .vx-how-step:hover .vx-how-num {
+    border-color: rgba(37,99,255,.4);
+    background: rgba(37,99,255,.06);
+    box-shadow: 0 0 24px rgba(37,99,255,.15);
+  }
 }
 
 .vx-how-title {
@@ -130,8 +138,8 @@
 /* ── Reveal ── */
 .vx-reveal {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity .5s ease, transform .5s ease;
+  transform: translateY(16px);
+  transition: opacity 500ms cubic-bezier(0.23, 1, 0.32, 1), transform 500ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .vx-reveal.vx-visible {
   opacity: 1;
