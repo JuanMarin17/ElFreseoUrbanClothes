@@ -131,8 +131,15 @@ export default function OrdersManagement() {
     } catch { /* KPIs son no críticos */ }
   }, []);
 
-  useEffect(() => { loadOrders(0); },   [statusFilter]);
-  useEffect(() => { loadStats(); },     []);
+  useEffect(() => {
+    const run = async () => { await loadOrders(0); };
+    run();
+  }, [statusFilter, loadOrders]);
+
+  useEffect(() => {
+    const run = async () => { await loadStats(); };
+    run();
+  }, [loadStats]);
 
   // ── Actualización de estado ────────────────────────────────────────────────
 

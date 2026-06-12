@@ -512,3 +512,25 @@
   .db-inventory-cards { grid-template-columns: 1fr 1fr; }
   .db-banner-title { font-size: 1.05rem; }
 }
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1200px) {
+  .dashboard-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .dashboard-stats { grid-template-columns: 1fr; }
+}
+
+.dashboard-loading,
+.dashboard-empty {
+  font-size: 0.8rem;
+  color: #555;
+  letter-spacing: 1px;
+  padding: 20px 0;
+}
