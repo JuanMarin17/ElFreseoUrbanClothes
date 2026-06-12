@@ -330,6 +330,110 @@
 }
 
 /* ==========================================================================
+   DATE FILTER
+   ========================================================================== */
+.rp-date-filter {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.rp-df-modes {
+  display: flex;
+  background: var(--rp-surface);
+  border: 1px solid var(--rp-border);
+  padding: 3px;
+  border-radius: var(--rp-radius-sm);
+  gap: 2px;
+}
+
+.rp-df-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  color: var(--rp-text-muted);
+  padding: 4px 11px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: calc(var(--rp-radius-sm) - 2px);
+  transition: color 140ms ease, background 140ms ease;
+  white-space: nowrap;
+}
+
+.rp-df-mode-btn i { font-size: 0.8rem; }
+
+.rp-df-mode-btn:hover {
+  color: var(--rp-text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.rp-df-mode-btn.active {
+  background: rgba(59, 130, 246, 0.14);
+  color: var(--rp-primary);
+}
+
+.rp-df-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--rp-surface);
+  border: 1px solid var(--rp-border);
+  padding: 4px 8px;
+  border-radius: var(--rp-radius-sm);
+}
+
+.rp-df-select {
+  background: transparent;
+  border: none;
+  color: var(--rp-text-main);
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 3px 4px;
+  outline: none;
+  border-radius: 4px;
+  transition: background 140ms ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.rp-df-select:hover { background: rgba(255, 255, 255, 0.06); }
+
+.rp-df-select option {
+  background: #1a1a22;
+  color: var(--rp-text-main);
+}
+
+.rp-df-apply-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--rp-primary);
+  border: none;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 4px 12px;
+  border-radius: calc(var(--rp-radius-sm) - 2px);
+  cursor: pointer;
+  transition: background 140ms ease, box-shadow 140ms ease;
+  white-space: nowrap;
+}
+
+.rp-df-apply-btn:hover {
+  background: #2563eb;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+}
+
+.rp-df-apply-btn i { font-size: 0.8rem; }
+
+/* ==========================================================================
    STAT CARDS
    ========================================================================== */
 .rp-kpi-row {
@@ -948,4 +1052,55 @@
   .rp-live-badge span:last-child {
     display: none;
   }
+}
+
+/* ── Modo Claro ─────────────────────────────────────────────────────────── */
+.admin-terminal-wrapper[data-theme="light"] .rp-page {
+  --rp-bg:         var(--at-bg);
+  --rp-surface:    var(--at-surface);
+  --rp-card-bg:    var(--at-elevated);
+  --rp-card-hover: var(--at-card);
+  --rp-border:     rgba(0, 0, 0, 0.07);
+  --rp-border-hov: rgba(0, 0, 0, 0.12);
+  --rp-text-main:  var(--at-text-1);
+  --rp-text-muted: var(--at-text-3);
+  --rp-text-soft:  var(--at-text-2);
+
+  background-color: var(--at-bg);
+  color: var(--at-text-1);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .rp-skeleton-card {
+  background: linear-gradient(
+    90deg,
+    var(--at-elevated) 0%,
+    var(--at-card) 40%,
+    var(--at-elevated) 80%
+  );
+  border-color: var(--at-border);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .rp-title {
+  background: linear-gradient(135deg, var(--at-text-1) 30%, var(--at-text-2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.admin-terminal-wrapper[data-theme="light"] .rp-section-title { color: var(--at-text-1); }
+.admin-terminal-wrapper[data-theme="light"] .rp-card-title    { color: var(--at-text-1); }
+.admin-terminal-wrapper[data-theme="light"] .rp-legend-val    { color: var(--at-text-1); }
+.admin-terminal-wrapper[data-theme="light"] .rp-table td      { color: var(--at-text-2); }
+
+.admin-terminal-wrapper[data-theme="light"] .rp-sku {
+  background: var(--at-elevated);
+  color: #4f46e5;
+  border-color: rgba(79,70,229,0.15);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .rp-icon-btn {
+  background: var(--at-border-soft);
+}
+.admin-terminal-wrapper[data-theme="light"] .rp-icon-btn:hover {
+  background: var(--at-elevated);
 }

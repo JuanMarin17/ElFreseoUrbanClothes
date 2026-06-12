@@ -1,9 +1,58 @@
+/* ── Tema oscuro (por defecto) ───────────────────────────────────────────── */
 .admin-terminal-wrapper {
-  display: flex; /* Esto pone el Sidebar y el Main uno al lado del otro */
+  --at-bg:          #080808;
+  --at-surface:     #0d0d0d;
+  --at-elevated:    #111111;
+  --at-card:        #111111;
+  --at-border:      #1a1a1a;
+  --at-border-soft: rgba(255, 255, 255, 0.05);
+  --at-text-1:      #ffffff;
+  --at-text-2:      #a1a1aa;
+  --at-text-3:      #52525b;
+  --at-accent:      #3b82f6;
+  --at-accent-bg:   rgba(59, 130, 246, 0.10);
+  --at-accent-bd:   rgba(59, 130, 246, 0.18);
+  --at-danger:      #ef4444;
+  --at-success:     #10b981;
+  --at-warn:        #f59e0b;
+  --at-input-bg:    #111111;
+  --at-shadow:      rgba(0, 0, 0, 0.5);
+}
+
+/* ── Tema claro — suave, sin blanco puro, cómodo para la vista ──────────── */
+.admin-terminal-wrapper[data-theme="light"] {
+  --at-bg:          #e5e9f2;     /* fondo base: azul-gris medio, da profundidad */
+  --at-surface:     #edf0f8;     /* nivel medio entre fondo y tarjetas          */
+  --at-elevated:    #f2f5fb;     /* tarjetas: blanco suavizado, NO puro         */
+  --at-card:        #f2f5fb;
+  --at-border:      #d0d6e8;     /* bordes más marcados para separar secciones  */
+  --at-border-soft: rgba(0, 0, 0, 0.05);
+  --at-text-1:      #1a2035;     /* texto principal: negro azulado, no puro     */
+  --at-text-2:      #3d4e6b;     /* texto secundario: gris oscuro cómodo        */
+  --at-text-3:      #6b7a99;     /* texto muted: legible, no demasiado claro    */
+  --at-accent:      #2563eb;
+  --at-accent-bg:   rgba(37, 99, 235, 0.08);
+  --at-accent-bd:   rgba(37, 99, 235, 0.18);
+  --at-danger:      #dc2626;
+  --at-success:     #059669;
+  --at-warn:        #d97706;
+  --at-input-bg:    #e8ecf6;     /* inputs con fondo ligeramente más profundo   */
+  --at-shadow:      rgba(30, 40, 70, 0.08);
+}
+
+/* Evita que todos los elementos animen simultáneamente al cambiar de tema */
+[data-theme-switching] * {
+  transition: none !important;
+}
+
+.admin-terminal-wrapper {
+  display: flex;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  background-color: #080808;
+  background-color: var(--at-bg);
+  color: var(--at-text-1);
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .admin-main-section {
@@ -17,20 +66,20 @@
 /* ── NUEVA CLASE: El contenedor divisor horizontal ── */
 .admin-workspace-split {
   display: flex;
-  flex-direction: row; /* Forzamos que el contenido y la IA se pongan lado a lado */
-  flex: 1;            /* Ocupa todo el alto restante debajo del Header */
+  flex-direction: row;
+  flex: 1;
   width: auto;
   min-height: 90vh;
   overflow: hidden;
   position: relative;
-  background-color: #080808;
+  background-color: var(--at-bg);
 }
 
 .admin-page-body {
   flex: 1;
   padding: 30px;
   overflow-y: auto;
-  background-color: #080808;
+  background-color: var(--at-bg);
   min-width: 0;
   min-height: 100%;
   transition: flex 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -47,8 +96,10 @@
   width: 6px;
 }
 
+.admin-page-body::-webkit-scrollbar-track { background: transparent; }
+
 .admin-page-body::-webkit-scrollbar-thumb {
-  background: #1a1a1a;
+  background: var(--at-border, #1a1a1a);
   border-radius: 10px;
 }
 

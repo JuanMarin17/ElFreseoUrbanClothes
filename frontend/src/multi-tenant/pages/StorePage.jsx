@@ -87,10 +87,16 @@ export default function StorePage() {
         const widgets    = settings?.widgets    ?? null;
         const layout     = settings?.layout     ?? { id: "minimalista" };
 
-        const header = components.header ?? {
+        const rawHeader = components.header ?? {
           logo: store.name ?? "MI TIENDA",
           items: ["HOME", "SHOP"],
           color: "#fff", bg: "#000", font: "Inter", size: 14,
+        };
+        // logoUrl: primero del CMS del header, fallback al logo subido en el wizard
+        const header = {
+          ...rawHeader,
+          logoUrl:   rawHeader.logoUrl ?? settings?.basic?.logoPreview ?? null,
+          storeName: store.name ?? slug,
         };
 
         const bannerRaw = components.banner ?? {};
@@ -117,13 +123,21 @@ export default function StorePage() {
           const items = Array.isArray(rawProducts)
             ? rawProducts
             : (rawProducts?.content ?? rawProducts?.items ?? []);
-          products = items.map(p => ({
-            id:          p.productId ?? p.id,
-            name:        p.name,
-            description: p.description ?? "",
-            price:       formatCOP(p.variants?.[0]?.price ?? p.price ?? 0),
-            images:      p.images ?? [],
-          }));
+          products = items.map(p => {
+            const variants = p.variants ?? [];
+            const sizes = [...new Set(
+              variants.flatMap(v => [v.size, v.talla, v.sizeName].filter(Boolean))
+            )];
+            return {
+              id:          p.productId ?? p.id,
+              name:        p.name,
+              description: p.description ?? "",
+              price:       formatCOP(variants[0]?.price ?? p.price ?? 0),
+              images:      p.images ?? [],
+              sizes,
+              categories:  p.categories ?? [],
+            };
+          });
         } catch (e) {
           console.warn("[StorePage] Error cargando productos:", e.message);
         }
@@ -141,8 +155,13 @@ export default function StorePage() {
   if (loading) {
     return (
       <div className="sp-loading">
-        <div className="sp-spinner" />
-        <span>Cargando tienda...</span>
+        <div className="sp-orbital">
+          <div className="sp-orbital-ring sp-orbital-ring--a" />
+          <div className="sp-orbital-ring sp-orbital-ring--b" />
+          <div className="sp-orbital-core" />
+        </div>
+        <p className="sp-loading-text">Cargando tienda</p>
+        <div className="sp-loading-bar" />
       </div>
     );
   }

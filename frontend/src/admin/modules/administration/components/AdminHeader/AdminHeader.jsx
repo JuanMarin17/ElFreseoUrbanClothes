@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Bell, Settings, Bot, Menu } from 'lucide-react';
+import { Search, Bell, Settings, Bot, Menu, Sun, Moon } from 'lucide-react';
 import './AdminHeader.css';
 import NotifModal from '../Modals/NotifModal/NotifModal.jsx';
 import SettingsModal from '../Modals/SettingsModal/SettingsModal';
@@ -18,6 +18,10 @@ const AdminHeader = ({
   isSuperAdmin = false,
   onToggleSidebar,
   pageTitle,
+  theme = "dark",
+  onToggleTheme,
+  sidebarColor,
+  onSidebarColorChange,
 }) => {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -53,6 +57,16 @@ const AdminHeader = ({
         </div>
 
         <div className="top-bar-tools">
+          {onToggleTheme && (
+            <button
+              className="tool-btn"
+              onClick={onToggleTheme}
+              title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+            >
+              {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+            </button>
+          )}
+
           {showAi && setIsAiOpen && (
             <button
               className={`tool-btn ${isAiOpen ? 'ai-active' : ''}`}
@@ -101,6 +115,8 @@ const AdminHeader = ({
         isSuperAdmin={isSuperAdmin}
         userName={userName}
         userRole={userRole}
+        sidebarColor={sidebarColor}
+        onSidebarColorChange={onSidebarColorChange}
       />
     </>
   );

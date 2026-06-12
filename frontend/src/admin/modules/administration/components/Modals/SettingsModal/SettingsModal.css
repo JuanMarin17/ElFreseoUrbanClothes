@@ -2,6 +2,9 @@
   position: fixed;
   inset: 0;
   z-index: 900;
+  background: rgba(0, 0, 0, 0.45);
+  /* backdrop-filter omitido: blur(2px) fuerza compositor de pantalla
+     completa sin beneficio visible en overlay de color sólido. */
 }
 
 .settings-modal {
@@ -105,4 +108,97 @@
 .settings-item-desc {
   font-size: 10px;
   color: #475569;
+}
+
+.settings-item--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.settings-item--disabled:hover { background: transparent; }
+
+/* ── Botón volver ──────────────────────────────────────────────────────── */
+.settings-back-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.15s;
+}
+.settings-back-btn:hover { color: #e2e8f0; }
+
+/* ── Panel de apariencia ───────────────────────────────────────────────── */
+.settings-appearance {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settings-appearance__hint {
+  font-size: 11px;
+  color: #475569;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.settings-color-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.settings-color-swatch {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.settings-color-swatch:hover {
+  transform: scale(1.08);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.settings-color-swatch--active {
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+/* ── Preview del color seleccionado ────────────────────────────────────── */
+.settings-color-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: #111827;
+  border-radius: 8px;
+  border: 1px solid #1e2230;
+}
+
+.settings-color-preview__bar {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.settings-color-preview__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.04em;
 }

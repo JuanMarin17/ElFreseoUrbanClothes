@@ -740,3 +740,28 @@
   .sp-modal { width: 95vw; max-height: 95vh; }
   .sp-toast { left: 16px; right: 16px; min-width: unset; }
 }
+
+/* ── Modo Claro ─────────────────────────────────────────────────────────── */
+.admin-terminal-wrapper[data-theme="light"] .sp-root {
+  --sp-bg:         var(--at-bg);
+  --sp-bg-card:    var(--at-surface);
+  --sp-bg-hover:   var(--at-elevated);
+  --sp-bg-input:   var(--at-input-bg);
+  --sp-border:     var(--at-border);
+  --sp-border-2:   var(--at-border);
+  --sp-text:       var(--at-text-1);
+  --sp-text-sub:   var(--at-text-2);
+  --sp-text-muted: var(--at-text-3);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sp-modal {
+  background: var(--at-elevated);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sp-detail-hero {
+  background: var(--at-surface);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sp-th {
+  background: var(--at-surface);
+}

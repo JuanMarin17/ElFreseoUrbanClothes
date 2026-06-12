@@ -3,6 +3,8 @@ import { Outlet, useLocation, useParams } from "react-router-dom";
 import {
   getStoreBySlug,
   getStoresByUser,
+  getStoreSettingsByHeader,
+  saveStoreSettings,
 } from "../../../../../multi-tenant/pages/services/storeService";
 import IAAdmin from "../../pages/IAAdmin/AIAdmin";
 import AdminHeader from "../AdminHeader/AdminHeader";
@@ -11,19 +13,19 @@ import Sidebar from "../Sidebar/Sidebar";
 import "./AdminLayout.css";
 
 const ROUTE_TITLES = {
-  dashboard: "Dashboard",
-  "subir-producto": "Subir Producto",
+  dashboard:         "Dashboard",
+  "subir-producto":  "Subir Producto",
   "editar-producto": "Editar Producto",
-  inventario: "Inventario",
-  usuarios: "Gestionar Usuarios",
-  report: "Informes",
-  pedidos: "Ver Pedidos",
-  alertas: "Alertas de Stock",
-  proveedores: "Proveedores",
-  promociones: "Promociones",
-  productos: "Productos",
-  cms: "Contenido CMS",
-  IA: "Asistente IA",
+  inventario:        "Inventario",
+  usuarios:          "Gestionar Usuarios",
+  report:            "Informes",
+  pedidos:           "Ver Pedidos",
+  alertas:           "Alertas de Stock",
+  proveedores:       "Proveedores",
+  promociones:       "Promociones",
+  productos:         "Productos",
+  cms:               "Contenido CMS",
+  IA:                "Asistente IA",
 };
 
 function parseUserFromJwt() {
@@ -56,10 +58,45 @@ const isValid = (v) => !!v && v !== "null" && v !== "undefined";
 const AdminLayout = () => {
   const { slug } = useParams();
   const location = useLocation();
-  const [isAiOpen, setIsAiOpen] = useState(false);
+
+  const [isAiOpen,      setIsAiOpen]      = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  // IAAdmin solo se monta cuando storeId y userRole ya están correctos en localStorage
-  const [storeReady, setStoreReady] = useState(!slug);
+  const [storeReady,    setStoreReady]    = useState(!slug);
+
+  // ── Brand: logo + nombre real de la tienda ──────────────────────────────
+  const [storeInfo, setStoreInfo] = useState({ name: null, logo: null });
+
+  // ── Tema oscuro / claro ──────────────────────────────────────────────────
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem("adminTheme") ?? "dark",
+  );
+
+  const toggleTheme = () => {
+    const wrapper = document.querySelector(".admin-terminal-wrapper");
+    wrapper?.setAttribute("data-theme-switching", "");
+    setTheme((t) => {
+      const next = t === "dark" ? "light" : "dark";
+      localStorage.setItem("adminTheme", next);
+      return next;
+    });
+    setTimeout(() => wrapper?.removeAttribute("data-theme-switching"), 50);
+  };
+
+  // ── Color personalizado del sidebar (por tienda) ─────────────────────────
+  const [sidebarColor, setSidebarColor] = useState(null);
+
+  const handleSidebarColorChange = async (color) => {
+    setSidebarColor(color);
+    const storeId = localStorage.getItem("storeId");
+    if (!storeId || storeId === "null") return;
+    localStorage.setItem(`sidebarColor_${storeId}`, color);
+    try {
+      await saveStoreSettings(storeId, {
+        completedStep: 9,
+        styles: { sidebarColor: color },
+      });
+    } catch { /* silent — color ya está en localStorage */ }
+  };
 
   const userInfo = useMemo(() => parseUserFromJwt(), []);
 
@@ -69,18 +106,43 @@ const AdminLayout = () => {
     return ROUTE_TITLES[last] ?? null;
   }, [location.pathname]);
 
-  // Close sidebar on route change (mobile navigation)
+  // Cerrar sidebar al navegar (móvil)
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [location.pathname]);
 
+  // ── Resolver storeId y cargar branding ──────────────────────────────────
   useEffect(() => {
     if (!slug) return;
 
     getStoreBySlug(slug)
-      .then((store) => {
+      .then(async (store) => {
         const storeId = store?.storeId ?? store?.id ?? store?.store_id ?? null;
-        if (storeId) localStorage.setItem("storeId", storeId);
+        if (storeId) {
+          localStorage.setItem("storeId", storeId);
+
+          // Nombre real de la tienda desde el objeto store
+          const name = store.name ?? store.storeName ?? null;
+          if (name) localStorage.setItem("storeName", name);
+          setStoreInfo({ name, logo: null });
+
+          // Intentar cargar logo y color de sidebar desde settings
+          try {
+            const settings = await getStoreSettingsByHeader(storeId);
+            if (settings) {
+              setStoreInfo({
+                name,
+                logo: settings.basic?.logoPreview ?? settings.logoUrl ?? null,
+              });
+              const savedColor = settings.styles?.sidebarColor
+                ?? localStorage.getItem(`sidebarColor_${storeId}`);
+              if (savedColor) {
+                setSidebarColor(savedColor);
+                localStorage.setItem(`sidebarColor_${storeId}`, savedColor);
+              }
+            }
+          } catch { /* silent */ }
+        }
 
         const currentRole = localStorage.getItem("userRole");
         if (!currentRole || currentRole === "null" || currentRole === "USER") {
@@ -88,7 +150,6 @@ const AdminLayout = () => {
         }
       })
       .catch(() => {
-        // Fallback: al menos corregir el rol aunque no pudiéramos resolver el storeId
         const currentRole = localStorage.getItem("userRole");
         if (!currentRole || currentRole === "null" || currentRole === "USER") {
           localStorage.setItem("userRole", "OWNER");
@@ -97,16 +158,53 @@ const AdminLayout = () => {
       .finally(() => setStoreReady(true));
   }, [slug]);
 
+  // ── Para admin sin slug: cargar la primera tienda del usuario ───────────
   useEffect(() => {
-    if (isValid(localStorage.getItem("storeId"))) return;
+    if (isValid(localStorage.getItem("storeId"))) {
+      // storeId ya está; intentar cargar branding y color de sidebar
+      const storeId = localStorage.getItem("storeId");
+      const localColor = localStorage.getItem(`sidebarColor_${storeId}`);
+      if (localColor) setSidebarColor(localColor);
+
+      if (!storeInfo.name && !storeInfo.logo) {
+        getStoreSettingsByHeader(storeId)
+          .then((settings) => {
+            if (settings) {
+              setStoreInfo((prev) => ({
+                name: prev.name,
+                logo: settings.basic?.logoPreview ?? settings.logoUrl ?? null,
+              }));
+              const savedColor = settings.styles?.sidebarColor ?? localColor;
+              if (savedColor) {
+                setSidebarColor(savedColor);
+                localStorage.setItem(`sidebarColor_${storeId}`, savedColor);
+              }
+            }
+          })
+          .catch(() => {});
+      }
+      return;
+    }
 
     if (slug) {
       getStoreBySlug(slug)
-        .then((store) => {
+        .then(async (store) => {
           const id = store?.storeId ?? store?.id ?? null;
           if (id) {
             localStorage.setItem("storeId", id);
             if (store?.role) localStorage.setItem("userRole", store.role);
+            const name = store.name ?? null;
+            if (name) localStorage.setItem("storeName", name);
+            setStoreInfo({ name, logo: null });
+            try {
+              const settings = await getStoreSettingsByHeader(id);
+              if (settings) {
+                setStoreInfo({
+                  name,
+                  logo: settings.basic?.logoPreview ?? settings.logoUrl ?? null,
+                });
+              }
+            } catch { /* silent */ }
           }
         })
         .catch(() => {});
@@ -114,14 +212,26 @@ const AdminLayout = () => {
       const userId = getUserIdFromJwt();
       if (!userId) return;
       getStoresByUser(userId)
-        .then((data) => {
+        .then(async (data) => {
           const list = Array.isArray(data) ? data : (data?.data ?? []);
-          const id =
-            list[0]?.storeId ?? list[0]?.store_id ?? list[0]?.id ?? null;
+          const first = list[0];
+          const id = first?.storeId ?? first?.store_id ?? first?.id ?? null;
           if (id) {
             localStorage.setItem("storeId", id);
-            const role = list[0]?.role ?? "OWNER";
+            const role = first?.role ?? "OWNER";
             localStorage.setItem("userRole", role);
+            const name = first?.name ?? first?.storeName ?? null;
+            if (name) localStorage.setItem("storeName", name);
+            setStoreInfo({ name, logo: null });
+            try {
+              const settings = await getStoreSettingsByHeader(id);
+              if (settings) {
+                setStoreInfo({
+                  name,
+                  logo: settings.basic?.logoPreview ?? settings.logoUrl ?? null,
+                });
+              }
+            } catch { /* silent */ }
           }
         })
         .catch(() => {});
@@ -129,11 +239,18 @@ const AdminLayout = () => {
   }, [slug]);
 
   return (
-    <div className="admin-terminal-wrapper">
+    <div className="admin-terminal-wrapper" data-theme={theme}>
       <Sidebar
         storeSlug={slug}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
+        brandName={storeInfo.name}
+        brandSub={userInfo?.userRole ?? "OWNER"}
+        logoUrl={storeInfo.logo}
+        useImageLogo={!!storeInfo.logo}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        sidebarColor={sidebarColor}
       />
 
       <div className="admin-main-section">
@@ -148,6 +265,10 @@ const AdminLayout = () => {
           userName={userInfo?.userName}
           userRole={userInfo?.userRole}
           pageTitle={pageTitle}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+          sidebarColor={sidebarColor}
+          onSidebarColorChange={handleSidebarColorChange}
         />
 
         <div className="admin-workspace-split">

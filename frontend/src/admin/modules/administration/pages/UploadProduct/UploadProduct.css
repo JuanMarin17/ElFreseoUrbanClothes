@@ -1362,6 +1362,23 @@
   .up-step-line::after { transition: none; }
 }
 
+/* ── Modo Claro ──────────────────────────────────────────── */
+.admin-terminal-wrapper[data-theme="light"] .up-wrapper {
+  --up-bg:          var(--at-bg);
+  --up-surface:     var(--at-surface);
+  --up-surface2:    var(--at-elevated);
+  --up-border:      rgba(0, 0, 0, 0.07);
+  --up-border2:     rgba(37, 99, 235, 0.15);
+  --up-text:        var(--at-text-1);
+  --up-muted:       var(--at-text-2);
+  --up-label:       var(--at-text-3);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .up-select option {
+  background: var(--at-elevated);
+  color: var(--at-text-1);
+}
+
 /* ── Responsive ──────────────────────────────────────────── */
 @media (max-width: 700px) {
   .up-stepper { gap: 0; padding-bottom: 20px; }

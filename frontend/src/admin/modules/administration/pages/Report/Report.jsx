@@ -67,7 +67,13 @@ const formatCOP = (v) =>
     minimumFractionDigits: 0, maximumFractionDigits: 0,
   }).format(v ?? 0);
 
-const periodToDays = (p) => ({ "7D": 7, "30D": 30, "90D": 90, "ALL": 0 }[p] ?? 30);
+const QUICK_PERIODS = [
+  { key: "1D",  label: "Hoy",       days: 1  },
+  { key: "7D",  label: "Semana",    days: 7  },
+  { key: "30D", label: "Mes",       days: 30 },
+  { key: "90D", label: "Trimestre", days: 90 },
+  { key: "ALL", label: "Todo",      days: 0  },
+];
 
 const ORDER_STATUS_COLORS = {
   pendingOrders:    "#f59e0b",
@@ -454,20 +460,113 @@ function StatusBadge({ status }) {
 }
 
 // ============================================================
-//  SUBCOMPONENTE: PeriodSelector
+//  SUBCOMPONENTE: DateFilter (período / mes / año)
 // ============================================================
-function PeriodSelector({ value, onChange }) {
+const MONTH_NAMES = [
+  "Enero","Febrero","Marzo","Abril","Mayo","Junio",
+  "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre",
+];
+
+function DateFilter({ value, onChange }) {
+  const [mode, setMode] = useState("quick");
+  const today = new Date();
+  const currentYear  = today.getFullYear();
+  const currentMonth = today.getMonth();
+
+  const [pickerYear,  setPickerYear]  = useState(currentYear);
+  const [pickerMonth, setPickerMonth] = useState(currentMonth);
+
+  const availableYears = Array.from({ length: 4 }, (_, i) => currentYear - i);
+
+  const calcMonthDays = (year, month) =>
+    Math.ceil((today - new Date(year, month, 1)) / 86400000) + 1;
+
+  const calcYearDays = (year) =>
+    Math.ceil((today - new Date(year, 0, 1)) / 86400000) + 1;
+
+  const handlePickerYearChange = (y) => {
+    setPickerYear(y);
+    if (y === currentYear && pickerMonth > currentMonth) setPickerMonth(currentMonth);
+  };
+
   return (
-    <div className="rp-period-btns">
-      {[["7D", "7 días"], ["30D", "30 días"], ["90D", "90 días"], ["ALL", "Todo"]].map(([k, lbl]) => (
-        <button
-          key={k}
-          className={`rp-period-btn ${value === k ? "active" : ""}`}
-          onClick={() => onChange(k)}
-        >
-          {lbl}
-        </button>
-      ))}
+    <div className="rp-date-filter">
+      <div className="rp-df-modes">
+        {[
+          { k: "quick", label: "Período", icon: "clock"         },
+          { k: "month", label: "Mes",     icon: "calendar-month" },
+          { k: "year",  label: "Año",     icon: "calendar"       },
+        ].map(({ k, label, icon }) => (
+          <button
+            key={k}
+            className={`rp-df-mode-btn ${mode === k ? "active" : ""}`}
+            onClick={() => setMode(k)}
+          >
+            <i className={`ti ti-${icon}`} aria-hidden="true" />
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {mode === "quick" && (
+        <div className="rp-period-btns">
+          {QUICK_PERIODS.map(({ key, label, days }) => (
+            <button
+              key={key}
+              className={`rp-period-btn ${value === days ? "active" : ""}`}
+              onClick={() => onChange(days)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {mode === "month" && (
+        <div className="rp-df-picker">
+          <select
+            className="rp-df-select"
+            value={pickerMonth}
+            onChange={e => setPickerMonth(Number(e.target.value))}
+          >
+            {MONTH_NAMES.map((name, i) =>
+              !(pickerYear === currentYear && i > currentMonth) ? (
+                <option key={i} value={i}>{name}</option>
+              ) : null
+            )}
+          </select>
+          <select
+            className="rp-df-select"
+            value={pickerYear}
+            onChange={e => handlePickerYearChange(Number(e.target.value))}
+          >
+            {availableYears.map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+          <button
+            className="rp-df-apply-btn"
+            onClick={() => onChange(calcMonthDays(pickerYear, pickerMonth))}
+          >
+            <i className="ti ti-search" aria-hidden="true" />
+            Ver
+          </button>
+        </div>
+      )}
+
+      {mode === "year" && (
+        <div className="rp-period-btns">
+          {availableYears.map(year => (
+            <button
+              key={year}
+              className={`rp-period-btn ${value === calcYearDays(year) ? "active" : ""}`}
+              onClick={() => onChange(calcYearDays(year))}
+            >
+              {year}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -768,7 +867,7 @@ function OrdersSection({ data, loading, error, period, onPeriodChange }) {
           <i className="ti ti-shopping-cart" aria-hidden="true" />
           Auditoría de Órdenes
         </div>
-        <PeriodSelector value={period} onChange={onPeriodChange} />
+        <DateFilter value={period} onChange={onPeriodChange} />
       </div>
 
       {!data ? (
@@ -864,7 +963,7 @@ function SalesSection({ data, loading, error, period, onPeriodChange }) {
           <i className="ti ti-chart-line" aria-hidden="true" />
           Informe Estadístico de Ventas
         </div>
-        <PeriodSelector value={period} onChange={onPeriodChange} />
+        <DateFilter value={period} onChange={onPeriodChange} />
       </div>
 
       {!data ? (
@@ -962,8 +1061,8 @@ function SalesSection({ data, loading, error, period, onPeriodChange }) {
 // ============================================================
 export default function Report() {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [ordersPeriod, setOrdersPeriod] = useState("30D");
-  const [salesPeriod,  setSalesPeriod]  = useState("30D");
+  const [ordersPeriod, setOrdersPeriod] = useState(30);
+  const [salesPeriod,  setSalesPeriod]  = useState(30);
 
   const [dashboardData, setDashboardData] = useState(null);
   const [stockData,     setStockData]     = useState(null);
@@ -1016,7 +1115,7 @@ export default function Report() {
     if (activeTab !== "orders") return;
     const t = setTimeout(() => {
       startTransition(() => { setLoad("orders", true); setOrdersData(null); });
-      getOrdersReport(periodToDays(ordersPeriod))
+      getOrdersReport(ordersPeriod)
         .then(d => startTransition(() => setOrdersData(d ?? FALLBACK_ORDERS)))
         .catch(e => startTransition(() => {
           if (e.message === "EMPTY_RESPONSE") { setOrdersData(FALLBACK_ORDERS); return; }
@@ -1031,7 +1130,7 @@ export default function Report() {
     if (activeTab !== "sales") return;
     const t = setTimeout(() => {
       startTransition(() => { setLoad("sales", true); setSalesData(null); });
-      getSalesReport(periodToDays(salesPeriod))
+      getSalesReport(salesPeriod)
         .then(d => startTransition(() => setSalesData(d ?? FALLBACK_SALES)))
         .catch(e => startTransition(() => {
           if (e.message === "EMPTY_RESPONSE") { setSalesData(FALLBACK_SALES); return; }

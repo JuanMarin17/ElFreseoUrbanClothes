@@ -3,6 +3,7 @@ import { AnimatePresence } from "framer-motion";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import "./App.css";
 import "./animations.css";
+import PageSpinner from "./components/ui/PageSpinner.jsx";
 
 import { AuthProvider }                            from "./admin/modules/auth/pages/hook/Useauth.jsx";
 import { AuthProvider as MultiTenantAuthProvider } from "./multi-tenant/context/AuthContext.jsx";
@@ -30,7 +31,7 @@ const Report           = lazy(() => import("./admin/modules/administration/pages
 const IAAdmin          = lazy(() => import("./admin/modules/administration/pages/IAAdmin/AIAdmin.jsx"));
 const OrdersManagement = lazy(() => import("./admin/modules/administration/pages/OrdersManagement/OrdersManagement.jsx"));
 const ShockAlerts      = lazy(() => import("./admin/modules/administration/pages/StockAlerts/StockAlert.jsx"));
-const SuppliersPage       = lazy(() => import("./admin/modules/administration/pages/Suppliers/SuppliersPage.jsx"));
+const SuppliersPage       = lazy(() => import("./admin/modules/administration/pages/Proveedor/SuppliersPage.jsx"));
 const UsersManagement     = lazy(() => import("./admin/modules/administration/pages/UsersManagement/UsersManagement.jsx"));
 const PromotionsDashboard = lazy(() => import("./admin/modules/administration/promotions/PromotionsDashboards.jsx"));
 const AdminProductsPage   = lazy(() => import("./admin/modules/administration/pages/AdminProducts/AdminProductsPage.jsx"));
@@ -68,6 +69,8 @@ const WidgetsCustomizer   = lazy(() => import("./multi-tenant/components/Widgets
 const OrdersDashboard     = lazy(() => import("./multi-tenant/components/OrdersDashboard.jsx"));
 const MyStore             = lazy(() => import("./multi-tenant/pages/MyStore.jsx"));
 const StorePage           = lazy(() => import("./multi-tenant/pages/StorePage.jsx"));
+const CheckoutPage        = lazy(() => import("./multi-tenant/pages/Checkout/CheckoutPage.jsx"));
+const OrderConfirmation   = lazy(() => import("./multi-tenant/pages/Checkout/OrderConfirmation.jsx"));
 
 // ── CMS ───────────────────────────────────────────────────────────────────────
 const CMSEditor    = lazy(() => import("./multi-tenant/cms/CMSeditor.jsx"));
@@ -91,23 +94,10 @@ function ScrollToTop() {
 }
 
 // ── Loader ────────────────────────────────────────────────────────────────────
+// PageSpinner importado arriba — usa delay de 180ms para no aparecer en
+// cargas rápidas y fade-in suave para que no corte bruscamente.
 function PageLoader() {
-  return (
-    <div style={{
-      display: "flex", alignItems: "center", justifyContent: "center",
-      height: "100vh", gap: 12,
-      background: "#0c0e14", fontFamily: "Inter, sans-serif",
-      color: "#475569", fontSize: 13,
-    }}>
-      <div style={{
-        width: 30, height: 30,
-        border: "3px solid #1e2230", borderTopColor: "#6366f1",
-        borderRadius: "50%", animation: "spin 0.7s linear infinite",
-      }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      Cargando...
-    </div>
-  );
+  return <PageSpinner fullscreen />;
 }
 
 export default function App() {
@@ -173,8 +163,21 @@ export default function App() {
 
                     {/* ── Tienda pública ───────────────────────────────────── */}
                     <Route path="/tienda/:slug" element={<StorePage />} />
-                    <Route path="/transacciones" element={<MyStore />} />
-                    <Route path="/mis-tiendas" element={<MyStore />} />
+                    <Route path="/tienda/:slug/contacto"      element={<StoreContactPage />} />
+                    <Route path="/tienda/:slug/nosotros"      element={<StoreAboutPage />} />
+                    <Route path="/tienda/:slug/faq"           element={<StoreFaqPage />} />
+                    <Route path="/tienda/:slug/devoluciones"  element={<StoreReturnsPage />} />
+                    <Route path="/tienda/:slug/checkout"      element={<CheckoutPage />} />
+                    <Route path="/tienda/:slug/orden/:orderId" element={<OrderConfirmation />} />
+                    {/* ── Super Admin (rutas centralizadas) ────────────── */}
+                    <Route path="/admin-super/mis-tiendas"         element={<MyStore />} />
+                    <Route path="/admin-super/transacciones"       element={<MyStore />} />
+                    <Route path="/admin-super/plataforma-usuarios" element={<MyStore />} />
+                    <Route path="/admin-super/informe-ventas"      element={<MyStore />} />
+                    {/* Redirects de rutas antiguas */}
+                    <Route path="/mis-tiendas"         element={<Navigate to="/admin-super/mis-tiendas"         replace />} />
+                    <Route path="/transacciones"       element={<Navigate to="/admin-super/transacciones"       replace />} />
+                    <Route path="/plataforma-usuarios" element={<Navigate to="/admin-super/plataforma-usuarios" replace />} />
 
                     {/* ── Rutas protegidas ─────────────────────────────────── */}
                     <Route element={<ProtectedRoute />}>
@@ -222,6 +225,8 @@ export default function App() {
                         <Route path="report" element={<Report />} />
                         <Route path="pedidos" element={<OrdersManagement />} />
                         <Route path="alertas" element={<ShockAlerts />} />
+                        <Route path="productos" element={<AdminProductsPage />} />
+                        <Route path="productos/:id" element={<AdminProductDetail />} />
                         <Route path="cms" element={<CMSEditor />} />
                         <Route path="cms/about" element={<CMSAbout />} />
                         <Route path="cms/contact" element={<CMSContact />} />

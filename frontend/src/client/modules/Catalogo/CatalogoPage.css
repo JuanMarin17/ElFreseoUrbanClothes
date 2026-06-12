@@ -1280,13 +1280,26 @@
 .cat-modal-cta.success:hover { background: #16a34a; transform: none; box-shadow: none; }
 
 .cat-modal-spinner {
+  position: relative;
   width: 14px;
   height: 14px;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2px solid rgba(255,255,255,0.25);
   border-top-color: #fff;
   border-radius: 50%;
-  animation: cat-spin 0.65s linear infinite;
+  animation: cat-spin 0.9s cubic-bezier(0.5, 0, 0.5, 1) infinite;
   flex-shrink: 0;
+}
+.cat-modal-spinner::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 5px 2px rgba(255,255,255,0.85);
 }
 @keyframes cat-spin { to { transform: rotate(360deg); } }
 

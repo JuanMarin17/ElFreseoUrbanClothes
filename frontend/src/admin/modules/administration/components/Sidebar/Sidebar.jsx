@@ -16,15 +16,15 @@ const DEFAULT_MENU_ITEMS = [
   { path: '/tienda/:slug/admin/pedidos',        label: 'VER PEDIDOS',        icon: ShoppingCart    },
   { path: '/tienda/:slug/admin/report',         label: 'INFORMES',           icon: BarChart3       },
   { path: '/tienda/:slug/admin/alertas',        label: 'ALERTAS DE STOCK',   icon: AlertTriangle,  alertKey: 'stock' },
-  { path: '/tienda/:slug/admin/proveedores',    label: 'SUPPLIERS',          icon: Building2       },
+  { path: '/tienda/:slug/admin/proveedores',    label: 'PROVEEDORES',        icon: Building2       },
   { path: '/tienda/:slug/admin/cms',            label: 'CONTENIDO CMS',      icon: FileText        },
   { path: '/tienda/:slug/admin/IA',             label: 'ASISTENTE IA',       icon: Bot             },
 ];
 
 const Sidebar = ({
-  menuItems    = DEFAULT_MENU_ITEMS,
-  brandName    = "NOMBRE",
-  brandSub     = "ADMIN",
+  menuItems     = DEFAULT_MENU_ITEMS,
+  brandName,
+  brandSub      = "ADMIN",
   onLogout,
   logoUrl,
   useImageLogo,
@@ -32,6 +32,9 @@ const Sidebar = ({
   lowStockCount = 0,
   isOpen        = false,
   onClose,
+  theme         = "dark",
+  onToggleTheme,
+  sidebarColor,
 }) => {
   const navigate = useNavigate();
 
@@ -49,30 +52,51 @@ const Sidebar = ({
     path: storeSlug ? item.path.replace(':slug', storeSlug) : item.path,
   }));
 
+  // Inicial del nombre de la tienda para el placeholder
+  const initial = (brandName ?? 'T')[0].toUpperCase();
+
   return (
     <>
-      {/* Mobile overlay backdrop */}
       <div
         className={`sidebar-overlay ${isOpen ? 'sidebar-overlay--visible' : ''}`}
         onClick={onClose}
         aria-hidden="true"
       />
 
-      <aside className={`sidebar-container ${isOpen ? 'sidebar-container--open' : ''}`}>
+      <aside
+        className={`sidebar-container ${isOpen ? 'sidebar-container--open' : ''}`}
+        style={sidebarColor ? { '--sidebar-bg': sidebarColor } : undefined}
+      >
 
         {/* ── Brand / Logo ─────────────────────────────────────────────── */}
         <div className="sidebar-brand">
-          {useImageLogo ? (
-            <img
-              src={logoUrl || defaultLogo}
-              alt={brandName}
-              className="sidebar-logo-img"
-              onError={(e) => { e.target.onerror = null; e.target.src = defaultLogo; }}
-            />
-          ) : (
-            <img src={defaultLogo} alt="Logo" className="sidebar-logo-img" />
+          <div className="sidebar-logo-row">
+            {useImageLogo && logoUrl ? (
+              <img
+                src={logoUrl}
+                alt={brandName ?? 'Logo'}
+                className="sidebar-logo-img"
+                onError={(e) => { e.target.onerror = null; e.target.src = defaultLogo; }}
+              />
+            ) : brandName ? (
+              <div className="sidebar-logo-placeholder" title={brandName}>
+                {initial}
+              </div>
+            ) : (
+              <img src={defaultLogo} alt="Logo" className="sidebar-logo-full" />
+            )}
+
+            {brandName && (
+              <div className="sidebar-brand-text">
+                <span className="sidebar-store-name">{brandName}</span>
+                <span className="brand-subtitle">{brandSub}</span>
+              </div>
+            )}
+          </div>
+
+          {!brandName && (
+            <span className="brand-subtitle">{brandSub}</span>
           )}
-          <span className="brand-subtitle">{brandSub}</span>
         </div>
 
         {/* ── Nav ──────────────────────────────────────────────────────── */}

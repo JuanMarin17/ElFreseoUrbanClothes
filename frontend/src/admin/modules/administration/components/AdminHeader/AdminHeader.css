@@ -2,22 +2,17 @@
    ADMIN HEADER
    ========================================================================== */
 .admin-top-bar {
-  height: 60px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 24px;
-  gap: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   height: 10vh;
   min-height: 10vh;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 30px;
-  border-bottom: 1px solid #1e1e2e;
-  background: #080808;
+  gap: 12px;
+  border-bottom: 1px solid var(--at-border, #1e1e2e);
+  background: var(--at-surface, #080808);
   flex-shrink: 0;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
 /* ── Hamburger (mobile-only) ───────────────────────────────────────────── */
@@ -31,38 +26,33 @@
 .search-box-terminal {
   display: flex;
   align-items: center;
-  background: #111;
+  background: var(--at-input-bg, #111);
   padding: 8px 14px;
   border-radius: 8px;
   width: 320px;
   max-width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  border: 1px solid var(--at-border, rgba(255,255,255,0.06));
+  transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
 }
 
 .search-box-terminal:focus-within {
-  border-color: rgba(59, 130, 246, 0.35);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
-  background: #0a0a14;
-  padding: 8px 16px;
-  border-radius: 6px;
-  width: 350px;
-  border: 1px solid #252535;
+  border-color: var(--at-accent, #3b82f6);
+  box-shadow: 0 0 0 3px var(--at-accent-bg, rgba(59,130,246,0.08));
 }
 
-.s-icon { color: #3f3f46; margin-right: 10px; flex-shrink: 0; }
+.s-icon { color: var(--at-text-3, #3f3f46); margin-right: 10px; flex-shrink: 0; }
 
 .search-box-terminal input {
   background: transparent;
   border: none;
-  color: #f4f4f5;
+  color: var(--at-text-1, #f4f4f5);
   outline: none;
   font-size: 0.82rem;
   width: 100%;
 }
 
 .search-box-terminal input::placeholder {
-  color: #3f3f46;
+  color: var(--at-text-3, #3f3f46);
 }
 
 /* ── Tool buttons ──────────────────────────────────────────────────────── */
@@ -79,25 +69,21 @@
   border-radius: 9px;
   background: transparent;
   border: 1px solid transparent;
-  color: #52525b;
+  color: var(--at-text-3, #52525b);
   cursor: pointer;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition:
-    color 140ms ease,
-    background 140ms ease,
-    border-color 140ms ease,
-    transform 140ms ease;
+  transition: color 140ms ease, background 140ms ease, border-color 140ms ease, transform 140ms ease;
   outline: none;
 }
 
 @media (hover: hover) {
   .tool-btn:hover {
-    color: #f4f4f5;
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.07);
+    color: var(--at-text-1, #f4f4f5);
+    background: var(--at-border-soft, rgba(255,255,255,0.05));
+    border-color: var(--at-border, rgba(255,255,255,0.07));
   }
 }
 
@@ -120,7 +106,7 @@
 
 .top-bar-breadcrumb-sep {
   font-size: 0.78rem;
-  color: #27272a;
+  color: var(--at-border, #27272a);
   line-height: 1;
   user-select: none;
 }
@@ -128,7 +114,7 @@
 .top-bar-breadcrumb-label {
   font-size: 0.74rem;
   font-weight: 600;
-  color: #52525b;
+  color: var(--at-text-3, #52525b);
   white-space: nowrap;
   letter-spacing: 0.02em;
 }
@@ -157,7 +143,7 @@
   gap: 10px;
   padding-left: 16px;
   margin-left: 4px;
-  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 1px solid var(--at-border-soft, rgba(255,255,255,0.06));
 }
 
 .top-bar-user-info {
@@ -168,7 +154,7 @@
 
 .top-bar-user-role {
   font-size: 0.55rem;
-  color: #3b82f6;
+  color: var(--at-accent, #3b82f6);
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -176,7 +162,7 @@
 
 .top-bar-user-name {
   font-size: 0.72rem;
-  color: #a1a1aa;
+  color: var(--at-text-2, #a1a1aa);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -184,15 +170,15 @@
 .top-bar-avatar {
   width: 32px;
   height: 32px;
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: var(--at-accent-bg, rgba(59,130,246,0.12));
+  border: 1px solid var(--at-accent-bd, rgba(59,130,246,0.2));
   border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.75rem;
   font-weight: 800;
-  color: #3b82f6;
+  color: var(--at-accent, #3b82f6);
   flex-shrink: 0;
 }
 

@@ -138,10 +138,11 @@ export default function StepBasicPage() {
           <button className="btn-back" onClick={handleBack} aria-label="Volver">
             <ArrowLeft size={16} />
           </button>
-          <div>
-            <h1 className="step-title">Informacion basica</h1>
-            <p className="step-subtitle">Cuentanos sobre tu tienda</p>
+          <div className="step-header-text">
+            <h1 className="step-title">Información básica</h1>
+            <p className="step-subtitle">Cuéntanos sobre tu tienda</p>
           </div>
+          <span className="step-badge">Paso 2 / 11</span>
         </div>
 
         <div className="step-body">
@@ -204,13 +205,14 @@ export default function StepBasicPage() {
               />
               {form.uploading ? (
                 <>
-                  <Loader2 size={16} style={{ animation: "spin 0.7s linear infinite" }} />
+                  <Loader2 size={22} style={{ animation: "spin 0.9s cubic-bezier(0.5,0,0.5,1) infinite" }} />
                   <span>Subiendo logo...</span>
                 </>
               ) : (
                 <>
-                  <Upload size={16} />
-                  <span>Subir logo</span>
+                  <Upload size={22} />
+                  <span>Haz clic para subir tu logo</span>
+                  <span className="upload-area-hint">PNG, JPG o SVG · máx 5 MB</span>
                 </>
               )}
             </label>
@@ -228,11 +230,13 @@ export default function StepBasicPage() {
             )}
 
             {form.logoPreview && !form.uploading && (
-              <img
-                src={form.logoPreview}
-                className="logo-preview"
-                alt="Vista previa del logo"
-              />
+              <div className="logo-preview-wrap">
+                <img
+                  src={form.logoPreview}
+                  className="logo-preview"
+                  alt="Vista previa del logo"
+                />
+              </div>
             )}
           </div>
 

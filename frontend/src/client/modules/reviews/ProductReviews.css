@@ -717,6 +717,12 @@
 
 .rvx-loading p { margin: 0; }
 
+.rvx-spin {
+  animation: rvx-spin-anim 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  color: var(--rvx-text-sub);
+}
+@keyframes rvx-spin-anim { to { transform: rotate(360deg); } }
+
 .rvx-empty {
   display: flex;
   flex-direction: column;

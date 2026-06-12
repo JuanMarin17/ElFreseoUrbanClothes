@@ -259,7 +259,9 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
     newConversation,
   } = useIAAdmin();
 
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(
+    () => localStorage.getItem("adminTheme") !== "light"
+  );
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -269,6 +271,16 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
   useEffect(() => {
     if (isOpen && hasAccess) loadSessions();
   }, [isOpen, hasAccess, loadSessions]);
+
+  useEffect(() => {
+    const wrapper = document.querySelector(".admin-terminal-wrapper");
+    if (!wrapper) return;
+    const obs = new MutationObserver(() => {
+      setDarkMode(wrapper.dataset.theme !== "light");
+    });
+    obs.observe(wrapper, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => obs.disconnect();
+  }, []);
 
   if (!hasAccess) return null;
 
@@ -408,7 +420,9 @@ function IAAdminPage() {
     newConversation,
   } = useIAAdmin();
 
-  const [darkMode, setDarkMode]           = useState(true);
+  const [darkMode, setDarkMode]           = useState(
+    () => localStorage.getItem("adminTheme") !== "light"
+  );
   const [showSessions, setShowSessions]   = useState(true);
   const messagesAreaRef = useRef(null);
 
@@ -420,6 +434,16 @@ function IAAdminPage() {
   useEffect(() => {
     if (hasAccess) loadSessions();
   }, [hasAccess, loadSessions]);
+
+  useEffect(() => {
+    const wrapper = document.querySelector(".admin-terminal-wrapper");
+    if (!wrapper) return;
+    const obs = new MutationObserver(() => {
+      setDarkMode(wrapper.dataset.theme !== "light");
+    });
+    obs.observe(wrapper, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => obs.disconnect();
+  }, []);
 
   if (!hasAccess) {
     return (

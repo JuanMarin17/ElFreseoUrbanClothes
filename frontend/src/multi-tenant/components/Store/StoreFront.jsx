@@ -152,6 +152,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
     activeCategory, setActiveCategory,
     activePrices, togglePrice,
     activeSizes, toggleSize,
+    sortBy, setSortBy,
     clearFilters, filteredProducts, hasActiveFilters,
   } = useFilters(products);
 
@@ -196,6 +197,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
         onRemoveItem={removeCartItem}
         onClearCart={emptyCart}
         onClearError={clearError}
+        storeSlug={storeSlug}
       />
 
       <StoreHero banner={banner} theme={theme} />
@@ -227,6 +229,8 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
             justAdded={justAdded}
             searchCfg={searchCfg}
             onSearchChange={setSearchQuery}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
             storeId={storeId}
           />
         </div>

@@ -1,83 +1,315 @@
-import React from 'react';
-import { Users, Plus, ShieldCheck, Ban, Activity } from 'lucide-react';
-import StatCard from '../components/StatCard/StatCard';
-import InfoCard from '../components/InfoCard/InfoCard';
-import UserTable from './components/UserTable/UserTable';
-import UserModal from './components/UserModal/UserModal';
-import { useUsers } from './hooks/UseUser';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import {
+  Package, PackagePlus, ShoppingCart, AlertTriangle,
+  BarChart3, ArrowRight, RefreshCw, CheckCircle2,
+  TrendingDown, Building2, FileText, Users,
+  Store, Zap,
+} from 'lucide-react';
+import { getAllProducts } from '../services/productService';
+import { getStoreSettingsByHeader } from '../../../../multi-tenant/pages/services/storeService';
 import './Dashboard.css';
 
+// ── Utilities ─────────────────────────────────────────────────────────────────
+
+const stockStatus = (variants) => {
+  if (!variants?.length) return 'empty';
+  if (variants.every((v) => v.stock === 0)) return 'out';
+  if (variants.some((v) => v.stock > 0 && v.stock <= (v.minStock ?? 5))) return 'low';
+  return 'ok';
+};
+
+function parseUserFromJwt() {
+  try {
+    const jwt = localStorage.getItem('jwt');
+    if (!jwt) return null;
+    const d = JSON.parse(atob(jwt.split('.')[1]));
+    return { userName: d.sub ?? null, userRole: d.role ?? null };
+  } catch { return null; }
+}
+
+const greeting = () => {
+  const h = new Date().getHours();
+  if (h < 12) return 'Buenos días';
+  if (h < 19) return 'Buenas tardes';
+  return 'Buenas noches';
+};
+
+const today = () =>
+  new Date().toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+// ── Skeleton ─────────────────────────────────────────────────────────────────
+
+function SkeletonKpi() {
+  return (
+    <div className="db-kpi db-kpi--skeleton">
+      <div className="db-skel db-skel--icon" />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div className="db-skel db-skel--val" />
+        <div className="db-skel db-skel--label" />
+      </div>
+    </div>
+  );
+}
+
+// ── Main Component ────────────────────────────────────────────────────────────
+
 const Dashboard = () => {
-  const initialUsers = [
-    { id: 1, name: "Marcos Rivera",  email: "marcos.r@elfreseo.com", role: "ADMIN",     status: "ACTIVO", date: "12 OCT 2023" },
-    { id: 2, name: "Elena Soler",    email: "e.soler@gmail.com",     role: "MODERADOR", status: "ACTIVO", date: "28 SEP 2023" },
-    { id: 3, name: "Ricardo Gomez",  email: "rgomez_99@hotmail.com", role: "CLIENTE",   status: "BANEADO",date: "15 AGO 2023" },
-    { id: 4, name: "Lucia Perez",    email: "lperez_art@icloud.com", role: "CLIENTE",   status: "ACTIVO", date: "02 AGO 2023" },
+  const navigate  = useNavigate();
+  const { slug }  = useParams();
+  const adminBase = slug ? `/tienda/${slug}/admin` : '/admin';
+
+  const userInfo  = useMemo(() => parseUserFromJwt(), []);
+
+  const [products,    setProducts]    = useState([]);
+  const [storeInfo,   setStoreInfo]   = useState({ name: null, logo: null });
+  const [loading,     setLoading]     = useState(true);
+
+  // ── Load ───────────────────────────────────────────────────────────────────
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      // Intentar cargar configuración de la tienda
+      const storeId = localStorage.getItem('storeId');
+      if (storeId && storeId !== 'null') {
+        getStoreSettingsByHeader(storeId)
+          .then((s) => {
+            if (s) {
+              setStoreInfo((prev) => ({
+                ...prev,
+                logo: s.basic?.logoPreview ?? s.logoUrl ?? null,
+              }));
+            }
+          })
+          .catch(() => {});
+      }
+
+      // Productos reales
+      let storeIdResolved = storeId;
+      if (!storeIdResolved || storeIdResolved === 'null') {
+        await new Promise((r) => setTimeout(r, 600));
+        storeIdResolved = localStorage.getItem('storeId');
+      }
+      if (storeIdResolved && storeIdResolved !== 'null') {
+        const data = await getAllProducts(storeIdResolved);
+        setProducts(Array.isArray(data) ? data : []);
+      }
+    } catch {
+      // Silencioso — mostramos 0s
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Nombre de tienda desde localStorage (AdminLayout lo pone)
+    const storeName = localStorage.getItem('storeName');
+    if (storeName && storeName !== 'null') {
+      setStoreInfo((prev) => ({ ...prev, name: storeName }));
+    }
+    load();
+  }, []);
+
+  // ── KPIs desde productos reales ────────────────────────────────────────────
+
+  const kpi = useMemo(() => ({
+    total:    products.length,
+    active:   products.filter((p) => p.status === 'ACTIVE').length,
+    inactive: products.filter((p) => p.status !== 'ACTIVE').length,
+    lowStock: products.filter((p) => stockStatus(p.variants) === 'low').length,
+    outStock: products.filter((p) => stockStatus(p.variants) === 'out').length,
+    variants: products.reduce((a, p) => a + (p.variants?.length ?? 0), 0),
+  }), [products]);
+
+  // ── Acciones rápidas ────────────────────────────────────────────────────────
+
+  const QUICK_ACTIONS = [
+    { icon: Package,     label: 'Inventario',     path: `${adminBase}/productos`,       color: 'blue'   },
+    { icon: PackagePlus, label: 'Nuevo Producto',  path: `${adminBase}/subir-producto`,  color: 'green'  },
+    { icon: ShoppingCart,label: 'Pedidos',         path: `${adminBase}/pedidos`,         color: 'purple' },
+    { icon: AlertTriangle,label:'Alertas Stock',   path: `${adminBase}/alertas`,         color: 'orange' },
+    { icon: Building2,   label: 'Proveedores',     path: `${adminBase}/proveedores`,     color: 'teal'   },
+    { icon: BarChart3,   label: 'Informes',        path: `${adminBase}/report`,          color: 'indigo' },
+    { icon: Users,       label: 'Usuarios',        path: `${adminBase}/usuarios`,        color: 'pink'   },
+    { icon: FileText,    label: 'CMS',             path: `${adminBase}/cms`,             color: 'gray'   },
   ];
 
-  const {
-    users,
-    selectedUser,
-    isModalOpen,
-    setIsModalOpen,
-    handleEdit,
-    handleUpdate,
-    toggleStatus,
-  } = useUsers(initialUsers);
-
-  const activeCount  = users.filter(u => u.status === 'ACTIVO').length;
-  const bannedCount  = users.filter(u => u.status === 'BANEADO').length;
+  const storeName = storeInfo.name
+    ?? localStorage.getItem('storeName')
+    ?? 'tu tienda';
 
   return (
-    <div className="dashboard-view">
+    <div className="db-view">
 
-      {/* ── Header Banner ──────────────────────────────────── */}
-      <header className="db-header">
-        <div className="db-glow db-glow--blue" />
-        <div className="db-glow db-glow--purple" />
-        <div className="db-header-content">
-          <div className="db-header-text">
-            <div className="db-eyebrow">
-              <Users size={11} />
-              Gestión de Usuarios
+      {/* ── Banner de bienvenida ─────────────────────────────────────────── */}
+      <div className="db-banner">
+        <div className="db-banner-glow db-banner-glow--a" />
+        <div className="db-banner-glow db-banner-glow--b" />
+
+        <div className="db-banner-inner">
+          {/* Logo de la tienda */}
+          {storeInfo.logo ? (
+            <img src={storeInfo.logo} alt={storeName} className="db-store-logo" />
+          ) : storeName !== 'tu tienda' ? (
+            <div className="db-store-initial">
+              {storeName[0].toUpperCase()}
             </div>
-            <h1 className="db-title">Panel de Administración</h1>
-            <p className="db-subtitle">
-              Directorio principal &middot; {users.length} usuarios registrados
+          ) : (
+            <div className="db-store-initial db-store-initial--default">
+              <Store size={22} />
+            </div>
+          )}
+
+          <div className="db-banner-text">
+            <p className="db-banner-greeting">
+              {greeting()}, <strong>{userInfo?.userName ?? 'Admin'}</strong>
             </p>
+            <p className="db-banner-store-label">Tienda</p>
+            <h1 className="db-banner-title">{storeName}</h1>
+            <p className="db-banner-date">{today()}</p>
           </div>
-          <button className="btn-add" onClick={() => setIsModalOpen(true)}>
-            <Plus size={16} />
-            Añadir Usuario
+
+          <button
+            className="db-refresh-btn"
+            onClick={load}
+            disabled={loading}
+            title="Actualizar datos"
+          >
+            <RefreshCw size={15} className={loading ? 'db-spin' : ''} />
           </button>
         </div>
-      </header>
+      </div>
 
-      {/* ── Stats ──────────────────────────────────────────── */}
-      <section className="dashboard-stats">
-        <StatCard label="Actividad 24H"    value="482"          percentage="12" icon={Activity}     color="#3b82f6" />
-        <StatCard label="Usuarios Activos" value={activeCount}  percentage="8"  icon={ShieldCheck}  color="#22c55e" />
-        <StatCard label="Cuentas Baneadas" value={bannedCount}  percentage="0"  icon={Ban}          color="#ef4444" />
-        <StatCard label="Total Registros"  value={users.length} percentage="5"  icon={Users}        color="#8b5cf6" />
-      </section>
+      {/* ── KPIs ─────────────────────────────────────────────────────────── */}
+      <div className="db-kpi-grid">
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => <SkeletonKpi key={i} />)
+        ) : (
+          <>
+            <div className="db-kpi" style={{ '--delay': '0ms' }}>
+              <div className="db-kpi-icon db-kpi-icon--blue"><Package size={20} /></div>
+              <div>
+                <span className="db-kpi-value">{kpi.total}</span>
+                <span className="db-kpi-label">Productos</span>
+              </div>
+            </div>
+            <div className="db-kpi" style={{ '--delay': '60ms' }}>
+              <div className="db-kpi-icon db-kpi-icon--green"><CheckCircle2 size={20} /></div>
+              <div>
+                <span className="db-kpi-value">{kpi.active}</span>
+                <span className="db-kpi-label">Activos</span>
+              </div>
+            </div>
+            <div className="db-kpi" style={{ '--delay': '120ms' }}>
+              <div className="db-kpi-icon db-kpi-icon--orange"><TrendingDown size={20} /></div>
+              <div>
+                <span className="db-kpi-value">{kpi.lowStock}</span>
+                <span className="db-kpi-label">Stock bajo</span>
+              </div>
+            </div>
+            <div className="db-kpi" style={{ '--delay': '180ms' }}>
+              <div className="db-kpi-icon db-kpi-icon--red"><AlertTriangle size={20} /></div>
+              <div>
+                <span className="db-kpi-value">{kpi.outStock}</span>
+                <span className="db-kpi-label">Sin stock</span>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
 
-      {/* ── Tabla ──────────────────────────────────────────── */}
-      <UserTable users={users} onEdit={handleEdit} onToggleStatus={toggleStatus} />
+      {/* ── Acciones rápidas ─────────────────────────────────────────────── */}
+      <div className="db-section">
+        <div className="db-section-header">
+          <Zap size={15} className="db-section-icon" />
+          <h2 className="db-section-title">Acciones rápidas</h2>
+        </div>
+        <div className="db-actions-grid">
+          {QUICK_ACTIONS.map(({ icon: Icon, label, path, color }, i) => (
+            <button
+              key={path}
+              className={`db-action-card db-action-card--${color}`}
+              onClick={() => navigate(path)}
+              style={{ animationDelay: `${i * 40}ms` }}
+            >
+              <Icon size={20} className="db-action-icon" />
+              <span className="db-action-label">{label}</span>
+              <ArrowRight size={13} className="db-action-arrow" />
+            </button>
+          ))}
+        </div>
+      </div>
 
-      {/* ── Alertas ────────────────────────────────────────── */}
-      <footer className="dashboard-footer-alerts">
-        <InfoCard color="blue"   title="Backup Completado"   desc="La base de datos se sincronizó hace 14 min." />
-        <InfoCard color="purple" title="Nuevas Solicitudes"  desc="8 usuarios pendientes de verificación." />
-        <InfoCard color="red"    title="Alerta de Seguridad" desc="3 intentos de login fallidos detectados." />
-      </footer>
+      {/* ── Estado de inventario ─────────────────────────────────────────── */}
+      {!loading && products.length > 0 && (
+        <div className="db-section">
+          <div className="db-section-header">
+            <Package size={15} className="db-section-icon" />
+            <h2 className="db-section-title">Estado del inventario</h2>
+            <button
+              className="db-section-link"
+              onClick={() => navigate(`${adminBase}/productos`)}
+            >
+              Ver todo <ArrowRight size={13} />
+            </button>
+          </div>
 
-      {isModalOpen && (
-        <UserModal
-          user={selectedUser || { name: '', email: '', role: 'CLIENTE', status: 'ACTIVO' }}
-          onClose={() => setIsModalOpen(false)}
-          onSave={handleUpdate}
-        />
+          <div className="db-inventory-cards">
+            <div className="db-inv-card">
+              <div className="db-inv-bar" style={{ '--fill': `${kpi.total ? (kpi.active / kpi.total) * 100 : 0}%`, '--color': '#10b981' }} />
+              <div className="db-inv-info">
+                <span className="db-inv-num" style={{ color: '#10b981' }}>{kpi.active}</span>
+                <span className="db-inv-label">Activos</span>
+              </div>
+            </div>
+            <div className="db-inv-card">
+              <div className="db-inv-bar" style={{ '--fill': `${kpi.total ? (kpi.inactive / kpi.total) * 100 : 0}%`, '--color': '#6b7280' }} />
+              <div className="db-inv-info">
+                <span className="db-inv-num" style={{ color: '#6b7280' }}>{kpi.inactive}</span>
+                <span className="db-inv-label">Inactivos</span>
+              </div>
+            </div>
+            <div className="db-inv-card">
+              <div className="db-inv-bar" style={{ '--fill': `${kpi.total ? (kpi.lowStock / kpi.total) * 100 : 0}%`, '--color': '#f59e0b' }} />
+              <div className="db-inv-info">
+                <span className="db-inv-num" style={{ color: '#f59e0b' }}>{kpi.lowStock}</span>
+                <span className="db-inv-label">Stock bajo</span>
+              </div>
+            </div>
+            <div className="db-inv-card">
+              <div className="db-inv-bar" style={{ '--fill': `${kpi.total ? (kpi.outStock / kpi.total) * 100 : 0}%`, '--color': '#ef4444' }} />
+              <div className="db-inv-info">
+                <span className="db-inv-num" style={{ color: '#ef4444' }}>{kpi.outStock}</span>
+                <span className="db-inv-label">Sin stock</span>
+              </div>
+            </div>
+            <div className="db-inv-card">
+              <div className="db-inv-bar" style={{ '--fill': '100%', '--color': '#3b82f6' }} />
+              <div className="db-inv-info">
+                <span className="db-inv-num" style={{ color: '#3b82f6' }}>{kpi.variants}</span>
+                <span className="db-inv-label">Variantes</span>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
+
+      {/* ── Estado vacío cuando no hay productos ─────────────────────────── */}
+      {!loading && products.length === 0 && (
+        <div className="db-empty">
+          <Package size={38} className="db-empty-icon" />
+          <p className="db-empty-title">Sin productos aún</p>
+          <p className="db-empty-sub">Comienza subiendo tu primer producto al catálogo.</p>
+          <button
+            className="db-empty-cta"
+            onClick={() => navigate(`${adminBase}/subir-producto`)}
+          >
+            <PackagePlus size={15} /> Subir producto
+          </button>
+        </div>
+      )}
+
     </div>
   );
 };
