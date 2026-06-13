@@ -156,6 +156,7 @@ const authService = {
 
   async login({ email, password }) {
     try {
+      localStorage.removeItem("jwt");
       localStorage.setItem("last_email", email);
       const { data } = await API.post("/auth/login", { email, password });
       return data;
@@ -168,7 +169,7 @@ const authService = {
     try {
       const { data } = await API.post("/auth/loginSecondStep", {
         email,
-        code: Number(code),
+        code: String(code),
       });
       if (!data.jwt) throw new Error("No se recibió el token");
       localStorage.setItem("jwt", data.jwt);
