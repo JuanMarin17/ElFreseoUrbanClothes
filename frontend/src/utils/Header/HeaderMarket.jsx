@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import { ShoppingCart, Heart, User, Menu, X, LogIn, Truck, HelpCircle, Settings, LogOut, Bell } from 'lucide-react';
 import { useAuth } from '../../admin/modules/auth/pages/hook/Useauth';
 import { useCart } from '../../multi-tenant/components/Store/hooks/useCart.js';

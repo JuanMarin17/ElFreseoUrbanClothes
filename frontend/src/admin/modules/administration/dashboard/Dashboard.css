@@ -630,3 +630,30 @@
   letter-spacing: 1px;
   padding: 20px 0;
 }
+
+/* ══════════════════════════════════════════
+   HELPERS — sección promociones en Dashboard
+   ══════════════════════════════════════════ */
+
+/* Grid 2 columnas para listas recientes */
+.db-promo-recent-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Título de columna dentro de vx-table-toolbar */
+.db-promo-col-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--vx-muted, #9ca3af);
+}
+
+@media (max-width: 900px) {
+  .db-promo-recent-grid { grid-template-columns: 1fr; }
+}

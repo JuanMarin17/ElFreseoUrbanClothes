@@ -114,12 +114,6 @@ const ComponentCustomizer = () => {
     });
   };
 
-  const updateHeaderItem = (index, value) => {
-    const newItems = [...(design.header?.items ?? [])];
-    newItems[index] = value;
-    updateSection("items", newItems);
-  };
-
   const addBannerImage = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -357,11 +351,7 @@ const ComponentCustomizer = () => {
                         type="color"
                         value={styles.cardBorderColor1 ?? "#8b3cf7"}
                         onChange={(e) =>
-                          saveProgress(
-                            5,
-                            { ...state.components },
-                            { ...styles, cardBorderColor1: e.target.value },
-                          )
+                          saveProgress("styles", { ...styles, cardBorderColor1: e.target.value })
                         }
                       />
                       <span>Borde 1</span>
@@ -371,11 +361,7 @@ const ComponentCustomizer = () => {
                         type="color"
                         value={styles.cardBorderColor2 ?? "#f5c842"}
                         onChange={(e) =>
-                          saveProgress(
-                            5,
-                            { ...state.components },
-                            { ...styles, cardBorderColor2: e.target.value },
-                          )
+                          saveProgress("styles", { ...styles, cardBorderColor2: e.target.value })
                         }
                       />
                       <span>Borde 2</span>

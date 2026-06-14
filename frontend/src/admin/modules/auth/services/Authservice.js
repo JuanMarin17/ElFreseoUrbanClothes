@@ -161,8 +161,12 @@ const authService = {
 
   async login({ email, password }) {
     try {
+      localStorage.removeItem("jwt");
       localStorage.setItem("last_email", email);
       const { data } = await API.post("/auth/login", { email, password });
+      if (import.meta.env.DEV) {
+        console.log("[login paso 1] response →", JSON.stringify(data));
+      }
       return data;
     } catch (err) {
       throw new Error(extractBackendError(err));
@@ -171,14 +175,26 @@ const authService = {
 
   async loginSecondStep({ email, code }) {
     try {
-      const { data } = await API.post("/auth/loginSecondStep", {
-        email,
-        code: Number(code),
-      });
+      const payload = { email, code: Number(code) };
+      if (import.meta.env.DEV) {
+        console.log("[loginSecondStep] payload →", JSON.stringify(payload));
+      }
+      const { data } = await axios.post(
+        `${BASE_URL}/auth/loginSecondStep`,
+        payload,
+        { headers: { "Content-Type": "application/json" } },
+      );
+      if (import.meta.env.DEV) {
+        console.log("[loginSecondStep] response →", data);
+      }
       if (!data.jwt) throw new Error("No se recibió el token");
       localStorage.setItem("jwt", data.jwt);
       return { user: parseJwt(data.jwt), message: data.message };
     } catch (err) {
+      if (import.meta.env.DEV) {
+        console.error("[loginSecondStep] error status →", err?.response?.status);
+        console.error("[loginSecondStep] error body  →", err?.response?.data);
+      }
       throw new Error(extractBackendError(err));
     }
   },

@@ -20,6 +20,21 @@ export default defineConfig({
           });
         },
       },
+      "/stores": {
+        target: "http://46.225.21.146:8080",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/promotions": {
+        target: "http://46.225.21.146:8080",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/coupons": {
+        target: "http://46.225.21.146:8080",
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 });

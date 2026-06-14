@@ -33,7 +33,27 @@ function buildHeaders(withStoreId = false) {
   return h;
 }
 
-function normalizeProduct(p) {
+function extractStoreName(p) {
+  // Rutas directas del producto
+  return (
+    p.storeName           ??
+    p.store_name          ??
+    p.storeSlug           ??
+    p.store_slug          ??
+    // Objetos anidados comunes
+    p.store?.name         ??
+    p.store?.storeName    ??
+    p.store?.slug         ??
+    p.storeInfo?.name     ??
+    p.storeInfo?.storeName??
+    p.storeDetails?.name  ??
+    p.storeDetails?.storeName ??
+    p.owner?.storeName    ??
+    null
+  );
+}
+
+function normalizeProduct(p, storeNameMap = {}) {
   const variants = Array.isArray(p.variants) ? p.variants : [];
   const price = variants[0]?.price ?? 0;
 
@@ -55,15 +75,23 @@ function normalizeProduct(p) {
     }
   });
 
-  const stock = variants.reduce((s, v) => s + (v.stock ?? 0), 0);
+  const stock   = variants.reduce((s, v) => s + (v.stock ?? 0), 0);
+  const storeId = p.storeId ?? null;
+
+  // Prioridad: campo directo → mapa de tiendas → null
+  const storeName = extractStoreName(p) ?? storeNameMap[storeId] ?? null;
+
+  if (import.meta.env.DEV && !storeName && storeId) {
+    console.warn("[catalogoService] Sin storeName para storeId:", storeId, "— campos del producto:", Object.keys(p));
+  }
 
   return {
     id:             p.productId ?? p.id,
     name:           p.name ?? "Producto",
     description:    p.description ?? "",
     brand:          p.brandName ?? p.brand ?? "",
-    storeId:        p.storeId ?? null,
-    storeName:      p.storeName ?? p.storeSlug ?? null,
+    storeId,
+    storeName,
     status:         p.status,
     categories:     Array.isArray(p.categories) ? p.categories : [],
     price,
@@ -80,6 +108,31 @@ function normalizeProduct(p) {
     rating:         parseFloat(p.rating ?? p.averageRating ?? p.avgRating ?? p.score) || null,
     reviewCount:    p.reviewCount ?? p.reviewsCount ?? p.totalReviews ?? p.numReviews ?? 0,
   };
+}
+
+/** Obtiene mapa storeId → storeName desde la API de tiendas */
+async function fetchStoreNameMap(headers) {
+  const endpoints = ["/stores", "/stores/all", "/stores/active"];
+  for (const ep of endpoints) {
+    try {
+      const res  = await fetch(`${API_BASE}${ep}`, { headers });
+      if (!res.ok) continue;
+      const json = await res.json();
+      const list = Array.isArray(json?.data) ? json.data
+                 : Array.isArray(json)        ? json
+                 : Array.isArray(json?.content) ? json.content
+                 : null;
+      if (!list) continue;
+      const map = {};
+      list.forEach(s => {
+        const id   = s.storeId ?? s.id;
+        const name = s.name ?? s.storeName ?? s.slug ?? s.storeSlug;
+        if (id && name) map[id] = name;
+      });
+      if (Object.keys(map).length > 0) return map;
+    } catch { /* siguiente */ }
+  }
+  return {};
 }
 
 function isActive(p) {
@@ -116,21 +169,20 @@ async function tryEndpoints(headers) {
 }
 
 /**
- * Obtiene todos los productos activos.
- * Intenta sin storeId primero (todas las tiendas), luego con storeId como fallback.
+ * Obtiene todos los productos activos enriquecidos con nombre de tienda.
  */
 export async function fetchCatalogProducts() {
-  // 1er intento: sin X-Store-Id
-  let raw = await tryEndpoints(buildHeaders(false));
+  const headers = buildHeaders(false);
 
-  // 2do intento: con X-Store-Id de localStorage
-  if (!raw) {
-    raw = await tryEndpoints(buildHeaders(true));
-  }
+  // Productos y tiendas en paralelo
+  const [raw, storeNameMap] = await Promise.all([
+    tryEndpoints(headers).then(r => r ?? tryEndpoints(buildHeaders(true))),
+    fetchStoreNameMap(headers),
+  ]);
 
   if (!raw) return [];
 
-  return raw.filter(isActive).map(normalizeProduct);
+  return raw.filter(isActive).map(p => normalizeProduct(p, storeNameMap));
 }
 
 // ── Tastes ────────────────────────────────────────────────────────────────────

@@ -242,6 +242,7 @@ function ReviewStep({ shipping, payment, items, subtotal, shippingCost, total })
 
 export default function CheckoutPage() {
   const { slug }   = useParams();
+  const backTarget = slug ? `/tienda/${slug}` : `/market`;
   const navigate   = useNavigate();
   const location   = useLocation();
 
@@ -264,7 +265,7 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (cartFromNav) return;
-    if (!storeId) { navigate(`/tienda/${slug}`); return; }
+    if (!storeId) { navigate(backTarget); return; }
 
     getCart(storeId)
       .then((data) => setCart(data))
@@ -377,7 +378,7 @@ export default function CheckoutPage() {
         <p style={{ color: "#64748b", fontSize: 14, margin: 0 }}>Tu carrito está vacío.</p>
         <button
           style={{ background: "none", border: "1px solid #1e2a3d", color: "#64748b", padding: "8px 18px", borderRadius: 8, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}
-          onClick={() => navigate(`/tienda/${slug}`)}
+          onClick={() => navigate(backTarget)}
         >
           ← Volver a la tienda
         </button>
@@ -410,13 +411,13 @@ export default function CheckoutPage() {
     <div className="ck-page">
       {/* Nav */}
       <nav className="ck-nav">
-        <button className="ck-nav__back" onClick={() => navigate(`/tienda/${slug}`)}>
+        <button className="ck-nav__back" onClick={() => navigate(backTarget)}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="15 18 9 12 15 6" />
           </svg>
           Volver a la tienda
         </button>
-        <span className="ck-nav__store">{slug}</span>
+        <span className="ck-nav__store">{slug ?? "Market"}</span>
         <div />
       </nav>
 

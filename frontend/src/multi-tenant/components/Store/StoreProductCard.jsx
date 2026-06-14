@@ -171,7 +171,7 @@ export default function StoreProductCard({ product, index, theme, isJustAdded, o
 
           {/* Ver más → ProductPage */}
           <Link
-            to={`/producto/${product.id ?? product.productId}?src=store${storeId ? `&sid=${storeId}` : ""}`}
+            to={`/products/${product.id ?? product.productId}?src=store${storeId ? `&sid=${storeId}` : ""}`}
             onClick={() => { if (storeId) localStorage.setItem("storeId", storeId); }}
             style={{
               display: "flex",

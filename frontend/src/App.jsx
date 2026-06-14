@@ -107,28 +107,15 @@ const VerifyCode = lazy(
 );
 
 // ── Cliente ───────────────────────────────────────────────────────────────────
-const VexioLanding = lazy(
-  () =>
-    import("./client/modules/landingPage/pages/VexioLanding/VexioLanding.jsx"),
-);
-const HelpCenter = lazy(
-  () => import("./client/modules/help/pages/HelpCenter/HelpCenter.jsx"),
-);
-const SessionClosed = lazy(
-  () => import("./client/modules/MainPage/pages/SessionClosed.jsx"),
-);
-const MarketPage = lazy(
-  () => import("./client/modules/MarketPage/Pages/MarketPage/MarketPage.jsx"),
-);
-const AccountPage = lazy(
-  () => import("./client/modules/account/pages/AccountPage/AccountPage.jsx"),
-);
-const ProductPage = lazy(
-  () => import("./client/modules/ProductPage/ProductPage.jsx"),
-);
-const ProductReviews = lazy(
-  () => import("./client/modules/reviews/ProductReviews.jsx"),
-);
+const VexioLanding   = lazy(() => import("./client/modules/landingPage/pages/VexioLanding/VexioLanding.jsx"));
+const HelpCenter     = lazy(() => import("./client/modules/help/pages/HelpCenter/HelpCenter.jsx"));
+const SessionClosed  = lazy(() => import("./client/modules/MainPage/pages/SessionClosed.jsx"));
+const MarketPage     = lazy(() => import("./client/modules/MarketPage/Pages/MarketPage/MarketPage.jsx"));
+const CatalogoPage   = lazy(() => import("./client/modules/Catalogo/CatalogoPage.jsx"));
+const FavoritosPage  = lazy(() => import("./client/modules/Favoritos/FavoritosPage.jsx"));
+const AccountPage    = lazy(() => import("./client/modules/account/pages/AccountPage/AccountPage.jsx"));
+const ProductPage    = lazy(() => import("./client/modules/ProductPage/ProductPage.jsx"));
+const ProductReviews = lazy(() => import("./client/modules/reviews/ProductReviews.jsx"));
 
 // ── Multi-tenant ──────────────────────────────────────────────────────────────
 const StoreProductsAdmin = lazy(
@@ -234,15 +221,14 @@ export default function App() {
               <AnimatePresence mode="wait">
                 <Routes key="main-content">
                   {/* ── Público ──────────────────────────────────────────── */}
-                  <Route path="/" index element={<VexioLanding />} />
-                  <Route path="/landing" element={<VexioLanding />} />
-                  <Route path="/market" element={<MarketPage />} />
-                  <Route path="/cuenta/*" element={<AccountPage />} />
-                  <Route
-                    path="/products/:productId"
-                    element={<ProductPage />}
-                  />
-                  <Route path="/reviews" element={<ProductReviews />} />
+                  <Route path="/"                    element={<VexioLanding />} />
+                  <Route path="/landing"             element={<VexioLanding />} />
+                  <Route path="/market"              element={<MarketPage />} />
+                  <Route path="/catalogo"            element={<CatalogoPage />} />
+                  <Route path="/favoritos"           element={<FavoritosPage />} />
+                  <Route path="/cuenta/*"            element={<AccountPage />} />
+                  <Route path="/products/:productId" element={<ProductPage />} />
+                  <Route path="/reviews"             element={<ProductReviews />} />
 
                   {/* ── Auth ─────────────────────────────────────────────── */}
                   <Route
