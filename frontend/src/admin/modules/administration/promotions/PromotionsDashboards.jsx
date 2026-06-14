@@ -1,10 +1,10 @@
 import "./style/PromotionsDashboards.css";
-import { useDashboard } from "./service/useDashboard";
-import StatsGrid from "./StatsGrid";
+import { useDashboard } from "./service/usedashboard";
+import StatsGrid from "./Statsgrid";
 import PromotionsTable from "./PromotionStable";
 import CouponsTable from "./CouponsTable";
 import PromotionModal from "./PromotionModa";
-import ToastStack from "./ToastStack";
+import ToastStack from "./Toaststack";
 
 export default function PromotionsDashboards() {
   const {

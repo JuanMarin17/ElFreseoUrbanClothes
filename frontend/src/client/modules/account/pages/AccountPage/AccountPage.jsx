@@ -1,6 +1,6 @@
 import React, { useState, Suspense, memo } from 'react';
 import AccountSidebar from '../../components/AccountSidebar/AccountSidebar.jsx';
-import MyProfile      from '../../components/profile/MyProfile.jsx';
+import MyProfile      from '../../components/Profile/MyProfile.jsx';
 import './AccountPage.css';
 
 // Secciones no críticas: se cargan solo cuando el usuario las visita

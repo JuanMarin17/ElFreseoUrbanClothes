@@ -6,7 +6,7 @@ import HeaderMarket from "../../../utils/Header/HeaderMarket.jsx";
 import { cf } from "../../../multi-tenant/components/Store/storeUtils.jsx";
 
 import "./ProductPage.css";
-import { useProduct } from "./service/useProduct";
+import { useProduct } from "./service/Useproduct";
 
 import SkeletonHero from "./components/SkeletonHero";
 import ProductGallery from "./components/ProductGallery";
@@ -21,7 +21,7 @@ import ProductTabs from "./components/Producttabs";
 import TabDescription from "./components/Tabsdescription";
 import TabSpecs from "./components/Tabspecs";
 import TabReviews from "./components/Tabreviews";
-import TabQA from "./components/TabqA";
+import TabQA from "./components/Tabqa";
 import RelatedProducts from "./components/Relatedproduct";
 import { CartToast, StickyCTA } from "./components/Carttoast";
 

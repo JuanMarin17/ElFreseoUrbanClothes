@@ -1,4 +1,4 @@
-import useStoreBuilder from "../hooks/useStoreBuilder";
+import useStoreBuilder from "../hooks/UseStoreBuilder";
 
 export default function CustomizeBanner() {
   const { updateNested } = useStoreBuilder();
