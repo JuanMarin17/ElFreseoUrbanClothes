@@ -98,7 +98,7 @@ function QuickAddModal({ product, onClose }) {
     }
 
     if (!product.storeId) {
-      navigate(`/producto/${product.id}?src=catalog`);
+      navigate(`/products/${product.id}?src=catalog`);
       return;
     }
 
@@ -243,7 +243,7 @@ function QuickAddModal({ product, onClose }) {
             </button>
 
             {/* Ver producto completo */}
-            <button className="cat-modal-link" onClick={() => { navigate(`/producto/${product.id}?src=catalog`); }}>
+            <button className="cat-modal-link" onClick={() => { if (product.storeId) localStorage.setItem("storeId", product.storeId); navigate(`/products/${product.id}?src=catalog`); }}>
               Ver detalle del producto →
             </button>
           </div>
@@ -285,8 +285,9 @@ function ProductCard({ product, index, onQuickAdd }) {
   const [imgError, setImgError] = useState(false);
 
   const go = useCallback(() => {
-    navigate(`/producto/${product.id}?src=catalog`);
-  }, [product.id, navigate]);
+    if (product.storeId) localStorage.setItem("storeId", product.storeId);
+    navigate(`/products/${product.id}?src=catalog`);
+  }, [product.id, product.storeId, navigate]);
 
   const handleWishlist = useCallback((e) => {
     e.stopPropagation();
@@ -520,7 +521,8 @@ function ForYouCard({ product, index, onQuickAdd }) {
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: Math.min(index * 0.028, 0.26), duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
       onClick={() => {
-        navigate(`/producto/${product.id}?src=catalog`);
+        if (product.storeId) localStorage.setItem("storeId", product.storeId);
+        navigate(`/products/${product.id}?src=catalog`);
       }}
     >
       <div className="cat-fy-img">

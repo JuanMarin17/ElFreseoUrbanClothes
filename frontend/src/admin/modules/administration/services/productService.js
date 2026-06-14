@@ -3,7 +3,7 @@
  * Integración con el microservicio de productos.
  */
 
-const BASE = import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
+const BASE ="http://46.225.21.146:8080/api/v1";
 
 // ─── Headers ─────────────────────────────────────────────────────────────────
 const buildHeaders = (extra = {}) => {
@@ -195,6 +195,7 @@ function buildProductPayload(data) {
     categoryIds: data.categoryIds ?? [],
     images: data.images ?? [],
     variants: data.variants ?? [],
+    ...(data.supplierId ? { supplierId: data.supplierId } : {}),
   };
 }
 

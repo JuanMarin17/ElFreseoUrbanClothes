@@ -5,10 +5,13 @@
  * Los endpoints de settings además requieren X-Store-Id: <uuid>
  */
 
-const API_ROOT =
-  import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
+const API_ROOT ="http://46.225.21.146:8080/api/v1";
 const BASE_URL = `${API_ROOT}/stores`;
 const SETTINGS_URL = `${API_ROOT}/stores/settings`;
+
+// isOwner lives at /stores/... (without /api/v1) — different auth tier than /api/v1/stores
+
+
 
 // ─── Helpers de headers ───────────────────────────────────────────────────────
 
