@@ -4,9 +4,8 @@ export default function useStoreBuilder() {
     const [store, setStore] = useState({
       name: "",
       subdomain: "",
-      approved: false, // 🔥 clave
+      approved: false,
       acceptedTerms: false,
-      name: "",
       layout: "minimal",
       colors: {
         primary: "#2563eb",
