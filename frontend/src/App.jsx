@@ -107,7 +107,7 @@ const VerifyCode = lazy(
 );
 
 // ── Cliente ───────────────────────────────────────────────────────────────────
-const VexioLanding   = lazy(() => import("./client/modules/landingPage/pages/VexioLanding/VexioLanding.jsx"));
+const VexioLanding   = lazy(() => import("./client/modules/LandingPage/pages/VexioLanding/VexioLanding.jsx"));
 const HelpCenter     = lazy(() => import("./client/modules/help/pages/HelpCenter/HelpCenter.jsx"));
 const SessionClosed  = lazy(() => import("./client/modules/MainPage/pages/SessionClosed.jsx"));
 const MarketPage     = lazy(() => import("./client/modules/MarketPage/Pages/MarketPage/MarketPage.jsx"));
