@@ -1,5 +1,5 @@
 import "../components/styles/Store.css";
-import useStoreBuilder from "../hooks/useStoreBuilder";
+import useStoreBuilder from "../hooks/UseStoreBuilder";
 import { useNavigate } from "react-router-dom";
 
 export default function CustomizeTheme() {
