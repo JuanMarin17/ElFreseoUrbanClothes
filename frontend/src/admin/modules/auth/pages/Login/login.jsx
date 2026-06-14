@@ -78,7 +78,6 @@ export default function Login({ mode }) {
   const [emailForOTP, setEmailForOTP]   = useState('');
   const [errors, setErrors]             = useState({});
   const [toast, setToast]               = useState({ message: '', type: 'error' });
-  const [showRecovery, setShowRecovery] = useState(false);
 
   /* ─── Avatar ─── */
   const [avatarFile, setAvatarFile]       = useState(null);
@@ -132,7 +131,6 @@ export default function Login({ mode }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     clearToast();
-    setShowRecovery(false);
     if (!validate()) return;
     try {
       const result = await login({ email: email.value, password: password.value });
@@ -143,7 +141,6 @@ export default function Login({ mode }) {
       }
     } catch (err) {
       showToast(err.message);
-      setShowRecovery(true);
     }
   };
 
