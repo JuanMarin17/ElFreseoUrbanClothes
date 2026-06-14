@@ -1,3 +1,8 @@
+.alerts-spin {
+  animation: alerts-spin-anim 0.9s linear infinite;
+}
+@keyframes alerts-spin-anim { to { transform: rotate(360deg); } }
+
 /* Contenedor Principal */
 .stock-alerts-container {
   display: flex;

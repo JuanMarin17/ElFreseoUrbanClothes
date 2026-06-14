@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingBag, Sun, Moon, Settings, ArrowLeft } from "lucide-react";
 import StoreSearchBar from "./StoreSearchBar.jsx";
+import { isBgDark } from "./storeUtils.jsx";
 import "./styles/styles.css"
 
 function getItemRoute(item, storeSlug) {
@@ -46,9 +47,10 @@ export default function StoreHeader({
   const [logoError, setLogoError] = useState(false);
   const { accent, btnR, hBg, hColor, hFont, isMin, isUrb, isCls } = theme;
 
-  const btnBg     = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)";
-  const btnBgHov  = isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.11)";
-  const btnBorder = isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)";
+  const headerIsDark = isBgDark(hBg);
+  const btnBg     = headerIsDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)";
+  const btnBgHov  = headerIsDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.11)";
+  const btnBorder = headerIsDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)";
 
   const iconBtnStyle = {
     background: btnBg,
@@ -100,7 +102,7 @@ export default function StoreHeader({
       {/* NAV izquierda — solo minimalista */}
       {isMin && (
         <nav style={{ display: "flex", gap: "clamp(12px,2vw,28px)" }}>
-          {(header.items ?? []).slice(0, 3).map((it, i) => {
+          {(Array.isArray(header.items) ? header.items : String(header.items ?? "").split(",").map(s => s.trim()).filter(Boolean)).slice(0, 3).map((it, i) => {
             const to = getItemRoute(it, storeSlug);
             const baseStyle = {
               fontSize: 11,
@@ -166,7 +168,7 @@ export default function StoreHeader({
       {/* NAV derecha — urbano y clásico */}
       {!isMin && (
         <nav style={{ display: "flex", gap: "clamp(12px,2vw,28px)" }}>
-          {(header.items ?? []).slice(0, 3).map((it, i) => {
+          {(Array.isArray(header.items) ? header.items : String(header.items ?? "").split(",").map(s => s.trim()).filter(Boolean)).slice(0, 3).map((it, i) => {
             const to = getItemRoute(it, storeSlug);
             const baseStyle = {
               fontSize: 11,

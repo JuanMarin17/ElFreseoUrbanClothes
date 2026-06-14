@@ -484,6 +484,102 @@
 .db-empty-cta:hover { background: #2d73e8; transform: translateY(-1px); }
 .db-empty-cta:active { transform: scale(0.97); }
 
+/* ── Equipo de la tienda ──────────────────────────────────────────────────── */
+.db-members-list {
+  display: flex;
+  flex-direction: column;
+  background: var(--at-elevated, #111);
+  border: 1px solid var(--at-border, #1a1a1a);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.db-member-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--at-border, #1a1a1a);
+  transition: background 0.15s;
+}
+.db-member-row:last-of-type { border-bottom: none; }
+.db-member-row:hover { background: rgba(255,255,255,0.02); }
+
+.db-member-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.db-member-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.db-member-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--at-text-1, #fff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.db-member-email {
+  font-size: 0.72rem;
+  color: var(--at-text-3, #52525b);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.db-member-role {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+.db-member-role--owner {
+  background: rgba(245,158,11,0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245,158,11,0.2);
+}
+.db-member-role--admin {
+  background: rgba(139,92,246,0.12);
+  color: #8b5cf6;
+  border: 1px solid rgba(139,92,246,0.2);
+}
+
+.db-member-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.db-members-more {
+  font-size: 0.72rem;
+  color: var(--at-text-3, #52525b);
+  text-align: center;
+  margin: 0;
+  padding: 10px 16px;
+  border-top: 1px solid var(--at-border, #1a1a1a);
+}
+
 /* ── prefers-reduced-motion ───────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .db-view, .db-kpi, .db-action-card, .db-empty { animation: none; }
@@ -533,4 +629,31 @@
   color: #555;
   letter-spacing: 1px;
   padding: 20px 0;
+}
+
+/* ══════════════════════════════════════════
+   HELPERS — sección promociones en Dashboard
+   ══════════════════════════════════════════ */
+
+/* Grid 2 columnas para listas recientes */
+.db-promo-recent-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Título de columna dentro de vx-table-toolbar */
+.db-promo-col-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--vx-muted, #9ca3af);
+}
+
+@media (max-width: 900px) {
+  .db-promo-recent-grid { grid-template-columns: 1fr; }
 }

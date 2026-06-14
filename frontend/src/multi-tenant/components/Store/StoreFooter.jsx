@@ -1,4 +1,4 @@
-import { cf } from './storeUtils.jsx';
+import { cf, isBgDark } from './storeUtils.jsx';
 import { Link } from 'react-router-dom';
 
 const FOOTER_LINKS = [
@@ -12,10 +12,11 @@ const FOOTER_LINKS = [
 export default function StoreFooter({ footer, header, theme, storeSlug = null }) {
   const { footerBg, hFont, fB, desc, accent, isMin, isUrb, isCls } = theme;
 
-  const { isDark } = theme;
-  const textPrimary = isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.55)";
-  const textMuted   = isDark ? "rgba(255,255,255,0.22)" : "rgba(0,0,0,0.35)";
-  const borderColor = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.07)";
+  const bgIsDark    = isBgDark(footerBg);
+  const textPrimary = bgIsDark ? "rgba(255,255,255,0.80)" : "rgba(0,0,0,0.70)";
+  const textMuted   = bgIsDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.50)";
+  const borderColor = bgIsDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
+  const pagesLabel  = bgIsDark ? "rgba(255,255,255,0.40)" : "rgba(0,0,0,0.35)";
 
   return (
     <footer style={{
@@ -61,7 +62,7 @@ export default function StoreFooter({ footer, header, theme, storeSlug = null })
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <span style={{
               fontSize: 9, fontWeight: 700, letterSpacing: 2,
-              textTransform: "uppercase", color: "rgba(255,255,255,0.25)",
+              textTransform: "uppercase", color: pagesLabel,
               marginBottom: 2,
             }}>
               Páginas

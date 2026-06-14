@@ -70,40 +70,35 @@ export default function StepPaymentPage() {
   const navigate = useNavigate();
   const { state, saveProgress, completeStep } = useStore();
 
-  const [form, setForm] = useState({
-    paymentMethod: state.payment?.paymentMethod ?? "",
-    shipping:      state.payment?.shipping      ?? "",
-  });
-
   const [errors, setErrors] = useState({});
 
-  const handleBack = () => {
-    saveProgress("payment", form);
-    navigate("/crear-tienda/legal");
-  };
+  const paymentMethod = state.payment?.paymentMethod ?? "";
+  const shipping      = state.payment?.shipping      ?? "";
+
+  const handleBack = () => navigate("/crear-tienda/legal");
 
   const handleNext = () => {
     const newErrors = {};
-    if (!form.paymentMethod) newErrors.paymentMethod = "Selecciona un metodo de pago";
-    if (!form.shipping)      newErrors.shipping      = "Selecciona el tipo de envio";
+    if (!paymentMethod) newErrors.paymentMethod = "Selecciona un metodo de pago";
+    if (!shipping)      newErrors.shipping      = "Selecciona el tipo de envio";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
-    completeStep("payment", form);
+    completeStep("payment", { paymentMethod, shipping });
     navigate("/layout");
   };
 
   const selectPayment = (id) => {
-    setForm((prev) => ({ ...prev, paymentMethod: id }));
-    if (errors.paymentMethod) setErrors((prev) => ({ ...prev, paymentMethod: null }));
+    saveProgress("payment", { paymentMethod: id, shipping });
+    if (errors.paymentMethod) setErrors(prev => ({ ...prev, paymentMethod: null }));
   };
 
   const selectShipping = (id) => {
-    setForm((prev) => ({ ...prev, shipping: id }));
-    if (errors.shipping) setErrors((prev) => ({ ...prev, shipping: null }));
+    saveProgress("payment", { paymentMethod, shipping: id });
+    if (errors.shipping) setErrors(prev => ({ ...prev, shipping: null }));
   };
 
   return (
@@ -132,7 +127,7 @@ export default function StepPaymentPage() {
                 <button
                   key={opt.id}
                   type="button"
-                  className={`option-card ${form.paymentMethod === opt.id ? "selected" : ""}`}
+                  className={`option-card ${paymentMethod === opt.id ? "selected" : ""}`}
                   onClick={() => selectPayment(opt.id)}
                 >
                   <span className="option-icon">{opt.icon}</span>
@@ -156,7 +151,7 @@ export default function StepPaymentPage() {
                 <button
                   key={opt.id}
                   type="button"
-                  className={`option-card ${form.shipping === opt.id ? "selected" : ""}`}
+                  className={`option-card ${shipping === opt.id ? "selected" : ""}`}
                   onClick={() => selectShipping(opt.id)}
                 >
                   <span className="option-icon">{opt.icon}</span>

@@ -61,16 +61,14 @@
 .vx-nav-brand {
   display: flex;
   align-items: center;
-  justify-content: center;
-  height: 10vh;
-  width: 13vw;
+  flex-shrink: 0;
 }
 
 .vx-nav-logo-img {
-  top: 2px;
-  height: 100%;
-  width: 60%;                        /* ✓ corregido de 70% a 60% */
+  height: 38px;
+  width: auto;
   object-fit: contain;
+  display: block;
 }
 
 /* ── Links de navegación ── */
@@ -180,6 +178,8 @@
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
+  .vx-nav-logo-img { height: 30px; }
+
   .vx-nav-links {
     position: fixed;
     top: 60px; left: 0; right: 0;

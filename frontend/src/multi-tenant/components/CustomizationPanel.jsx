@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import "../components/styles/CustomatizacionPanel.css";
 import { useStore } from "../pages/useStore";
@@ -11,34 +11,37 @@ const CustomizationPanel = () => {
   const { state, completeStep, saveProgress } = useStore();
   const navigate = useNavigate();
 
-  // ... Pre-carga lo que el usuario habia puesto si regresa a este paso
-  const [design, setDesign] = useState(
-    state.styles ?? {
-      colorBoton: "#3e78ff",
-      colorTitulo: "#ffffff",
-      colorParrafo: "#7a7a7a",
-      textoTitulo: "NEON HOODIE",
-      textoCuerpo: "Streetwear essentials designed for the urban landscape.",
-      cardBg: "#0f0f0f",
-      cardBorderColor1: "#1a1a1a",
-      cardBorderColor2: "#3e78ff",
-      cardBorderWidth: "2",
-      cardRadius: "12",
-      cardShadow: "0 10px 30px rgba(0,0,0,0.5)",
-      btnRadius: "4",
-      btnShadow: "none",
-      fontTitle: "Bebas Neue",
-      fontBody: "Inter",
-    },
+  const DEFAULT_STYLES = {
+    colorBoton: "#3e78ff",
+    colorTitulo: "#ffffff",
+    colorParrafo: "#7a7a7a",
+    textoTitulo: "NEON HOODIE",
+    textoCuerpo: "Streetwear essentials designed for the urban landscape.",
+    cardBg: "#0f0f0f",
+    cardBorderColor1: "#1a1a1a",
+    cardBorderColor2: "#3e78ff",
+    cardBorderWidth: "2",
+    cardRadius: "12",
+    cardShadow: "0 10px 30px rgba(0,0,0,0.5)",
+    btnRadius: "4",
+    btnShadow: "none",
+    fontTitle: "Bebas Neue",
+    fontBody: "Inter",
+  };
+
+  // design se deriva del contexto: la IA puede actualizarlo y el panel lo refleja al instante
+  const design = useMemo(
+    () => ({ ...DEFAULT_STYLES, ...(state.styles ?? {}) }),
+    [state.styles],
   );
 
   const handleUpdate = (key, value) => {
-    setDesign((prev) => ({ ...prev, [key]: value }));
+    saveProgress("styles", { ...design, [key]: value });
   };
 
   //  Guarda lo que lleva y vuelve al paso 3
   const handleBack = () => {
-    saveProgress(4, design); // guarda sin marcar como completado
+    saveProgress(4, design);
     navigate("/layout");
   };
 

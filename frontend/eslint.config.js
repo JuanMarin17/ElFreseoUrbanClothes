@@ -24,6 +24,10 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // React Compiler rules (react-hooks v7) — demasiado estrictas para
+      // el patrón estándar de data-fetching con useEffect + setState
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/set-state-in-render':  'off',
     },
   },
 ])
