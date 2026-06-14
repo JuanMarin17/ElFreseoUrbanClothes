@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { sendMessage } from "../../pages/services/aiChatService.js";
+import { getChatSession, setChatSession, clearChatSession } from "../../../utils/chatSession.js";
 import "./AiChatDrawer.css";
 
 const formatCOP = (n) =>
@@ -122,7 +123,7 @@ export default function AiChatDrawer({ storeId, onCartRefresh, accentColor, prod
   const [text,      setText]      = useState("");
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState(null);
-  const [sessionId, setSessionId] = useState(null);
+  const [sessionId, setSessionId] = useState(() => getChatSession(storeId));
 
   const [hiddenAlerts, setHiddenAlerts] = useState([]);
 
@@ -226,7 +227,10 @@ export default function AiChatDrawer({ storeId, onCartRefresh, accentColor, prod
 
     try {
       const res = await sendMessage(sessionId, content || "Analiza esta imagen", imageBase64, imageMimeType, storeId);
-      if (!sessionId && res.session_id) setSessionId(res.session_id);
+      if (!sessionId && res.session_id) {
+        setSessionId(res.session_id);
+        setChatSession(storeId, res.session_id);
+      }
 
       const toast = resolveAction(res.action, res.action_data);
       const showRecs = res.action === "GET_RECOMMENDATIONS" || res.action === "SEARCH";
@@ -255,9 +259,10 @@ export default function AiChatDrawer({ storeId, onCartRefresh, accentColor, prod
   const handleNewChat = useCallback(() => {
     setMessages([]);
     setSessionId(null);
+    clearChatSession(storeId);
     setError(null);
     clearImage();
-  }, [clearImage]);
+  }, [clearImage, storeId]);
 
   return (
     <>

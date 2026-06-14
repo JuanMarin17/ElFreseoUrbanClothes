@@ -7,6 +7,7 @@ import {
   Store, Zap,
 } from 'lucide-react';
 import { getAllProducts } from '../services/productService';
+import { getMembers } from '../services/UsersService';
 import { getStoreSettingsByHeader } from '../../../../multi-tenant/pages/services/storeService';
 import './Dashboard.css';
 
@@ -24,7 +25,11 @@ function parseUserFromJwt() {
     const jwt = localStorage.getItem('jwt');
     if (!jwt) return null;
     const d = JSON.parse(atob(jwt.split('.')[1]));
-    return { userName: d.sub ?? null, userRole: d.role ?? null };
+    return {
+      userId:   d.user_id ?? null,
+      userName: d.sub ?? null,
+      userRole: localStorage.getItem('userRole') ?? d.role ?? null,
+    };
   } catch { return null; }
 }
 
@@ -62,11 +67,22 @@ const Dashboard = () => {
   const userInfo  = useMemo(() => parseUserFromJwt(), []);
 
   const [products,    setProducts]    = useState([]);
+  const [members,     setMembers]     = useState([]);
   const [storeInfo,   setStoreInfo]   = useState(() => {
     const n = localStorage.getItem('storeName');
     return { name: (n && n !== 'null') ? n : null, logo: null };
   });
   const [loading,     setLoading]     = useState(true);
+
+  // Nombre resuelto: busca al usuario actual en la lista de miembros
+  // (ese endpoint devuelve el userName real del backend), cae al JWT si no.
+  const displayName = useMemo(() => {
+    if (members.length > 0 && userInfo?.userId) {
+      const me = members.find((m) => m.userId === userInfo.userId);
+      if (me?.userName) return me.userName;
+    }
+    return userInfo?.userName ?? null;
+  }, [members, userInfo]);
 
   // ── Load ───────────────────────────────────────────────────────────────────
 
@@ -93,8 +109,12 @@ const Dashboard = () => {
         storeIdResolved = localStorage.getItem('storeId');
       }
       if (storeIdResolved && storeIdResolved !== 'null') {
-        const data = await getAllProducts(storeIdResolved);
-        setProducts(Array.isArray(data) ? data : []);
+        const [productsData, membersData] = await Promise.allSettled([
+          getAllProducts(storeIdResolved),
+          getMembers(),
+        ]);
+        if (productsData.status === 'fulfilled') setProducts(Array.isArray(productsData.value) ? productsData.value : []);
+        if (membersData.status  === 'fulfilled') setMembers(Array.isArray(membersData.value)  ? membersData.value  : []);
       }
     } catch {
       // Silencioso — mostramos 0s
@@ -159,7 +179,7 @@ const Dashboard = () => {
 
           <div className="db-banner-text">
             <p className="db-banner-greeting">
-              {greeting()}, <strong>{userInfo?.userName ?? 'Admin'}</strong>
+              {greeting()}, <strong>{displayName ?? 'Admin'}</strong>
             </p>
             <p className="db-banner-store-label">Tienda</p>
             <h1 className="db-banner-title">{storeName}</h1>
@@ -306,6 +326,57 @@ const Dashboard = () => {
           >
             <PackagePlus size={15} /> Subir producto
           </button>
+        </div>
+      )}
+
+      {/* ── Equipo de la tienda ───────────────────────────────────────────── */}
+      {!loading && members.length > 0 && (
+        <div className="db-section">
+          <div className="db-section-header">
+            <Users size={15} className="db-section-icon" />
+            <h2 className="db-section-title">Equipo de la tienda</h2>
+            <button
+              className="db-section-link"
+              onClick={() => navigate(`${adminBase}/usuarios`)}
+            >
+              Ver todos <ArrowRight size={13} />
+            </button>
+          </div>
+
+          <div className="db-members-list">
+            {members.slice(0, 5).map((m) => {
+              const initial = (m.userName ?? m.userEmail ?? '?').charAt(0).toUpperCase();
+              const isOwner = m.role === 'OWNER';
+              return (
+                <div key={m.userId} className="db-member-row">
+                  <div className="db-member-avatar">{initial}</div>
+                  <div className="db-member-info">
+                    <span className="db-member-name">
+                      {m.userName || m.userEmail || (
+                        <span style={{ fontStyle: 'italic', opacity: 0.5 }}>Sin nombre</span>
+                      )}
+                    </span>
+                    {m.userEmail && (
+                      <span className="db-member-email">{m.userEmail}</span>
+                    )}
+                  </div>
+                  <span className={`db-member-role ${isOwner ? 'db-member-role--owner' : 'db-member-role--admin'}`}>
+                    {isOwner ? 'Propietario' : 'Admin'}
+                  </span>
+                  <span
+                    className="db-member-dot"
+                    style={{ background: m.isActive ? '#10b981' : '#6b7280' }}
+                    title={m.isActive ? 'Activo' : 'Inactivo'}
+                  />
+                </div>
+              );
+            })}
+            {members.length > 5 && (
+              <p className="db-members-more">
+                +{members.length - 5} miembro{members.length - 5 !== 1 ? 's' : ''} más
+              </p>
+            )}
+          </div>
         </div>
       )}
 

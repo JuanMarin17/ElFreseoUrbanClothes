@@ -1,5 +1,6 @@
 import axios from "axios";
 import { uploadUserImage } from "../../../../utils/uploadService";
+import { clearAllChatSessions } from "../../../../utils/chatSession.js";
 
 const BASE_URL =
   import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
@@ -11,7 +12,10 @@ const API = axios.create({
 
 API.interceptors.request.use((config) => {
   const jwt = localStorage.getItem("jwt");
-  if (jwt) config.headers.Authorization = `Bearer ${jwt}`;
+  // Auth endpoints don't need (and can break on) an existing token
+  if (jwt && !config.url?.startsWith("/auth/")) {
+    config.headers.Authorization = `Bearer ${jwt}`;
+  }
   return config;
 });
 
@@ -66,6 +70,7 @@ API.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError, null);
       localStorage.removeItem("jwt");
+      clearAllChatSessions();
       window.location.href = "/login";
       return Promise.reject(refreshError);
     } finally {
@@ -267,6 +272,7 @@ const authService = {
   logout() {
     localStorage.removeItem("jwt");
     localStorage.removeItem("last_email");
+    clearAllChatSessions();
   },
 
   getCurrentUser() {

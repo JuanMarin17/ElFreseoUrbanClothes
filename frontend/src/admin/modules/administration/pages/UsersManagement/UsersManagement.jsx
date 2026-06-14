@@ -19,6 +19,9 @@ export default function UsersManagement() {
   const [showForm,   setShowForm]   = useState(false);
   const [newUserId,  setNewUserId]  = useState('');
   const [adding,     setAdding]     = useState(false);
+
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const isValidUuid = (v) => UUID_RE.test(v.trim());
   const [toast,      setToast]      = useState(null);
 
   const showToast = (type, message) => {
@@ -29,9 +32,9 @@ export default function UsersManagement() {
   const handleError = useCallback((err) => {
     if (err.status === 401) { window.location.href = '/login'; return; }
     if (err.status === 403) { showToast('error', 'Sin permisos para esta acción'); return; }
-    if (err.status === 404) { showToast('error', 'Usuario no encontrado'); return; }
-    if (err.status === 409) { showToast('error', err.message || 'El usuario ya pertenece a la tienda'); return; }
-    showToast('error', 'Error del servidor, intenta de nuevo');
+    if (err.status === 404) { showToast('error', err.message || 'Usuario o tienda no encontrados'); return; }
+    if (err.status === 400) { showToast('error', err.message || 'El usuario ya pertenece a esta tienda'); return; }
+    showToast('error', err.message || 'Error del servidor, intenta de nuevo');
   }, []);
 
   // ── Carga de miembros ─────────────────────────────────────────────────────
@@ -71,6 +74,10 @@ export default function UsersManagement() {
     e.preventDefault();
     const uid = newUserId.trim();
     if (!uid) return;
+    if (!isValidUuid(uid)) {
+      showToast('error', 'El ID ingresado no tiene formato UUID válido');
+      return;
+    }
     setAdding(true);
     try {
       await addMember(uid);
@@ -144,22 +151,30 @@ export default function UsersManagement() {
               <label className="um-label">UUID del usuario</label>
               <input
                 type="text"
-                className="um-input"
+                className={`um-input${newUserId && !isValidUuid(newUserId) ? ' um-input--error' : ''}`}
                 placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
                 value={newUserId}
                 onChange={(e) => setNewUserId(e.target.value)}
                 required
                 disabled={adding}
+                spellCheck={false}
+                autoComplete="off"
               />
-              <span className="um-field-hint">
-                El usuario recibirá el rol ADMIN. Solo los propietarios pueden ser OWNER.
-              </span>
+              {newUserId && !isValidUuid(newUserId) ? (
+                <span className="um-field-hint um-field-hint--error">
+                  Formato inválido. Debe ser un UUID con guiones.
+                </span>
+              ) : (
+                <span className="um-field-hint">
+                  El usuario recibirá el rol <strong>ADMIN</strong>. El rol OWNER no se puede asignar manualmente.
+                </span>
+              )}
             </div>
             <div className="um-form-actions">
               <button
                 type="button"
                 className="um-btn-secondary"
-                onClick={() => setShowForm(false)}
+                onClick={() => { setShowForm(false); setNewUserId(''); }}
                 disabled={adding}
               >
                 Cancelar
@@ -167,7 +182,7 @@ export default function UsersManagement() {
               <button
                 type="submit"
                 className="um-btn-primary"
-                disabled={adding || !newUserId.trim()}
+                disabled={adding || !isValidUuid(newUserId)}
               >
                 {adding ? 'Agregando...' : 'Agregar'}
               </button>
@@ -220,9 +235,9 @@ export default function UsersManagement() {
             </thead>
             <tbody>
               {members.map((member) => {
-                const roleConf  = ROLE_CONFIG[member.role] ?? { label: member.role, cls: '' };
-                const RoleIcon  = roleConf.icon;
-                const isOwner   = member.role === 'OWNER';
+                const roleConf   = ROLE_CONFIG[member.role] ?? { label: member.role, cls: '' };
+                const RoleIcon   = roleConf.icon;
+                const isOwner    = member.role === 'OWNER';
                 const isToggling = togglingId === member.userId;
 
                 return (
@@ -230,7 +245,7 @@ export default function UsersManagement() {
                     <td>
                       <div className="um-user-cell">
                         <div className="um-user-avatar">
-                          {(member.userName ?? 'A').charAt(0).toUpperCase()}
+                          {(member.userName ?? member.userEmail ?? 'A').charAt(0).toUpperCase()}
                         </div>
                         <span className="um-user-name">
                           {member.userName || <span className="um-null-text">Sin nombre</span>}

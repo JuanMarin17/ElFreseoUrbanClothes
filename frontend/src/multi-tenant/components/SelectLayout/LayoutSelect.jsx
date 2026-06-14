@@ -33,25 +33,23 @@ const layouts = [
 ];
 
 const LayoutSelect = () => {
-  const { state, completeStep } = useStore();
+  const { state, completeStep, saveProgress } = useStore();
   const navigate = useNavigate();
 
-  // Pre-carga el layout guardado si el usuario regresa
-  const [selected, setSelected] = useState(state.layout?.id ?? "minimalista");
   const [showPreview, setShowPreview] = useState(false);
 
-  // Cuando elige un layout: guarda seleccion y muestra preview
+  // Lee del contexto: la IA puede actualizarlo y el componente lo refleja al instante
+  const selected = state.layout?.id ?? "minimalista";
+
+  // Cuando elige un layout: persiste en contexto y muestra preview
   const handleSelect = (id) => {
-    setSelected(id);
+    const layoutData = layouts.find((l) => l.id === id);
+    saveProgress("layout", layoutData);
     setShowPreview(true);
   };
 
-  // Flecha atras " guarda progreso y vuelve al paso anterior (pagos)
-  const handleBack = () => {
-    navigate("/crear-tienda/pagos");
-  };
+  const handleBack = () => navigate("/crear-tienda/pagos");
 
-  // Continuar " guarda layout y avanza al paso 4
   const handleContinue = () => {
     const layoutData = layouts.find((l) => l.id === selected);
     completeStep(3, layoutData);

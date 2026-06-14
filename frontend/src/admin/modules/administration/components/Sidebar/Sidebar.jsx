@@ -32,8 +32,6 @@ const Sidebar = ({
   lowStockCount = 0,
   isOpen        = false,
   onClose,
-  theme         = "dark",
-  onToggleTheme,
   sidebarColor,
 }) => {
   const navigate = useNavigate();

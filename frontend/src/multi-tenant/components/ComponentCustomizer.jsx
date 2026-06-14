@@ -5,7 +5,7 @@
  * - Se restauro el campo de imagen del banner en el panel de control
  */
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import "../components/styles/ComponentCustomizer.css";
 import { useStore } from "../pages/useStore";
@@ -23,7 +23,7 @@ const ComponentCustomizer = () => {
   const styles = state.styles ?? {};
   const layout = state.layout ?? {};
 
-  const [design, setDesign] = useState(() => {
+  const design = useMemo(() => {
     const saved = state.components;
     const defaultHeader = {
       logo: state.store?.name ?? "VEXIO",
@@ -54,7 +54,7 @@ const ComponentCustomizer = () => {
       banner: { ...defaultBanner, ...saved.banner },
       footer: { ...defaultFooter, ...saved.footer },
     };
-  });
+  }, [state.components, state.store?.name, state.styles?.textoTitulo]);
 
   const MENU_ITEMS = [
     { key: "home", label: "Home", path: "/", icon: "ti-home" },
@@ -107,13 +107,11 @@ const ComponentCustomizer = () => {
         : (styles.colorCuerpo ?? "#aaaaaa");
 
   const updateSection = (field, value) => {
-    setDesign((prev) => ({
-      ...prev,
-      [activeComponent.toLowerCase()]: {
-        ...prev[activeComponent.toLowerCase()],
-        [field]: value,
-      },
-    }));
+    const section = activeComponent.toLowerCase();
+    saveDraft("components", {
+      ...design,
+      [section]: { ...design[section], [field]: value },
+    });
   };
 
   const updateHeaderItem = (index, value) => {

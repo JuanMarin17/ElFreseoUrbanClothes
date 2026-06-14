@@ -3,7 +3,7 @@
  * Capa de acceso a la API real de reseñas — /api/v1/reviews
  */
 
-const BASE = "/api/v1/reviews";
+const BASE = "http://46.225.21.146/api/v1/reviews";
 
 const AVATAR_COLORS = [
   '#8b5cf6', '#2563FF', '#ec4899', '#10b981',

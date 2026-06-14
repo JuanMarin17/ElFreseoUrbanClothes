@@ -41,17 +41,17 @@ const safeLogoUrl = (url) => (url && url.startsWith("http") ? url : null);
 
 export default function StepBasicPage() {
   const navigate = useNavigate();
-  const { state, saveProgress, completeStep } = useStore();
+  const { state, saveProgress, completeStep, saveDraft } = useStore();
 
-  const [form, setForm] = useState({
-    name:        state.basic?.name ?? "",
-    description: state.basic?.description ?? "",
-    logoPreview: safeLogoUrl(state.basic?.logoPreview),
-    uploading:   false,
-    uploadError: null,
-  });
+  // Texto derivado del contexto — reacciona al instante a sugerencias de la IA
+  const storeName    = state.basic?.name        ?? "";
+  const storeDesc    = state.basic?.description ?? "";
 
-  const [errors, setErrors] = useState({});
+  // Estado local solo para campos de UI que la IA no controla
+  const [logoPreview, setLogoPreview] = useState(safeLogoUrl(state.basic?.logoPreview));
+  const [uploading,   setUploading]   = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const [errors,      setErrors]      = useState({});
 
   const cc = (len, max) => (
     <span style={{ display:"block", textAlign:"right", fontSize:11, marginTop:3, fontFamily:"Inter,sans-serif",
@@ -61,10 +61,9 @@ export default function StepBasicPage() {
   );
 
   const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    if (errors[e.target.name]) {
-      setErrors((prev) => ({ ...prev, [e.target.name]: null }));
-    }
+    const { name: field, value } = e.target;
+    saveDraft("basic", { ...(state.basic ?? {}), [field]: value, logoPreview });
+    if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
   };
 
   const handleFile = async (e) => {
@@ -72,62 +71,47 @@ export default function StepBasicPage() {
     if (!file) return;
 
     const localPreview = URL.createObjectURL(file);
-    setForm((prev) => ({
-      ...prev,
-      logoPreview: localPreview,
-      uploading:   true,
-      uploadError: null,
-    }));
+    setLogoPreview(localPreview);
+    setUploading(true);
+    setUploadError(null);
 
     try {
       const cloudUrl = await uploadStoreImage(file, "stores/logos");
       URL.revokeObjectURL(localPreview);
-      setForm((prev) => ({ ...prev, logoPreview: cloudUrl, uploading: false }));
+      setLogoPreview(cloudUrl);
+      saveDraft("basic", { ...(state.basic ?? {}), logoPreview: cloudUrl });
+      setUploading(false);
     } catch (err) {
       URL.revokeObjectURL(localPreview);
-      setForm((prev) => ({
-        ...prev,
-        logoPreview: safeLogoUrl(state.basic?.logoPreview),
-        uploading:   false,
-        uploadError: err.message ?? "No se pudo subir el logo. Intenta de nuevo.",
-      }));
+      setLogoPreview(safeLogoUrl(state.basic?.logoPreview));
+      setUploading(false);
+      setUploadError(err.message ?? "No se pudo subir el logo. Intenta de nuevo.");
     }
   };
 
   const handleBack = () => {
-    saveProgress("basic", {
-      name:        form.name,
-      description: form.description,
-      logoPreview: form.logoPreview,
-    });
+    saveProgress("basic", { name: storeName, description: storeDesc, logoPreview });
     navigate("/plan");
   };
 
   const handleNext = () => {
     const newErrors = {};
-    if (!form.name.trim())  newErrors.name = "El nombre de la tienda es obligatorio";
-    if (form.uploading)     newErrors.logo = "Espera a que el logo termine de subirse";
+    if (!storeName.trim()) newErrors.name = "El nombre de la tienda es obligatorio";
+    if (uploading)         newErrors.logo = "Espera a que el logo termine de subirse";
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+    if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
 
-    completeStep("basic", {
-      name:        form.name,
-      description: form.description,
-      logoPreview: form.logoPreview,
-    });
+    completeStep("basic", { name: storeName, description: storeDesc, logoPreview });
     navigate("/crear-tienda/legal");
   };
 
   useEffect(() => {
     return () => {
-      if (form.logoPreview?.startsWith("blob:")) {
-        try { URL.revokeObjectURL(form.logoPreview); } catch {}
+      if (logoPreview?.startsWith("blob:")) {
+        try { URL.revokeObjectURL(logoPreview); } catch {}
       }
     };
-  }, [form.logoPreview]);
+  }, [logoPreview]);
 
   return (
     <div className="step-page">
@@ -157,15 +141,15 @@ export default function StepBasicPage() {
               id="sb-name"
               name="name"
               placeholder="Ej: Mi Tienda Urbana"
-              value={form.name}
+              value={storeName}
               onChange={handleChange}
               autoComplete="off"
               maxLength={200}
               className={
-                errors.name ? "field-error" : form.name.trim() ? "field-success" : ""
+                errors.name ? "field-error" : storeName.trim() ? "field-success" : ""
               }
             />
-            {cc(form.name.length, 200)}
+            {cc(storeName.length, 200)}
             {errors.name && (
               <span className="field-hint hint-error">
                 <AlertCircle size={11} /> {errors.name}
@@ -180,13 +164,13 @@ export default function StepBasicPage() {
               id="sb-description"
               name="description"
               placeholder="Describe tu tienda en pocas palabras..."
-              value={form.description}
+              value={storeDesc}
               onChange={handleChange}
               rows={4}
               maxLength={200}
               style={{ resize: "none" }}
             />
-            {cc(form.description.length, 200)}
+            {cc(storeDesc.length, 200)}
           </div>
 
           {/* Logo */}
@@ -194,16 +178,16 @@ export default function StepBasicPage() {
             <label>Logo de la tienda</label>
             <label
               className="upload-area"
-              style={{ cursor: form.uploading ? "not-allowed" : "pointer" }}
+              style={{ cursor: uploading ? "not-allowed" : "pointer" }}
             >
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleFile}
-                disabled={form.uploading}
+                disabled={uploading}
                 hidden
               />
-              {form.uploading ? (
+              {uploading ? (
                 <>
                   <Loader2 size={22} style={{ animation: "spin 0.9s cubic-bezier(0.5,0,0.5,1) infinite" }} />
                   <span>Subiendo logo...</span>
@@ -217,9 +201,9 @@ export default function StepBasicPage() {
               )}
             </label>
 
-            {form.uploadError && (
+            {uploadError && (
               <Alert type="error" title="Error al subir el logo">
-                {form.uploadError}
+                {uploadError}
               </Alert>
             )}
 
@@ -229,10 +213,10 @@ export default function StepBasicPage() {
               </Alert>
             )}
 
-            {form.logoPreview && !form.uploading && (
+            {logoPreview && !uploading && (
               <div className="logo-preview-wrap">
                 <img
-                  src={form.logoPreview}
+                  src={logoPreview}
                   className="logo-preview"
                   alt="Vista previa del logo"
                 />
@@ -255,9 +239,9 @@ export default function StepBasicPage() {
           <button
             className="btn-primary"
             onClick={handleNext}
-            disabled={form.uploading}
+            disabled={uploading}
           >
-            {form.uploading ? (
+            {uploading ? (
               <>
                 <span className="spinner" />
                 Subiendo...
