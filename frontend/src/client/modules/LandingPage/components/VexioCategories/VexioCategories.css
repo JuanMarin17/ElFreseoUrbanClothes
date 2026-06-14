@@ -477,6 +477,48 @@
   transform: translateY(0) scale(1);
 }
 
+/* ── Skeleton ────────────────────────────────────────────── */
+@keyframes vx-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.vx-product-skeleton {
+  pointer-events: none;
+}
+
+.vx-skel-img {
+  background: linear-gradient(90deg, #181818 25%, #222 50%, #181818 75%);
+  background-size: 200% 100%;
+  animation: vx-shimmer 1.5s infinite linear;
+}
+
+.vx-skel-line {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #181818 25%, #222 50%, #181818 75%);
+  background-size: 200% 100%;
+  animation: vx-shimmer 1.5s infinite linear;
+  width: 85%;
+  margin-bottom: 8px;
+}
+
+.vx-skel-line--sm  { width: 45%; height: 9px; }
+.vx-skel-line--md  { width: 60%; height: 10px; }
+
+/* ── Empty state ─────────────────────────────────────────── */
+.vx-feat-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 24px;
+  color: var(--vx-muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
 /* ── Responsive ──────────────────────────────────────────── */
 @media (max-width: 1100px) {
   .vx-cat-grid      { grid-template-columns: repeat(4, 1fr); }

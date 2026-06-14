@@ -4,6 +4,7 @@ import "./UploadProduct.css";
 import { getCategories, createCategory } from "../../services/categoryService";
 import { createProduct } from "../../services/productService";
 import { getBrands, createBrand } from "../../services/BrandService";
+import { getSuppliersByStore } from "../../services/SupplierService";
 import { uploadFile } from "../../../../../utils/uploadService";
 
 const TALLAS = ["XS", "S", "M", "L", "XL", "XXL"];
@@ -72,6 +73,7 @@ const estadoInicial = () => ({
   description: "",
   categoryIds: [],
   brandId: "",
+  supplierId: "",
   imagenes: [],
   selectedTallas: [],
   selectedColores: [],
@@ -299,6 +301,7 @@ const UploadProduct = () => {
   const [producto, setProducto] = useState(estadoInicial);
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingMeta, setLoadingMeta] = useState(true);
   const [error, setError] = useState(null);
@@ -316,9 +319,14 @@ const UploadProduct = () => {
     (async () => {
       setLoadingMeta(true);
       try {
-        const [cats, brnds] = await Promise.all([getCategories(), getBrands()]);
+        const [cats, brnds, supps] = await Promise.all([
+          getCategories(),
+          getBrands(),
+          getSuppliersByStore().catch(() => []),
+        ]);
         setCategories(Array.isArray(cats) ? cats : []);
         setBrands(Array.isArray(brnds) ? brnds : []);
+        setSuppliers(Array.isArray(supps) ? supps : []);
       } catch (err) {
         setError("Error al cargar categorías y marcas. " + err);
       } finally {
@@ -474,6 +482,7 @@ const UploadProduct = () => {
         name: producto.name.trim(),
         description: producto.description ?? "",
         brandId: producto.brandId || null,
+        supplierId: producto.supplierId || null,
         categoryIds: producto.categoryIds,
         images: producto.imagenes.map(img => img.cloudinaryUrl),
         variants,
@@ -551,6 +560,30 @@ const UploadProduct = () => {
             </div>
             <BrandSelector brands={brands} value={producto.brandId} onChange={handleChange}
               onBrandCreated={handleBrandCreated} disabled={loading || loadingMeta} />
+          </div>
+          <div className="up-field">
+            <label className="up-label">Proveedor <span className="up-opt">(opcional)</span></label>
+            <div className="up-select-wrap">
+              <select
+                name="supplierId"
+                value={producto.supplierId}
+                onChange={handleChange}
+                disabled={loading || loadingMeta || suppliers.length === 0}
+                className="up-select"
+              >
+                {suppliers.length === 0 ? (
+                  <option value="">— Sin proveedores (créalos en Proveedores) —</option>
+                ) : (
+                  <>
+                    <option value="">Sin proveedor</option>
+                    {suppliers.map(s => (
+                      <option key={s.supplierId} value={s.supplierId}>{s.name}</option>
+                    ))}
+                  </>
+                )}
+              </select>
+              <span className="up-select-arrow">▾</span>
+            </div>
           </div>
           <div className="up-field">
             <label className="up-label">Descripción <span className="up-opt">(opcional)</span></label>

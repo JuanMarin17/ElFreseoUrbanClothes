@@ -15,6 +15,7 @@ import {
   createStore,
   saveStoreSettings,
 } from "../pages/services/storeService.js";
+import { clearAllChatSessions } from "../../utils/chatSession.js";
 
 /**
  * @typedef {Object} CreateStoreResult
@@ -83,6 +84,7 @@ export default function useCreateStore(storeContext, ownerId) {
         // Persiste en localStorage para que el header y el admin los lean
         localStorage.setItem("storeId", createdStoreId);
         localStorage.setItem("userRole", "OWNER");
+        clearAllChatSessions();
 
         // ── Paso 2: Guardar configuración completa del wizard ────────────────
         const settingsPayload = buildSettingsPayload(storeContext, storeForm);
@@ -108,6 +110,28 @@ export default function useCreateStore(storeContext, ownerId) {
   );
 
   return { loading, error, storeId, submit, clearError };
+}
+
+// ─── Helpers de normalización ────────────────────────────────────────────────
+
+function normalizeFeatures(features) {
+  if (!features) return [];
+  if (Array.isArray(features)) return features;
+  try {
+    const parsed = JSON.parse(features);
+    if (Array.isArray(parsed)) return parsed;
+    return Object.entries(parsed)
+      .filter(([, v]) => v !== false && v !== null && v !== "")
+      .map(([k]) => k);
+  } catch {
+    return String(features).split(",").map((s) => s.trim()).filter(Boolean);
+  }
+}
+
+function normalizeItems(items) {
+  if (!items) return [];
+  if (Array.isArray(items)) return items;
+  return String(items).split(",").map((s) => s.trim()).filter(Boolean);
 }
 
 // ─── Builder interno ───────────────────────────────────────────────────────────
@@ -201,7 +225,7 @@ function buildSettingsPayload(state, storeForm) {
           id: state.plan.id,
           name: state.plan.name,
           price: state.plan.price,
-          features: state.plan.features ?? [],
+          features: normalizeFeatures(state.plan.features),
         }
       : undefined,
 
@@ -232,7 +256,7 @@ function buildSettingsPayload(state, storeForm) {
           header: state.components.header
             ? {
                 logo: state.components.header.logo ?? "",
-                items: state.components.header.items ?? [],
+                items: normalizeItems(state.components.header.items),
                 font: state.components.header.font ?? "Inter",
                 size: state.components.header.size ?? 16,
                 color: state.components.header.color ?? "#ffffff",

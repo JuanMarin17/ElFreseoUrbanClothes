@@ -1,22 +1,21 @@
 import { useEffect, useRef, useCallback } from "react";
 
-const SSE_URL = `${import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1"}/alerts/stock/stream`;
+const BASE = import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
 const RECONNECT_DELAY_MS = 5_000;
 
 /**
- * Hook que escucha alertas de stock bajo en tiempo real via SSE.
- * La ruta /alerts/stock/stream es pública — no requiere JWT.
+ * Escucha alertas de stock bajo en tiempo real via SSE.
+ * Evento nombrado: 'stock-alert'
+ * Requiere storeId para filtrar el stream de la tienda.
  *
- * @param {(alert: StockAlert) => void} onAlert  Callback que recibe cada alerta
- * @param {boolean} [enabled=true]               Activar/desactivar la conexión
- *
- * @typedef {{ variantId, sku, productName, currentStock, minStock }} StockAlert
+ * @param {(alert: object) => void} onAlert
+ * @param {boolean} [enabled=true]
  */
 export function useStockAlerts(onAlert, enabled = true) {
-  const sourceRef = useRef(null);
-  const timerRef = useRef(null);
-  const onAlertRef = useRef(onAlert);
-  onAlertRef.current = onAlert; // siempre apunta al callback más reciente
+  const sourceRef   = useRef(null);
+  const timerRef    = useRef(null);
+  const onAlertRef  = useRef(onAlert);
+  onAlertRef.current = onAlert;
 
   const disconnect = useCallback(() => {
     clearTimeout(timerRef.current);
@@ -25,33 +24,33 @@ export function useStockAlerts(onAlert, enabled = true) {
   }, []);
 
   const connect = useCallback(() => {
-    if (sourceRef.current) return; // ya conectado
+    if (sourceRef.current) return;
 
-    const source = new EventSource(SSE_URL);
+    const storeId = localStorage.getItem("storeId");
+    if (!storeId || storeId === "null") return;
+
+    const source = new EventSource(
+      `${BASE}/alerts/stock/stream/${storeId}`,
+      { withCredentials: true },
+    );
     sourceRef.current = source;
 
-    source.onmessage = (e) => {
+    source.addEventListener("stock-alert", (e) => {
       try {
         const alert = JSON.parse(e.data);
         onAlertRef.current?.(alert);
-      } catch {
-        // ignorar mensajes mal formados
-      }
-    };
+      } catch { /* ignorar mensajes mal formados */ }
+    });
 
     source.onerror = () => {
       source.close();
       sourceRef.current = null;
-      // Reconectar automáticamente tras el delay
       timerRef.current = setTimeout(connect, RECONNECT_DELAY_MS);
     };
   }, []);
 
   useEffect(() => {
-    if (!enabled) {
-      disconnect();
-      return;
-    }
+    if (!enabled) { disconnect(); return; }
     connect();
     return disconnect;
   }, [enabled, connect, disconnect]);

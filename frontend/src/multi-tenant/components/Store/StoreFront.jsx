@@ -9,6 +9,7 @@ import StoreCatalog from './StoreCatalog.jsx';
 import StoreFooter from './StoreFooter.jsx';
 import CartDrawer from './CartDrawer.jsx';
 import AiChatDrawer from './AiChatDrawer.jsx';
+import PromoBar from './PromoBar.jsx';
 
 /* ══════════════════════════════════════════
    StoreFront — Vista pública de la tienda
@@ -201,6 +202,8 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
       />
 
       <StoreHero banner={banner} theme={theme} />
+
+      <PromoBar storeId={storeId} />
 
       {/* Sidebar + contenido principal */}
       <div style={{ display: "flex", alignItems: "stretch" }}>

@@ -32,7 +32,7 @@ export default function StockAlertToast() {
           <div className="sat-body">
             <p className="sat-title">Stock bajo — {alert.productName}</p>
             <p className="sat-desc">
-              <strong>{alert.sku}</strong>: {alert.currentStock} unidad{alert.currentStock !== 1 ? "es" : ""} (mín. {alert.minStock})
+              <strong>{alert.sku}</strong>: {alert.stock} unidad{alert.stock !== 1 ? "es" : ""} (mín. {alert.minStock})
             </p>
           </div>
           <button

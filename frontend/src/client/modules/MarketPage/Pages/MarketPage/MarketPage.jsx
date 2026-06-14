@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Grid2X2 } from 'lucide-react';
-// 🔌 Descomenta cuando conectes auth:
-// import { useAuth } from '../../../../../admin/modules/auth/pages/hook/Useauth';
+import { fetchCatalogProducts } from '../../../Catalogo/catalogoService';
 import HeaderMarket        from '../../../../../utils/Header/HeaderMarket';
 import HeroPromoSection    from '../../components/HeroPromoSection/HeroPromo';
 import StatsSection        from '../../components/StatsSection/StatsSection';
@@ -15,104 +14,108 @@ import CreateStoreSection  from '../../components/CreateStoreSection/CreateStore
 import FooterMarket        from '../../components/FooterMarket/FooterMarket';
 import './MarketPage.css';
 
-// ─── DATOS QUEMADOS — reemplazar con llamadas API ──────────────────────────
-// 🔌 GET /api/products?sort=sales&limit=6
-const bestSellers = [
-  { id: 101, title: 'Vestido floral de tirantes',  price: 16.99, badge: '1.2K+ vendidos', image: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400&q=80' },
-  { id: 102, title: 'Bolso de hombro casual',       price: 14.50, badge: '856 vendidos',   image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&q=80' },
-  { id: 103, title: 'Zapatillas deportivas White',  price: 22.99, badge: '2.3K+ vendidos', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80' },
-  { id: 104, title: 'Paleta de sombras 9 tonos',    price: 6.99,  badge: '3.1K+ vendidos', image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&q=80' },
-  { id: 105, title: 'Gafas de sol cuadradas Dark',  price: 5.99,  badge: '1.8K+ vendidos', image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=80' },
-  { id: 106, title: 'Funda de cojín decorativa',    price: 4.99,  badge: '965 vendidos',   image: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=400&q=80' },
-];
+function useMarketProducts() {
+  const [all,     setAll]     = useState([]);
+  const [loading, setLoading] = useState(true);
 
-// 🔌 GET /api/products?sort=createdAt&limit=6
-const newArrivals = [
-  { id: 201, title: 'Top corto de tirantes',       price: 7.99,  badge: 'Nuevo', image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80' },
-  { id: 202, title: 'Shorts denim vintage',         price: 12.99, badge: 'Nuevo', image: 'https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=400&q=80' },
-  { id: 203, title: 'Pendientes dorados Pearl',     price: 3.99,  badge: 'Nuevo', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&q=80' },
-  { id: 204, title: 'Reloj inteligente Smart',      price: 18.99, badge: 'Nuevo', image: 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=400&q=80' },
-  { id: 205, title: 'Camiseta estampada Street',    price: 8.99,  badge: 'Nuevo', image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=400&q=80' },
-  { id: 206, title: 'Difusor de aromas Zen',        price: 6.50,  badge: 'Nuevo', image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=400&q=80' },
-];
-// ──────────────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+    fetchCatalogProducts()
+      .then(data => {
+        if (cancelled) return;
+        setAll(data);
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
+  // "Destacados": productos con más stock (proxy de popularidad), tomar los primeros 8
+  const bestSellers = all.length > 0
+    ? [...all]
+        .sort((a, b) => (b.stock ?? 0) - (a.stock ?? 0))
+        .slice(0, 8)
+        .map(p => ({ ...p, badge: p.stock > 50 ? 'Más vendido' : 'Destacado' }))
+    : [];
+
+  // "Nuevas llegadas": los últimos 8 del array (el backend suele devolver más recientes al final)
+  const newArrivals = all.length > 0
+    ? [...all]
+        .reverse()
+        .slice(0, 8)
+        .map(p => ({ ...p, badge: 'Nuevo' }))
+    : [];
+
+  return { bestSellers, newArrivals, loading, total: all.length };
+}
 
 export default function MarketPage() {
+  const { bestSellers, newArrivals, loading, total } = useMarketProducts();
+
   return (
     <div className="vexio-market-root">
-      {/* Sticky navbar — auto-hides on scroll down, reappears on scroll up */}
       <HeaderMarket />
 
       <main className="vx-market-viewport">
-        {/* 1 · Hero with CTA */}
+        {/* 1 · Hero */}
         <HeroPromoSection />
 
-        {/* 2 · Animated platform stats */}
+        {/* 2 · Stats */}
         <StatsSection />
 
-        {/* 3 · Category browser */}
+        {/* 3 · Categorías */}
         <CategoriesBubble />
 
-
-        {/* 5 · Flash offer with countdown */}
-
-        {/* 6 · Best-sellers carousel */}
+        {/* 4 · Más vendidos — datos reales */}
         <div id="market-products">
-          <ProductGrid title="Más vendidos" products={bestSellers} />
+          <ProductGrid
+            title="Más vendidos"
+            products={bestSellers}
+            loading={loading}
+            emptyText="Cargando productos de las tiendas..."
+          />
         </div>
 
-        {/* 7 · New arrivals carousel */}
+        {/* 5 · Nuevas llegadas — datos reales */}
         <div id="market-new-arrivals">
-          <ProductGrid title="Nuevas llegadas" products={newArrivals} />
+          <ProductGrid
+            title="Nuevas llegadas"
+            products={newArrivals}
+            loading={loading}
+            emptyText="Cargando productos de las tiendas..."
+          />
         </div>
 
-        {/* 4 · Live stores grid (real API) */}
+        {/* 6 · Tiendas activas */}
         <div id="market-stores">
           <FeaturedStores />
         </div>
-  
 
-        {/* Catalog CTA section */}
-        <section style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20,
-          padding: '56px 24px',
-          background: 'linear-gradient(135deg, rgba(37,99,255,0.07) 0%, rgba(37,99,255,0.02) 100%)',
-          borderTop: '1px solid rgba(37,99,255,0.14)',
-          borderBottom: '1px solid rgba(37,99,255,0.14)',
-          textAlign: 'center',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Grid2X2 size={22} style={{ color: '#2563FF' }} />
-            <h2 style={{ margin: 0, fontSize: 28, fontWeight: 800, letterSpacing: '0.04em', color: '#F0EDE8' }}>
-              CATÁLOGO COMPLETO
-            </h2>
+        {/* 7 · CTA Catálogo */}
+        <section className="vx-catalog-cta">
+          <div className="vx-catalog-cta__inner">
+            <div className="vx-catalog-cta__head">
+              <Grid2X2 size={22} className="vx-catalog-cta__icon" />
+              <h2 className="vx-catalog-cta__title">CATÁLOGO COMPLETO</h2>
+            </div>
+            <p className="vx-catalog-cta__sub">
+              Explora {total > 0 ? `los ${total.toLocaleString('es-CO')} productos` : 'todos los productos'} de
+              nuestras tiendas con filtros avanzados, búsqueda instantánea y
+              sugerencias personalizadas para ti.
+            </p>
+            <Link to="/catalogo" className="vx-catalog-cta__btn">
+              VER TODO EL CATÁLOGO <ArrowRight size={16} />
+            </Link>
           </div>
-          <p style={{ margin: 0, color: '#777', fontSize: 15, maxWidth: 480, lineHeight: 1.6 }}>
-            Explora todos los productos de nuestras tiendas con filtros avanzados,
-            búsqueda instantánea y sugerencias personalizadas para ti.
-          </p>
-          <Link to="/catalogo" style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            padding: '13px 30px',
-            background: '#2563FF', color: '#fff',
-            borderRadius: 28, fontWeight: 800, fontSize: 14,
-            letterSpacing: '0.06em', textDecoration: 'none',
-            transition: 'all 0.22s cubic-bezier(0.22, 1, 0.36, 1)',
-          }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#3b74ff'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(37,99,255,0.4)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = '#2563FF'; e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
-          >
-            VER TODO EL CATÁLOGO <ArrowRight size={16} />
-          </Link>
         </section>
 
-        {/* 9 · Benefits / why choose us */}
+        {/* 8 · Beneficios */}
         <WhyChooseUs />
 
-        {/* 10 · Community reviews */}
+        {/* 9 · Reseñas */}
         <ReviewsSection />
 
-        {/* 11 · B2B CTA for entrepreneurs */}
+        {/* 10 · B2B */}
         <CreateStoreSection />
       </main>
 

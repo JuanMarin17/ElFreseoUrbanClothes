@@ -1,21 +1,28 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import {
+  getWishlist,
+  toggleInWishlist,
+  isWishlisted,
+} from "../../../../../utils/wishlistService";
 
 const FavoritesContext = createContext(null);
 
 export const FavoritesProvider = ({ children }) => {
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState(() => getWishlist());
 
-  const toggleFavorite = useCallback((product) => {
-    setFavorites(prev =>
-      prev.find(p => p.id === product.id)
-        ? prev.filter(p => p.id !== product.id)
-        : [...prev, product]
-    );
+  // Sincronizar cuando otro componente modifica la wishlist
+  useEffect(() => {
+    const sync = () => setFavorites(getWishlist());
+    window.addEventListener("wishlist-updated", sync);
+    return () => window.removeEventListener("wishlist-updated", sync);
   }, []);
 
-  const isFavorite = useCallback((id) => {
-    return favorites.some(p => p.id === id);
-  }, [favorites]);
+  const toggleFavorite = useCallback((product) => {
+    toggleInWishlist(product);
+    setFavorites(getWishlist());
+  }, []);
+
+  const isFavorite = useCallback((id) => isWishlisted(id), []);
 
   return (
     <FavoritesContext.Provider value={{ favorites, toggleFavorite, isFavorite }}>

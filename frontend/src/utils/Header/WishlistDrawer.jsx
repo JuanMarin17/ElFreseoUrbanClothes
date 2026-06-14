@@ -1,12 +1,10 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { removeFromWishlist } from "../wishlistService.js";
 import "./WishlistDrawer.css";
 
 function WishlistItem({ item, onRemove, onNavigate }) {
-  const src = item.storeSlug && item.storeSlug !== "null" ? "store" : "catalog";
-  const sid = item.storeId && item.storeId !== "null" ? `&sid=${item.storeId}` : "";
-  const productUrl = `/producto/${item.id}?src=${src}${sid}`;
+  const productUrl = `/products/${item.id}`;
 
   return (
     <div className="wl-item">
@@ -31,7 +29,7 @@ function WishlistItem({ item, onRemove, onNavigate }) {
           to={productUrl}
           className="wl-item__link"
           onClick={() => {
-            if (item.storeId) localStorage.setItem("storeId", item.storeId);
+            if (item.storeId)   localStorage.setItem("storeId",   item.storeId);
             if (item.storeSlug) localStorage.setItem("storeSlug", item.storeSlug);
             onNavigate();
           }}
@@ -55,6 +53,7 @@ function WishlistItem({ item, onRemove, onNavigate }) {
 }
 
 export default function WishlistDrawer({ isOpen, onClose, items }) {
+  const navigate = useNavigate();
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -125,6 +124,12 @@ export default function WishlistDrawer({ isOpen, onClose, items }) {
             <p className="wl-footer__count">
               {items.length} {items.length === 1 ? "producto guardado" : "productos guardados"}
             </p>
+            <button
+              className="wl-footer__ver-todos"
+              onClick={() => { onClose(); navigate('/favoritos'); }}
+            >
+              Ver todos mis favoritos →
+            </button>
           </div>
         )}
       </aside>

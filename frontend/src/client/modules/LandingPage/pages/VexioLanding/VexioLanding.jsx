@@ -50,7 +50,7 @@ export default function VexioLanding() {
               Totalmente gratis para compradores.
             </p>
             <div className="vx-cta-actions">
-              <button className="vx-btn-primary" onClick={() => navigate('/market')}>Explorar productos</button>
+              <button className="vx-btn-primary" onClick={() => navigate('/catalogo')}>Explorar productos</button>
               <button className="vx-btn-ghost" onClick={() => navigate('/market')}>Ver tiendas →</button>
             </div>
           </div>

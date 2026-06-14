@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+
 import {
   fetchAllPromotions,
   fetchAllCoupons,
@@ -10,35 +11,59 @@ import {
   updateCoupon,
 } from "./promotion";
 
-/**
- * useDashboard
- * Centraliza los datos y acciones del dashboard de promociones y cupones.
- */
+/* ── Response normalization ── */
+function extractList(res) {
+  if (Array.isArray(res?.data))    return res.data;
+  if (Array.isArray(res))          return res;
+  if (Array.isArray(res?.content)) return res.content;
+  return [];
+}
+
+/* ── Metadata helpers (dates / message / minPurchase stored in localStorage) ── */
+const PROMO_META_KEY  = "vexio_promo_meta";
+const COUPON_META_KEY = "vexio_coupon_meta";
+
+function loadAllMeta(key) {
+  try { return JSON.parse(localStorage.getItem(key) ?? "{}"); } catch { return {}; }
+}
+
+function persistMeta(key, id, meta) {
+  const all = loadAllMeta(key);
+  all[id] = { ...(all[id] ?? {}), ...meta };
+  localStorage.setItem(key, JSON.stringify(all));
+}
+
+function enrichList(list, key, idField) {
+  const all = loadAllMeta(key);
+  return list.map((item) => ({ ...item, _meta: all[item[idField]] ?? {} }));
+}
+
+/* ── Separate API payload from metadata ── */
+function splitPayload(payload) {
+  const { _meta, ...api } = payload;
+  return { api, meta: _meta ?? {} };
+}
+
 export function useDashboard() {
   const [promotions, setPromotions] = useState([]);
-  const [coupons, setCoupons] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [coupons,    setCoupons]    = useState([]);
+  const [loading,    setLoading]    = useState(true);
+  const [error,      setError]      = useState(null);
 
-  // Toast notifications
   const [toasts, setToasts] = useState([]);
 
-  // Modal state
   const [modal, setModal] = useState({
     open: false,
-    type: "promotion", // 'promotion' | 'coupon'
-    mode: "create", // 'create' | 'edit'
+    type: "promotion",
+    mode: "create",
     initial: null,
   });
 
-  // Tab activo
-  const [activeTab, setActiveTab] = useState("promotions");
+  const [activeTab,     setActiveTab]     = useState("promotions");
+  const [searchPromo,   setSearchPromo]   = useState("");
+  const [searchCoupon,  setSearchCoupon]  = useState("");
 
-  // Búsqueda
-  const [searchPromo, setSearchPromo] = useState("");
-  const [searchCoupon, setSearchCoupon] = useState("");
-
-  /* ── Carga inicial ── */
+  /* ── Load ── */
   useEffect(() => {
     let cancelled = false;
 
@@ -53,10 +78,10 @@ export function useDashboard() {
         if (cancelled) return;
 
         if (promosResult.status === "fulfilled") {
-          setPromotions(promosResult.value ?? []);
+          setPromotions(enrichList(extractList(promosResult.value), PROMO_META_KEY, "promotionId"));
         }
         if (cupsResult.status === "fulfilled") {
-          setCoupons(cupsResult.value ?? []);
+          setCoupons(enrichList(extractList(cupsResult.value), COUPON_META_KEY, "couponId"));
         }
 
         const failed = [promosResult, cupsResult].find((r) => r.status === "rejected");
@@ -69,21 +94,17 @@ export function useDashboard() {
     };
 
     load();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   /* ── Toasts ── */
   const addToast = useCallback((message, type = "success") => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000);
   }, []);
 
-  /* ── Abrir modal ── */
+  /* ── Modal ── */
   const openCreateModal = useCallback((type) => {
     setModal({ open: true, type, mode: "create", initial: null });
   }, []);
@@ -96,43 +117,53 @@ export function useDashboard() {
     setModal((prev) => ({ ...prev, open: false, initial: null }));
   }, []);
 
-  /* ── Crear ── */
+  /* ── Create ── */
   const handleCreate = useCallback(
     async (payload) => {
+      const { api, meta } = splitPayload(payload);
       try {
         if (modal.type === "promotion") {
-          const created = await createPromotion(payload);
-          setPromotions((prev) => [created, ...prev]);
+          const res     = await createPromotion(api);
+          const created = res?.data ?? res;
+          if (created?.promotionId) persistMeta(PROMO_META_KEY, created.promotionId, meta);
+          setPromotions((prev) => [{ ...created, _meta: meta }, ...prev]);
           addToast("Promoción creada exitosamente");
         } else {
-          const created = await createCoupon(payload);
-          setCoupons((prev) => [created, ...prev]);
+          const res     = await createCoupon(api);
+          const created = res?.data ?? res;
+          if (created?.couponId) persistMeta(COUPON_META_KEY, created.couponId, meta);
+          setCoupons((prev) => [{ ...created, _meta: meta }, ...prev]);
           addToast("Cupón creado exitosamente");
         }
         closeModal();
       } catch (err) {
         addToast(err.message, "error");
-        throw err; // Para que el hook del form no haga reset
+        throw err;
       }
     },
     [modal.type, closeModal, addToast],
   );
 
-  /* ── Editar ── */
+  /* ── Edit ── */
   const handleEdit = useCallback(
     async (payload) => {
+      const { api, meta } = splitPayload(payload);
       const id = modal.initial?.promotionId ?? modal.initial?.couponId;
       try {
         if (modal.type === "promotion") {
-          const updated = await updatePromotion(id, payload);
+          const res     = await updatePromotion(id, api);
+          const updated = res?.data ?? res;
+          if (id) persistMeta(PROMO_META_KEY, id, meta);
           setPromotions((prev) =>
-            prev.map((p) => (p.promotionId === id ? updated : p)),
+            prev.map((p) => (p.promotionId === id ? { ...updated, _meta: meta } : p)),
           );
           addToast("Promoción actualizada");
         } else {
-          const updated = await updateCoupon(id, payload);
+          const res     = await updateCoupon(id, api);
+          const updated = res?.data ?? res;
+          if (id) persistMeta(COUPON_META_KEY, id, meta);
           setCoupons((prev) =>
-            prev.map((c) => (c.couponId === id ? updated : c)),
+            prev.map((c) => (c.couponId === id ? { ...updated, _meta: meta } : c)),
           );
           addToast("Cupón actualizado");
         }
@@ -145,15 +176,13 @@ export function useDashboard() {
     [modal, closeModal, addToast],
   );
 
-  /* ── Desactivar ── */
+  /* ── Deactivate ── */
   const handleDeactivatePromotion = useCallback(
     async (promotionId) => {
       try {
         await deactivatePromotion(promotionId);
         setPromotions((prev) =>
-          prev.map((p) =>
-            p.promotionId === promotionId ? { ...p, isActive: false } : p,
-          ),
+          prev.map((p) => (p.promotionId === promotionId ? { ...p, isActive: false } : p)),
         );
         addToast("Promoción desactivada");
       } catch (err) {
@@ -168,9 +197,7 @@ export function useDashboard() {
       try {
         await deactivateCoupon(couponId);
         setCoupons((prev) =>
-          prev.map((c) =>
-            c.couponId === couponId ? { ...c, isActive: false } : c,
-          ),
+          prev.map((c) => (c.couponId === couponId ? { ...c, isActive: false } : c)),
         );
         addToast("Cupón desactivado");
       } catch (err) {
@@ -180,7 +207,7 @@ export function useDashboard() {
     [addToast],
   );
 
-  /* ── Filtrado por búsqueda ── */
+  /* ── Filtered lists ── */
   const filteredPromotions = promotions.filter((p) =>
     p.name?.toLowerCase().includes(searchPromo.toLowerCase()),
   );
@@ -191,34 +218,27 @@ export function useDashboard() {
 
   /* ── KPIs ── */
   const kpis = {
-    totalPromotions: promotions.length,
+    totalPromotions:  promotions.length,
     activePromotions: promotions.filter((p) => p.isActive).length,
-    totalCoupons: coupons.length,
-    activeCoupons: coupons.filter((c) => c.isActive).length,
+    totalCoupons:     coupons.length,
+    activeCoupons:    coupons.filter((c) => c.isActive).length,
   };
 
   return {
-    // Datos
     filteredPromotions,
     filteredCoupons,
     kpis,
     loading,
     error,
     toasts,
-
-    // Modal
     modal,
     openCreateModal,
     openEditModal,
     closeModal,
-
-    // Acciones
     handleCreate,
     handleEdit,
     handleDeactivatePromotion,
     handleDeactivateCoupon,
-
-    // UI
     activeTab,
     setActiveTab,
     searchPromo,

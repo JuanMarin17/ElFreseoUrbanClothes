@@ -39,54 +39,52 @@ function Alert({ type = "error", title, children }) {
 
 export default function StepLegalPage() {
   const navigate = useNavigate();
-  const { state, saveProgress, completeStep } = useStore();
+  const { state, saveProgress, completeStep, saveDraft } = useStore();
 
-  const [form, setForm] = useState({
-    legalName:    state.legal?.legalName    ?? "",
-    idNumber:     state.legal?.idNumber     ?? "",
-    documentName: state.legal?.documentName ?? null,
-  });
+  // Texto derivado del contexto — reacciona al instante a sugerencias de la IA
+  const legalName = state.legal?.legalName ?? "";
+  const idNumber  = state.legal?.idNumber  ?? "";
 
-  const [errors, setErrors]   = useState({});
-  const [touched, setTouched] = useState({});
+  // Estado local solo para campos que la IA no controla
+  const [documentName, setDocumentName] = useState(state.legal?.documentName ?? null);
+  const [errors,       setErrors]       = useState({});
+  const [touched,      setTouched]      = useState({});
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }));
+    const { name: field, value } = e.target;
+    saveDraft("legal", { ...(state.legal ?? {}), [field]: value });
+    if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
   };
 
   const handleBlur = (field) =>
-    setTouched((prev) => ({ ...prev, [field]: true }));
+    setTouched(prev => ({ ...prev, [field]: true }));
 
   const handleFile = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    setForm((prev) => ({ ...prev, documentName: file.name }));
+    setDocumentName(file.name);
   };
 
   const handleBack = () => {
-    saveProgress("legal", form);
+    saveProgress("legal", { legalName, idNumber, documentName });
     navigate("/crear-tienda/basico");
   };
 
   const handleNext = () => {
     const newErrors = {};
-    if (!form.legalName.trim()) newErrors.legalName = "El nombre legal es obligatorio";
-    if (!form.idNumber.trim())  newErrors.idNumber  = "El numero de documento es obligatorio";
+    if (!legalName.trim()) newErrors.legalName = "El nombre legal es obligatorio";
+    if (!idNumber.trim())  newErrors.idNumber  = "El numero de documento es obligatorio";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      // Marcar todos como touched para mostrar bordes rojos
       setTouched({ legalName: true, idNumber: true });
       return;
     }
 
-    completeStep("legal", form);
+    completeStep("legal", { legalName, idNumber, documentName });
     navigate("/crear-tienda/pagos");
   };
 
-  // helpers de estilo por campo
   const fieldClass = (field, value) => {
     if (!touched[field]) return "";
     return value.trim() ? "field-success" : "field-error";
@@ -120,18 +118,18 @@ export default function StepLegalPage() {
               id="sl-legalName"
               name="legalName"
               placeholder="Ej: Juan Perez o Mi Empresa S.A.S"
-              value={form.legalName}
+              value={legalName}
               onChange={handleChange}
               onBlur={() => handleBlur("legalName")}
               autoComplete="off"
-              className={fieldClass("legalName", form.legalName)}
+              className={fieldClass("legalName", legalName)}
             />
             {errors.legalName && (
               <span className="field-hint hint-error">
                 <AlertCircle size={11} /> {errors.legalName}
               </span>
             )}
-            {touched.legalName && !errors.legalName && form.legalName.trim() && (
+            {touched.legalName && !errors.legalName && legalName.trim() && (
               <span className="field-hint hint-ok">
                 <CheckCircle2 size={11} /> Se ve bien
               </span>
@@ -148,19 +146,19 @@ export default function StepLegalPage() {
               id="sl-idNumber"
               name="idNumber"
               placeholder="Ej: 123456789"
-              value={form.idNumber}
+              value={idNumber}
               onChange={handleChange}
               onBlur={() => handleBlur("idNumber")}
               autoComplete="off"
               style={{ fontFamily: "monospace" }}
-              className={fieldClass("idNumber", form.idNumber)}
+              className={fieldClass("idNumber", idNumber)}
             />
             {errors.idNumber && (
               <span className="field-hint hint-error">
                 <AlertCircle size={11} /> {errors.idNumber}
               </span>
             )}
-            {touched.idNumber && !errors.idNumber && form.idNumber.trim() && (
+            {touched.idNumber && !errors.idNumber && idNumber.trim() && (
               <span className="field-hint hint-ok">
                 <CheckCircle2 size={11} /> Se ve bien
               </span>
@@ -178,14 +176,14 @@ export default function StepLegalPage() {
                 hidden
               />
               <FileText size={22} />
-              <span>{form.documentName ?? "Haz clic para subir tu documento"}</span>
-              {!form.documentName && (
+              <span>{documentName ?? "Haz clic para subir tu documento"}</span>
+              {!documentName && (
                 <span className="upload-area-hint">PDF, JPG o PNG · máx 10 MB</span>
               )}
             </label>
-            {form.documentName && (
+            {documentName && (
               <span className="field-hint hint-ok">
-                <CheckCircle2 size={11} /> {form.documentName}
+                <CheckCircle2 size={11} /> {documentName}
               </span>
             )}
           </div>

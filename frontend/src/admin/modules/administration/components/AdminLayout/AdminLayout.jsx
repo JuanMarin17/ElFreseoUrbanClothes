@@ -9,6 +9,7 @@ import {
 import IAAdmin from "../../pages/IAAdmin/AIAdmin";
 import AdminHeader from "../AdminHeader/AdminHeader";
 import Sidebar from "../Sidebar/Sidebar";
+import StockAlertToast from "../StockAlertToast/StockAlertToast";
 
 import "./AdminLayout.css";
 
@@ -280,6 +281,8 @@ const AdminLayout = () => {
           {storeReady && <IAAdmin isOpen={isAiOpen} setIsOpen={setIsAiOpen} />}
         </div>
       </div>
+
+      <StockAlertToast />
     </div>
   );
 };

@@ -338,7 +338,7 @@ export default function AdminProductsPage() {
                 product={product}
                 detailPath={`${adminBase}/productos/${pid}`}
                 editPath={`${adminBase}/editar-producto/${pid}`}
-                publicPath={`/producto/${pid}`}
+                publicPath={`/products/${pid}`}
                 toggling={toggling === pid}
                 onToggle={() => handleToggle(product)}
                 entryDelay={Math.min(index * 40, 300)}

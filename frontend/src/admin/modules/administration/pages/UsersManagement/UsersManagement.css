@@ -164,8 +164,10 @@
 }
 .um-input:focus { border-color: #2563eb; }
 .um-input:disabled { opacity: 0.5; cursor: not-allowed; }
+.um-input--error { border-color: #ef4444 !important; }
 
 .um-field-hint { font-size: 11px; color: var(--at-text-3, #52525b); }
+.um-field-hint--error { color: #f87171; }
 
 .um-form-actions { display: flex; gap: 10px; justify-content: flex-end; }
 
