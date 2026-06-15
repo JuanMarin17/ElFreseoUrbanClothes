@@ -638,7 +638,7 @@ function TicketList({ user, onSelect, onToast, refreshTrigger }) {
         >
           <RefreshCcw size={15} />
         </button>
-      </div>
+      </div>    
 
       {/* Filtros de estado */}
       <div className="hc-filter-tabs">
