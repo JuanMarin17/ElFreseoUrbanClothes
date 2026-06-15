@@ -1,13 +1,49 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter as Router } from 'react-router-dom' // Asegúrate de tener esta línea
+import { BrowserRouter as Router } from 'react-router-dom'
+import axios from 'axios'
 import './index.css'
 import App from './App.jsx'
+
+/* ── Global 401 interceptor ────────────────────────────────────────────────
+   When any request returns 401 (session invalidated from another device),
+   clear local auth state and force a redirect to login.
+   This covers both fetch-based and axios-based service calls.
+─────────────────────────────────────────────────────────────────────────── */
+function forceLogout() {
+  localStorage.removeItem('jwt');
+  localStorage.removeItem('userRole');
+  localStorage.removeItem('storeId');
+  window.location.replace('/login');
+}
+
+// Patch global window.fetch — covers every fetch() call in the app
+const _nativeFetch = window.fetch.bind(window);
+window.fetch = async (...args) => {
+  const res = await _nativeFetch(...args);
+  if (res.status === 401) {
+    forceLogout();
+    // Return a promise that never resolves so callers never process the 401 body
+    return new Promise(() => {});
+  }
+  return res;
+};
+
+// Axios response interceptor — covers accountService axios calls
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) {
+      forceLogout();
+    }
+    return Promise.reject(error);
+  }
+);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Router>
-    <App />
+      <App />
     </Router>
   </StrictMode>,
 )

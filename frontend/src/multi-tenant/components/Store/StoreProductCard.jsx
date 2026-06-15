@@ -1,10 +1,25 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { GCard } from "./storeUtils.jsx";
 
 export default function StoreProductCard({ product, index, theme, isJustAdded, onAddToCart, storeId = null }) {
   const { accent, titleC, paraC, cardBg, b1, b2, bw, br, sh, btnR, fT, isUrb, isDark } = theme;
   const [hovered, setHovered] = useState(false);
+  const navigate = useNavigate();
+
+  const isLoggedIn = () => {
+    const jwt = localStorage.getItem("jwt");
+    return !!jwt && jwt !== "null";
+  };
+
+  const requireAuth = (e, action) => {
+    if (!isLoggedIn()) {
+      e?.preventDefault?.();
+      navigate("/login");
+      return;
+    }
+    action?.();
+  };
 
   const imgUrl = product.images?.[0]?.url ?? null;
 
@@ -66,7 +81,7 @@ export default function StoreProductCard({ product, index, theme, isJustAdded, o
             transition: "opacity 0.22s",
           }}>
             <button
-              onClick={() => onAddToCart(product, index)}
+              onClick={(e) => requireAuth(e, () => onAddToCart(product, index))}
               style={{
                 background: accent, border: "none",
                 color: accent === "#ffffff" ? "#000" : "#fff",
@@ -156,7 +171,7 @@ export default function StoreProductCard({ product, index, theme, isJustAdded, o
             </div>
 
             <button
-              onClick={() => onAddToCart(product, index)}
+              onClick={(e) => requireAuth(e, () => onAddToCart(product, index))}
               style={{
                 background: btnBg, border: `1px solid ${btnBorder}`, color: btnColor,
                 padding: "6px 12px", borderRadius: btnR,
@@ -172,7 +187,10 @@ export default function StoreProductCard({ product, index, theme, isJustAdded, o
           {/* Ver más → ProductPage */}
           <Link
             to={`/products/${product.id ?? product.productId}?src=store${storeId ? `&sid=${storeId}` : ""}`}
-            onClick={() => { if (storeId) localStorage.setItem("storeId", storeId); }}
+            onClick={(e) => {
+              if (!isLoggedIn()) { e.preventDefault(); navigate("/login"); return; }
+              if (storeId) localStorage.setItem("storeId", storeId);
+            }}
             style={{
               display: "flex",
               alignItems: "center",

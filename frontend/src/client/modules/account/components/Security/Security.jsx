@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Eye, EyeOff, Loader2, Monitor, Smartphone, Globe, Power } from 'lucide-react';
+import { Lock, Eye, EyeOff, Loader2, Monitor, Smartphone, Globe, Power, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import accountService from '../../services/accountService';
 import './Security.css';
 
@@ -31,12 +32,15 @@ function detectOS(ua) {
   return 'SO desconocido';
 }
 
-function formatTs(unix) {
-  if (!unix) return '—';
-  return new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  }).format(new Date(unix * 1000));
+function formatTs(value) {
+  if (!value) return '—';
+  try {
+    const d = typeof value === 'number' ? new Date(value * 1000) : new Date(value);
+    return new Intl.DateTimeFormat('es-CO', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    }).format(d);
+  } catch { return '—'; }
 }
 
 function buildCurrentSession() {
@@ -55,22 +59,51 @@ function buildCurrentSession() {
   };
 }
 
+/* Normaliza la respuesta del backend al formato que usa el componente */
+function normalizeSession(raw) {
+  return {
+    id:         raw.id,
+    device:     raw.device  ?? 'Desktop',
+    browser:    raw.browser ?? 'Navegador desconocido',
+    os:         raw.os      ?? 'SO desconocido',
+    isCurrent:  raw.current ?? false,
+    startedAt:  formatTs(raw.createdAt),
+    lastSeenAt: formatTs(raw.lastSeenAt),
+    expiresAt:  formatTs(raw.expiresAt),
+    location:   raw.ipAddress ?? '—',
+    active:     raw.active ?? true,
+  };
+}
+
 export default function Security() {
-  const [passwords, setPasswords] = useState({ current: '', newPass: '', confirm: '' });
-  const [show, setShow]           = useState({ current: false, newPass: false, confirm: false });
-  const [sessions, setSessions]   = useState([]);
-  const [twoFA, setTwoFA]         = useState(false);
-  const [loading, setLoading]     = useState(false);
-  const [msg, setMsg]             = useState('');
+  const navigate = useNavigate();
+  const [passwords, setPasswords]             = useState({ current: '', newPass: '', confirm: '' });
+  const [show, setShow]                       = useState({ current: false, newPass: false, confirm: false });
+  const [sessions, setSessions]               = useState([]);
+  const [sessionsLoading, setSessionsLoading] = useState(true);
+  const [closingId, setClosingId]             = useState(null);
+  const [sessionMsg, setSessionMsg]           = useState('');
+  const [closingAll, setClosingAll]           = useState(false);
+  const [twoFA, setTwoFA]                     = useState(false);
+  const [loading, setLoading]                 = useState(false);
+  const [msg, setMsg]                         = useState('');
 
   useEffect(() => {
     const current = buildCurrentSession();
+    setSessionsLoading(true);
     accountService.getSessions()
       .then(({ data }) => {
         const remote = Array.isArray(data) ? data : [];
-        setSessions([current, ...remote]);
+        if (remote.length === 0) { setSessions([current]); return; }
+        const normalized = remote.map(normalizeSession);
+        // Sesión actual primero, luego el resto
+        setSessions([
+          ...normalized.filter(s => s.isCurrent),
+          ...normalized.filter(s => !s.isCurrent),
+        ]);
       })
-      .catch(() => setSessions([current]));
+      .catch(() => setSessions([current]))
+      .finally(() => setSessionsLoading(false));
   }, []);
 
   const toggleShow = (field) => setShow(s => ({ ...s, [field]: !s[field] }));
@@ -95,12 +128,21 @@ export default function Security() {
     }
   };
 
+  const showSessionMsg = (text, isErr = false) => {
+    setSessionMsg({ text, isErr });
+    setTimeout(() => setSessionMsg(''), 4000);
+  };
+
   const handleCloseSession = async (id) => {
+    setClosingId(id);
     try {
       await accountService.closeSession(id);
       setSessions(s => s.filter(ses => ses.id !== id));
-    } catch (e) {
-      console.error("No se pudo cerrar la sesión");
+      showSessionMsg('Sesión cerrada correctamente.');
+    } catch {
+      showSessionMsg('No se pudo cerrar la sesión. Intenta de nuevo.', true);
+    } finally {
+      setClosingId(null);
     }
   };
 
@@ -173,39 +215,86 @@ export default function Security() {
           </div>
 
           <div className="sec-card sessions-card">
-            <h3 className="card-subtitle">SESIONES_ACTIVAS</h3>
-            <p className="sessions-note">
-            Solo se muestra la sesión del dispositivo actual. Para ver todas las sesiones activas se requiere soporte del servidor.
-          </p>
-          <div className="sessions-list">
-              {sessions.map(ses => (
-                <div className={`session-item ${ses.isCurrent ? 'session-item--current' : ''}`} key={ses.id}>
-                  <div className="session-icon">
-                    {ses.device === 'Mobile' ? <Smartphone size={16} /> : ses.device === 'Desktop' ? <Monitor size={16} /> : <Globe size={16} />}
-                  </div>
-                  <div className="session-info">
-                    <div className="session-device-row">
-                      <p className="session-device">
-                        {ses.browser ?? ses.device ?? 'Dispositivo'} · {ses.os ?? ''}
-                      </p>
-                      {ses.isCurrent && <span className="session-current-badge">sesión actual</span>}
+            <div className="sessions-card-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h3 className="card-subtitle" style={{ margin: 0 }}>SESIONES_ACTIVAS</h3>
+                <span className="sessions-count">{sessions.length} activa{sessions.length !== 1 ? 's' : ''}</span>
+              </div>
+              {sessions.filter(s => !s.isCurrent).length > 0 && (
+                <button
+                  className="close-all-btn"
+                  disabled={closingAll}
+                  onClick={async () => {
+                    if (!window.confirm('¿Cerrar todas las demás sesiones? Se cerrará tu sesión actual también.')) return;
+                    setClosingAll(true);
+                    try {
+                      await accountService.closeAllSessions();
+                      localStorage.removeItem('jwt');
+                      localStorage.removeItem('userRole');
+                      navigate('/login');
+                    } catch {
+                      setClosingAll(false);
+                    }
+                  }}
+                >
+                  {closingAll ? <Loader2 size={12} className="spin" /> : <LogOut size={12} />}
+                  Cerrar todas
+                </button>
+              )}
+            </div>
+
+            {sessionMsg && (
+              <div className={`session-feedback ${sessionMsg.isErr ? 'session-feedback--err' : 'session-feedback--ok'}`}>
+                {sessionMsg.text}
+              </div>
+            )}
+
+            {sessionsLoading ? (
+              <div className="sessions-loading">
+                <Loader2 size={20} className="spin" />
+                <span>Cargando sesiones…</span>
+              </div>
+            ) : (
+              <div className="sessions-list">
+                {sessions.map(ses => (
+                  <div className={`session-item ${ses.isCurrent ? 'session-item--current' : ''}`} key={ses.id}>
+                    <div className="session-icon">
+                      {ses.device === 'Mobile' ? <Smartphone size={16} /> : ses.device === 'Desktop' ? <Monitor size={16} /> : <Globe size={16} />}
                     </div>
-                    <p className="session-meta">
-                      <span>{ses.location ?? '—'}</span>
-                      {ses.startedAt && <> · Inicio: {ses.startedAt}</>}
-                    </p>
-                    {ses.expiresAt && (
-                      <p className="session-meta">Expira: {ses.expiresAt}</p>
+                    <div className="session-info">
+                      <div className="session-device-row">
+                        <p className="session-device">
+                          {ses.browser ?? ses.device ?? 'Dispositivo'} · {ses.os ?? ''}
+                        </p>
+                        {ses.isCurrent && <span className="session-current-badge">SESIÓN ACTUAL</span>}
+                      </div>
+                      <p className="session-meta">
+                        <span>{ses.location ?? '—'}</span>
+                        {ses.startedAt && ses.startedAt !== '—' && <> · Inicio: {ses.startedAt}</>}
+                      </p>
+                      {ses.lastSeenAt && ses.lastSeenAt !== '—' && (
+                        <p className="session-meta">Última actividad: {ses.lastSeenAt}</p>
+                      )}
+                      {ses.expiresAt && ses.expiresAt !== '—' && (
+                        <p className="session-meta">Expira: {ses.expiresAt}</p>
+                      )}
+                    </div>
+                    {!ses.isCurrent && (
+                      <button
+                        className="close-session-btn"
+                        onClick={() => handleCloseSession(ses.id)}
+                        disabled={closingId === ses.id}
+                        title="Cerrar sesión"
+                      >
+                        {closingId === ses.id
+                          ? <Loader2 size={12} className="spin" />
+                          : <Power size={12} />}
+                      </button>
                     )}
                   </div>
-                  {!ses.isCurrent && (
-                    <button className="close-session-btn" onClick={() => handleCloseSession(ses.id)} title="Cerrar sesión">
-                      <Power size={12} />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

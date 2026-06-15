@@ -348,7 +348,8 @@
 }
 
 .user-menu-wrapper:hover .user-dropdown,
-.user-menu-wrapper:focus-within .user-dropdown {
+.user-menu-wrapper:focus-within .user-dropdown,
+.user-dropdown--open {
   opacity: 1;
   visibility: visible;
   transform: translateY(0) scale(1);

@@ -1,3 +1,5 @@
+import { authFetch } from "./authFetch";
+
 const KEY  = "vexio_wishlist";
 const BASE = "http://46.225.21.146:8080/api/v1/wishlist";
 
@@ -71,7 +73,7 @@ export const toggleInWishlist = (product) => {
 export async function syncWishlistFromBackend() {
   if (!isAuthed()) return;
   try {
-    const res = await fetch(BASE, { headers: apiHeaders() });
+    const res = await authFetch(BASE, { headers: apiHeaders() });
     if (!res.ok) return;
     const json = await res.json();
     const list = Array.isArray(json) ? json
@@ -95,7 +97,7 @@ export async function addToWishlistApi(product) {
   addToWishlist(product);
   if (!isAuthed()) return;
   try {
-    await fetch(BASE, {
+    await authFetch(BASE, {
       method:  "POST",
       headers: apiHeaders(),
       body:    JSON.stringify({ productId: product.id }),
@@ -108,7 +110,7 @@ export async function removeFromWishlistApi(productId) {
   removeFromWishlist(productId);
   if (!isAuthed()) return;
   try {
-    await fetch(`${BASE}/${productId}`, {
+    await authFetch(`${BASE}/${productId}`, {
       method:  "DELETE",
       headers: apiHeaders(),
     });
