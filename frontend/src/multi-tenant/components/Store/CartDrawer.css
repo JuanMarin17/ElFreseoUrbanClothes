@@ -282,6 +282,12 @@
   text-transform: uppercase;
 }
 
+.cd-item__unit-price {
+  font-size: 11px;
+  color: #64748b;
+  margin: 0;
+}
+
 .cd-item__price-alert {
   font-size: 10.5px;
   color: #fbbf24;

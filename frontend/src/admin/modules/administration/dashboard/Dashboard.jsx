@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { getAllProducts } from '../services/productService';
 import { getMembers } from '../services/UsersService';
-import { getStoreSettingsByHeader } from '../../../../multi-tenant/pages/services/storeService';
+import { getStoreSettingsByHeader, getStoreBySlug } from '../../../../multi-tenant/pages/services/storeService';
 import { useDashboard } from '../promotions/service/usedashboard';
 import PromotionModal from '../promotions/PromotionModa';
 import ToastStack from '../promotions/Toaststack';
@@ -137,6 +137,21 @@ const Dashboard = () => {
   }, [fetchData]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  // Corrige el nombre cuando el slug cambia — evita mostrar el nombre
+  // de la tienda anterior que quedó en localStorage.storeName
+  useEffect(() => {
+    if (!slug) return;
+    getStoreBySlug(slug)
+      .then((store) => {
+        const name = store?.name ?? store?.storeName ?? null;
+        if (name) {
+          localStorage.setItem('storeName', name);
+          setStoreInfo((prev) => ({ ...prev, name }));
+        }
+      })
+      .catch(() => {});
+  }, [slug]);
 
   // ── KPIs productos ─────────────────────────────────────────────────────────
   const kpi = useMemo(() => ({

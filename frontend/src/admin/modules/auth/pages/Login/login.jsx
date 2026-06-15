@@ -182,14 +182,7 @@ export default function Login({ mode }) {
           'success'
         );
 
-        const pendingPlan = sessionStorage.getItem('pendingPlan');
-
-        if (pendingPlan) {
-          sessionStorage.removeItem('pendingPlan');
-          setTimeout(() => navigate('/crear-tienda/basico'), 1200);
-          return;
-        }
-
+        sessionStorage.removeItem('pendingPlan');
         const route = getRouteByRol(result.user?.rolId);
         setTimeout(() => navigate(route), 1200);
       }

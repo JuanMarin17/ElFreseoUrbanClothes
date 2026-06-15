@@ -55,7 +55,8 @@ function extractStoreName(p) {
 
 function normalizeProduct(p, storeNameMap = {}) {
   const variants = Array.isArray(p.variants) ? p.variants : [];
-  const price = variants[0]?.price ?? 0;
+  const prices = variants.map(v => v.price).filter(n => typeof n === 'number' && !isNaN(n));
+  const price = prices.length > 0 ? Math.min(...prices) : 0;
 
   const colors = [];
   const colorSeen = new Set();
@@ -169,19 +170,33 @@ async function tryEndpoints(headers) {
 }
 
 /**
- * Obtiene todos los productos activos enriquecidos con nombre de tienda.
+ * Catálogo público — intenta sin token primero.
+ * Si el backend responde 401 (aún no habilitado como público), reintenta
+ * con JWT si el usuario tiene sesión activa.
+ * 200 → array en json.data | 204 → sin productos → []
  */
 export async function fetchCatalogProducts() {
-  const headers = buildHeaders(false);
+  const publicHeaders = { Accept: "application/json" };
 
-  // Productos y tiendas en paralelo
-  const [raw, storeNameMap] = await Promise.all([
-    tryEndpoints(headers).then(r => r ?? tryEndpoints(buildHeaders(true))),
-    fetchStoreNameMap(headers),
-  ]);
+  let res = await fetch(`${API_BASE}/products/all/active`, { headers: publicHeaders });
 
-  if (!raw) return [];
+  if (res.status === 401) {
+    const jwt = localStorage.getItem("jwt");
+    if (jwt && jwt !== "null") {
+      const authHeaders = { Accept: "application/json", Authorization: `Bearer ${jwt}` };
+      res = await fetch(`${API_BASE}/products/all/active`, { headers: authHeaders });
+    }
+  }
 
+  if (res.status === 204) return [];
+  if (!res.ok) throw new Error(`Error al cargar productos (${res.status})`);
+
+  const json = await res.json();
+  const raw = Array.isArray(json?.data) ? json.data : [];
+
+  if (raw.length === 0) return [];
+
+  const storeNameMap = await fetchStoreNameMap(publicHeaders);
   return raw.filter(isActive).map(p => normalizeProduct(p, storeNameMap));
 }
 

@@ -1,10 +1,11 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import "./App.css";
 import "./animations.css";
 import PageSpinner from "./components/ui/PageSpinner.jsx";
 
+import OfflineBanner from "./components/ui/OfflineBanner/OfflineBanner.jsx";
 import { AuthProvider } from "./admin/modules/auth/pages/hook/Useauth.jsx";
 import { AuthProvider as MultiTenantAuthProvider } from "./multi-tenant/context/AuthContext.jsx";
 import { StoreProvider } from "./multi-tenant/pages/StoreContext.jsx";
@@ -73,6 +74,9 @@ const ShockAlerts = lazy(
 const SuppliersPage = lazy(
   () =>
     import("./admin/modules/administration/pages/Proveedor/SuppliersPage.jsx"),
+);
+const POSPage = lazy(
+  () => import("./admin/modules/administration/pages/POS/POSPage.jsx"),
 );
 const PromotionsDashboard = lazy(
   () =>
@@ -149,7 +153,8 @@ const WidgetsCustomizer = lazy(
 const OrdersDashboard = lazy(
   () => import("./multi-tenant/components/OrdersDashboard.jsx"),
 );
-const MyStore = lazy(() => import("./multi-tenant/pages/MyStore.jsx"));
+const MyStore        = lazy(() => import("./multi-tenant/pages/MyStore.jsx"));
+const MisTiendasPage = lazy(() => import("./client/modules/MisTiendas/MisTiendasPage.jsx"));
 const StorePage = lazy(() => import("./multi-tenant/pages/StorePage.jsx"));
 const Transaction = lazy(
   () => import("./multi-tenant/pages/Transaction/Transaction.jsx"),
@@ -209,11 +214,20 @@ function PageLoader() {
 }
 
 // ── App ───────────────────────────────────────────────────────────────────────
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+
 export default function App() {
   return (
+    <>
+    <OfflineBanner />
     <AuthProvider>
       <MultiTenantAuthProvider>
         <StoreProvider>
+          <ScrollToTop />
           <TokenGuard />
           <StoreBuilderChat />
           <div className="main-container">
@@ -469,7 +483,7 @@ export default function App() {
                     element={<OrderDetail />}
                   />
                   <Route path="/transacciones" element={<Transaction />} />
-                  <Route path="/mis-tiendas" element={<MyStore />} />
+                  <Route path="/mis-tiendas" element={<MisTiendasPage />} />
 
                   {/* ── Rutas protegidas ─────────────────────────────────── */}
                   <Route element={<ProtectedRoute />}>
@@ -504,6 +518,7 @@ export default function App() {
                     <Route path="pedidos" element={<OrdersManagement />} />
                     <Route path="alertas" element={<ShockAlerts />} />
                     <Route path="proveedores" element={<SuppliersPage />} />
+                    <Route path="pos" element={<POSPage />} />
                     <Route
                       path="promociones"
                       element={<PromotionsDashboard />}
@@ -549,6 +564,7 @@ export default function App() {
                       <Route path="pedidos" element={<OrdersManagement />} />
                       <Route path="alertas" element={<ShockAlerts />} />
                       <Route path="proveedores" element={<SuppliersPage />} />
+                      <Route path="pos" element={<POSPage />} />
                       <Route
                         path="promociones"
                         element={<PromotionsDashboard />}
@@ -581,5 +597,6 @@ export default function App() {
         </StoreProvider>
       </MultiTenantAuthProvider>
     </AuthProvider>
+    </>
   );
 }

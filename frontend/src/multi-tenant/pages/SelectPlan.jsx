@@ -46,13 +46,6 @@ export default function SelectPlan({ showComponents }) {
   const [loading, setLoading] = useState(true);
   const [selectedName, setSelectedName] = useState(state.plan?.name ?? null);
 
-  // Suscripciones desactivadas — selecciona plan gratuito y continúa directamente
-  useEffect(() => {
-    const freePlan = { planId: "gratuito", name: "GRATUITO", price: 0, maxProducts: 10, maxPages: 1, maxAiCalls: 5, features: "{}" };
-    completeStep(1, freePlan);
-    nav("/crear-tienda/basico");
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
   useEffect(() => {
     getPlans()
       .then((data) => {
@@ -75,7 +68,6 @@ export default function SelectPlan({ showComponents }) {
 
   const handleSelect = (plan) => {
     if (!isAuthenticated()) {
-      sessionStorage.setItem("pendingPlan", plan.name);
       nav("/login");
       return;
     }

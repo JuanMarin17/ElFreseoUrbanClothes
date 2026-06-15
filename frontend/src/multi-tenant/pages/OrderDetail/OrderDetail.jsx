@@ -62,6 +62,23 @@ export default function OrderDetail() {
     setTimeout(() => setToast(null), 3500);
   };
 
+  const getLocalOrder = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(`order_${orderId}`));
+      if (!saved?.order) return null;
+      return {
+        ...saved.order,
+        id:          saved.order.orderId ?? orderId,
+        orderId:     saved.order.orderId ?? orderId,
+        orderNumber: saved.order.orderNumber ?? saved.order.orderId ?? orderId,
+        total:       saved.total,
+        items:       saved.items ?? [],
+        shippingAddress: saved.shipping,
+        _local:      true,
+      };
+    } catch { return null; }
+  };
+
   useEffect(() => {
     const load = async () => {
       if (!storeId || !orderId) { setError("Datos insuficientes."); setLoading(false); return; }
@@ -72,8 +89,14 @@ export default function OrderDetail() {
           getOrder(storeId, orderId),
           getOrderPayment(storeId, orderId),
         ]);
-        if (orderData.status === "fulfilled") setOrder(orderData.value);
-        else throw orderData.reason;
+        if (orderData.status === "fulfilled") {
+          setOrder(orderData.value);
+        } else {
+          // Fallback a localStorage si el API no tiene el pedido
+          const local = getLocalOrder();
+          if (local) setOrder(local);
+          else throw orderData.reason;
+        }
         if (paymentData.status === "fulfilled") setPayment(paymentData.value);
       } catch (err) {
         setError(err.message ?? "No se pudo cargar el pedido.");
@@ -82,6 +105,7 @@ export default function OrderDetail() {
       }
     };
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeId, orderId]);
 
   const handleCancel = async () => {

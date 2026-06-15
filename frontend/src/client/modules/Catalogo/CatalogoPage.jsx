@@ -112,6 +112,7 @@ function QuickAddModal({ product, onClose }) {
         variantId: activeVariant?.variantId ?? null,
         quantity:  qty,
       });
+      window.dispatchEvent(new Event("cart-updated"));
       setStatus("success");
       setTimeout(onClose, 1600);
     } catch (e) {
@@ -831,9 +832,13 @@ export default function CatalogoPage() {
           ) : !error && filtered.length === 0 ? (
             <motion.div className="cat-empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <div className="cat-empty-icon"><Search size={36} /></div>
-              <h3>Sin resultados</h3>
-              <p>Ajusta los filtros o prueba con otra búsqueda</p>
-              <button className="cat-empty-btn" onClick={clearFilters}>Limpiar filtros</button>
+              <h3>{products.length === 0 ? "No hay productos disponibles" : "Sin resultados"}</h3>
+              <p>{products.length === 0
+                ? "Aún no hay productos publicados. Vuelve pronto."
+                : "Ajusta los filtros o prueba con otra búsqueda"}</p>
+              {products.length > 0 && (
+                <button className="cat-empty-btn" onClick={clearFilters}>Limpiar filtros</button>
+              )}
             </motion.div>
           ) : (
             <motion.div className={`cat-grid ${gridCompact ? "compact" : ""}`} layout>

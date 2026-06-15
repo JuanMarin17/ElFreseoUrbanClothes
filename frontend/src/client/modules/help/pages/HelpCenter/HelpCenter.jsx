@@ -1078,7 +1078,7 @@ const HelpCenter = () => {
   }
 
   /* ── VISTA: MIS TICKETS / TODOS (OWNER) ───────── */
-  if (view === "tickets") {
+  if (view === "tickets" && (isOwner || !!user.id)) {
     return (
       <>
         <HeaderMarket />
@@ -1169,7 +1169,8 @@ const HelpCenter = () => {
 
         {/* Tarjetas de acción rápida */}
         <section className="support-cards hc-reveal">
-          {/* Ver mis tickets / Ver todos (OWNER) */}
+          {/* Ver mis tickets / Ver todos (OWNER) — solo usuarios autenticados */}
+          {(isOwner || !!user.id) && (
           <div className="glass-card" onClick={() => setView("tickets")}>
             <div className="card-icon">
               <Inbox size={30} />
@@ -1184,9 +1185,10 @@ const HelpCenter = () => {
               {isOwner ? "Gestionar" : "Ver mis tickets"} <ChevronRight size={12} />
             </div>
           </div>
+          )}
 
-          {/* Crear ticket (solo usuarios normales) */}
-          {!isOwner && (
+          {/* Crear ticket (solo usuarios autenticados normales) */}
+          {!isOwner && !!user.id && (
             <div className="glass-card" onClick={() => setShowModal(true)}>
               <div className="card-icon">
                 <Plus size={30} />
@@ -1283,7 +1285,7 @@ const HelpCenter = () => {
                   <Zap size={16} color="var(--fire)" /> Respuesta en &lt; 24 h
                 </div>
               </div>
-              {!isOwner && (
+              {!isOwner && !!user.id && (
                 <button
                   className="neon-button"
                   onClick={() => setShowModal(true)}
@@ -1294,8 +1296,8 @@ const HelpCenter = () => {
               )}
             </div>
 
-            {/* Solo usuarios — formulario rápido que crea ticket */}
-            {!isOwner && (
+            {/* Solo usuarios autenticados — formulario rápido que crea ticket */}
+            {!isOwner && !!user.id && (
               <div className="hc-contact-card">
                 <div className="hc-contact-card-header">
                   <Send size={16} />

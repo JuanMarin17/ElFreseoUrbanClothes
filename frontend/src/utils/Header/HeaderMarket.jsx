@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
-import { ShoppingCart, Heart, User, Menu, X, LogIn, Truck, HelpCircle, Settings, LogOut, Bell } from 'lucide-react';
+import { ShoppingCart, Heart, User, Menu, X, LogIn, Truck, HelpCircle, Settings, LogOut, Bell, Store } from 'lucide-react';
 import { useAuth } from '../../admin/modules/auth/pages/hook/Useauth';
-import { useCart } from '../../multi-tenant/components/Store/hooks/useCart.js';
+import { useMultiCart } from '../../multi-tenant/components/Store/hooks/useMultiCart.js';
 import CartDrawer from '../../multi-tenant/components/Store/CartDrawer.jsx';
 import WishlistDrawer from './WishlistDrawer.jsx';
 import { getWishlist } from '../wishlistService.js';
@@ -32,28 +32,17 @@ const HeaderMarket = () => {
   const [lastScrollY, setLastScrollY]       = useState(0);
   const [isMobileOpen, setIsMobileOpen]     = useState(false);
   const [notificationCount]                 = useState(0);
-
-  // Cart: storeId tracked via localStorage + event
-  const [cartStoreId, setCartStoreId] = useState(() => {
-    const s = localStorage.getItem("storeId");
-    return s && s !== "null" && s !== "undefined" ? s : null;
-  });
+  const [notifOpen, setNotifOpen]           = useState(false);
 
   const {
     cart, cartCount, isOpen: cartOpen, loading: cartLoading,
     itemLoading, error: cartError,
     openCart, closeCart, updateQuantity, removeCartItem, emptyCart, clearError, refreshCart,
-  } = useCart(cartStoreId);
+  } = useMultiCart();
 
   useEffect(() => {
-    const handler = () => {
-      const s = localStorage.getItem("storeId");
-      const newId = s && s !== "null" && s !== "undefined" ? s : null;
-      setCartStoreId(newId);
-      refreshCart();
-    };
-    window.addEventListener("cart-updated", handler);
-    return () => window.removeEventListener("cart-updated", handler);
+    window.addEventListener("cart-updated", refreshCart);
+    return () => window.removeEventListener("cart-updated", refreshCart);
   }, [refreshCart]);
 
   // Wishlist
@@ -86,6 +75,7 @@ const HeaderMarket = () => {
     document.body.style.overflow = isMobileOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [isMobileOpen]);
+
 
   const handleLogout = () => { logout(); navigate('/'); };
 
@@ -150,12 +140,44 @@ const HeaderMarket = () => {
             </button>
 
             {user && (
-              <button className="icon-btn notif-btn" aria-label="Notificaciones">
-                <Bell size={22} aria-hidden="true" />
-                {notificationCount > 0 && (
-                  <span className="notif-badge" aria-live="polite">{notificationCount}</span>
+              <div className="notif-wrapper">
+                <button
+                  className="icon-btn notif-btn"
+                  aria-label="Notificaciones"
+                  aria-expanded={notifOpen}
+                  onClick={() => setNotifOpen(o => !o)}
+                >
+                  <Bell size={22} aria-hidden="true" />
+                  {notificationCount > 0 && (
+                    <span className="notif-badge" aria-live="polite">{notificationCount}</span>
+                  )}
+                </button>
+
+                {notifOpen && (
+                  <>
+                    <div className="notif-backdrop" onClick={() => setNotifOpen(false)} />
+                    <div className="notif-panel" role="dialog" aria-label="Notificaciones">
+                      <div className="notif-panel-header">
+                        <Bell size={14} />
+                        <span>NOTIFICACIONES</span>
+                        <button className="notif-panel-close" onClick={() => setNotifOpen(false)} aria-label="Cerrar">✕</button>
+                      </div>
+                      <div className="notif-panel-body">
+                        {notificationCount === 0 ? (
+                          <div className="notif-empty">
+                            <Bell size={28} className="notif-empty-icon" />
+                            <p>Todo al día, sin alertas pendientes</p>
+                          </div>
+                        ) : (
+                          <p style={{ padding: '12px', fontSize: '13px', color: '#ccc' }}>
+                            Tienes {notificationCount} notificación{notificationCount !== 1 ? 'es' : ''}.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </>
                 )}
-              </button>
+              </div>
             )}
 
             {/* User dropdown */}
@@ -193,8 +215,9 @@ const HeaderMarket = () => {
                   ) : (
                     <>
                       <li><Link to="/cuenta/pedidos" role="menuitem"><Truck size={16} aria-hidden="true" /> Mis Pedidos</Link></li>
+                      <li><Link to="/mis-tiendas" role="menuitem"><Store size={16} aria-hidden="true" /> Mis Tiendas</Link></li>
                       <li>
-                        <Link to="/cuenta/configuracion" role="menuitem">
+                        <Link to="/cuenta/notificaciones" role="menuitem">
                           <Bell size={16} aria-hidden="true" /> Notificaciones
                           {notificationCount > 0 && <span className="dropdown-badge">{notificationCount}</span>}
                         </Link>

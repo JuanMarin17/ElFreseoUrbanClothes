@@ -1,7 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Eye, EyeOff, Loader2, Monitor, Smartphone, ShieldAlert, ShieldCheck, Power } from 'lucide-react';
+import { Lock, Eye, EyeOff, Loader2, Monitor, Smartphone, Globe, Power } from 'lucide-react';
 import accountService from '../../services/accountService';
 import './Security.css';
+
+/* ── Helpers para derivar la sesión actual ───────────────────────────────── */
+function parseJwt(token) {
+  try { return JSON.parse(atob(token.split('.')[1])); } catch { return null; }
+}
+
+function detectDevice(ua) {
+  if (/Mobi|Android|iPhone|iPad/i.test(ua)) return 'Mobile';
+  return 'Desktop';
+}
+
+function detectBrowser(ua) {
+  if (/Edg\//i.test(ua))     return 'Edge';
+  if (/OPR\//i.test(ua))     return 'Opera';
+  if (/Chrome\//i.test(ua))  return 'Chrome';
+  if (/Firefox\//i.test(ua)) return 'Firefox';
+  if (/Safari\//i.test(ua))  return 'Safari';
+  return 'Navegador desconocido';
+}
+
+function detectOS(ua) {
+  if (/Windows NT/i.test(ua))   return 'Windows';
+  if (/Mac OS X/i.test(ua))     return 'macOS';
+  if (/Android/i.test(ua))      return 'Android';
+  if (/iPhone|iPad/i.test(ua))  return 'iOS';
+  if (/Linux/i.test(ua))        return 'Linux';
+  return 'SO desconocido';
+}
+
+function formatTs(unix) {
+  if (!unix) return '—';
+  return new Intl.DateTimeFormat('es-CO', {
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  }).format(new Date(unix * 1000));
+}
+
+function buildCurrentSession() {
+  const token = localStorage.getItem('jwt');
+  const payload = token ? parseJwt(token) : null;
+  const ua = navigator.userAgent;
+  return {
+    id:         'current',
+    device:     detectDevice(ua),
+    browser:    detectBrowser(ua),
+    os:         detectOS(ua),
+    isCurrent:  true,
+    startedAt:  payload?.iat  ? formatTs(payload.iat)  : '—',
+    expiresAt:  payload?.exp  ? formatTs(payload.exp)  : '—',
+    location:   Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone ?? '—',
+  };
+}
 
 export default function Security() {
   const [passwords, setPasswords] = useState({ current: '', newPass: '', confirm: '' });
@@ -12,9 +64,13 @@ export default function Security() {
   const [msg, setMsg]             = useState('');
 
   useEffect(() => {
+    const current = buildCurrentSession();
     accountService.getSessions()
-      .then(({ data }) => setSessions(data))
-      .catch(() => {});
+      .then(({ data }) => {
+        const remote = Array.isArray(data) ? data : [];
+        setSessions([current, ...remote]);
+      })
+      .catch(() => setSessions([current]));
   }, []);
 
   const toggleShow = (field) => setShow(s => ({ ...s, [field]: !s[field] }));
@@ -118,25 +174,37 @@ export default function Security() {
 
           <div className="sec-card sessions-card">
             <h3 className="card-subtitle">SESIONES_ACTIVAS</h3>
-            <div className="sessions-list">
-              {sessions.length === 0 ? (
-                <p className="empty-log">No hay registros de sesiones externas.</p>
-              ) : (
-                sessions.map(ses => (
-                  <div className="session-item" key={ses.id}>
-                    <div className="session-icon">
-                      {ses.device?.includes('Mobile') ? <Smartphone size={16} /> : <Monitor size={16} />}
+            <p className="sessions-note">
+            Solo se muestra la sesión del dispositivo actual. Para ver todas las sesiones activas se requiere soporte del servidor.
+          </p>
+          <div className="sessions-list">
+              {sessions.map(ses => (
+                <div className={`session-item ${ses.isCurrent ? 'session-item--current' : ''}`} key={ses.id}>
+                  <div className="session-icon">
+                    {ses.device === 'Mobile' ? <Smartphone size={16} /> : ses.device === 'Desktop' ? <Monitor size={16} /> : <Globe size={16} />}
+                  </div>
+                  <div className="session-info">
+                    <div className="session-device-row">
+                      <p className="session-device">
+                        {ses.browser ?? ses.device ?? 'Dispositivo'} · {ses.os ?? ''}
+                      </p>
+                      {ses.isCurrent && <span className="session-current-badge">sesión actual</span>}
                     </div>
-                    <div className="session-info">
-                      <p className="session-device">{ses.device.toUpperCase()}</p>
-                      <p className="session-meta">{ses.location || 'UBICACIÓN_OCULTA'} • {ses.lastActive}</p>
-                    </div>
-                    <button className="close-session-btn" onClick={() => handleCloseSession(ses.id)}>
+                    <p className="session-meta">
+                      <span>{ses.location ?? '—'}</span>
+                      {ses.startedAt && <> · Inicio: {ses.startedAt}</>}
+                    </p>
+                    {ses.expiresAt && (
+                      <p className="session-meta">Expira: {ses.expiresAt}</p>
+                    )}
+                  </div>
+                  {!ses.isCurrent && (
+                    <button className="close-session-btn" onClick={() => handleCloseSession(ses.id)} title="Cerrar sesión">
                       <Power size={12} />
                     </button>
-                  </div>
-                ))
-              )}
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>

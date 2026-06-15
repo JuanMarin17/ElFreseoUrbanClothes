@@ -77,7 +77,7 @@ export default function OrderConfirmation() {
               <line x1="12" y1="8" x2="12" y2="12" />
               <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
-            Modo simulación — el pago real se activará cuando se integre el gateway.
+            El coordinador de la tienda se pondrá en contacto contigo para coordinar el pago.
           </div>
         )}
       </div>
@@ -156,8 +156,7 @@ export default function OrderConfirmation() {
           <p>Método de pago: <strong>{paymentMethodLabel}</strong></p>
           {order?._simulated && (
             <p className="oc-invoice__sim-note">
-              Documento generado en modo simulación. Será reemplazado por la
-              factura oficial una vez integrado el gateway de pagos.
+              El pago se coordinará directamente con la tienda.
             </p>
           )}
         </div>

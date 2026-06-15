@@ -1,18 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  User, Shield, ShoppingBag,
+  User, Shield, ShoppingBag, Bell,
   MapPin, Settings, HelpCircle, LogOut, ArrowLeft
 } from 'lucide-react';
 import './AccountSidebar.css';
 
 const MENU = [
-  { key: 'profile',     label: 'Mi Perfil',               icon: <User size={16} /> },
-  { key: 'security',    label: 'Seguridad',               icon: <Shield size={16} /> },
-  { key: 'orders',      label: 'Mis Pedidos',             icon: <ShoppingBag size={16} /> },
-  { key: 'addresses',   label: 'Libreta de Direcciones',  icon: <MapPin size={16} /> },
-  { key: 'preferences', label: 'Preferencias',            icon: <Settings size={16} /> },
-  { key: 'support',     label: 'Ayuda y Soporte',         icon: <HelpCircle size={16} /> },
+  { key: 'profile',       path: '/cuenta/perfil',          label: 'Mi Perfil',               icon: <User size={16} /> },
+  { key: 'security',      path: '/cuenta/seguridad',       label: 'Seguridad',               icon: <Shield size={16} /> },
+  { key: 'orders',        path: '/cuenta/pedidos',         label: 'Mis Pedidos',             icon: <ShoppingBag size={16} /> },
+  { key: 'notifications', path: '/cuenta/notificaciones',  label: 'Notificaciones',          icon: <Bell size={16} /> },
+  { key: 'addresses',     path: '/cuenta/direcciones',     label: 'Libreta de Direcciones',  icon: <MapPin size={16} /> },
+  { key: 'preferences',   path: '/cuenta/preferencias',    label: 'Preferencias',            icon: <Settings size={16} /> },
+  { key: 'support',       path: '/cuenta/soporte',         label: 'Ayuda y Soporte',         icon: <HelpCircle size={16} /> },
 ];
 
 export default function AccountSidebar({ active, onSelect }) {
@@ -47,11 +48,11 @@ export default function AccountSidebar({ active, onSelect }) {
       </div>
 
       <nav className="sidebar-nav-account">
-        {MENU.map(({ key, label, icon }) => (
+        {MENU.map(({ key, path, label, icon }) => (
           <button
             key={key}
             className={`sidebar-item ${active === key ? 'sidebar-item--active' : ''}`}
-            onClick={() => onSelect(key)}
+            onClick={() => { onSelect(key); navigate(path); }}
           >
             <span className="sidebar-icon">{icon}</span>
             <span className="sidebar-label">{label}</span>

@@ -74,16 +74,14 @@ export const cancelOrder = (storeId, orderId) =>
  * ELIMINAR cuando el API de pagos esté integrado.
  */
 export const simulateOrder = (payload) => {
-  const id =
-    "ORD-" +
-    Date.now().toString(36).toUpperCase() +
-    "-" +
-    Math.random().toString(36).slice(2, 6).toUpperCase();
+  const numeric = String(Date.now()).slice(-8);
+  const id = `PED-${numeric}`;
 
   return Promise.resolve({
-    orderId: id,
-    status: "PENDING",
-    createdAt: new Date().toISOString(),
+    orderId:     id,
+    orderNumber: id,
+    status:      "PENDING",
+    createdAt:   new Date().toISOString(),
     ...payload,
     _simulated: true,
   });
