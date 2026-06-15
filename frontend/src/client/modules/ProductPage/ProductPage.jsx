@@ -90,9 +90,7 @@ export default function ProductPage() {
   const {
     // Datos
     product,
-    reviews,
     related,
-    hasMoreReviews,
 
     // Selecciones
     selectedImage,
