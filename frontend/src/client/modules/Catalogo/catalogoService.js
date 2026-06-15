@@ -4,34 +4,13 @@
  * Estrategia: primero sin X-Store-Id, luego con storeId de localStorage si falla.
  */
 
-const API_BASE =
-  import.meta.env.VITE_API_URL ??
-  import.meta.env.VITE_API_BASE_URL ??
-  "http://46.225.21.146:8080/api/v1";
+const API_BASE ="http://46.225.21.146:8080/api/v1";
 
 const COLOR_HEX_MAP = {
   BLANCO: "#F8F8F8", NEGRO: "#111111", AZUL: "#1D4ED8", ROJO: "#DC2626",
   VERDE: "#16A34A", AMARILLO: "#CA8A04", GRIS: "#6B7280", BEIGE: "#D4B896",
   ROSADO: "#EC4899", MORADO: "#7C3AED", NARANJA: "#EA580C", CAFE: "#92400E",
 };
-
-function buildHeaders(withStoreId = false) {
-  const jwt     = localStorage.getItem("jwt");
-  const storeId = localStorage.getItem("storeId");
-  const h = { "Content-Type": "application/json", Accept: "application/json" };
-  if (jwt && jwt !== "null") {
-    h.Authorization = `Bearer ${jwt}`;
-    try {
-      const decoded = JSON.parse(atob(jwt.split(".")[1]));
-      if (decoded.user_id) h["X-User-Id"]   = decoded.user_id;
-      if (decoded.role)    h["X-User-Role"]  = decoded.role;
-    } catch { /* silent */ }
-  }
-  if (withStoreId && storeId && storeId !== "null" && storeId !== "undefined") {
-    h["X-Store-Id"] = storeId;
-  }
-  return h;
-}
 
 function extractStoreName(p) {
   // Rutas directas del producto
@@ -81,10 +60,6 @@ function normalizeProduct(p, storeNameMap = {}) {
 
   // Prioridad: campo directo → mapa de tiendas → null
   const storeName = extractStoreName(p) ?? storeNameMap[storeId] ?? null;
-
-  if (import.meta.env.DEV && !storeName && storeId) {
-    console.warn("[catalogoService] Sin storeName para storeId:", storeId, "— campos del producto:", Object.keys(p));
-  }
 
   return {
     id:             p.productId ?? p.id,
@@ -142,33 +117,6 @@ function isActive(p) {
   return s === "ACTIVE" || s === "PUBLISHED" || s === "AVAILABLE";
 }
 
-function extractList(json) {
-  if (Array.isArray(json?.data))    return json.data;
-  if (Array.isArray(json))          return json;
-  if (Array.isArray(json?.content)) return json.content;
-  if (Array.isArray(json?.items))   return json.items;
-  return null;
-}
-
-async function tryEndpoints(headers) {
-  const endpoints = [
-    "/products/all/active",
-    "/products/all",
-    "/products/active",
-    "/products",
-  ];
-  for (const ep of endpoints) {
-    try {
-      const res = await fetch(`${API_BASE}${ep}`, { headers });
-      if (!res.ok) continue;
-      const json = await res.json();
-      const list = extractList(json);
-      if (list && list.length > 0) return list;
-    } catch { /* intentar siguiente */ }
-  }
-  return null;
-}
-
 /**
  * Catálogo público — intenta sin token primero.
  * Si el backend responde 401 (aún no habilitado como público), reintenta
@@ -196,7 +144,11 @@ export async function fetchCatalogProducts() {
 
   if (raw.length === 0) return [];
 
-  const storeNameMap = await fetchStoreNameMap(publicHeaders);
+  const jwt = localStorage.getItem("jwt");
+  const mapHeaders = jwt && jwt !== "null"
+    ? { Accept: "application/json", Authorization: `Bearer ${jwt}` }
+    : publicHeaders;
+  const storeNameMap = await fetchStoreNameMap(mapHeaders);
   return raw.filter(isActive).map(p => normalizeProduct(p, storeNameMap));
 }
 

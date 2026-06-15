@@ -1,0 +1,242 @@
+.loy-root {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.loy-header { display: flex; flex-direction: column; gap: 4px; }
+.loy-eyebrow {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  margin: 0;
+}
+.loy-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+.loy-subtitle {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+}
+
+/* ── Points badge ──────────────────────────────────────────────────────────── */
+.loy-points-badge {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 14px;
+  border: 1px solid;
+  position: relative;
+}
+
+.loy-star-icon { flex-shrink: 0; }
+
+.loy-points-number {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.loy-points-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  margin: 4px 0 0;
+}
+
+.loy-tier-tag {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 1px solid;
+  border-radius: 20px;
+  padding: 2px 10px;
+}
+
+/* ── Progress ──────────────────────────────────────────────────────────────── */
+.loy-progress-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.loy-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.loy-progress-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.5px;
+}
+.loy-progress-pct {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.8);
+}
+
+.loy-progress-bar {
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.loy-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ffd700, #f59e0b);
+  border-radius: 99px;
+  transition: width 0.6s ease;
+}
+
+.loy-progress-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  margin: 0;
+}
+.loy-progress-sub strong { color: rgba(255,255,255,0.7); }
+
+/* ── History card ──────────────────────────────────────────────────────────── */
+.loy-history-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.loy-history-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.6);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.loy-history-toggle:hover { color: #fff; }
+.loy-history-toggle > *:nth-child(3) { margin-left: auto; }
+
+.loy-count {
+  background: rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #fff;
+}
+
+.loy-history-body {
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.loy-history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 36px 24px;
+  gap: 6px;
+  color: rgba(255,255,255,0.4);
+  font-size: 13px;
+}
+.loy-empty-icon { margin-bottom: 6px; color: rgba(255,255,255,0.15); }
+.loy-history-hint { font-size: 11px; color: rgba(255,255,255,0.25); margin: 0; }
+
+/* ── Movements ─────────────────────────────────────────────────────────────── */
+.loy-movements { display: flex; flex-direction: column; }
+
+.loy-movement-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.loy-movement-row:last-child { border-bottom: none; }
+
+.loy-movement-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.loy-movement-info { flex: 1; min-width: 0; }
+.loy-movement-desc {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.8);
+  margin: 0 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.loy-movement-date {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  margin: 0;
+}
+
+.loy-movement-pts {
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Footer hint ───────────────────────────────────────────────────────────── */
+.loy-footer-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+}
+
+/* ── Loading / Error ───────────────────────────────────────────────────────── */
+.loy-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 32px 20px;
+  color: rgba(255,255,255,0.4);
+  font-size: 13px;
+}
+.loy-loading.small { padding: 20px; }
+
+.loy-spinner {
+  animation: loy-spin 0.8s linear infinite;
+}
+@keyframes loy-spin { to { transform: rotate(360deg); } }
+
+.loy-error {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2);
+  color: #f87171;
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 13px;
+}

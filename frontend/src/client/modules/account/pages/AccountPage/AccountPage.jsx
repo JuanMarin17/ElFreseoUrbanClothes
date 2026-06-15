@@ -1,7 +1,7 @@
 import React, { useState, Suspense, memo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import AccountSidebar from '../../components/AccountSidebar/AccountSidebar.jsx';
-import MyProfile      from '../../components/profile/MyProfile.jsx';
+import MyProfile      from '../../components/Profile/MyProfile.jsx';
 import './AccountPage.css';
 
 const PATH_TO_SECTION = {
@@ -13,15 +13,18 @@ const PATH_TO_SECTION = {
   soporte:         'support',
   perfil:          'profile',
   notificaciones:  'notifications',
+  devoluciones:    'returns',
+  puntos:          'loyalty',
 };
 
-// Secciones no críticas: se cargan solo cuando el usuario las visita
 const Security       = React.lazy(() => import('../../components/Security/Security.jsx'));
 const MyOrders       = React.lazy(() => import('../../components/Orders/MyOrders.jsx'));
 const AddressBook    = React.lazy(() => import('../../components/Addresses/AddressBook.jsx'));
 const Preferences    = React.lazy(() => import('../../components/Preferences/Preferences.jsx'));
 const HelpSupport    = React.lazy(() => import('../../components/Support/HelpSupport.jsx'));
 const Notifications  = React.lazy(() => import('../../components/Notifications/Notifications.jsx'));
+const Returns        = React.lazy(() => import('../../components/Returns/Returns.jsx'));
+const LoyaltyWidget  = React.lazy(() => import('../../components/Loyalty/LoyaltyWidget.jsx'));
 
 const SectionFallback = (
   <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '40px 20px', color: '#666', fontSize: 12, letterSpacing: 2 }}>
@@ -29,7 +32,6 @@ const SectionFallback = (
   </div>
 );
 
-// Renderiza solo la sección activa — sin crear las demás
 function ActiveSection({ active, onNavigate }) {
   switch (active) {
     case 'profile':        return <MyProfile onNavigate={onNavigate} />;
@@ -39,6 +41,8 @@ function ActiveSection({ active, onNavigate }) {
     case 'preferences':    return <Preferences />;
     case 'support':        return <HelpSupport />;
     case 'notifications':  return <Notifications />;
+    case 'returns':        return <Returns />;
+    case 'loyalty':        return <LoyaltyWidget />;
     default:               return <MyProfile onNavigate={onNavigate} />;
   }
 }

@@ -94,6 +94,18 @@ const AdminProductDetail = lazy(
   () =>
     import("./admin/modules/administration/pages/AdminProducts/AdminProductDetail.jsx"),
 );
+const CustomersPage = lazy(
+  () =>
+    import("./admin/modules/administration/pages/CustomersPage/CustomersPage.jsx"),
+);
+const LocationsPage = lazy(
+  () =>
+    import("./admin/modules/administration/pages/Locations/LocationsPage.jsx"),
+);
+const AdminReturnsPage = lazy(
+  () =>
+    import("./admin/modules/administration/pages/AdminReturns/AdminReturnsPage.jsx"),
+);
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 const Login = lazy(() => import("./admin/modules/auth/pages/Login/login.jsx"));
@@ -514,9 +526,12 @@ export default function App() {
                     />
                     <Route path="inventario" element={<InventaryStock />} />
                     <Route path="usuarios" element={<UsersManagement />} />
+                    <Route path="clientes" element={<CustomersPage />} />
                     <Route path="report" element={<Report />} />
                     <Route path="pedidos" element={<OrdersManagement />} />
+                    <Route path="devoluciones" element={<AdminReturnsPage />} />
                     <Route path="alertas" element={<ShockAlerts />} />
+                    <Route path="ubicaciones" element={<LocationsPage />} />
                     <Route path="proveedores" element={<SuppliersPage />} />
                     <Route path="pos" element={<POSPage />} />
                     <Route
@@ -560,9 +575,12 @@ export default function App() {
                       />
                       <Route path="inventario" element={<InventaryStock />} />
                       <Route path="usuarios" element={<UsersManagement />} />
+                      <Route path="clientes" element={<CustomersPage />} />
                       <Route path="report" element={<Report />} />
                       <Route path="pedidos" element={<OrdersManagement />} />
+                      <Route path="devoluciones" element={<AdminReturnsPage />} />
                       <Route path="alertas" element={<ShockAlerts />} />
+                      <Route path="ubicaciones" element={<LocationsPage />} />
                       <Route path="proveedores" element={<SuppliersPage />} />
                       <Route path="pos" element={<POSPage />} />
                       <Route

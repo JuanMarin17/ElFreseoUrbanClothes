@@ -63,7 +63,7 @@ function normalizeReview(r) {
 export async function getUserReviews(page = 1, limit = 50, sort = "newest") {
   try {
     const res = await fetch(`${BASE}?page=${page}&limit=${limit}&sort=${sort}`, {
-      headers: { Accept: "application/json" },
+      headers: authHeaders(),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
@@ -97,8 +97,11 @@ export async function addUserReview(rating, text) {
       : body.message ?? "Datos inválidos";
     throw Object.assign(new Error(msg), { code: 400 });
   }
-  if (res.status === 401 || res.status === 403) {
-    throw Object.assign(new Error("Debes iniciar sesión para publicar una reseña"), { code: res.status });
+  if (res.status === 401) {
+    throw Object.assign(new Error("Debes iniciar sesión para publicar una reseña"), { code: 401 });
+  }
+  if (res.status === 403) {
+    throw Object.assign(new Error("Tu cuenta no tiene permiso para publicar reseñas"), { code: 403 });
   }
   if (!res.ok) {
     throw Object.assign(new Error("Error al publicar la reseña"), { code: res.status });
@@ -117,7 +120,7 @@ export async function hasUserAlreadyReviewed() {
   if (!jwt || jwt === "null") return false;
   try {
     const res = await fetch(`${BASE}/me`, { headers: authHeaders() });
-    if (res.status === 404) return false;
+    if (res.status === 404 || res.status === 403) return false;
     return res.ok;
   } catch {
     return false;

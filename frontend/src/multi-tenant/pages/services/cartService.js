@@ -4,7 +4,7 @@
  * Nota: storeId va en la URL, NO en los headers.
  */
 
-const BASE = import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
+const BASE = "http://46.225.21.146:8080/api/v1";
 
 
 
