@@ -5,7 +5,7 @@
  * POST /stores/settings/logo
  */
 
-const API_BASE = "http://46.225.21.146:8080/api/v1";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 function buildHeaders(extra = {}) {
   const jwt     = localStorage.getItem("jwt");

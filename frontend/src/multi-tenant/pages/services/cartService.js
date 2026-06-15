@@ -6,7 +6,7 @@
 
 import { authFetch } from "../../../utils/authFetch";
 
-const BASE = "http://46.225.21.146:8080/api/v1";
+const BASE = import.meta.env.VITE_API_URL;
 
 const buildHeaders = () => {
   const jwt = localStorage.getItem("jwt");

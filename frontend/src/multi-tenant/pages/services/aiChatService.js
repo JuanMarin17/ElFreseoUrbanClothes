@@ -4,7 +4,7 @@
  * El gateway inyecta X-User-Id y X-Store-Id desde el JWT; no los enviamos manualmente.
  */
 
-const BASE = `${import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1"}/ia/user`;
+const BASE = `${import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_URL}/ia/user`;
 
 const buildHeaders = (storeId) => {
   const jwt = localStorage.getItem("jwt");

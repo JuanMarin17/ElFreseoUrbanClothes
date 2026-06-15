@@ -1,7 +1,7 @@
 import { authFetch } from "./authFetch";
 
 const KEY  = "vexio_wishlist";
-const BASE = "http://46.225.21.146:8080/api/v1/wishlist";
+const BASE = `${import.meta.env.VITE_API_URL}/wishlist`;
 
 /* ── helpers locales ───────────────────────────────────────────────────────── */
 function read() {

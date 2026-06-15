@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 
-const BASE = import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
+const BASE = import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_URL;
 const RECONNECT_DELAY_MS = 5_000;
 
 /**
@@ -12,9 +12,9 @@ const RECONNECT_DELAY_MS = 5_000;
  * @param {boolean} [enabled=true]
  */
 export function useStockAlerts(onAlert, enabled = true) {
-  const sourceRef   = useRef(null);
-  const timerRef    = useRef(null);
-  const onAlertRef  = useRef(onAlert);
+  const sourceRef = useRef(null);
+  const timerRef = useRef(null);
+  const onAlertRef = useRef(onAlert);
   onAlertRef.current = onAlert;
 
   const disconnect = useCallback(() => {
@@ -29,17 +29,18 @@ export function useStockAlerts(onAlert, enabled = true) {
     const storeId = localStorage.getItem("storeId");
     if (!storeId || storeId === "null") return;
 
-    const source = new EventSource(
-      `${BASE}/alerts/stock/stream/${storeId}`,
-      { withCredentials: true },
-    );
+    const source = new EventSource(`${BASE}/alerts/stock/stream/${storeId}`, {
+      withCredentials: true,
+    });
     sourceRef.current = source;
 
     source.addEventListener("stock-alert", (e) => {
       try {
         const alert = JSON.parse(e.data);
         onAlertRef.current?.(alert);
-      } catch { /* ignorar mensajes mal formados */ }
+      } catch {
+        /* ignorar mensajes mal formados */
+      }
     });
 
     source.onerror = () => {
@@ -50,7 +51,10 @@ export function useStockAlerts(onAlert, enabled = true) {
   }, []);
 
   useEffect(() => {
-    if (!enabled) { disconnect(); return; }
+    if (!enabled) {
+      disconnect();
+      return;
+    }
     connect();
     return disconnect;
   }, [enabled, connect, disconnect]);
