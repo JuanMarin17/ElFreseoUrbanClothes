@@ -117,7 +117,6 @@ export default function ProductPage() {
     decrementQty,
     handleAddToCart,
     handleToggleWishlist,
-    loadMoreReviews,
 
     // Estados
     loading,
