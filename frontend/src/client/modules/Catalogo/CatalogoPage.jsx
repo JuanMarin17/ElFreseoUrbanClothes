@@ -574,7 +574,7 @@ export default function CatalogoPage() {
       .then(data => { if (alive) setProducts(data); })
       .catch(e   => { if (alive) setError(e.message); })
       .finally(  () => { if (alive) setLoading(false); });
-    setUserTastes(getUserTastes());
+    getUserTastes().then(t => { if (alive) setUserTastes(t); });
     return () => { alive = false; };
   }, []);
 

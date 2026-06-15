@@ -4,7 +4,7 @@ import {
   LayoutDashboard, PackagePlus, Package, Users, ShoppingCart,
   BarChart3, AlertTriangle, LogOut, FileText, ArrowLeft,
   Building2, Bot, Tag, MonitorSmartphone, UserCircle2, MapPin,
-  RefreshCw,
+  RefreshCw, Settings,
 } from 'lucide-react';
 import './Sidebar.css';
 import defaultLogo from '../../../../../assets/LogoVexios/banervexio.png';
@@ -25,6 +25,7 @@ const DEFAULT_MENU_ITEMS = [
   { path: '/tienda/:slug/admin/proveedores',    label: 'PROVEEDORES',        icon: Building2       },
   { path: '/tienda/:slug/admin/cms',            label: 'CONTENIDO CMS',      icon: FileText        },
   { path: '/tienda/:slug/admin/IA',             label: 'ASISTENTE IA',       icon: Bot             },
+  { path: '/tienda/:slug/admin/configuracion',  label: 'CONFIGURACIÓN',      icon: Settings        },
 ];
 
 const Sidebar = ({

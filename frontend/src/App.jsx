@@ -106,6 +106,10 @@ const AdminReturnsPage = lazy(
   () =>
     import("./admin/modules/administration/pages/AdminReturns/AdminReturnsPage.jsx"),
 );
+const StoreSettings = lazy(
+  () =>
+    import("./admin/modules/administration/pages/StoreSettings/StoreSettings.jsx"),
+);
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 const Login = lazy(() => import("./admin/modules/auth/pages/Login/login.jsx"));
@@ -554,6 +558,7 @@ export default function App() {
                     <Route path="cms/locations" element={<CMSLocations />} />
                     <Route path="cms/returns" element={<CMSReturns />} />
                     <Route path="cms/faq" element={<CMSFAQ />} />
+                    <Route path="configuracion" element={<StoreSettings />} />
                   </Route>
 
                   {/* ── Dashboard admin por tienda ───────────────────────── */}
@@ -603,6 +608,7 @@ export default function App() {
                       <Route path="cms/locations" element={<CMSLocations />} />
                       <Route path="cms/returns" element={<CMSReturns />} />
                       <Route path="cms/faq" element={<CMSFAQ />} />
+                      <Route path="configuracion" element={<StoreSettings />} />
                     </Route>
                   </Route>
 

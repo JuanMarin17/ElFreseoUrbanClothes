@@ -154,9 +154,42 @@ export async function fetchCatalogProducts() {
 
 // ── Tastes ────────────────────────────────────────────────────────────────────
 
-export function getUserTastes() {
+const TASTES_KEY = "vexio_tastes_completed";
+
+/**
+ * Obtiene los gustos del usuario.
+ * - Si hay sesión activa → consulta GET /preferences en el backend (fuente de verdad).
+ * - Guarda en localStorage como caché para carga instantánea en el siguiente acceso.
+ * - Si no hay sesión o falla el backend → usa localStorage como fallback.
+ */
+export async function getUserTastes() {
+  const jwt = localStorage.getItem("jwt");
+
+  if (jwt && jwt !== "null") {
+    try {
+      const res = await fetch(`${API_BASE}/preferences`, {
+        headers: {
+          Accept:        "application/json",
+          Authorization: `Bearer ${jwt}`,
+        },
+      });
+      if (res.ok) {
+        const json   = await res.json();
+        const prefs  = json?.data ?? json;
+        // El backend puede devolver los gustos en un campo "tastes" o directamente
+        const tastes = prefs?.tastes ?? prefs;
+        if (tastes && (tastes.categorias || tastes.colores || tastes.estilos)) {
+          // Actualizar caché local
+          localStorage.setItem(TASTES_KEY, JSON.stringify(tastes));
+          return tastes;
+        }
+      }
+    } catch { /* sin red: caer al localStorage */ }
+  }
+
+  // Fallback: localStorage (visitantes sin sesión o fallo de red)
   try {
-    const val = localStorage.getItem("vexio_tastes_completed");
+    const val = localStorage.getItem(TASTES_KEY);
     if (!val || val === "skipped") return null;
     const parsed = JSON.parse(val);
     return typeof parsed === "object" && parsed !== null ? parsed : null;
