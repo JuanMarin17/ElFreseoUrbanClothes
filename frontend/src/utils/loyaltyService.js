@@ -3,6 +3,8 @@
  * Headers requeridos: Authorization, X-Store-Id
  */
 
+import { authFetch } from "./authFetch";
+
 const BASE = "http://46.225.21.146:8080/api/v1/loyalty";
 
 function buildHeaders() {
@@ -15,7 +17,7 @@ function buildHeaders() {
 }
 
 async function req(method, path, body) {
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await authFetch(`${BASE}${path}`, {
     method,
     headers: buildHeaders(),
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),

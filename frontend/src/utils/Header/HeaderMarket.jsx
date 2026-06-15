@@ -33,6 +33,7 @@ const HeaderMarket = () => {
   const [isMobileOpen, setIsMobileOpen]     = useState(false);
   const [notificationCount]                 = useState(0);
   const [notifOpen, setNotifOpen]           = useState(false);
+  const [userMenuOpen, setUserMenuOpen]     = useState(false);
 
   const {
     cart, cartCount, isOpen: cartOpen, loading: cartLoading,
@@ -67,8 +68,22 @@ const HeaderMarket = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, [lastScrollY]);
 
-  // Close mobile menu on route change
-  useEffect(() => { setIsMobileOpen(false); }, [location.pathname]);
+  // Close menus on route change
+  useEffect(() => {
+    setIsMobileOpen(false);
+    setUserMenuOpen(false);
+    setNotifOpen(false);
+  }, [location.pathname]);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    const handler = (e) => {
+      if (!e.target.closest('.user-menu-wrapper')) setUserMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [userMenuOpen]);
 
   // Prevent body scroll when mobile menu open
   useEffect(() => {
@@ -182,7 +197,13 @@ const HeaderMarket = () => {
 
             {/* User dropdown */}
             <div className="user-menu-wrapper">
-              <button className="icon-btn" aria-label="Menú de usuario" aria-haspopup="true">
+              <button
+                className="icon-btn"
+                aria-label="Menú de usuario"
+                aria-haspopup="true"
+                aria-expanded={userMenuOpen}
+                onClick={() => setUserMenuOpen(o => !o)}
+              >
                 {user ? (
                   <span className="user-avatar-init" aria-hidden="true">
                     {user.userName?.[0]?.toUpperCase()}
@@ -192,7 +213,7 @@ const HeaderMarket = () => {
                 )}
               </button>
 
-              <div className="user-dropdown" role="menu">
+              <div className={`user-dropdown${userMenuOpen ? ' user-dropdown--open' : ''}`} role="menu">
                 <div className="dropdown-header">
                   {user ? (
                     <>
@@ -203,7 +224,7 @@ const HeaderMarket = () => {
                     <p>Bienvenido a <strong style={{ color: 'var(--primary-color)' }}>VEXIO</strong></p>
                   )}
                 </div>
-                <ul className="dropdown-list">
+                <ul className="dropdown-list" onClick={() => setUserMenuOpen(false)}>
                   {!user ? (
                     <li>
                       <Link to="/login" className="login-link-wrapper" role="menuitem">

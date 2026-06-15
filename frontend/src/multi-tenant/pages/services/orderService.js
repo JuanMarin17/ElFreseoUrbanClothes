@@ -1,3 +1,5 @@
+import { authFetch } from "../../../utils/authFetch";
+
 const BASE = import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
 
 function buildHeaders() {
@@ -20,7 +22,7 @@ function buildHeaders() {
 }
 
 async function request(method, path, body) {
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await authFetch(`${BASE}${path}`, {
     method,
     headers: buildHeaders(),
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),

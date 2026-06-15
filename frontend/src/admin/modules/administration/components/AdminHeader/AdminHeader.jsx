@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { Search, Bell, Settings, Bot, Menu, Sun, Moon } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Bell, Settings, Bot, Menu, Sun, Moon, Truck, Store, HelpCircle, User, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../auth/pages/hook/Useauth';
 import './AdminHeader.css';
 import NotifModal from '../Modals/NotifModal/NotifModal.jsx';
 import SettingsModal from '../Modals/SettingsModal/SettingsModal';
@@ -23,8 +25,30 @@ const AdminHeader = ({
   sidebarColor,
   onSidebarColorChange,
 }) => {
-  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isNotifOpen,   setIsNotifOpen]   = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [userMenuOpen,  setUserMenuOpen]  = useState(false);
+  const userMenuRef = useRef(null);
+  const navigate    = useNavigate();
+  const { logout }  = useAuth();
+
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    const handler = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target))
+        setUserMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [userMenuOpen]);
+
+  const handleLogout = () => {
+    setUserMenuOpen(false);
+    logout();
+    navigate('/');
+  };
+
+  const go = (path) => { setUserMenuOpen(false); navigate(path); };
 
   return (
     <>
@@ -91,14 +115,38 @@ const AdminHeader = ({
           )}
 
           {userName && (
-            <div className="top-bar-user">
+            <div className="top-bar-user" ref={userMenuRef}>
               <div className="top-bar-user-info">
                 {userRole && <span className="top-bar-user-role">{userRole}</span>}
                 <span className="top-bar-user-name">{userName}</span>
               </div>
-              <div className="top-bar-avatar">
+              <button
+                className="top-bar-avatar"
+                onClick={() => setUserMenuOpen(o => !o)}
+                aria-expanded={userMenuOpen}
+                aria-haspopup="true"
+                title="Menú de usuario"
+              >
                 {userName[0].toUpperCase()}
-              </div>
+              </button>
+
+              {userMenuOpen && (
+                <div className="ah-user-dropdown">
+                  <div className="ah-dropdown-header">
+                    <p className="ah-dropdown-greeting">Hola,</p>
+                    <p className="ah-dropdown-name">{userName}</p>
+                  </div>
+                  <ul className="ah-dropdown-list">
+                    <li><button onClick={() => go('/cuenta/pedidos')}><Truck size={15}/> Mis Pedidos</button></li>
+                    <li><button onClick={() => go('/mis-tiendas')}><Store size={15}/> Mis Tiendas</button></li>
+                    <li><button onClick={() => go('/cuenta/notificaciones')}><Bell size={15}/> Notificaciones</button></li>
+                    <li><button onClick={() => go('/ayuda')}><HelpCircle size={15}/> Ayuda y Soporte</button></li>
+                    <li><button onClick={() => go('/cuenta/configuracion')}><User size={15}/> Mi Cuenta</button></li>
+                    <hr className="ah-dropdown-divider"/>
+                    <li><button className="ah-logout-btn" onClick={handleLogout}><LogOut size={15}/> Cerrar Sesión</button></li>
+                  </ul>
+                </div>
+              )}
             </div>
           )}
         </div>

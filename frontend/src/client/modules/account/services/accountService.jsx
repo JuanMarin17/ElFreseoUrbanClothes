@@ -1,5 +1,6 @@
 import axios from "axios";
 import { uploadFile } from "../../../../utils/uploadService";
+import { authFetch } from "../../../../utils/authFetch";
 
 const BASE_URL =
   import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
@@ -43,7 +44,7 @@ function buildFetchHeaders() {
 }
 
 async function fetchApi(method, path, body) {
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const res = await authFetch(`${BASE_URL}${path}`, {
     method,
     headers: buildFetchHeaders(),
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
@@ -82,14 +83,16 @@ const accountService = {
 
   /* ── Sesiones ────────────────────────────────────────────────────────────── */
   getSessions: async () => {
+    const userId = getUserIdFromToken();
+    if (!userId) return { data: [] };
     try {
-      return await fetchApi("GET", "/auth/sessions");
+      return await fetchApi("GET", `/auth/sessions/${userId}`);
     } catch {
       return { data: [] };
     }
   },
 
-  closeSession: async (id) => fetchApi("DELETE", `/auth/sessions/${id}`),
+  closeSession: async (sessionId) => fetchApi("DELETE", `/auth/sessions/${sessionId}`),
 
   closeAllSessions: async () => fetchApi("DELETE", "/auth/sessions"),
 
