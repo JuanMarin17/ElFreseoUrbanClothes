@@ -6,7 +6,7 @@ import HeaderMarket from "../../../utils/Header/HeaderMarket.jsx";
 import { cf } from "../../../multi-tenant/components/Store/storeUtils.jsx";
 
 import "./ProductPage.css";
-import { useProduct } from "./service/Useproduct";
+import { useProduct } from "./service/useProduct";
 
 import SkeletonHero from "./components/SkeletonHero";
 import ProductGallery from "./components/ProductGallery";
