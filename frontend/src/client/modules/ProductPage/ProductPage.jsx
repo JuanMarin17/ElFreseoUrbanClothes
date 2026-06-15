@@ -99,6 +99,7 @@ export default function ProductPage() {
     selectedColor,
     selectedSize,
     activeVariant,
+
     quantity,
     activeTab,
     wishlisted,
