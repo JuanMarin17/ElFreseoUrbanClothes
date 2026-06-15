@@ -87,6 +87,8 @@ export default function Security() {
   const [twoFA, setTwoFA]                     = useState(false);
   const [loading, setLoading]                 = useState(false);
   const [msg, setMsg]                         = useState('');
+  const [confirmOpen, setConfirmOpen]         = useState(false);
+  const [confirmSessionId, setConfirmSessionId] = useState(null);
 
   useEffect(() => {
     const current = buildCurrentSession();
@@ -147,6 +149,7 @@ export default function Security() {
   };
 
   return (
+    <>
     <div className="security-section">
       <div className="sec-header-main">
         <span className="info-tag">PROTOCOLO_PROTECCION</span>
@@ -224,18 +227,7 @@ export default function Security() {
                 <button
                   className="close-all-btn"
                   disabled={closingAll}
-                  onClick={async () => {
-                    if (!window.confirm('¿Cerrar todas las demás sesiones? Se cerrará tu sesión actual también.')) return;
-                    setClosingAll(true);
-                    try {
-                      await accountService.closeAllSessions();
-                      localStorage.removeItem('jwt');
-                      localStorage.removeItem('userRole');
-                      navigate('/login');
-                    } catch {
-                      setClosingAll(false);
-                    }
-                  }}
+                  onClick={() => setConfirmOpen(true)}
                 >
                   {closingAll ? <Loader2 size={12} className="spin" /> : <LogOut size={12} />}
                   Cerrar todas
@@ -282,7 +274,7 @@ export default function Security() {
                     {!ses.isCurrent && (
                       <button
                         className="close-session-btn"
-                        onClick={() => handleCloseSession(ses.id)}
+                        onClick={() => setConfirmSessionId(ses.id)}
                         disabled={closingId === ses.id}
                         title="Cerrar sesión"
                       >
@@ -299,5 +291,74 @@ export default function Security() {
         </div>
       </div>
     </div>
+
+    {/* Modal de confirmación para cerrar una sesión */}
+    {confirmSessionId && (
+      <div className="confirm-overlay" onClick={() => setConfirmSessionId(null)}>
+        <div className="confirm-modal" onClick={e => e.stopPropagation()}>
+          <div className="confirm-icon"><Power size={22} /></div>
+          <h3 className="confirm-title">Cerrar esta sesión</h3>
+          <p className="confirm-body">
+            El dispositivo asociado a esta sesión perderá el acceso de inmediato.
+          </p>
+          <div className="confirm-actions">
+            <button className="confirm-cancel" onClick={() => setConfirmSessionId(null)}>
+              Cancelar
+            </button>
+            <button
+              className="confirm-danger"
+              disabled={closingId === confirmSessionId}
+              onClick={async () => {
+                const id = confirmSessionId;
+                setConfirmSessionId(null);
+                await handleCloseSession(id);
+              }}
+            >
+              {closingId === confirmSessionId
+                ? <Loader2 size={14} className="spin" />
+                : 'Sí, cerrar sesión'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Modal de confirmación para cerrar todas las sesiones */}
+    {confirmOpen && (
+      <div className="confirm-overlay" onClick={() => setConfirmOpen(false)}>
+        <div className="confirm-modal" onClick={e => e.stopPropagation()}>
+          <div className="confirm-icon"><LogOut size={22} /></div>
+          <h3 className="confirm-title">Cerrar todas las sesiones</h3>
+          <p className="confirm-body">
+            Se cerrarán todas las sesiones activas, incluida la actual.
+            Tendrás que iniciar sesión de nuevo.
+          </p>
+          <div className="confirm-actions">
+            <button className="confirm-cancel" onClick={() => setConfirmOpen(false)}>
+              Cancelar
+            </button>
+            <button
+              className="confirm-danger"
+              disabled={closingAll}
+              onClick={async () => {
+                setConfirmOpen(false);
+                setClosingAll(true);
+                try {
+                  await accountService.closeAllSessions();
+                  localStorage.removeItem('jwt');
+                  localStorage.removeItem('userRole');
+                  navigate('/login');
+                } catch {
+                  setClosingAll(false);
+                }
+              }}
+            >
+              {closingAll ? <Loader2 size={14} className="spin" /> : 'Sí, cerrar todo'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
