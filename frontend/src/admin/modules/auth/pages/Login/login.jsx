@@ -179,6 +179,20 @@ export default function Login({ mode }) {
           'success'
         );
 
+        const pendingQuickBuy = sessionStorage.getItem('pendingQuickBuy');
+        if (pendingQuickBuy) {
+          try {
+            const { returnUrl } = JSON.parse(pendingQuickBuy);
+            sessionStorage.removeItem('pendingQuickBuy');
+            const sep = returnUrl.includes('?') ? '&' : '?';
+            setTimeout(() => navigate(`${returnUrl}${sep}quickbuy=1`), 1200);
+          } catch {
+            sessionStorage.removeItem('pendingQuickBuy');
+            setTimeout(() => navigate(DEFAULT_ROUTE), 1200);
+          }
+          return;
+        }
+
         sessionStorage.removeItem('pendingPlan');
         const route = getRouteByRol(result.user?.rolId);
         setTimeout(() => navigate(route), 1200);

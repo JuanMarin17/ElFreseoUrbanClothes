@@ -7,7 +7,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import StoreFront from "../components/Store/StoreFront.jsx";
-import { getStoreBySlug, getStoreSettingsByHeader, checkIsOwner } from "./services/storeService";
+import { getStoreBySlug, getStoreSettingsByHeader } from "./services/storeService";
 import { getPublicActiveProducts } from "../../admin/modules/administration/services/productService";
 import "../components/styles/StorePage.css";
 
@@ -59,27 +59,17 @@ export default function StorePage() {
         localStorage.setItem("storeSlug", slug);
         localStorage.setItem("storeName", store.name ?? slug);
 
-        // Verificar ownership via backend
-        const myUserId = getUserIdFromJwt();
-
-        if (myUserId && resolvedStoreId) {
+        // Verificar ownership desde el JWT (sin llamada al backend)
+        const ownerFromJwt = (() => {
           try {
-            const ownerResult = await checkIsOwner(resolvedStoreId, myUserId);
-            const isOwnerValue = ownerResult === true
-              || ownerResult === "true"
-              || ownerResult === "OWNER"
-              || ownerResult?.role === "OWNER"
-              || ownerResult?.isOwner === true
-              || ownerResult?.owner === true
-              || ownerResult?.data === true;
-            setIsOwner(isOwnerValue);
-          } catch (err) {
-            console.warn("[StorePage] checkIsOwner falló:", err.message);
-            setIsOwner(false);
-          }
-        } else {
-          console.warn("[StorePage] No se verificó ownership. userId:", myUserId, "storeId:", resolvedStoreId);
-        }
+            const jwt = localStorage.getItem("jwt");
+            if (!jwt || jwt === "null") return false;
+            const p = JSON.parse(atob(jwt.split(".")[1]));
+            const jwtStore = p.storeId ?? p.store_id ?? p.store ?? null;
+            return jwtStore === resolvedStoreId;
+          } catch { return false; }
+        })();
+        setIsOwner(ownerFromJwt);
 
         const settings = await getStoreSettingsByHeader(resolvedStoreId);
 

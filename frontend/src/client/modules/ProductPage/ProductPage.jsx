@@ -7,6 +7,7 @@ import { cf } from "../../../multi-tenant/components/Store/storeUtils.jsx";
 
 import "./ProductPage.css";
 import { useProduct } from "./service/useProduct";
+import QuickBuyModal from "./components/QuickBuyModal";
 
 import SkeletonHero from "./components/SkeletonHero";
 import ProductGallery from "./components/ProductGallery";
@@ -85,6 +86,7 @@ export default function ProductPage() {
   const [searchParams] = useSearchParams();
   const navSource = searchParams.get("src"); // "store" | "catalog" | null
   const fromStore = navSource === "store";
+
   const currentUserId = getUserIdFromJwt();
 
   const {
@@ -103,6 +105,7 @@ export default function ProductPage() {
     wishlisted,
 
     // Precio y stock dinámicos (según variante activa)
+    currentPrice,
     currentStock,
     currentPriceFormatted,
 
@@ -124,6 +127,31 @@ export default function ProductPage() {
     cartLoading,
     cartSuccess,
   } = useProduct(productId);
+
+  /* ── Quick Buy modal ── */
+  const [quickBuyOpen, setQuickBuyOpen] = useState(false);
+
+  const handleBuyNow = () => {
+    const jwt = localStorage.getItem("jwt");
+    if (!jwt || jwt === "null") {
+      sessionStorage.setItem(
+        "pendingQuickBuy",
+        JSON.stringify({ returnUrl: window.location.pathname + window.location.search })
+      );
+      navigate("/login");
+      return;
+    }
+    setQuickBuyOpen(true);
+  };
+
+  // Re-open modal after login redirect (?quickbuy=1)
+  const qbParam = searchParams.get("quickbuy");
+  useEffect(() => {
+    if (qbParam !== "1" || loading || !product) return;
+    const jwt = localStorage.getItem("jwt");
+    if (!jwt || jwt === "null") return;
+    setQuickBuyOpen(true);
+  }, [qbParam, loading, product]);
 
   /* ── Conteo live de reseñas (se actualiza cuando ProductReviews carga) ── */
   const [liveReviewCount, setLiveReviewCount] = useState(0);
@@ -147,6 +175,10 @@ export default function ProductPage() {
   const [storeSettings, setStoreSettings] = useState(null);
   const [isDark, setIsDark] = useState(true);
   const storeSlug = useMemo(() => localStorage.getItem("storeSlug"), []);
+
+  const quickBuyReturnUrl = navSource === "store" && storeSlug
+    ? `/tienda/${storeSlug}`
+    : "/market";
 
   useEffect(() => {
     if (!fromStore) return;
@@ -388,7 +420,7 @@ export default function ProductPage() {
                     cartLoading={cartLoading}
                     wishlisted={wishlisted}
                     onAddToCart={handleAddToCart}
-                    onBuyNow={() => {}}
+                    onBuyNow={handleBuyNow}
                     onToggleWishlist={handleToggleWishlist}
                   />
 
@@ -486,6 +518,21 @@ export default function ProductPage() {
 
       {/* Toast de confirmación */}
       <CartToast visible={cartSuccess} />
+
+      {/* Quick Buy modal */}
+      <QuickBuyModal
+        open={quickBuyOpen}
+        onClose={() => setQuickBuyOpen(false)}
+        product={product}
+        activeVariant={activeVariant}
+        selectedColor={selectedColor}
+        selectedSize={selectedSize}
+        currentPrice={currentPrice}
+        currentStock={currentStock}
+        storeId={localStorage.getItem("storeId")}
+        storeSlug={storeSlug}
+        returnUrl={quickBuyReturnUrl}
+      />
     </div>
   );
 }

@@ -90,7 +90,10 @@ export default function MyOrders() {
   return (
     <div className="mo-root">
       <div className="mo-topbar">
-        <button className="mo-back" onClick={() => navigate(-1)}>
+        <button
+          className="mo-back"
+          onClick={() => slug ? navigate(`/tienda/${slug}`) : navigate(-1)}
+        >
           ← Volver a la tienda
         </button>
         <span className="mo-brand">VEXIO</span>
@@ -122,7 +125,7 @@ export default function MyOrders() {
             </div>
             <p className="mo-empty__title">Aún no tienes pedidos</p>
             <p className="mo-empty__sub">Cuando realices una compra, aparecerá aquí.</p>
-            <button className="mo-btn-store" onClick={() => navigate(`/tienda/${slug}/catalogo`)}>
+            <button className="mo-btn-store" onClick={() => navigate(`/tienda/${slug}`)}>
               Ver productos
             </button>
           </div>

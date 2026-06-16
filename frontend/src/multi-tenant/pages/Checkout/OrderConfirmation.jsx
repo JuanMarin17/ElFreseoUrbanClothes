@@ -51,7 +51,7 @@ export default function OrderConfirmation() {
 
       {/* ── Top nav (oculto al imprimir) ── */}
       <nav className="oc-nav oc-no-print">
-        <button className="oc-nav__back" onClick={() => navigate(`/tienda/${slug}/catalogo`, { replace: true })}>
+        <button className="oc-nav__back" onClick={() => navigate(`/tienda/${slug}`, { replace: true })}>
           ← Volver a la tienda
         </button>
       </nav>
@@ -172,7 +172,7 @@ export default function OrderConfirmation() {
           </svg>
           Descargar / Imprimir factura
         </button>
-        <button className="oc-btn-store" onClick={() => navigate(`/tienda/${slug}/catalogo`, { replace: true })}>
+        <button className="oc-btn-store" onClick={() => navigate(`/tienda/${slug}`, { replace: true })}>
           Seguir comprando
         </button>
       </div>
