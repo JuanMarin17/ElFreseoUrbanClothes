@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, useLocation, useParams } from "react-router-dom";
 import {
   getStoreBySlug,
@@ -8,8 +8,10 @@ import {
 } from "../../../../../multi-tenant/pages/services/storeService";
 import IAAdmin from "../../pages/IAAdmin/AIAdmin";
 import AdminHeader from "../AdminHeader/AdminHeader";
+import AdminNotifToast from "../AdminNotifToast/AdminNotifToast";
 import Sidebar from "../Sidebar/Sidebar";
 import StockAlertToast from "../StockAlertToast/StockAlertToast";
+import { useAdminNotifications } from "../../../../../hooks/useAdminNotifications";
 
 import "./AdminLayout.css";
 
@@ -63,6 +65,12 @@ const AdminLayout = () => {
   const [isAiOpen,      setIsAiOpen]      = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [storeReady,    setStoreReady]    = useState(!slug);
+  const [sseStoreId,    setSseStoreId]    = useState(
+    () => {
+      const id = localStorage.getItem("storeId");
+      return id && id !== "null" && id !== "undefined" ? id : null;
+    },
+  );
 
   // ── Brand: logo + nombre real de la tienda ──────────────────────────────
   const [storeInfo, setStoreInfo] = useState({ name: null, logo: null });
@@ -101,6 +109,9 @@ const AdminLayout = () => {
 
   const userInfo = useMemo(() => parseUserFromJwt(), []);
 
+  // ── SSE: notificaciones en tiempo real (órdenes, tickets, reseñas) ────────
+  const { notifications, unread, markAllRead } = useAdminNotifications(sseStoreId);
+
   const pageTitle = useMemo(() => {
     const segments = location.pathname.split("/").filter(Boolean);
     const last = segments[segments.length - 1];
@@ -122,6 +133,7 @@ const AdminLayout = () => {
         const storeId = store?.storeId ?? store?.id ?? store?.store_id ?? null;
         if (storeId) {
           localStorage.setItem("storeId", storeId);
+          setSseStoreId(storeId);
 
           // Nombre real de la tienda desde el objeto store
           const name = store.name ?? store.storeName ?? null;
@@ -218,6 +230,7 @@ const AdminLayout = () => {
           const id = first?.storeId ?? first?.store_id ?? first?.id ?? null;
           if (id) {
             localStorage.setItem("storeId", id);
+            setSseStoreId(id);
             const role = first?.role ?? "OWNER";
             localStorage.setItem("userRole", role);
             const name = first?.name ?? first?.storeName ?? null;
@@ -271,6 +284,8 @@ const AdminLayout = () => {
           onToggleTheme={toggleTheme}
           sidebarColor={sidebarColor}
           onSidebarColorChange={handleSidebarColorChange}
+          notifCount={unread}
+          onBellClick={markAllRead}
         />
 
         <div className="admin-workspace-split">
@@ -283,6 +298,7 @@ const AdminLayout = () => {
       </div>
 
       <StockAlertToast />
+      <AdminNotifToast notifications={notifications} />
     </div>
   );
 };

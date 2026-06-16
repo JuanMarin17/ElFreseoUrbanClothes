@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Search, Bell, Settings, Bot, Menu, Sun, Moon, Truck, Store, HelpCircle, User, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../auth/pages/hook/Useauth';
@@ -24,23 +25,33 @@ const AdminHeader = ({
   onToggleTheme,
   sidebarColor,
   onSidebarColorChange,
+  notifCount = 0,
+  onBellClick,
 }) => {
-  const [isNotifOpen,   setIsNotifOpen]   = useState(false);
+  const [isNotifOpen,    setIsNotifOpen]    = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [userMenuOpen,  setUserMenuOpen]  = useState(false);
-  const userMenuRef = useRef(null);
-  const navigate    = useNavigate();
-  const { logout }  = useAuth();
+  const [userMenuOpen,   setUserMenuOpen]   = useState(false);
+  const [menuPos,        setMenuPos]        = useState({ top: 0, right: 0 });
+  const avatarRef = useRef(null);
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
-  useEffect(() => {
-    if (!userMenuOpen) return;
-    const handler = (e) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target))
-        setUserMenuOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [userMenuOpen]);
+  const closeTimer = useRef(null);
+
+  const openUserMenu = () => {
+    clearTimeout(closeTimer.current);
+    if (avatarRef.current) {
+      const rect = avatarRef.current.getBoundingClientRect();
+      setMenuPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
+    }
+    setUserMenuOpen(true);
+  };
+
+  const scheduleClose = () => {
+    closeTimer.current = setTimeout(() => setUserMenuOpen(false), 120);
+  };
+
+  useEffect(() => () => clearTimeout(closeTimer.current), []);
 
   const handleLogout = () => {
     setUserMenuOpen(false);
@@ -102,9 +113,16 @@ const AdminHeader = ({
           )}
 
           {showBell && (
-            <button className="tool-btn" onClick={() => setIsNotifOpen(true)} title="Notificaciones">
+            <button
+              className="tool-btn"
+              onClick={() => { setIsNotifOpen(true); onBellClick?.(); }}
+              title="Notificaciones"
+            >
               <Bell size={18} />
-              <span className="dot-alert" />
+              {notifCount > 0
+                ? <span className="badge-count">{notifCount > 99 ? "99+" : notifCount}</span>
+                : <span className="dot-alert" />
+              }
             </button>
           )}
 
@@ -115,42 +133,52 @@ const AdminHeader = ({
           )}
 
           {userName && (
-            <div className="top-bar-user" ref={userMenuRef}>
+            <div className="top-bar-user">
               <div className="top-bar-user-info">
                 {userRole && <span className="top-bar-user-role">{userRole}</span>}
                 <span className="top-bar-user-name">{userName}</span>
               </div>
               <button
+                ref={avatarRef}
                 className="top-bar-avatar"
-                onClick={() => setUserMenuOpen(o => !o)}
+                onMouseEnter={openUserMenu}
+                onMouseLeave={scheduleClose}
                 aria-expanded={userMenuOpen}
                 aria-haspopup="true"
                 title="Menú de usuario"
               >
                 {userName[0].toUpperCase()}
               </button>
-
-              {userMenuOpen && (
-                <div className="ah-user-dropdown">
-                  <div className="ah-dropdown-header">
-                    <p className="ah-dropdown-greeting">Hola,</p>
-                    <p className="ah-dropdown-name">{userName}</p>
-                  </div>
-                  <ul className="ah-dropdown-list">
-                    <li><button onClick={() => go('/cuenta/pedidos')}><Truck size={15}/> Mis Pedidos</button></li>
-                    <li><button onClick={() => go('/mis-tiendas')}><Store size={15}/> Mis Tiendas</button></li>
-                    <li><button onClick={() => go('/cuenta/notificaciones')}><Bell size={15}/> Notificaciones</button></li>
-                    <li><button onClick={() => go('/ayuda')}><HelpCircle size={15}/> Ayuda y Soporte</button></li>
-                    <li><button onClick={() => go('/cuenta/configuracion')}><User size={15}/> Mi Cuenta</button></li>
-                    <hr className="ah-dropdown-divider"/>
-                    <li><button className="ah-logout-btn" onClick={handleLogout}><LogOut size={15}/> Cerrar Sesión</button></li>
-                  </ul>
-                </div>
-              )}
             </div>
           )}
         </div>
       </header>
+
+      {userMenuOpen && userName && createPortal(
+        <div
+          className="ah-dropdown"
+          style={{ top: menuPos.top, right: menuPos.right }}
+          onMouseEnter={() => clearTimeout(closeTimer.current)}
+          onMouseLeave={scheduleClose}
+        >
+          <div className="ah-dropdown-header">
+            <div className="ah-dropdown-avatar">{userName[0].toUpperCase()}</div>
+            <div>
+              <p className="ah-dropdown-name">{userName}</p>
+              {userRole && <p className="ah-dropdown-role">{userRole}</p>}
+            </div>
+          </div>
+          <div className="ah-dropdown-divider" />
+          <button className="ah-dropdown-item" onClick={() => go('/cuenta/pedidos')}><Truck size={14}/> Mis Pedidos</button>
+          <button className="ah-dropdown-item" onClick={() => go('/mis-tiendas')}><Store size={14}/> Mis Tiendas</button>
+          <button className="ah-dropdown-item" onClick={() => go('/cuenta/notificaciones')}><Bell size={14}/> Notificaciones</button>
+          <button className="ah-dropdown-item" onClick={() => go('/ayuda')}><HelpCircle size={14}/> Ayuda y Soporte</button>
+          <button className="ah-dropdown-item" onClick={() => go('/cuenta/configuracion')}><User size={14}/> Mi Cuenta</button>
+          <div className="ah-dropdown-divider" />
+          <button className="ah-dropdown-item ah-dropdown-logout" onClick={handleLogout}><LogOut size={14}/> Cerrar Sesión</button>
+        </div>,
+        document.body
+      )}
 
       <NotifModal
         isOpen={isNotifOpen}

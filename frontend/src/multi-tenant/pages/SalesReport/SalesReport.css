@@ -13,6 +13,67 @@
   font-family: "Inter", sans-serif;
 }
 
+/* ── Error / Retry ───────────────────────── */
+.sr-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  color: #fca5a5;
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+.sr-retry-btn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(239,68,68,0.12);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: 7px;
+  color: #fca5a5;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.sr-retry-btn:hover { background: rgba(239,68,68,0.2); }
+
+/* ── Skeleton KPI ────────────────────────── */
+.sr-kpi-skeleton {
+  height: 80px;
+  background: linear-gradient(90deg, #111 25%, #1a1a1a 50%, #111 75%);
+  background-size: 300px 100%;
+  animation: sr-shimmer 1.3s infinite linear;
+  border-radius: 12px;
+  border: 1px solid #1a1a1a;
+}
+@keyframes sr-shimmer {
+  0%   { background-position: -300px 0; }
+  100% { background-position: calc(300px + 100%) 0; }
+}
+
+/* ── Mock banner ─────────────────────────── */
+.sr-mock-banner {
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.2);
+  color: #fbbf24;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.sr-mock-banner code {
+  background: rgba(245,158,11,0.12);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 11px;
+}
+
 /* ── Encabezado ──────────────────────────── */
 .sr-page-header {
   display: flex;

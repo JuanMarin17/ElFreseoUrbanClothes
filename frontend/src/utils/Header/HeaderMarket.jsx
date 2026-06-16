@@ -34,6 +34,7 @@ const HeaderMarket = () => {
   const [notificationCount]                 = useState(0);
   const [notifOpen, setNotifOpen]           = useState(false);
   const [userMenuOpen, setUserMenuOpen]     = useState(false);
+  const userMenuTimer = React.useRef(null);
 
   const {
     cart, cartCount, isOpen: cartOpen, loading: cartLoading,
@@ -75,15 +76,10 @@ const HeaderMarket = () => {
     setNotifOpen(false);
   }, [location.pathname]);
 
-  // Close user menu when clicking outside
-  useEffect(() => {
-    if (!userMenuOpen) return;
-    const handler = (e) => {
-      if (!e.target.closest('.user-menu-wrapper')) setUserMenuOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [userMenuOpen]);
+  const openUserMenuHover  = () => { clearTimeout(userMenuTimer.current); setUserMenuOpen(true); };
+  const closeUserMenuHover = () => { userMenuTimer.current = setTimeout(() => setUserMenuOpen(false), 120); };
+
+  useEffect(() => () => clearTimeout(userMenuTimer.current), []);
 
   // Close notification panel when clicking outside
   useEffect(() => {
@@ -203,13 +199,16 @@ const HeaderMarket = () => {
             )}
 
             {/* User dropdown */}
-            <div className="user-menu-wrapper">
+            <div
+              className="user-menu-wrapper"
+              onMouseEnter={openUserMenuHover}
+              onMouseLeave={closeUserMenuHover}
+            >
               <button
                 className="icon-btn"
                 aria-label="Menú de usuario"
                 aria-haspopup="true"
                 aria-expanded={userMenuOpen}
-                onClick={() => setUserMenuOpen(o => !o)}
               >
                 {user ? (
                   <span className="user-avatar-init" aria-hidden="true">
@@ -231,7 +230,7 @@ const HeaderMarket = () => {
                     <p>Bienvenido a <strong style={{ color: 'var(--primary-color)' }}>VEXIO</strong></p>
                   )}
                 </div>
-                <ul className="dropdown-list" onClick={() => setUserMenuOpen(false)}>
+                <ul className="dropdown-list" onClick={() => setUserMenuOpen(false)} onMouseLeave={closeUserMenuHover}>
                   {!user ? (
                     <li>
                       <Link to="/login" className="login-link-wrapper" role="menuitem">

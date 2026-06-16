@@ -82,12 +82,14 @@ const buildHeaders = (user) => {
 
 const api = {
   /** POST /tickets — Crea un ticket */
-  createTicket: (user, subject) =>
-    fetch(`${API_BASE}/tickets`, {
+  createTicket: (user, subject) => {
+    const storeId = localStorage.getItem("storeId") ?? undefined;
+    return fetch(`${API_BASE}/tickets`, {
       method: "POST",
       headers: buildHeaders(user),
-      body: JSON.stringify({ subject }),
-    }).then(handleResponse),
+      body: JSON.stringify({ subject, ...(storeId ? { storeId } : {}) }),
+    }).then(handleResponse);
+  },
 
   /** GET /tickets/me — Mis tickets (USER) */
   getMyTickets: (user) =>

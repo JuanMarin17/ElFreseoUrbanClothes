@@ -192,7 +192,8 @@ function ReviewForm({ productId, onCreated, onToast, onClose }) {
     }
     try {
       setLoading(true);
-      const review = await api.create({ productId, rating, title, body });
+      const storeId = localStorage.getItem("storeId") ?? undefined;
+      const review = await api.create({ productId, storeId, rating, title, body });
       onToast("¡Reseña publicada!", "success");
       onCreated(review);
       onClose();
