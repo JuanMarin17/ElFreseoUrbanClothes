@@ -453,14 +453,14 @@ export default function CheckoutPage() {
           <button
             className="ck-btn-primary"
             style={{ justifyContent: "center" }}
-            onClick={() => navigate(`/tienda/${slug}/orders`)}
+            onClick={() => navigate(`/tienda/${slug}/orders`, { replace: true })}
           >
             Ver mis pedidos
           </button>
           <button
             className="ck-btn-secondary"
             style={{ justifyContent: "center" }}
-            onClick={() => navigate(`/tienda/${slug}/orders/${successOrder.orderId}`)}
+            onClick={() => navigate(`/tienda/${slug}/orders/${successOrder.orderId}`, { replace: true })}
           >
             Ver detalle del pedido
           </button>
