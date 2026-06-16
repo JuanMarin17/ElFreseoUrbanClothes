@@ -356,7 +356,7 @@ function App() {
                 ─────────────────────────────────────────────────────────── */}
                 <Route element={<MyStoreLayout />}>
                   <Route path="/mis-tiendas" element={<MyStore />} />
-                  <Route path="/transacciones" element={<Transactions />} />
+                  <Route path="/transacciones" element={<Transaction />} />
                 </Route>
 
                 {/* ─── Rutas protegidas ─── */}
