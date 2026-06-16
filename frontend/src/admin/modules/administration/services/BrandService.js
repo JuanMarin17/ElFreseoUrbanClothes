@@ -3,10 +3,10 @@
 // Requiere: Authorization, X-Store-Id (GET); + X-User-Role (escritura)
 // ══════════════════════════════════════════════════════════════════════════════
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
+const BASE_URL = import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_URL;
 
 const readHeaders = () => {
-  const jwt     = localStorage.getItem("jwt");
+  const jwt = localStorage.getItem("jwt");
   const storeId = localStorage.getItem("storeId");
   const h = {};
   if (jwt) {
@@ -14,12 +14,16 @@ const readHeaders = () => {
     try {
       const payload = JSON.parse(atob(jwt.split(".")[1]));
       if (payload.user_id) h["X-User-Id"] = payload.user_id;
-    } catch { /* JWT malformado — se omite X-User-Id */ }
+    } catch {
+      /* JWT malformado — se omite X-User-Id */
+    }
   }
   if (storeId && storeId !== "null" && storeId !== "undefined") {
     h["X-Store-Id"] = storeId;
   } else {
-    throw new Error("No se encontró la tienda activa. Recarga la página e intenta de nuevo.");
+    throw new Error(
+      "No se encontró la tienda activa. Recarga la página e intenta de nuevo.",
+    );
   }
   return h;
 };

@@ -6,8 +6,7 @@
  * Requieren: Authorization: Bearer <jwt>  y  X-Store-Id: <uuid>
  */
 
-const API_ROOT =
-  import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
+const API_ROOT = import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_URL;
 
 function buildHeaders(storeId) {
   return {

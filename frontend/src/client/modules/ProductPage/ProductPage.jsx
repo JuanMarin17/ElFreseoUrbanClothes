@@ -6,7 +6,8 @@ import HeaderMarket from "../../../utils/Header/HeaderMarket.jsx";
 import { cf } from "../../../multi-tenant/components/Store/storeUtils.jsx";
 
 import "./ProductPage.css";
-import { useProduct } from "./service/Useproduct";
+import { useProduct } from "./service/useProduct";
+import QuickBuyModal from "./components/QuickBuyModal";
 
 import SkeletonHero from "./components/SkeletonHero";
 import ProductGallery from "./components/ProductGallery";
@@ -85,25 +86,26 @@ export default function ProductPage() {
   const [searchParams] = useSearchParams();
   const navSource = searchParams.get("src"); // "store" | "catalog" | null
   const fromStore = navSource === "store";
+
   const currentUserId = getUserIdFromJwt();
 
   const {
     // Datos
     product,
-    reviews,
     related,
-    hasMoreReviews,
 
     // Selecciones
     selectedImage,
     selectedColor,
     selectedSize,
     activeVariant,
+
     quantity,
     activeTab,
     wishlisted,
 
     // Precio y stock dinámicos (según variante activa)
+    currentPrice,
     currentStock,
     currentPriceFormatted,
 
@@ -118,7 +120,6 @@ export default function ProductPage() {
     decrementQty,
     handleAddToCart,
     handleToggleWishlist,
-    loadMoreReviews,
 
     // Estados
     loading,
@@ -126,6 +127,31 @@ export default function ProductPage() {
     cartLoading,
     cartSuccess,
   } = useProduct(productId);
+
+  /* ── Quick Buy modal ── */
+  const [quickBuyOpen, setQuickBuyOpen] = useState(false);
+
+  const handleBuyNow = () => {
+    const jwt = localStorage.getItem("jwt");
+    if (!jwt || jwt === "null") {
+      sessionStorage.setItem(
+        "pendingQuickBuy",
+        JSON.stringify({ returnUrl: window.location.pathname + window.location.search })
+      );
+      navigate("/login");
+      return;
+    }
+    setQuickBuyOpen(true);
+  };
+
+  // Re-open modal after login redirect (?quickbuy=1)
+  const qbParam = searchParams.get("quickbuy");
+  useEffect(() => {
+    if (qbParam !== "1" || loading || !product) return;
+    const jwt = localStorage.getItem("jwt");
+    if (!jwt || jwt === "null") return;
+    setQuickBuyOpen(true);
+  }, [qbParam, loading, product]);
 
   /* ── Conteo live de reseñas (se actualiza cuando ProductReviews carga) ── */
   const [liveReviewCount, setLiveReviewCount] = useState(0);
@@ -149,6 +175,10 @@ export default function ProductPage() {
   const [storeSettings, setStoreSettings] = useState(null);
   const [isDark, setIsDark] = useState(true);
   const storeSlug = useMemo(() => localStorage.getItem("storeSlug"), []);
+
+  const quickBuyReturnUrl = navSource === "store" && storeSlug
+    ? `/tienda/${storeSlug}`
+    : "/market";
 
   useEffect(() => {
     if (!fromStore) return;
@@ -237,6 +267,34 @@ export default function ProductPage() {
 
   /* ── Error ── */
   if (error) {
+    const jwt = localStorage.getItem("jwt");
+    const hasSession = !!jwt && jwt !== "null";
+
+    if (error === "REQUIRES_AUTH" && !hasSession) {
+      return (
+        <div className="vx-page vx-noise">
+          <HeaderMarket />
+          <div className="vx-wrap">
+            <div className="vx-error-state" role="alert">
+              <i className="fa-solid fa-lock vx-error-state__icon" aria-hidden="true" />
+              <h1 className="vx-error-state__title">Inicia sesión para ver este producto</h1>
+              <p className="vx-error-state__msg">
+                Necesitas una cuenta para ver el detalle completo de los productos.
+              </p>
+              <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+                <button onClick={() => navigate("/login")} className="vx-btn vx-btn--primary vx-btn--sm">
+                  Iniciar sesión
+                </button>
+                <button onClick={() => navigate(-1)} className="vx-btn vx-btn--ghost vx-btn--sm">
+                  <i className="fa-solid fa-arrow-left" aria-hidden="true" /> Volver
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="vx-page vx-noise">
         <div className="vx-wrap">
@@ -362,7 +420,7 @@ export default function ProductPage() {
                     cartLoading={cartLoading}
                     wishlisted={wishlisted}
                     onAddToCart={handleAddToCart}
-                    onBuyNow={() => {}}
+                    onBuyNow={handleBuyNow}
                     onToggleWishlist={handleToggleWishlist}
                   />
 
@@ -460,6 +518,21 @@ export default function ProductPage() {
 
       {/* Toast de confirmación */}
       <CartToast visible={cartSuccess} />
+
+      {/* Quick Buy modal */}
+      <QuickBuyModal
+        open={quickBuyOpen}
+        onClose={() => setQuickBuyOpen(false)}
+        product={product}
+        activeVariant={activeVariant}
+        selectedColor={selectedColor}
+        selectedSize={selectedSize}
+        currentPrice={currentPrice}
+        currentStock={currentStock}
+        storeId={localStorage.getItem("storeId")}
+        storeSlug={storeSlug}
+        returnUrl={quickBuyReturnUrl}
+      />
     </div>
   );
 }

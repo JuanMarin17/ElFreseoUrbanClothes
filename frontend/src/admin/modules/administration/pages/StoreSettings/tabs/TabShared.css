@@ -1,0 +1,405 @@
+/* TabShared.css — estilos comunes para todas las pestañas de configuración */
+
+.tab-root {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 780px;
+}
+
+/* ── Sección / Card ────────────────────────────────────────────────────────── */
+.tab-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.tab-card-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+}
+
+/* ── Campos ────────────────────────────────────────────────────────────────── */
+.tab-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tab-field label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+}
+
+.tab-field-hint {
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  margin: 3px 0 0;
+}
+
+.tab-input,
+.tab-select,
+.tab-textarea {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 9px;
+  padding: 10px 14px;
+  color: #fff;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.18s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.tab-input:focus,
+.tab-select:focus,
+.tab-textarea:focus { border-color: rgba(255,255,255,0.3); }
+.tab-input::placeholder,
+.tab-textarea::placeholder { color: rgba(255,255,255,0.22); }
+.tab-select { cursor: pointer; appearance: auto; }
+.tab-select option { background: #13131f; color: #fff; }
+.tab-textarea { min-height: 90px; resize: vertical; }
+
+.tab-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 580px) { .tab-grid-2 { grid-template-columns: 1fr; } }
+
+.tab-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 580px) { .tab-grid-3 { grid-template-columns: 1fr; } }
+
+/* ── Color picker inline ───────────────────────────────────────────────────── */
+.tab-color-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tab-color-swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 2px solid rgba(255,255,255,0.15);
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.tab-color-swatch input[type="color"] {
+  position: absolute;
+  inset: -4px;
+  width: calc(100% + 8px);
+  height: calc(100% + 8px);
+  opacity: 0;
+  cursor: pointer;
+}
+.tab-color-value {
+  font-size: 12px;
+  font-family: monospace;
+  color: rgba(255,255,255,0.6);
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 7px;
+  padding: 8px 10px;
+  outline: none;
+  color: #fff;
+}
+
+/* ── Toggle ────────────────────────────────────────────────────────────────── */
+.tab-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.tab-toggle-row:last-child { border-bottom: none; }
+.tab-toggle-info { display: flex; flex-direction: column; gap: 2px; }
+.tab-toggle-label { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); }
+.tab-toggle-desc { font-size: 11px; color: rgba(255,255,255,0.35); }
+
+.tab-switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.tab-switch input { display: none; }
+.tab-switch-rail {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.1);
+  border-radius: 99px;
+  cursor: pointer;
+  transition: background 0.22s;
+}
+.tab-switch input:checked ~ .tab-switch-rail { background: #22c55e; }
+.tab-switch-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: left 0.22s;
+}
+.tab-switch input:checked ~ .tab-switch-rail .tab-switch-thumb { left: 21px; }
+
+/* ── Botón guardar ─────────────────────────────────────────────────────────── */
+.tab-save-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.tab-save-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  color: #000;
+  border: none;
+  border-radius: 9px;
+  padding: 11px 22px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.tab-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.tab-save-btn:not(:disabled):hover { opacity: 0.88; }
+
+.tab-save-msg {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.tab-save-msg--ok  { color: #22c55e; }
+.tab-save-msg--err { color: #f87171; }
+
+/* ── Spinner ───────────────────────────────────────────────────────────────── */
+.tab-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: tab-spin 0.7s linear infinite;
+}
+@keyframes tab-spin { to { transform: rotate(360deg); } }
+
+/* ── Separador ─────────────────────────────────────────────────────────────── */
+.tab-divider {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin: 4px 0;
+}
+
+/* ── Error ─────────────────────────────────────────────────────────────────── */
+.tab-error {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2);
+  color: #f87171;
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 12px;
+}
+
+/* ── Navigation tab: menu items list ──────────────────────────────────────── */
+.nav-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.nav-item-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+.nav-item-drag { color: rgba(255,255,255,0.25); cursor: grab; flex-shrink: 0; }
+.nav-item-label { flex: 1; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); letter-spacing: 1px; }
+.nav-item-remove {
+  background: none; border: none; cursor: pointer; padding: 2px;
+  color: rgba(255,255,255,0.3); display: flex; align-items: center;
+  transition: color 0.15s;
+}
+.nav-item-remove:hover { color: #f87171; }
+
+.nav-item-add { display: flex; gap: 8px; align-items: center; }
+.nav-add-btn {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px; padding: 10px 12px; color: #fff; cursor: pointer;
+  display: flex; align-items: center; transition: background 0.15s; flex-shrink: 0;
+}
+.nav-add-btn:hover { background: rgba(255,255,255,0.14); }
+
+.nav-header-preview {
+  border-radius: 10px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 4px;
+}
+.nav-header-preview nav { display: flex; gap: 18px; }
+
+.nav-footer-preview {
+  border-radius: 10px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+/* ── Appearance tab: layout grid ───────────────────────────────────────────── */
+.layout-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+@media (max-width: 640px) { .layout-grid { grid-template-columns: 1fr 1fr; } }
+
+.layout-opt {
+  background: rgba(255,255,255,0.03);
+  border: 2px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 12px 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s;
+}
+.layout-opt--active { border-color: #fff; }
+.layout-opt-preview {
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  height: 60px;
+  margin-bottom: 8px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.lp-bar  { height: 8px;  background: rgba(255,255,255,0.15); border-radius: 3px; }
+.lp-cols { flex: 1; display: flex; gap: 4px; }
+.lp-side { width: 14px; background: rgba(255,255,255,0.08); border-radius: 2px; }
+.lp-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+.lp-card { background: rgba(255,255,255,0.1); border-radius: 2px; }
+.layout-opt-title { font-size: 11px; font-weight: 700; color: #fff; margin: 0 0 2px; letter-spacing: 0.5px; }
+.layout-opt-desc  { font-size: 10px; color: rgba(255,255,255,0.35); margin: 0; line-height: 1.4; }
+
+.appearance-preview { display: flex; flex-direction: column; gap: 6px; }
+.appearance-preview-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+
+.hf-preview { border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.07); margin-top: 4px; }
+.hf-header, .hf-footer { padding: 10px 16px; font-size: 12px; font-weight: 600; }
+.hf-body { background: rgba(255,255,255,0.02); padding: 14px 16px; font-size: 11px; color: rgba(255,255,255,0.2); text-align: center; }
+
+/* ── Banner tab ────────────────────────────────────────────────────────────── */
+.banner-preview {
+  border-radius: 10px;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* ── Basic tab: logo ───────────────────────────────────────────────────────── */
+.basic-logo-wrap { display: flex; align-items: center; gap: 20px; }
+.basic-logo-preview { width: 120px; height: 60px; object-fit: contain; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+.basic-logo-placeholder {
+  width: 120px; height: 60px; background: rgba(255,255,255,0.04);
+  border: 1px dashed rgba(255,255,255,0.15); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.2);
+}
+.basic-logo-actions { display: flex; flex-direction: column; gap: 8px; }
+.basic-upload-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px; padding: 9px 16px; color: #fff; font-size: 12px;
+  font-weight: 600; cursor: pointer; transition: background 0.15s;
+}
+.basic-upload-btn:hover { background: rgba(255,255,255,0.14); }
+.basic-upload-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── CMS tab ───────────────────────────────────────────────────────────────── */
+.cms-sub-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.cms-sub-tab {
+  padding: 7px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+  background: transparent; color: rgba(255,255,255,0.45); font-size: 11px;
+  font-weight: 600; letter-spacing: 0.5px; cursor: pointer; transition: all 0.15s;
+}
+.cms-sub-tab--active {
+  background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); color: #fff;
+}
+
+.cms-list-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px; padding: 14px 16px;
+}
+.cms-list-item-body { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.cms-list-item-title { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); }
+.cms-list-item-sub   { font-size: 11px; color: rgba(255,255,255,0.35); }
+.cms-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.cms-icon-btn {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 7px; padding: 6px; color: rgba(255,255,255,0.5); cursor: pointer;
+  display: flex; align-items: center; transition: all 0.15s;
+}
+.cms-icon-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.cms-icon-btn--del:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.25); color: #f87171; }
+
+.cms-add-form {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 10px;
+}
+.cms-add-form-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.cms-cancel-btn {
+  background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+  padding: 8px 16px; color: rgba(255,255,255,0.5); font-size: 12px; cursor: pointer;
+}
+.cms-submit-btn {
+  background: #fff; border: none; border-radius: 8px; padding: 8px 18px;
+  color: #000; font-size: 12px; font-weight: 700; cursor: pointer;
+}
+
+/* ── Legal tab ─────────────────────────────────────────────────────────────── */
+.legal-radio-group { display: flex; gap: 10px; flex-wrap: wrap; }
+.legal-radio-opt {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; padding: 9px 14px; cursor: pointer; transition: border-color 0.15s;
+}
+.legal-radio-opt input[type="radio"] { accent-color: #fff; cursor: pointer; }
+.legal-radio-opt span { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.7); }

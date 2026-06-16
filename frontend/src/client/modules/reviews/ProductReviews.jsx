@@ -21,7 +21,7 @@ import "./ProductReviews.css";
    Ajusta el BASE_URL y el helper getToken() a tu proyecto
 ══════════════════════════════════════════════════════════ */
 
-const BASE_URL = `${import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1"}/reviews`;
+const BASE_URL = `${import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_URL}/reviews`;
 
 const getToken = () => localStorage.getItem("jwt") || "";
 
@@ -624,7 +624,8 @@ export default function ProductReviews({
         )}
         {currentUserId && userReviews.length >= MAX_REVIEWS_PER_USER && (
           <span className="rvx-already-badge">
-            <CheckCircle size={13} /> Límite de {MAX_REVIEWS_PER_USER} reseñas alcanzado
+            <CheckCircle size={13} /> Límite de {MAX_REVIEWS_PER_USER} reseñas
+            alcanzado
           </span>
         )}
       </div>

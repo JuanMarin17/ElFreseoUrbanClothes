@@ -15,6 +15,26 @@ const formatCOP = (n) =>
     minimumFractionDigits: 0,
   }).format(n);
 
+const FEATURE_LABEL_MAP = {
+  POS:          "Punto de venta presencial",
+  customDomain: "Dominio personalizado",
+  analytics:    "Analíticas avanzadas",
+  multiUser:    "Múltiples usuarios",
+  support:      "Soporte prioritario",
+  api:          "Acceso a API",
+  whiteLabel:   "Sin marca Vexio",
+  exportData:   "Exportación de datos",
+  ai:           "Asistente IA",
+  reports:      "Informes avanzados",
+};
+
+const PLAN_STATIC_BENEFITS = {
+  GRATUITO: ["Tienda pública en Vexio", "Pasarela de pago básica", "Soporte por email"],
+  BASICO:   ["Tienda pública en Vexio", "Dominio personalizado", "Pasarela de pago completa", "Soporte estándar"],
+  PRO:      ["Tienda pública en Vexio", "Dominio personalizado", "Punto de venta presencial", "Analíticas avanzadas", "Soporte prioritario"],
+  PREMIUM:  ["Tienda pública en Vexio", "Dominio personalizado", "Punto de venta presencial", "Analíticas avanzadas", "Múltiples usuarios", "Sin marca Vexio", "Soporte 24/7"],
+};
+
 function parsePlanFeatures(plan) {
   const lines = [
     plan.maxProducts >= 9999 || plan.maxProducts === -1
@@ -27,12 +47,21 @@ function parsePlanFeatures(plan) {
       ? "IA ilimitada"
       : `${plan.maxAiCalls} llamadas IA / mes`,
   ];
+  let hasExtras = false;
   try {
     const extras = JSON.parse(plan.features ?? "{}");
     for (const [k, v] of Object.entries(extras)) {
-      if (v !== false && v !== null && v !== "") lines.push(`${k}: ${v}`);
+      if (v === false || v === null || v === "") continue;
+      hasExtras = true;
+      const label = FEATURE_LABEL_MAP[k];
+      if (label) lines.push(label);
+      else if (v !== true) lines.push(`${k}: ${v}`);
+      else lines.push(k);
     }
   } catch {}
+  if (!hasExtras && PLAN_STATIC_BENEFITS[plan.name]) {
+    lines.push(...PLAN_STATIC_BENEFITS[plan.name]);
+  }
   return lines;
 }
 
@@ -45,13 +74,6 @@ export default function SelectPlan({ showComponents }) {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedName, setSelectedName] = useState(state.plan?.name ?? null);
-
-  // Suscripciones desactivadas — selecciona plan gratuito y continúa directamente
-  useEffect(() => {
-    const freePlan = { planId: "gratuito", name: "GRATUITO", price: 0, maxProducts: 10, maxPages: 1, maxAiCalls: 5, features: "{}" };
-    completeStep(1, freePlan);
-    nav("/crear-tienda/basico");
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     getPlans()
@@ -75,12 +97,11 @@ export default function SelectPlan({ showComponents }) {
 
   const handleSelect = (plan) => {
     if (!isAuthenticated()) {
-      sessionStorage.setItem("pendingPlan", plan.name);
       nav("/login");
       return;
     }
     setSelectedName(plan.name);
-    completeStep(1, plan);
+    completeStep("plan", plan);
     nav("/crear-tienda/basico");
   };
 

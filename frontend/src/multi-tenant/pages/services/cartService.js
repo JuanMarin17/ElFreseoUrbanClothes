@@ -4,9 +4,9 @@
  * Nota: storeId va en la URL, NO en los headers.
  */
 
-const BASE = import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
+import { authFetch } from "../../../utils/authFetch";
 
-
+const BASE = import.meta.env.VITE_API_URL;
 
 const buildHeaders = () => {
   const jwt = localStorage.getItem("jwt");
@@ -18,7 +18,7 @@ const buildHeaders = () => {
 };
 
 async function request(method, path, body) {
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await authFetch(`${BASE}${path}`, {
     method,
     headers: buildHeaders(),
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),

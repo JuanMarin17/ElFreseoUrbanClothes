@@ -3,7 +3,8 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, PackagePlus, Package, Users, ShoppingCart,
   BarChart3, AlertTriangle, LogOut, FileText, ArrowLeft,
-  Building2, Bot, Tag,
+  Building2, Bot, Tag, MonitorSmartphone, UserCircle2, MapPin,
+  RefreshCw, Settings, CreditCard,
 } from 'lucide-react';
 import './Sidebar.css';
 import defaultLogo from '../../../../../assets/LogoVexios/banervexio.png';
@@ -13,13 +14,19 @@ const DEFAULT_MENU_ITEMS = [
   { path: '/tienda/:slug/admin/productos',      label: 'PRODUCTOS',          icon: Package         },
   { path: '/tienda/:slug/admin/subir-producto', label: 'SUBIR PRODUCTO',     icon: PackagePlus     },
   { path: '/tienda/:slug/admin/usuarios',       label: 'GESTIONAR USUARIOS', icon: Users           },
+  { path: '/tienda/:slug/admin/clientes',       label: 'CLIENTES',           icon: UserCircle2     },
   { path: '/tienda/:slug/admin/pedidos',        label: 'VER PEDIDOS',        icon: ShoppingCart    },
+  { path: '/tienda/:slug/admin/devoluciones',   label: 'DEVOLUCIONES',       icon: RefreshCw       },
+  { path: '/tienda/:slug/admin/pos',            label: 'PUNTO DE VENTA',     icon: MonitorSmartphone },
   { path: '/tienda/:slug/admin/promociones',    label: 'PROMOCIONES',        icon: Tag             },
   { path: '/tienda/:slug/admin/report',         label: 'INFORMES',           icon: BarChart3       },
   { path: '/tienda/:slug/admin/alertas',        label: 'ALERTAS DE STOCK',   icon: AlertTriangle,  alertKey: 'stock' },
+  { path: '/tienda/:slug/admin/ubicaciones',    label: 'UBICACIONES',        icon: MapPin          },
   { path: '/tienda/:slug/admin/proveedores',    label: 'PROVEEDORES',        icon: Building2       },
   { path: '/tienda/:slug/admin/cms',            label: 'CONTENIDO CMS',      icon: FileText        },
   { path: '/tienda/:slug/admin/IA',             label: 'ASISTENTE IA',       icon: Bot             },
+  { path: '/tienda/:slug/admin/suscripcion',     label: 'SUSCRIPCIÓN',        icon: CreditCard      },
+  { path: '/tienda/:slug/admin/configuracion',  label: 'CONFIGURACIÓN',      icon: Settings        },
 ];
 
 const Sidebar = ({

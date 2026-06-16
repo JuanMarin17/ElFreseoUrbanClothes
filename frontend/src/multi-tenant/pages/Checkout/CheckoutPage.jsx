@@ -249,11 +249,12 @@ export default function CheckoutPage() {
   const storeId     = localStorage.getItem("storeId");
   const cartFromNav = location.state?.cart ?? null;
 
-  const [step,        setStep]        = useState(1);
-  const [cart,        setCart]        = useState(cartFromNav);
-  const [cartLoading, setCartLoading] = useState(!cartFromNav);
-  const [processing,  setProcessing]  = useState(false);
-  const [errors,      setErrors]      = useState({});
+  const [step,         setStep]         = useState(1);
+  const [cart,         setCart]         = useState(cartFromNav);
+  const [cartLoading,  setCartLoading]  = useState(!cartFromNav);
+  const [processing,   setProcessing]   = useState(false);
+  const [successOrder, setSuccessOrder] = useState(null);
+  const [errors,       setErrors]       = useState({});
 
   const [shipping, setShipping] = useState({
     fullName: "", email: "", phone: "", address: "", city: "", department: "",
@@ -316,7 +317,7 @@ export default function CheckoutPage() {
     setStep((s) => s + 1);
   };
 
-  /* ── Pagar ── */
+  /* ── Confirmar pedido ── */
 
   const handlePay = async () => {
     setProcessing(true);
@@ -339,13 +340,22 @@ export default function CheckoutPage() {
 
     let order;
     try {
-      order = await createOrder(storeId, payload);
+      const raw = await createOrder(storeId, payload);
+      // El backend puede devolver el ID como "id" o "orderId"
+      const resolvedId = raw?.orderId ?? raw?.id ?? raw?.order_id;
+      if (!resolvedId) throw new Error("sin ID");
+      order = {
+        ...raw,
+        orderId:     resolvedId,
+        orderNumber: raw.orderNumber ?? raw.order_number ?? String(resolvedId),
+      };
     } catch {
       order = await simulateOrder(payload);
     }
 
+    const storageKey = `order_${order.orderId}`;
     localStorage.setItem(
-      `order_${order.orderId}`,
+      storageKey,
       JSON.stringify({
         order,
         items,
@@ -358,8 +368,8 @@ export default function CheckoutPage() {
       })
     );
 
-    await new Promise((r) => setTimeout(r, 1800));
-    navigate(`/tienda/${slug}/orden/${order.orderId}`);
+    setProcessing(false);
+    setSuccessOrder(order);
   };
 
   /* ── Estados de carga / procesamiento ── */
@@ -396,10 +406,64 @@ export default function CheckoutPage() {
             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>
         </div>
-        <p className="ck-processing__title">Procesando pago</p>
-        <p className="ck-processing__sub">Verificando tu transacción de forma segura…</p>
+        <p className="ck-processing__title">Registrando pedido</p>
+        <p className="ck-processing__sub">Estamos guardando tu pedido, un momento…</p>
         <div className="ck-processing__dots">
           <span /><span /><span />
+        </div>
+      </div>
+    );
+  }
+
+  if (successOrder) {
+    const methodLabel = PAYMENT_METHODS.find((m) => m.id === payment.method)?.label ?? payment.method;
+    return (
+      <div className="ck-processing" style={{ gap: 20 }}>
+        <div style={{
+          width: 64, height: 64, borderRadius: "50%",
+          background: "linear-gradient(135deg,#22c55e,#16a34a)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 4px 24px rgba(34,197,94,.35)",
+        }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+
+        <p className="ck-processing__title" style={{ color: "#16a34a", fontSize: 22 }}>
+          ¡Pedido confirmado!
+        </p>
+
+        <div style={{
+          background: "#f0fdf4", border: "1px solid #bbf7d0",
+          borderRadius: 12, padding: "14px 24px", textAlign: "center",
+        }}>
+          <p style={{ fontSize: 12, color: "#64748b", margin: "0 0 4px" }}>Número de pedido</p>
+          <p style={{ fontSize: 18, fontWeight: 700, color: "#1e2a3d", margin: 0, letterSpacing: 1 }}>
+            {successOrder.orderNumber ?? successOrder.orderId}
+          </p>
+        </div>
+
+        <p className="ck-processing__sub" style={{ textAlign: "center", maxWidth: 300 }}>
+          Método de pago: <strong>{methodLabel}</strong>.<br />
+          Te contactaremos a <strong>{shipping.email}</strong> para coordinar los detalles.
+        </p>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%", maxWidth: 300 }}>
+          <button
+            className="ck-btn-primary"
+            style={{ justifyContent: "center" }}
+            onClick={() => navigate(`/tienda/${slug}/orders`, { replace: true })}
+          >
+            Ver mis pedidos
+          </button>
+          <button
+            className="ck-btn-secondary"
+            style={{ justifyContent: "center" }}
+            onClick={() => navigate(`/tienda/${slug}/orders/${successOrder.orderId}`, { replace: true })}
+          >
+            Ver detalle del pedido
+          </button>
         </div>
       </div>
     );
@@ -480,10 +544,9 @@ export default function CheckoutPage() {
             ) : (
               <button className="ck-btn-pay" onClick={handlePay}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="11" width="18" height="11" rx="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  <polyline points="20 6 9 17 4 12" />
                 </svg>
-                Pagar {formatCOP(total)}
+                Confirmar pedido — {formatCOP(total)}
               </button>
             )}
           </div>
@@ -534,10 +597,9 @@ export default function CheckoutPage() {
 
           <div className="ck-sidebar__secure">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              <polyline points="20 6 9 17 4 12" />
             </svg>
-            Transacción segura SSL
+            Pedido seguro — sin redirección a pasarela
           </div>
         </aside>
       </div>

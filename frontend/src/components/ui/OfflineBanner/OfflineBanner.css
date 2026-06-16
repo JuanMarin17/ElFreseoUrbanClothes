@@ -1,0 +1,186 @@
+/* ── Contenedor base ─────────────────────────────────────────────────────── */
+.ob {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  z-index: 99999;
+  min-width: 340px;
+  max-width: 480px;
+  width: max-content;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  animation: ob-slide-up .3s cubic-bezier(.34,1.56,.64,1) both;
+}
+
+@keyframes ob-slide-up {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px) scale(.95); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0)     scale(1);  }
+}
+
+/* ── Offline ─────────────────────────────────────────────────────────────── */
+.ob--off {
+  background: rgba(12, 6, 6, .88);
+  border: 1px solid rgba(239, 68, 68, .35);
+  box-shadow:
+    0 0 0 1px rgba(239, 68, 68, .08),
+    0 20px 60px rgba(0, 0, 0, .55),
+    0 0 40px rgba(239, 68, 68, .08) inset;
+}
+
+/* ── Online (back) ───────────────────────────────────────────────────────── */
+.ob--on {
+  background: rgba(4, 16, 10, .88);
+  border: 1px solid rgba(16, 185, 129, .35);
+  box-shadow:
+    0 0 0 1px rgba(16, 185, 129, .08),
+    0 20px 60px rgba(0, 0, 0, .55),
+    0 0 40px rgba(16, 185, 129, .06) inset;
+}
+
+/* ── Icono ───────────────────────────────────────────────────────────────── */
+.ob__icon-wrap {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ob__icon-wrap--off {
+  background: rgba(239, 68, 68, .12);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, .2);
+}
+
+.ob__icon-wrap--on {
+  background: rgba(16, 185, 129, .12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, .2);
+}
+
+/* Anillo pulsante en offline */
+.ob__icon-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 16px;
+  border: 1px solid rgba(239, 68, 68, .4);
+  animation: ob-ring 2s ease infinite;
+  pointer-events: none;
+}
+
+@keyframes ob-ring {
+  0%   { transform: scale(1);    opacity: .6; }
+  50%  { transform: scale(1.12); opacity: 0;  }
+  100% { transform: scale(1);    opacity: .6; }
+}
+
+/* ── Texto ───────────────────────────────────────────────────────────────── */
+.ob__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ob__title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  line-height: 1.2;
+}
+
+.ob--off .ob__title { color: #fca5a5; }
+.ob--on  .ob__title { color: #6ee7b7; }
+
+.ob__sub {
+  font-size: 11px;
+  line-height: 1.4;
+  color: #666;
+}
+
+.ob__elapsed {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+/* ── Acciones (offline) ──────────────────────────────────────────────────── */
+.ob__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.ob__retry {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, .3);
+  background: rgba(239, 68, 68, .1);
+  color: #f87171;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .4px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  white-space: nowrap;
+}
+
+.ob__retry:hover:not(:disabled) {
+  background: rgba(239, 68, 68, .18);
+  border-color: rgba(239, 68, 68, .5);
+}
+
+.ob__retry:disabled { opacity: .6; cursor: not-allowed; }
+
+.ob__retry--spinning svg {
+  animation: ob-spin .8s linear infinite;
+}
+
+@keyframes ob-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ob__close {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.05);
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color .15s, background .15s;
+}
+
+.ob__close:hover { color: #ccc; background: rgba(255,255,255,.1); }
+
+/* ── Barra de progreso (online toast) ───────────────────────────────────── */
+.ob__progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  border-radius: 0 0 16px 16px;
+  background: linear-gradient(90deg, #10b981, #34d399);
+  animation: ob-drain 4s linear forwards;
+}
+
+@keyframes ob-drain {
+  from { width: 100%; }
+  to   { width: 0%;   }
+}

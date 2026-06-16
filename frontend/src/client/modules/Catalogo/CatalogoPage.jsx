@@ -112,6 +112,7 @@ function QuickAddModal({ product, onClose }) {
         variantId: activeVariant?.variantId ?? null,
         quantity:  qty,
       });
+      window.dispatchEvent(new Event("cart-updated"));
       setStatus("success");
       setTimeout(onClose, 1600);
     } catch (e) {
@@ -243,7 +244,7 @@ function QuickAddModal({ product, onClose }) {
             </button>
 
             {/* Ver producto completo */}
-            <button className="cat-modal-link" onClick={() => { if (product.storeId) localStorage.setItem("storeId", product.storeId); navigate(`/products/${product.id}?src=catalog`); }}>
+            <button className="cat-modal-link" onClick={() => { const jwt = localStorage.getItem("jwt"); if (!jwt || jwt === "null") { navigate("/login"); return; } if (product.storeId) localStorage.setItem("storeId", product.storeId); navigate(`/products/${product.id}?src=catalog`); }}>
               Ver detalle del producto →
             </button>
           </div>
@@ -285,6 +286,8 @@ function ProductCard({ product, index, onQuickAdd }) {
   const [imgError, setImgError] = useState(false);
 
   const go = useCallback(() => {
+    const jwt = localStorage.getItem("jwt");
+    if (!jwt || jwt === "null") { navigate("/login"); return; }
     if (product.storeId) localStorage.setItem("storeId", product.storeId);
     navigate(`/products/${product.id}?src=catalog`);
   }, [product.id, product.storeId, navigate]);
@@ -521,6 +524,8 @@ function ForYouCard({ product, index, onQuickAdd }) {
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: Math.min(index * 0.028, 0.26), duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
       onClick={() => {
+        const jwt = localStorage.getItem("jwt");
+        if (!jwt || jwt === "null") { navigate("/login"); return; }
         if (product.storeId) localStorage.setItem("storeId", product.storeId);
         navigate(`/products/${product.id}?src=catalog`);
       }}
@@ -564,6 +569,9 @@ export default function CatalogoPage() {
   const [quickProd,   setQuickProd]   = useState(null); // modal
   const searchRef = useRef(null);
 
+  // Scroll to top on mount
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, []);
+
   // Load
   useEffect(() => {
     let alive = true;
@@ -573,7 +581,7 @@ export default function CatalogoPage() {
       .then(data => { if (alive) setProducts(data); })
       .catch(e   => { if (alive) setError(e.message); })
       .finally(  () => { if (alive) setLoading(false); });
-    setUserTastes(getUserTastes());
+    getUserTastes().then(t => { if (alive) setUserTastes(t); });
     return () => { alive = false; };
   }, []);
 
@@ -831,9 +839,13 @@ export default function CatalogoPage() {
           ) : !error && filtered.length === 0 ? (
             <motion.div className="cat-empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <div className="cat-empty-icon"><Search size={36} /></div>
-              <h3>Sin resultados</h3>
-              <p>Ajusta los filtros o prueba con otra búsqueda</p>
-              <button className="cat-empty-btn" onClick={clearFilters}>Limpiar filtros</button>
+              <h3>{products.length === 0 ? "No hay productos disponibles" : "Sin resultados"}</h3>
+              <p>{products.length === 0
+                ? "Aún no hay productos publicados. Vuelve pronto."
+                : "Ajusta los filtros o prueba con otra búsqueda"}</p>
+              {products.length > 0 && (
+                <button className="cat-empty-btn" onClick={clearFilters}>Limpiar filtros</button>
+              )}
             </motion.div>
           ) : (
             <motion.div className={`cat-grid ${gridCompact ? "compact" : ""}`} layout>

@@ -4,7 +4,7 @@ import {
   fetchProductReviews,
   fetchRelatedProducts,
   addToCart,
-} from "./Productservice";
+} from "./productService";
 import { isWishlisted, toggleInWishlist } from "../../../../utils/wishlistService.js";
 
 /**
@@ -96,7 +96,7 @@ export function useProduct(productId) {
           firstColor?.name,
           firstSize?.name,
         );
-        setActiveVariant(initial);
+        setActiveVariant(initial ?? productData.rawVariants?.[0] ?? null);
       } catch (err) {
         if (!cancelled) setError(err.message);
       } finally {
@@ -112,11 +112,11 @@ export function useProduct(productId) {
 
   // ── Recalcula variante activa cuando cambia color o talla ──
   useEffect(() => {
-    if (!product || !selectedColor || !selectedSize) return;
+    if (!product) return;
     const match = findVariant(
       product.rawVariants,
-      selectedColor.name,
-      selectedSize.name,
+      selectedColor?.name,
+      selectedSize?.name,
     );
     setActiveVariant(match ?? null);
   }, [selectedColor, selectedSize, product]);
@@ -256,9 +256,13 @@ export function useProduct(productId) {
  * @param {string} sizeName
  */
 function findVariant(rawVariants = [], colorName, sizeName) {
-  if (!colorName || !sizeName) return null;
+  if (!rawVariants.length) return null;
+  if (!colorName && !sizeName) return rawVariants[0] ?? null;
   return (
-    rawVariants.find((v) => v.color === colorName && v.size === sizeName) ??
-    null
+    rawVariants.find((v) => {
+      const colorOk = colorName ? v.color === colorName : true;
+      const sizeOk  = sizeName  ? v.size  === sizeName  : true;
+      return colorOk && sizeOk;
+    }) ?? null
   );
 }

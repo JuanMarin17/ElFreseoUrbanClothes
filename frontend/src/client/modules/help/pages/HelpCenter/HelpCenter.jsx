@@ -28,7 +28,7 @@ import HeaderMarket from "../../../../../utils/Header/HeaderMarket";
 import { useAuth } from "../../../../../admin/modules/auth/pages/hook/Useauth";
 
 /* Microservicio de soporte */
-const API_BASE = `${import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080"}/api/v1/support`;
+const API_BASE = `${import.meta.env.VITE_API_URL}/support`;
 
 const useCurrentUser = () => {
   const { user } = useAuth();
@@ -638,7 +638,7 @@ function TicketList({ user, onSelect, onToast, refreshTrigger }) {
         >
           <RefreshCcw size={15} />
         </button>
-      </div>
+      </div>    
 
       {/* Filtros de estado */}
       <div className="hc-filter-tabs">
@@ -1014,9 +1014,19 @@ function QuickContactForm({ user, onToast }) {
    COMPONENTE PRINCIPAL — HelpCenter
 ══════════════════════════════════════════════════════════ */
 
+const isJwtValid = () => {
+  const jwt = localStorage.getItem("jwt");
+  if (!jwt || jwt === "null") return false;
+  try {
+    const payload = JSON.parse(atob(jwt.split(".")[1]));
+    return payload.exp ? payload.exp * 1000 > Date.now() : true;
+  } catch { return false; }
+};
+
 const HelpCenter = () => {
   const user = useCurrentUser();
   const isOwner = user.role === "OWNER";
+  const isAuthenticated = isJwtValid();
 
   // Vista activa: 'home' | 'tickets' | 'conversation'
   const [view, setView] = useState("home");
@@ -1078,7 +1088,7 @@ const HelpCenter = () => {
   }
 
   /* ── VISTA: MIS TICKETS / TODOS (OWNER) ───────── */
-  if (view === "tickets") {
+  if (view === "tickets" && (isOwner || isAuthenticated)) {
     return (
       <>
         <HeaderMarket />
@@ -1169,7 +1179,8 @@ const HelpCenter = () => {
 
         {/* Tarjetas de acción rápida */}
         <section className="support-cards hc-reveal">
-          {/* Ver mis tickets / Ver todos (OWNER) */}
+          {/* Ver mis tickets / Ver todos (OWNER) — solo usuarios autenticados */}
+          {(isOwner || isAuthenticated) && (
           <div className="glass-card" onClick={() => setView("tickets")}>
             <div className="card-icon">
               <Inbox size={30} />
@@ -1184,9 +1195,10 @@ const HelpCenter = () => {
               {isOwner ? "Gestionar" : "Ver mis tickets"} <ChevronRight size={12} />
             </div>
           </div>
+          )}
 
-          {/* Crear ticket (solo usuarios normales) */}
-          {!isOwner && (
+          {/* Crear ticket (solo usuarios autenticados normales) */}
+          {!isOwner && isAuthenticated && (
             <div className="glass-card" onClick={() => setShowModal(true)}>
               <div className="card-icon">
                 <Plus size={30} />
@@ -1283,7 +1295,7 @@ const HelpCenter = () => {
                   <Zap size={16} color="var(--fire)" /> Respuesta en &lt; 24 h
                 </div>
               </div>
-              {!isOwner && (
+              {!isOwner && isAuthenticated && (
                 <button
                   className="neon-button"
                   onClick={() => setShowModal(true)}
@@ -1294,8 +1306,8 @@ const HelpCenter = () => {
               )}
             </div>
 
-            {/* Solo usuarios — formulario rápido que crea ticket */}
-            {!isOwner && (
+            {/* Solo usuarios autenticados — formulario rápido que crea ticket */}
+            {!isOwner && isAuthenticated && (
               <div className="hc-contact-card">
                 <div className="hc-contact-card-header">
                   <Send size={16} />

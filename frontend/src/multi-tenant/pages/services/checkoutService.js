@@ -1,4 +1,6 @@
-const API = import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
+import { authFetch } from "../../../utils/authFetch";
+
+const API = import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_URL;
 
 function buildHeaders() {
   const jwt = localStorage.getItem("jwt");
@@ -10,7 +12,7 @@ function buildHeaders() {
 }
 
 async function request(method, url, body) {
-  const res = await fetch(url, {
+  const res = await authFetch(url, {
     method,
     headers: buildHeaders(),
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
@@ -21,7 +23,11 @@ async function request(method, url, body) {
   let data;
   const ct = res.headers.get("Content-Type") ?? "";
   if (ct.includes("application/json")) {
-    try { data = await res.json(); } catch { data = {}; }
+    try {
+      data = await res.json();
+    } catch {
+      data = {};
+    }
   } else {
     const text = await res.text().catch(() => "");
     data = { message: text.slice(0, 200) || `Error ${res.status}` };
@@ -38,7 +44,10 @@ async function request(method, url, body) {
 }
 
 export const getOAuthStatus = (tenantId) =>
-  request("GET", `${API}/oauth/connect?tenantId=${encodeURIComponent(tenantId)}`);
+  request(
+    "GET",
+    `${API}/oauth/connect?tenantId=${encodeURIComponent(tenantId)}`,
+  );
 
 export const disconnectOAuth = (tenantId) =>
   request("DELETE", `${API}/oauth/disconnect/${tenantId}`);

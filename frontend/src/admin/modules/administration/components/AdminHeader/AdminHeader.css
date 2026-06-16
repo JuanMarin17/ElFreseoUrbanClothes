@@ -180,6 +180,98 @@
   font-weight: 800;
   color: var(--at-accent, #3b82f6);
   flex-shrink: 0;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+.top-bar-avatar:hover {
+  background: rgba(59,130,246,0.22);
+  border-color: rgba(59,130,246,0.4);
+}
+
+/* ── User dropdown ─────────────────────────────────────────────────────── */
+.top-bar-user {
+  position: relative;
+}
+
+.ah-user-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 210px;
+  background: var(--at-surface, #0e0e16);
+  border: 1px solid var(--at-border, rgba(255,255,255,0.08));
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
+  z-index: 2000;
+  overflow: hidden;
+  animation: ah-drop-in 160ms cubic-bezier(0.23,1,0.32,1);
+}
+
+@keyframes ah-drop-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);    }
+}
+
+.ah-dropdown-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--at-border, rgba(255,255,255,0.07));
+}
+
+.ah-dropdown-greeting {
+  margin: 0;
+  font-size: 0.7rem;
+  color: var(--at-text-3, #52525b);
+}
+
+.ah-dropdown-name {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--at-text-1, #f4f4f5);
+}
+
+.ah-dropdown-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+}
+
+.ah-dropdown-list li button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  background: none;
+  border: none;
+  color: var(--at-text-2, #a1a1aa);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 120ms ease, color 120ms ease;
+  font-family: inherit;
+}
+
+.ah-dropdown-list li button:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--at-text-1, #f4f4f5);
+}
+
+.ah-dropdown-divider {
+  border: none;
+  border-top: 1px solid var(--at-border, rgba(255,255,255,0.07));
+  margin: 4px 0;
+}
+
+.ah-logout-btn {
+  color: #f87171 !important;
+}
+
+.ah-logout-btn:hover {
+  background: rgba(248,113,113,0.08) !important;
+  color: #fca5a5 !important;
 }
 
 /* ==========================================================================

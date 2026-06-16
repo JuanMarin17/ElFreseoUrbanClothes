@@ -4,7 +4,7 @@
  * Headers requeridos: Authorization: Bearer <jwt>, Content-Type: application/json.
  */
 
-const BASE = "http://46.225.21.146:8080/api/v1/ia/builder";
+const BASE = `${import.meta.env.VITE_API_URL}/ia/builder`;
 
 const buildHeaders = () => {
   const jwt = localStorage.getItem("jwt");

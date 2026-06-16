@@ -2,8 +2,7 @@ import axios from "axios";
 import { uploadUserImage } from "../../../../utils/uploadService";
 import { clearAllChatSessions } from "../../../../utils/chatSession.js";
 
-const BASE_URL =
-  import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const API = axios.create({
   baseURL: BASE_URL,
@@ -81,7 +80,8 @@ API.interceptors.response.use(
 
 function parseJwt(jwt) {
   try {
-    const decoded = JSON.parse(atob(jwt.split(".")[1]));
+    const b64 = jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = JSON.parse(decodeURIComponent(atob(b64).split("").map(c => "%" + c.charCodeAt(0).toString(16).padStart(2, "0")).join("")));
     if (decoded.exp * 1000 < Date.now()) return null;
     return {
       userId: decoded.user_id,
