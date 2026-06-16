@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const IA_BASE = `${import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1"}/ia/admin`;
+const IA_BASE = `${import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_URL}/ia/admin`;
 
 const ia = axios.create({
   baseURL: IA_BASE,
@@ -21,10 +21,12 @@ ia.interceptors.request.use((config) => {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
       if (payload.user_id) config.headers["X-User-Id"] = payload.user_id;
-      const role = (storedRole && storedRole !== "null") ? storedRole : payload.role;
+      const role =
+        storedRole && storedRole !== "null" ? storedRole : payload.role;
       if (role) config.headers["X-User-Role"] = role;
     } catch {
-      if (storedRole && storedRole !== "null") config.headers["X-User-Role"] = storedRole;
+      if (storedRole && storedRole !== "null")
+        config.headers["X-User-Role"] = storedRole;
     }
   } else if (storedRole && storedRole !== "null") {
     config.headers["X-User-Role"] = storedRole;

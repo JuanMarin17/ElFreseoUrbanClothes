@@ -28,7 +28,7 @@ import HeaderMarket from "../../../../../utils/Header/HeaderMarket";
 import { useAuth } from "../../../../../admin/modules/auth/pages/hook/Useauth";
 
 /* Microservicio de soporte */
-const API_BASE = `${import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080"}/api/v1/support`;
+const API_BASE = `${import.meta.env.VITE_API_URL}/support`;
 
 const useCurrentUser = () => {
   const { user } = useAuth();
@@ -638,7 +638,7 @@ function TicketList({ user, onSelect, onToast, refreshTrigger }) {
         >
           <RefreshCcw size={15} />
         </button>
-      </div>
+      </div>    
 
       {/* Filtros de estado */}
       <div className="hc-filter-tabs">

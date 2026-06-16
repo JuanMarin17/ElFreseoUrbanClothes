@@ -5,7 +5,7 @@
  * Los endpoints de settings además requieren X-Store-Id: <uuid>
  */
 
-const API_ROOT ="http://46.225.21.146:8080/api/v1";
+const API_ROOT = import.meta.env.VITE_API_URL;
 const BASE_URL = `${API_ROOT}/stores`;
 const SETTINGS_URL = `${API_ROOT}/stores/settings`;
 

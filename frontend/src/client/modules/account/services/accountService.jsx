@@ -2,8 +2,7 @@ import axios from "axios";
 import { uploadFile } from "../../../../utils/uploadService";
 import { authFetch } from "../../../../utils/authFetch";
 
-const BASE_URL =
-  import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
+const BASE_URL = import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_URL;
 
 const TOKEN_KEY = "jwt";
 
@@ -17,10 +16,13 @@ function getUserIdFromToken() {
   const token = getToken();
   if (!token) return null;
   try {
-    const b64     = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const b64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
     const decoded = JSON.parse(
       decodeURIComponent(
-        atob(b64).split("").map(c => "%" + c.charCodeAt(0).toString(16).padStart(2, "0")).join(""),
+        atob(b64)
+          .split("")
+          .map((c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
+          .join(""),
       ),
     );
     return decoded.user_id ?? null;
@@ -32,7 +34,7 @@ function getUserIdFromToken() {
 const getAuthHeaderWithUserId = () => ({
   headers: {
     Authorization: `Bearer ${getToken()}`,
-    "X-User-Id":   getUserIdFromToken(),
+    "X-User-Id": getUserIdFromToken(),
   },
 });
 
@@ -78,7 +80,10 @@ const accountService = {
 
   /* ── Contraseña ──────────────────────────────────────────────────────────── */
   changePassword: async ({ currentPassword, newPassword }) => {
-    return fetchApi("PUT", "/users/me/password", { currentPassword, newPassword });
+    return fetchApi("PUT", "/users/me/password", {
+      currentPassword,
+      newPassword,
+    });
   },
 
   /* ── Sesiones ────────────────────────────────────────────────────────────── */
@@ -92,7 +97,8 @@ const accountService = {
     }
   },
 
-  closeSession: async (sessionId) => fetchApi("DELETE", `/auth/sessions/${sessionId}`),
+  closeSession: async (sessionId) =>
+    fetchApi("DELETE", `/auth/sessions/${sessionId}`),
 
   closeAllSessions: async () => fetchApi("DELETE", "/auth/sessions"),
 
@@ -179,7 +185,14 @@ const accountService = {
     try {
       return await fetchApi("GET", "/preferences");
     } catch {
-      return { data: { newCollections: false, offers: false, events: false, blog: false } };
+      return {
+        data: {
+          newCollections: false,
+          offers: false,
+          events: false,
+          blog: false,
+        },
+      };
     }
   },
 
@@ -205,7 +218,12 @@ const accountService = {
       return await fetchApi("POST", "/support", data);
     } catch {
       return {
-        data: { ...data, id: Date.now().toString(), status: "Abierto", updatedAt: new Date().toISOString().split("T")[0] },
+        data: {
+          ...data,
+          id: Date.now().toString(),
+          status: "Abierto",
+          updatedAt: new Date().toISOString().split("T")[0],
+        },
       };
     }
   },

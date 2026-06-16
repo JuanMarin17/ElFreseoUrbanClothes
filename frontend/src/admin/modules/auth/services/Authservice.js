@@ -2,7 +2,7 @@ import axios from "axios";
 import { uploadUserImage } from "../../../../utils/uploadService";
 import { clearAllChatSessions } from "../../../../utils/chatSession.js";
 
-const BASE_URL = "http://46.225.21.146:8080/api/v1";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const API = axios.create({
   baseURL: BASE_URL,

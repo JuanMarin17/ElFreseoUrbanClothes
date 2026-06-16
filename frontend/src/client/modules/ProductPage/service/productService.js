@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://46.225.21.146:8080/api/v1";
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL;
 
 const resolveStoreId = () => {
   const id = localStorage.getItem("storeId");
@@ -14,16 +15,18 @@ const productApi = axios.create({
 });
 
 productApi.interceptors.request.use((config) => {
-  const jwt     = localStorage.getItem("jwt");
+  const jwt = localStorage.getItem("jwt");
   const storeId = resolveStoreId();
 
   if (jwt && jwt !== "null") {
     config.headers.Authorization = `Bearer ${jwt}`;
     try {
       const decoded = JSON.parse(atob(jwt.split(".")[1]));
-      if (decoded.user_id) config.headers["X-User-Id"]   = decoded.user_id;
-      if (decoded.role)    config.headers["X-User-Role"] = decoded.role;
-    } catch { /* token malformado */ }
+      if (decoded.user_id) config.headers["X-User-Id"] = decoded.user_id;
+      if (decoded.role) config.headers["X-User-Role"] = decoded.role;
+    } catch {
+      /* token malformado */
+    }
   }
   if (storeId) {
     config.headers["X-Store-Id"] = storeId;
@@ -103,7 +106,7 @@ function normalizeColors(variants = []) {
   const seen = new Set();
   return variants
     .filter((v) => {
-      if (!v.color) return false;          // descarta variantes sin color
+      if (!v.color) return false; // descarta variantes sin color
       if (seen.has(v.color)) return false;
       seen.add(v.color);
       return true;
@@ -130,7 +133,7 @@ function normalizeSizes(variants = []) {
   const sizeMap = new Map();
 
   variants.forEach((v) => {
-    if (!v.size) return;                   // descarta variantes sin talla
+    if (!v.size) return; // descarta variantes sin talla
     if (!sizeMap.has(v.size)) {
       sizeMap.set(v.size, { available: false });
     }
@@ -187,7 +190,9 @@ function normalizeProduct(response) {
   const d = response?.data ?? response;
 
   if (!d || (!d.productId && !d.id)) {
-    throw new Error("El producto no fue encontrado o la respuesta es inválida.");
+    throw new Error(
+      "El producto no fue encontrado o la respuesta es inválida.",
+    );
   }
 
   const price = d.variants?.[0]?.price ?? 0;
@@ -254,30 +259,38 @@ export const fetchProductReviews = () =>
  * que no sean el producto actual.
  */
 export const fetchRelatedProducts = async (productId, limit = 4) => {
-  const storeId = new URLSearchParams(window.location.search).get("sid") || localStorage.getItem("storeId");
+  const storeId =
+    new URLSearchParams(window.location.search).get("sid") ||
+    localStorage.getItem("storeId");
   if (!storeId || storeId === "null") return [];
 
   try {
     const wrapper = await productApi.get("/products/all");
-    const list = Array.isArray(wrapper?.data) ? wrapper.data
-               : Array.isArray(wrapper)        ? wrapper
-               : [];
+    const list = Array.isArray(wrapper?.data)
+      ? wrapper.data
+      : Array.isArray(wrapper)
+        ? wrapper
+        : [];
 
     const fmt = new Intl.NumberFormat("es-CO", {
-      style: "currency", currency: "COP", maximumFractionDigits: 0,
+      style: "currency",
+      currency: "COP",
+      maximumFractionDigits: 0,
     });
 
     return list
-      .filter((p) => (p.productId ?? p.id) !== productId && p.status === "ACTIVE")
+      .filter(
+        (p) => (p.productId ?? p.id) !== productId && p.status === "ACTIVE",
+      )
       .slice(0, limit)
       .map((p) => ({
-        id:             p.productId ?? p.id,
-        name:           p.name,
-        categoryName:   p.categories?.[0] ?? "",
+        id: p.productId ?? p.id,
+        name: p.name,
+        categoryName: p.categories?.[0] ?? "",
         priceFormatted: fmt.format(p.variants?.[0]?.price ?? 0),
-        rating:         null,
-        reviewCount:    0,
-        thumbnailUrl:   p.images?.[0]?.url ?? null,
+        rating: null,
+        reviewCount: 0,
+        thumbnailUrl: p.images?.[0]?.url ?? null,
       }));
   } catch {
     return [];
@@ -293,9 +306,12 @@ export const addToCart = async ({ productId, variantId, quantity }) => {
   if (!storeId || storeId === "null") {
     throw new Error("No se encontró la tienda. Inicia sesión nuevamente.");
   }
-  const { addItem } = await import("../../../../multi-tenant/pages/services/cartService.js");
+  const { addItem } =
+    await import("../../../../multi-tenant/pages/services/cartService.js");
   const result = await addItem(storeId, { productId, variantId, quantity });
-  window.dispatchEvent(new CustomEvent("cart-updated", { detail: { storeId } }));
+  window.dispatchEvent(
+    new CustomEvent("cart-updated", { detail: { storeId } }),
+  );
   return result;
 };
 
@@ -303,5 +319,4 @@ export const addToCart = async ({ productId, variantId, quantity }) => {
  * Alterna el estado de wishlist.
  * Endpoint pendiente de implementación en el backend.
  */
-export const toggleWishlist = () =>
-  Promise.resolve({ wishlisted: true });
+export const toggleWishlist = () => Promise.resolve({ wishlisted: true });

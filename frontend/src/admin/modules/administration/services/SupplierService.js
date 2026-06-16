@@ -4,10 +4,10 @@
 // Deactivate requiere además X-User-Role: ADMIN
 // ══════════════════════════════════════════════════════════════════════════════
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
+const BASE_URL = import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_URL;
 
 function readHeaders() {
-  const jwt     = localStorage.getItem("jwt");
+  const jwt = localStorage.getItem("jwt");
   const storeId = localStorage.getItem("storeId");
   const h = {};
 
@@ -16,13 +16,17 @@ function readHeaders() {
     try {
       const payload = JSON.parse(atob(jwt.split(".")[1]));
       if (payload.user_id) h["X-User-Id"] = payload.user_id;
-    } catch { /* JWT malformado — se omite X-User-Id */ }
+    } catch {
+      /* JWT malformado — se omite X-User-Id */
+    }
   }
 
   if (storeId && storeId !== "null" && storeId !== "undefined") {
     h["X-Store-Id"] = storeId;
   } else {
-    throw new Error("No se encontró la tienda activa. Recarga la página e intenta de nuevo.");
+    throw new Error(
+      "No se encontró la tienda activa. Recarga la página e intenta de nuevo.",
+    );
   }
 
   return h;
@@ -76,7 +80,7 @@ export async function getSuppliersByStore() {
     headers: readHeaders(),
   });
   const data = await unwrap(res);
-  return Array.isArray(data) ? data : data?.content ?? data?.items ?? [];
+  return Array.isArray(data) ? data : (data?.content ?? data?.items ?? []);
 }
 
 /** GET /suppliers/{supplierId} */
@@ -96,9 +100,9 @@ export async function getSupplierById(supplierId) {
  */
 export async function createSupplier(body) {
   const res = await fetch(`${BASE_URL}/suppliers/createSupplier`, {
-    method:  "POST",
+    method: "POST",
     headers: writeHeaders(),
-    body:    JSON.stringify(body),
+    body: JSON.stringify(body),
   });
   return unwrap(res);
 }
@@ -109,9 +113,9 @@ export async function createSupplier(body) {
  */
 export async function updateSupplier(supplierId, body) {
   const res = await fetch(`${BASE_URL}/suppliers/${supplierId}`, {
-    method:  "PUT",
+    method: "PUT",
     headers: writeHeaders(),
-    body:    JSON.stringify(body),
+    body: JSON.stringify(body),
   });
   return unwrap(res);
 }
@@ -124,7 +128,7 @@ export async function updateSupplier(supplierId, body) {
  */
 export async function unlinkSupplier(supplierId) {
   const res = await fetch(`${BASE_URL}/suppliers/${supplierId}/unlink`, {
-    method:  "DELETE",
+    method: "DELETE",
     headers: readHeaders(),
   });
   return unwrap(res);
@@ -136,7 +140,7 @@ export async function unlinkSupplier(supplierId) {
  */
 export async function deactivateSupplier(supplierId) {
   const res = await fetch(`${BASE_URL}/suppliers/${supplierId}`, {
-    method:  "DELETE",
+    method: "DELETE",
     headers: adminHeaders(),
   });
   return unwrap(res);

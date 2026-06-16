@@ -3,7 +3,7 @@
  * Headers requeridos: Authorization, X-Store-Id
  */
 
-const API_BASE = "http://46.225.21.146:8080/api/v1";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 function buildHeaders() {
   const jwt     = localStorage.getItem("jwt");
