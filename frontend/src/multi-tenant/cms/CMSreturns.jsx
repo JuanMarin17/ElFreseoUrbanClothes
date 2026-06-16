@@ -1,5 +1,5 @@
-/**
- * CMSReturns.jsx — Política de Devoluciones
+﻿/**
+ * CMSReturns.jsx " Politica de Devoluciones
  * Modo wizard : StoreContext
  * Modo admin  : GET + PATCH /stores/cms
  * Nota: el campo `days` es number en el backend pero string en el input.
@@ -7,21 +7,21 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useStore } from "../pages/StoreContext";
+import { useStore } from "../pages/useStore";
 import { getCms, patchCms } from "../pages/services/cmsService";
 import StepProgress from "../components/StepProgress";
 import "../components/styles/CMSeditor.css";
 
 const DEFAULT = {
-  title: "Política de Devoluciones y Cambios",
+  title: "Politica de Devoluciones y Cambios",
   intro: "", days: "30", conditions: "", process: "", exceptions: "",
   refundMethod: "original", allowExchanges: true, allowRefunds: true,
   requireReceipt: true, contactEmail: "",
 };
 
 const REFUND_OPTIONS = [
-  { value: "original", label: "Método de pago original" },
-  { value: "store",    label: "Crédito en tienda"       },
+  { value: "original", label: "Metodo de pago original" },
+  { value: "store",    label: "Credito en tienda"       },
   { value: "both",     label: "Ambas opciones"          },
 ];
 
@@ -42,13 +42,19 @@ export default function CMSReturns() {
     getCms(storeId)
       .then(cms => {
         if (!cms?.returns) return;
-        // days llega como number desde el backend → convertir a string para el input
+        // days llega como number desde el backend ' convertir a string para el input
         setData({ ...DEFAULT, ...cms.returns, days: String(cms.returns.days ?? 30) });
       })
       .catch(() => {});
   }, []);
 
   const set = (k, v) => setData(p => ({ ...p, [k]: v }));
+  const cc = (len, max) => (
+    <span style={{ display:"block", textAlign:"right", fontSize:11, marginTop:3, fontFamily:"Inter,sans-serif",
+      color: len >= max ? "#ef4444" : len > max * 0.8 ? "#f59e0b" : "#555" }}>
+      {len}/{max}
+    </span>
+  );
 
   const showToast = (msg) => { setToastMsg(msg); setToast(true); setTimeout(() => setToast(false), 2200); };
 
@@ -56,7 +62,7 @@ export default function CMSReturns() {
 
   const handleSave = async () => {
     setSaving(true);
-    // days se envía como number al backend
+    // days se envia como number al backend
     const payload = { ...data, days: Number(data.days) || 30 };
     try {
       if (isAdminMode && storeId) {
@@ -65,15 +71,15 @@ export default function CMSReturns() {
         const prev = state.cms ?? {};
         saveProgress("cms", { ...prev, returns: data, completed: [...new Set([...(prev.completed ?? []), "returns"])] });
       }
-      showToast("✓ Política de devoluciones guardada");
+      showToast("Politica de devoluciones guardada");
     } catch {
-      showToast("✗ Error al guardar");
+      showToast("Error al guardar");
     } finally {
       setSaving(false);
     }
   };
 
-  // ── Formulario ────────────────────────────────────────────────────────────
+  // "" Formulario """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
   const form = (
     <div className="cms-page cms-page--returns">
       {!isAdminMode && (
@@ -81,16 +87,16 @@ export default function CMSReturns() {
           <div className="cms-page__icon"><i className="ti ti-arrow-back-up" /></div>
           <div className="cms-page__titles">
             <h1 className="cms-page__title">Devoluciones</h1>
-            <p className="cms-page__sub">Define tu política de cambios, devoluciones y reembolsos</p>
+            <p className="cms-page__sub">Define tu politica de cambios, devoluciones y reembolsos</p>
           </div>
         </div>
       )}
 
       <div className="cms-form-card">
-        <p className="cms-section-title">Configuración Rápida</p>
+        <p className="cms-section-title">Configuracion Rapida</p>
         <div className="field-row-2">
           <div className="field-group">
-            <label>Días para Devolución</label>
+            <label>Dias para Devolucion</label>
             <input className="f-input-dark" placeholder="30" value={data.days}
               onChange={e => set("days", e.target.value)} />
           </div>
@@ -102,7 +108,7 @@ export default function CMSReturns() {
         </div>
 
         <div className="field-group">
-          <label>Método de Reembolso</label>
+          <label>Metodo de Reembolso</label>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 4 }}>
             {REFUND_OPTIONS.map(opt => (
               <button key={opt.value} onClick={() => set("refundMethod", opt.value)} style={{
@@ -117,9 +123,9 @@ export default function CMSReturns() {
         </div>
 
         {[
-          { key: "allowExchanges",  label: "Permitir cambios",                     desc: "Los clientes pueden cambiar productos por talla u otro artículo" },
-          { key: "allowRefunds",    label: "Permitir devoluciones con reembolso",   desc: "Reembolso al método de pago original" },
-          { key: "requireReceipt",  label: "Requerir comprobante de compra",        desc: "Exige factura o número de pedido para procesar" },
+          { key: "allowExchanges",  label: "Permitir cambios",                     desc: "Los clientes pueden cambiar productos por talla u otro articulo" },
+          { key: "allowRefunds",    label: "Permitir devoluciones con reembolso",   desc: "Reembolso al metodo de pago original" },
+          { key: "requireReceipt",  label: "Requerir comprobante de compra",        desc: "Exige factura o numero de pedido para procesar" },
         ].map(({ key, label, desc }) => (
           <div className="toggle-field" key={key}>
             <div className="toggle-field__info">
@@ -135,35 +141,45 @@ export default function CMSReturns() {
       </div>
 
       <div className="cms-form-card">
-        <p className="cms-section-title">Texto de la Política</p>
+        <p className="cms-section-title">Texto de la Politica</p>
         <div className="field-group">
-          <label>Título de la Página</label>
-          <input className="f-input-dark" value={data.title} onChange={e => set("title", e.target.value)} />
+          <label>Titulo de la Pagina</label>
+          <input className="f-input-dark" value={data.title}
+            onChange={e => set("title", e.target.value)} maxLength={200} />
+          {cc(data.title.length, 200)}
         </div>
         <div className="field-group">
-          <label>Introducción</label>
-          <textarea className="f-textarea-dark" placeholder="Breve descripción de tu política..."
-            value={data.intro} onChange={e => set("intro", e.target.value)} />
+          <label>Introduccion</label>
+          <textarea className="f-textarea-dark" placeholder="Breve descripcion de tu politica..."
+            value={data.intro} onChange={e => set("intro", e.target.value)}
+            rows={4} maxLength={200} style={{ resize: "none" }} />
+          {cc(data.intro.length, 200)}
         </div>
         <div className="field-group">
-          <label>Condiciones para Devolución</label>
+          <label>Condiciones para Devolucion</label>
           <textarea className="f-textarea-dark" placeholder="- Producto sin uso&#10;- Etiquetas originales..."
-            value={data.conditions} onChange={e => set("conditions", e.target.value)} />
+            value={data.conditions} onChange={e => set("conditions", e.target.value)}
+            rows={4} maxLength={200} style={{ resize: "none" }} />
+          {cc(data.conditions.length, 200)}
         </div>
         <div className="field-group">
-          <label>Proceso de Devolución</label>
-          <textarea className="f-textarea-dark" placeholder="1. Contacta a nuestro equipo&#10;2. Envía el producto..."
-            value={data.process} onChange={e => set("process", e.target.value)} />
+          <label>Proceso de Devolucion</label>
+          <textarea className="f-textarea-dark" placeholder="1. Contacta a nuestro equipo&#10;2. Envia el producto..."
+            value={data.process} onChange={e => set("process", e.target.value)}
+            rows={4} maxLength={200} style={{ resize: "none" }} />
+          {cc(data.process.length, 200)}
         </div>
         <div className="field-group">
           <label>Excepciones (productos no aplicables)</label>
           <textarea className="f-textarea-dark" placeholder="Ej: Ropa interior, productos en oferta final..."
-            value={data.exceptions} onChange={e => set("exceptions", e.target.value)} />
+            value={data.exceptions} onChange={e => set("exceptions", e.target.value)}
+            rows={4} maxLength={200} style={{ resize: "none" }} />
+          {cc(data.exceptions.length, 200)}
         </div>
       </div>
 
       <div className="cms-save-row">
-        <button className="btn-cms-back" onClick={handleBack}>← Volver al CMS</button>
+        <button className="btn-cms-back" onClick={handleBack}> Volver al CMS</button>
         <button className="btn-cms-save" onClick={handleSave} disabled={saving}>
           {saving ? "Guardando..." : "GUARDAR CAMBIOS"}
         </button>
@@ -177,7 +193,7 @@ export default function CMSReturns() {
     return (
       <>
         <header className="admin-nav" style={{ position: "relative", marginBottom: 8 }}>
-          <button onClick={handleBack} className="btn-back-arrow">←</button>
+          <button onClick={handleBack} className="btn-back-arrow"></button>
           <div className="brand">Devoluciones <span>CMS</span></div>
           <button className="btn-save-top" onClick={handleSave} disabled={saving}>
             {saving ? "..." : "GUARDAR"}
@@ -192,7 +208,7 @@ export default function CMSReturns() {
   return (
     <div className="admin-frame">
       <header className="admin-nav">
-        <button onClick={handleBack} className="btn-back-arrow" title="Volver">←</button>
+        <button onClick={handleBack} className="btn-back-arrow" title="Volver"></button>
         <div className="brand">{state.store?.name ?? "VEXIO"} <span>STUDIO V3</span></div>
         <button className="btn-save-top" onClick={handleSave} disabled={saving}>
           {saving ? "..." : "GUARDAR"}
@@ -204,3 +220,4 @@ export default function CMSReturns() {
     </div>
   );
 }
+

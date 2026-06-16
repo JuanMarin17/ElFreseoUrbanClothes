@@ -1,159 +1,222 @@
-/* --- Contenedor Principal del Modal --- */
-.modal-content-terminal {
-  background: #0d0d0d;
-  border: 1px solid #6C4E3A;
-  /* Tono cobre mate */
-  width: 90%;
-  max-width: 500px;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-  animation: modalSlideIn 0.3s ease-out;
+/* ==========================================================================
+   USER MODAL
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
 }
 
-/* --- Título y Cerrar --- */
+.modal-content-terminal {
+  background: #0f0f14;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  width: 100%;
+  max-width: 480px;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(59, 130, 246, 0.08);
+  animation: modalIn 0.25s cubic-bezier(0.23, 1, 0.32, 1) both;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Blue top accent */
+.modal-content-terminal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6, rgba(59, 130, 246, 0.2) 70%, transparent);
+  border-radius: 18px 18px 0 0;
+}
+
+/* ── Header ────────────────────────────────────────────────────────────── */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
 .modal-header h2 {
-  font-size: 1.6rem;
-  color: #E6E1D8;
-  /* Crema cálido */
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f4f4f5;
   margin: 0;
-  font-family: 'Inter', sans-serif;
-  /* Clean sans-serif */
+  letter-spacing: -0.01em;
 }
 
 .close-btn {
-  background: transparent;
-  border: none;
-  color: #6C4E3A;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: #71717a;
   cursor: pointer;
-  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    color 140ms ease,
+    background 140ms ease,
+    border-color 140ms ease,
+    transform 140ms ease;
+  flex-shrink: 0;
 }
 
 .close-btn:hover {
-  color: #fff;
+  color: #f4f4f5;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
-/* --- Cuerpo del Formulario (El arreglo crítico) --- */
+.close-btn:active {
+  transform: scale(0.93);
+}
+
+/* ── Form body ─────────────────────────────────────────────────────────── */
 .modal-form-body {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  /* Espacio entre campos */
-  margin: 25px 0;
+  gap: 18px;
+  margin-bottom: 24px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  position: relative;
-  /* Para el arreglo del texto superpuesto */
+  gap: 7px;
 }
 
-/* Etiquetas (Labels) */
 .form-group label {
-  font-size: 0.7rem;
-  color: #6C4E3A;
-  /* Cobre */
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #52525b;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 800;
-  margin-bottom: 8px;
-  /* Espacio obligatorio con el input */
+  letter-spacing: 0.07em;
 }
 
-/* Inputs y Selects */
 .form-group input,
 .form-group select {
   width: 100%;
-  background: #111;
-  /* Un poco más claro que el fondo */
-  border: 1px solid #222;
-  color: white;
-  padding: 12px 15px;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  background: #121217;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: #f4f4f5;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 0.875rem;
   outline: none;
-  transition: all 0.2s;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background 150ms ease;
+  box-sizing: border-box;
 }
 
-/* Efecto Focus Premium */
 .form-group input:focus,
 .form-group select:focus {
-  border-color: #8B5A41;
-  /* Bronce más claro */
-  background: #151515;
-  box-shadow: 0 0 10px rgba(139, 90, 65, 0.1);
+  border-color: rgba(59, 130, 246, 0.45);
+  background: #16161e;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* Arreglo del Placeholder (Evita la superposición) */
 .form-group input::placeholder {
-  color: #333;
-  /* Muy oscuro para que no moleste */
-  opacity: 1;
+  color: #3f3f46;
 }
 
-/* Estilo del Selector (Rol) */
 .form-group select {
   appearance: none;
-  /* Quita el estilo nativo de OS */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236C4E3A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2352525b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 15px center;
-  padding-right: 40px;
+  background-position: right 14px center;
+  padding-right: 38px;
+  cursor: pointer;
 }
 
-/* --- Botones de Acción (Footer) --- */
+.form-group select option {
+  background: #121217;
+  color: #f4f4f5;
+}
+
+/* ── Footer ────────────────────────────────────────────────────────────── */
 .modal-footer-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 30px;
-}
-
-.modal-footer-actions button {
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .btn-cancel {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
   background: transparent;
-  border: 1px solid #222;
-  color: #666;
+  color: #71717a;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    color 140ms ease,
+    background 140ms ease,
+    border-color 140ms ease,
+    transform 140ms ease;
 }
 
 .btn-cancel:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: #fff;
+  color: #f4f4f5;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.btn-cancel:active {
+  transform: scale(0.97);
 }
 
 .btn-save {
-  background: #782E40;
-  /* Baya profundo mate */
-  color: #E6E1D8;
+  padding: 10px 18px;
+  border-radius: 10px;
   border: none;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition:
+    background 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
 }
 
-.btn-save:hover {
-  background: #8b3a4e;
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .btn-save:hover {
+    background: #2563eb;
+    box-shadow: 0 0 18px rgba(59, 130, 246, 0.35);
+  }
 }
 
-/* Animación de entrada */
-@keyframes modalSlideIn {
+.btn-save:active {
+  transform: scale(0.97);
+}
+
+@keyframes modalIn {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
+    transform: scale(0.97) translateY(8px);
   }
-
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: scale(1) translateY(0);
   }
 }

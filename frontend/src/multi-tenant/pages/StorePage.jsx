@@ -55,6 +55,9 @@ export default function StorePage() {
 
         setStoreName(store.name ?? slug);
         setStoreId(resolvedStoreId);
+        localStorage.setItem("storeId", resolvedStoreId);
+        localStorage.setItem("storeSlug", slug);
+        localStorage.setItem("storeName", store.name ?? slug);
 
         // Verificar ownership via backend
         const myUserId = getUserIdFromJwt();
@@ -85,10 +88,16 @@ export default function StorePage() {
         const widgets    = settings?.widgets    ?? null;
         const layout     = settings?.layout     ?? { id: "minimalista" };
 
-        const header = components.header ?? {
+        const rawHeader = components.header ?? {
           logo: store.name ?? "MI TIENDA",
           items: ["HOME", "SHOP"],
           color: "#fff", bg: "#000", font: "Inter", size: 14,
+        };
+        // logoUrl: primero del CMS del header, fallback al logo subido en el wizard
+        const header = {
+          ...rawHeader,
+          logoUrl:   rawHeader.logoUrl ?? settings?.basic?.logoPreview ?? null,
+          storeName: store.name ?? slug,
         };
 
         const bannerRaw = components.banner ?? {};
@@ -111,17 +120,27 @@ export default function StorePage() {
         let products = [];
         try {
           const rawProducts = await getPublicActiveProducts(resolvedStoreId);
-          if (Array.isArray(rawProducts) && rawProducts.length > 0) {
-            products = rawProducts.map(p => ({
-              id:          p.productId,
+          // El backend puede devolver array directo o respuesta paginada { content: [...] }
+          const items = Array.isArray(rawProducts)
+            ? rawProducts
+            : (rawProducts?.content ?? rawProducts?.items ?? []);
+          products = items.map(p => {
+            const variants = p.variants ?? [];
+            const sizes = [...new Set(
+              variants.flatMap(v => [v.size, v.talla, v.sizeName].filter(Boolean))
+            )];
+            return {
+              id:          p.productId ?? p.id,
               name:        p.name,
               description: p.description ?? "",
-              price:       formatCOP(p.variants?.[0]?.price ?? 0),
+              price:       formatCOP(variants[0]?.price ?? p.price ?? 0),
               images:      p.images ?? [],
-            }));
-          }
-        } catch {
-          // La tienda se muestra aunque no carguen productos
+              sizes,
+              categories:  p.categories ?? [],
+            };
+          });
+        } catch (e) {
+          console.warn("[StorePage] Error cargando productos:", e.message);
         }
 
         setLayoutType(layout.id ?? "minimalista");
@@ -137,8 +156,13 @@ export default function StorePage() {
   if (loading) {
     return (
       <div className="sp-loading">
-        <div className="sp-spinner" />
-        <span>Cargando tienda...</span>
+        <div className="sp-orbital">
+          <div className="sp-orbital-ring sp-orbital-ring--a" />
+          <div className="sp-orbital-ring sp-orbital-ring--b" />
+          <div className="sp-orbital-core" />
+        </div>
+        <p className="sp-loading-text">Cargando tienda</p>
+        <div className="sp-loading-bar" />
       </div>
     );
   }
@@ -155,29 +179,6 @@ export default function StorePage() {
   }
 
   return (
-    <div className="sp-root">
-      {/* Barra de navegador */}
-      <div className="sp-topbar">
-        <button className="sp-back" onClick={() => navigate(-1)}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
-        <div className="sp-addressbar">
-          <span className="sp-addressbar-lock">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-          </span>
-          <span className="sp-addressbar-url">
-            <span className="sp-addressbar-domain">vexio.com</span>
-            <span className="sp-addressbar-path">/{slug}</span>
-          </span>
-        </div>
-        <span className="sp-store-name">{storeName}</span>
-      </div>
-
-      <StoreFront layoutType={layoutType} data={previewData} isOwner={isOwner} storeId={storeId} storeSlug={slug} />
-    </div>
+    <StoreFront layoutType={layoutType} data={previewData} isOwner={isOwner} storeId={storeId} storeSlug={slug} storeName={storeName} headerTopOffset={0} />
   );
 }

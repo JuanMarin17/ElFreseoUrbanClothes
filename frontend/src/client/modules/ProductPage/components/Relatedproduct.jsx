@@ -29,11 +29,12 @@ export default function RelatedProducts({ products = [] }) {
         </div>
 
         <div className="vx-product-grid">
-          {products.map((product) => (
+          {products.map((product, i) => (
             <Link
               key={product.id}
               to={`/products/${product.id}`}
-              className="vx-product-card"
+              className="vx-product-card vx-reveal"
+              style={{ transitionDelay: `${i * 80}ms` }}
             >
               {/* Imagen */}
               <div className="vx-product-card__img">

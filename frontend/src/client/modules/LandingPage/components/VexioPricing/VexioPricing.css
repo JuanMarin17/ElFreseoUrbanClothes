@@ -23,9 +23,11 @@
   flex-direction: column;
   transition: border-color .28s, transform .28s;
 }
-.vx-price-card:hover {
-  border-color: var(--vx-border2);
-  transform: translateY(-3px);
+@media (hover: hover) and (pointer: fine) {
+  .vx-price-card:hover {
+    border-color: var(--vx-border2);
+    transform: translateY(-3px);
+  }
 }
 
 /* ── Card destacada ── */
@@ -134,7 +136,7 @@
   font-size: .85rem;
   cursor: pointer;
   letter-spacing: .03em;
-  transition: all .2s;
+  transition: background 200ms ease-out, border-color 200ms ease-out, color 200ms ease-out, transform 160ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 200ms ease-out;
 }
 
 .vx-price-btn--solid {
@@ -143,10 +145,16 @@
   color: #FFFFFF;
   box-shadow: 0 4px 18px rgba(37,99,255,.35);
 }
-.vx-price-btn--solid:hover {
-  background: #3B82F6;
-  box-shadow: 0 6px 24px rgba(37,99,255,.50);
-  transform: translateY(-1px);
+@media (hover: hover) and (pointer: fine) {
+  .vx-price-btn--solid:hover {
+    background: #3B82F6;
+    box-shadow: 0 6px 24px rgba(37,99,255,.50);
+    transform: translateY(-1px);
+  }
+}
+.vx-price-btn--solid:active {
+  transform: scale(0.97);
+  box-shadow: none;
 }
 
 .vx-price-btn--outline {
@@ -158,4 +166,7 @@
   border-color: #2563FF;
   color: #3B82F6;
   background: rgba(37,99,255,.06);
+}
+.vx-price-btn--outline:active {
+  transform: scale(0.97);
 }

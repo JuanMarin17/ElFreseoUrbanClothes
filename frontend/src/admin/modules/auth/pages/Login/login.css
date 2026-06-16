@@ -99,21 +99,23 @@
 
 /* ─── Header & Logo ─── */
 .vp-logo-wrapper {
-  margin-bottom: 2px;
+  margin-bottom: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 30vh;
 }
 
 .vp-logo-wrapper img {
-  height: 52vh;
-  width: 52vh;
+  height: 56px;
+  width: auto;
+  object-fit: contain;
 }
 
 .vp-logo {
-  height: 30px;
-  margin-bottom: 5px;
+  height: 56px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 8px;
   filter: drop-shadow(0 0 15px var(--vp-accent));
 }
 

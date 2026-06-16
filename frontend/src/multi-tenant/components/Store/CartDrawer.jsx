@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./CartDrawer.css";
 
 const formatCOP = (n) =>
@@ -11,6 +12,10 @@ const formatCOP = (n) =>
 /* ── CartItem ─────────────────────────────────────────────── */
 function CartItem({ item, onIncrease, onDecrease, onRemove, busy }) {
   const isLoading = busy === item.cartItemId;
+  const unitPrice = item.unitPrice ?? item.price ??
+    (item.quantity > 0 ? item.subtotal / item.quantity : 0);
+  const storeId = item._storeId;
+
   return (
     <div className={`cd-item ${isLoading ? "cd-item--loading" : ""}`}>
       <div className="cd-item__img">
@@ -38,6 +43,9 @@ function CartItem({ item, onIncrease, onDecrease, onRemove, busy }) {
         <p className="cd-item__name">{item.productName}</p>
         {item.productSku && <p className="cd-item__sku">{item.productSku}</p>}
 
+        {/* Precio unitario */}
+        <p className="cd-item__unit-price">{formatCOP(unitPrice)} / ud.</p>
+
         {/* Alerta de cambio de precio */}
         {item.priceChanged && item.currentPrice != null && (
           <p className="cd-item__price-alert">
@@ -50,7 +58,7 @@ function CartItem({ item, onIncrease, onDecrease, onRemove, busy }) {
           <div className="cd-qty">
             <button
               className="cd-qty__btn"
-              onClick={() => onDecrease(item.cartItemId, item.quantity - 1)}
+              onClick={() => onDecrease(item.cartItemId, item.quantity - 1, storeId)}
               disabled={isLoading}
               aria-label="Reducir cantidad"
             >
@@ -59,7 +67,7 @@ function CartItem({ item, onIncrease, onDecrease, onRemove, busy }) {
             <span className="cd-qty__val">{item.quantity}</span>
             <button
               className="cd-qty__btn"
-              onClick={() => onIncrease(item.cartItemId, item.quantity + 1)}
+              onClick={() => onIncrease(item.cartItemId, item.quantity + 1, storeId)}
               disabled={isLoading}
               aria-label="Aumentar cantidad"
             >
@@ -73,7 +81,7 @@ function CartItem({ item, onIncrease, onDecrease, onRemove, busy }) {
 
       <button
         className="cd-item__remove"
-        onClick={() => onRemove(item.cartItemId)}
+        onClick={() => onRemove(item.cartItemId, storeId)}
         disabled={isLoading}
         aria-label="Eliminar producto"
       >
@@ -106,7 +114,15 @@ export default function CartDrawer({
   onRemoveItem,
   onClearCart,
   onClearError,
+  storeSlug,
 }) {
+  const navigate = useNavigate();
+
+  const handleCheckout = () => {
+    onClose();
+    navigate(`/tienda/${storeSlug}/checkout`, { state: { cart } });
+  };
+
   // Bloquear scroll del body mientras está abierto
   useEffect(() => {
     if (isOpen) {
@@ -247,9 +263,9 @@ export default function CartDrawer({
                   key={item.cartItemId}
                   item={item}
                   busy={itemLoading}
-                  onIncrease={(id, qty) => onUpdateQuantity(id, qty)}
-                  onDecrease={(id, qty) =>
-                    qty === 0 ? onRemoveItem(id) : onUpdateQuantity(id, qty)
+                  onIncrease={(id, qty, sid) => onUpdateQuantity(id, qty, sid)}
+                  onDecrease={(id, qty, sid) =>
+                    qty === 0 ? onRemoveItem(id, sid) : onUpdateQuantity(id, qty, sid)
                   }
                   onRemove={onRemoveItem}
                 />
@@ -269,7 +285,7 @@ export default function CartDrawer({
               Envío e impuestos calculados al finalizar
             </p>
 
-            <button className="cd-btn-checkout">
+            <button className="cd-btn-checkout" onClick={handleCheckout}>
               Proceder al pago
               <svg
                 width="14"

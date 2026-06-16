@@ -1,7 +1,7 @@
 ﻿import "../components/styles/Store.css";
 import "../components/styles/StepPages.css";
 import { useNavigate } from "react-router-dom";
-import { useStore } from "./StoreContext";
+import { useStore } from "./useStore";
 import { useAuth } from "../../admin/modules/auth/pages/hook/Useauth";
 import { useState } from "react";
 import { AlertCircle, CheckCircle2, ArrowLeft, ArrowRight, Info, Store, Globe } from "lucide-react";
@@ -31,7 +31,7 @@ function Alert({ type = "error", title, children }) {
   );
 }
 
-/* â”€â”€ PÃ¡gina principal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* â”€â”€ Pagina principal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export default function CreateStore() {
   const nav = useNavigate();
   const { state, completeStep } = useStore();
@@ -47,7 +47,7 @@ export default function CreateStore() {
 
   const [touched, setTouched] = useState({ name: false, subdomain: false });
 
-  // â”€â”€ Hook de integraciÃ³n API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ Hook de integracion API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const { loading, error, submit, clearError } = useCreateStore(state, ownerId);
 
   // â”€â”€ Validaciones inline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -97,6 +97,7 @@ export default function CreateStore() {
       // y clearStorage para que limpie el wizard del localStorage al llegar.
       nav("/resultado", {
         state: {
+          bypassProtected: true,
           clearStorage: true,
           previewState: { ...state, store: updatedStore },
         },
@@ -124,16 +125,15 @@ export default function CreateStore() {
           >
             <ArrowLeft size={16} />
           </button>
-          <div>
-            <h1 className="step-title">TÃ©rminos y crear tienda</h1>
+          <div className="step-header-text">
+            <h1 className="step-title">Crear tu tienda</h1>
             <p className="step-subtitle">
               {state.plan && (
-                <>
-                  Plan: <strong>{state.plan.name}</strong>
-                </>
+                <>Plan: <strong>{state.plan.name}</strong></>
               )}
             </p>
           </div>
+          <span className="step-badge">Paso 10 / 11</span>
         </div>
 
         {/* Cuerpo */}
@@ -166,7 +166,7 @@ export default function CreateStore() {
             />
             {touched.name && !nameValid && (
               <span className="field-hint hint-error">
-                <AlertCircle size={11} /> MÃ­nimo 2 caracteres
+                <AlertCircle size={11} /> Minimo 2 caracteres
               </span>
             )}
             {touched.name && nameValid && (
@@ -195,7 +195,7 @@ export default function CreateStore() {
                     letterSpacing: 0,
                   }}
                 >
-                  {form.subdomain}.freseo.com
+                  {form.subdomain}.vexio.com
                 </span>
               )}
             </label>
@@ -219,8 +219,8 @@ export default function CreateStore() {
             />
             {touched.subdomain && !subdomainValid && (
               <span className="field-hint hint-error">
-                <AlertCircle size={11} /> Solo letras minÃºsculas, nÃºmeros y
-                guiones. MÃ­nimo 3 caracteres.
+                <AlertCircle size={11} /> Solo letras minusculas, numeros y
+                guiones. Minimo 3 caracteres.
               </span>
             )}
             {touched.subdomain && subdomainValid && (
@@ -230,15 +230,15 @@ export default function CreateStore() {
             )}
           </div>
 
-          {/* TÃ©rminos y condiciones */}
+          {/* Terminos y condiciones */}
           <div className="field-block">
-            <label>TÃ©rminos y condiciones</label>
+            <label>Terminos y condiciones</label>
             <div className="terms-scroll-box">
               <VexioTermsPage />
             </div>
           </div>
 
-          {/* Checkbox de aceptaciÃ³n */}
+          {/* Checkbox de aceptacion */}
           <section className="terms-acceptance">
             <label className="checkbox-container">
               <input
@@ -256,7 +256,7 @@ export default function CreateStore() {
                   transition: "color 0.2s",
                 }}
               >
-                He leÃ­do y acepto los tÃ©rminos y condiciones, polÃ­ticas de
+                He leido y acepto los terminos y condiciones, politicas de
                 privacidad y normas comerciales establecidas por Vexio.
               </span>
             </label>
@@ -279,7 +279,7 @@ export default function CreateStore() {
             disabled={loading}
           >
             <ArrowLeft size={14} />
-            AtrÃ¡s
+            Atras
           </button>
 
           <button
@@ -290,7 +290,7 @@ export default function CreateStore() {
             {loading ? (
               <>
                 <span className="spinner" />
-                Creando tiendaâ€¦
+                Creando tienda...
               </>
             ) : (
               <>

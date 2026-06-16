@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { AuthContext } from "./authContext.js";
 import { ROLES } from "./authUtils.js";
+import { clearAllChatSessions } from "../../utils/chatSession.js";
 
 function getUserFromJwt() {
   try {
@@ -37,6 +38,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     setAuth(EMPTY);
     localStorage.removeItem("jwt");
+    clearAllChatSessions();
   }, []);
 
   const can = {

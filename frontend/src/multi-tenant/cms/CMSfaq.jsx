@@ -1,12 +1,12 @@
-/**
- * CMSFAQ.jsx — Preguntas Frecuentes
+﻿/**
+ * CMSFAQ.jsx " Preguntas Frecuentes
  * Modo wizard : StoreContext
  * Modo admin  : GET + PATCH /stores/cms
  */
 
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useStore } from "../pages/StoreContext";
+import { useStore } from "../pages/useStore";
 import { getCms, patchCms } from "../pages/services/cmsService";
 import StepProgress from "../components/StepProgress";
 import "../components/styles/CMSeditor.css";
@@ -15,16 +15,16 @@ const CATEGORIES = [
   { value: "general",  label: "General"   },
   { value: "pedidos",  label: "Pedidos"   },
   { value: "pagos",    label: "Pagos"     },
-  { value: "envios",   label: "Envíos"    },
+  { value: "envios",   label: "Envios"    },
   { value: "productos",label: "Productos" },
 ];
 
 const EMPTY_FAQ = () => ({ id: Date.now() + Math.random(), question: "", answer: "", category: "general" });
 
 const STARTER_FAQS = [
-  { id: 1, question: "¿Cuánto tarda en llegar mi pedido?",    answer: "Los pedidos se procesan en 1-2 días hábiles y el envío tarda entre 3-7 días.", category: "envios"  },
-  { id: 2, question: "¿Cómo puedo rastrear mi pedido?",       answer: "Una vez despachado recibirás un correo con el número de guía.",                 category: "pedidos" },
-  { id: 3, question: "¿Qué métodos de pago aceptan?",         answer: "Aceptamos tarjetas, transferencias y pagos contra entrega.",                    category: "pagos"   },
+  { id: 1, question: "?Cuanto tarda en llegar mi pedido?",    answer: "Los pedidos se procesan en 1-2 dias habiles y el envio tarda entre 3-7 dias.", category: "envios"  },
+  { id: 2, question: "?Como puedo rastrear mi pedido?",       answer: "Una vez despachado recibiras un correo con el numero de guia.",                 category: "pedidos" },
+  { id: 3, question: "?Que metodos de pago aceptan?",         answer: "Aceptamos tarjetas, transferencias y pagos contra entrega.",                    category: "pagos"   },
 ];
 
 export default function CMSFAQ() {
@@ -41,7 +41,7 @@ export default function CMSFAQ() {
 
   const [faqs,        setFaqs]        = useState(initFaqs);
   const [pageTitle,   setPageTitle]   = useState(isAdminMode ? "Preguntas Frecuentes" : (state.cms?.faq?.pageTitle    ?? "Preguntas Frecuentes"));
-  const [pageSubtitle,setPageSubtitle]= useState(isAdminMode ? "Encuentra respuestas a las preguntas más comunes" : (state.cms?.faq?.pageSubtitle ?? "Encuentra respuestas a las preguntas más comunes"));
+  const [pageSubtitle,setPageSubtitle]= useState(isAdminMode ? "Encuentra respuestas a las preguntas mas comunes" : (state.cms?.faq?.pageSubtitle ?? "Encuentra respuestas a las preguntas mas comunes"));
   const [showSearch,  setShowSearch]  = useState(isAdminMode ? true : (state.cms?.faq?.showSearch ?? true));
   const [activeFilter,setActiveFilter]= useState("all");
   const [expandedId,  setExpandedId]  = useState(null);
@@ -62,6 +62,13 @@ export default function CMSFAQ() {
       })
       .catch(() => {});
   }, []);
+
+  const cc = (len, max) => (
+    <span style={{ display:"block", textAlign:"right", fontSize:11, marginTop:3, fontFamily:"Inter,sans-serif",
+      color: len >= max ? "#ef4444" : len > max * 0.8 ? "#f59e0b" : "#555" }}>
+      {len}/{max}
+    </span>
+  );
 
   const updateFaq = (id, field, val) =>
     setFaqs(prev => prev.map(f => f.id === id ? { ...f, [field]: val } : f));
@@ -85,9 +92,9 @@ export default function CMSFAQ() {
         const prev = state.cms ?? {};
         saveProgress("cms", { ...prev, faq: faqData, completed: [...new Set([...(prev.completed ?? []), "faq"])] });
       }
-      showToast("✓ FAQ guardado correctamente");
+      showToast("FAQ guardado correctamente");
     } catch {
-      showToast("✗ Error al guardar");
+      showToast("Error al guardar");
     } finally {
       setSaving(false);
     }
@@ -95,7 +102,7 @@ export default function CMSFAQ() {
 
   const filtered = activeFilter === "all" ? faqs : faqs.filter(f => f.category === activeFilter);
 
-  // ── Formulario ────────────────────────────────────────────────────────────
+  // "" Formulario """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
   const form = (
     <div className="cms-page cms-page--faq">
       {!isAdminMode && (
@@ -109,19 +116,23 @@ export default function CMSFAQ() {
       )}
 
       <div className="cms-form-card">
-        <p className="cms-section-title">Configuración de la Página</p>
+        <p className="cms-section-title">Configuracion de la Pagina</p>
         <div className="field-group">
-          <label>Título de la Página</label>
-          <input className="f-input-dark" value={pageTitle} onChange={e => setPageTitle(e.target.value)} />
+          <label>Titulo de la Pagina</label>
+          <input className="f-input-dark" value={pageTitle}
+            onChange={e => setPageTitle(e.target.value)} maxLength={200} />
+          {cc(pageTitle.length, 200)}
         </div>
         <div className="field-group">
-          <label>Subtítulo</label>
-          <input className="f-input-dark" value={pageSubtitle} onChange={e => setPageSubtitle(e.target.value)} />
+          <label>Subtitulo</label>
+          <input className="f-input-dark" value={pageSubtitle}
+            onChange={e => setPageSubtitle(e.target.value)} maxLength={200} />
+          {cc(pageSubtitle.length, 200)}
         </div>
         <div className="toggle-field">
           <div className="toggle-field__info">
             <span className="toggle-field__label">Activar buscador en FAQ</span>
-            <span className="toggle-field__desc">Los clientes podrán buscar entre las preguntas</span>
+            <span className="toggle-field__desc">Los clientes podran buscar entre las preguntas</span>
           </div>
           <label className="toggle-wrap">
             <input type="checkbox" checked={showSearch} onChange={e => setShowSearch(e.target.checked)} />
@@ -159,14 +170,14 @@ export default function CMSFAQ() {
                 <span style={{ fontFamily: "Inter", fontSize: 13, color: faq.question ? "#ccc" : "#555", flex: 1, fontWeight: faq.question ? 500 : 400 }}>
                   {faq.question || "Nueva pregunta..."}
                 </span>
-                <span style={{ color: "#555", fontSize: 16, transition: "transform 0.2s", transform: expandedId === faq.id ? "rotate(180deg)" : "none" }}>↓</span>
-                <button className="cms-list-item__remove" onClick={e => { e.stopPropagation(); removeFaq(faq.id); }}>×</button>
+                <span style={{ color: "#555", fontSize: 16, transition: "transform 0.2s", transform: expandedId === faq.id ? "rotate(180deg)" : "none" }}>"</span>
+                <button className="cms-list-item__remove" onClick={e => { e.stopPropagation(); removeFaq(faq.id); }}>X</button>
               </div>
 
               {expandedId === faq.id && (
                 <div style={{ marginTop: 8 }}>
                   <div className="field-group">
-                    <label>Categoría</label>
+                    <label>Categoria</label>
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                       {CATEGORIES.map(cat => (
                         <button key={cat.value} onClick={() => updateFaq(faq.id, "category", cat.value)} style={{
@@ -180,13 +191,16 @@ export default function CMSFAQ() {
                   </div>
                   <div className="field-group">
                     <label>Pregunta</label>
-                    <input className="f-input-dark" placeholder="¿Cuál es la pregunta?"
-                      value={faq.question} onChange={e => updateFaq(faq.id, "question", e.target.value)} />
+                    <input className="f-input-dark" placeholder="?Cual es la pregunta?"
+                      value={faq.question} onChange={e => updateFaq(faq.id, "question", e.target.value)} maxLength={200} />
+                    {cc(faq.question.length, 200)}
                   </div>
                   <div className="field-group">
                     <label>Respuesta</label>
-                    <textarea className="f-textarea-dark" placeholder="Escribe la respuesta completa aquí..."
-                      value={faq.answer} onChange={e => updateFaq(faq.id, "answer", e.target.value)} style={{ minHeight: 80 }} />
+                    <textarea className="f-textarea-dark" placeholder="Escribe la respuesta completa aqui..."
+                      value={faq.answer} onChange={e => updateFaq(faq.id, "answer", e.target.value)}
+                      rows={4} maxLength={200} style={{ resize: "none" }} />
+                    {cc(faq.answer.length, 200)}
                   </div>
                 </div>
               )}
@@ -197,7 +211,7 @@ export default function CMSFAQ() {
       </div>
 
       <div className="cms-save-row">
-        <button className="btn-cms-back" onClick={handleBack}>← Volver al CMS</button>
+        <button className="btn-cms-back" onClick={handleBack}> Volver al CMS</button>
         <button className="btn-cms-save" onClick={handleSave} disabled={saving}>
           {saving ? "Guardando..." : "GUARDAR CAMBIOS"}
         </button>
@@ -211,7 +225,7 @@ export default function CMSFAQ() {
     return (
       <>
         <header className="admin-nav" style={{ position: "relative", marginBottom: 8 }}>
-          <button onClick={handleBack} className="btn-back-arrow">←</button>
+          <button onClick={handleBack} className="btn-back-arrow"></button>
           <div className="brand">Ayuda / FAQ <span>CMS</span></div>
           <button className="btn-save-top" onClick={handleSave} disabled={saving}>
             {saving ? "..." : "GUARDAR"}
@@ -226,7 +240,7 @@ export default function CMSFAQ() {
   return (
     <div className="admin-frame">
       <header className="admin-nav">
-        <button onClick={handleBack} className="btn-back-arrow" title="Volver">←</button>
+        <button onClick={handleBack} className="btn-back-arrow" title="Volver"></button>
         <div className="brand">{state.store?.name ?? "VEXIO"} <span>STUDIO V3</span></div>
         <button className="btn-save-top" onClick={handleSave} disabled={saving}>
           {saving ? "..." : "GUARDAR"}
@@ -238,3 +252,4 @@ export default function CMSFAQ() {
     </div>
   );
 }
+

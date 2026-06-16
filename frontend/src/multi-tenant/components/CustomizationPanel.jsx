@@ -1,7 +1,8 @@
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import "../components/styles/CustomatizacionPanel.css";
-import { useStore } from "../pages/StoreContext";
+import { useStore } from "../pages/useStore";
 import { useNavigate } from "react-router-dom";
 import StepProgress from "../components/StepProgress";
 
@@ -10,46 +11,49 @@ const CustomizationPanel = () => {
   const { state, completeStep, saveProgress } = useStore();
   const navigate = useNavigate();
 
-  // ✅ Pre-carga lo que el usuario había puesto si regresa a este paso
-  const [design, setDesign] = useState(
-    state.styles ?? {
-      colorBoton: "#3e78ff",
-      colorTitulo: "#ffffff",
-      colorParrafo: "#7a7a7a",
-      textoTitulo: "NEON HOODIE",
-      textoCuerpo: "Streetwear essentials designed for the urban landscape.",
-      cardBg: "#0f0f0f",
-      cardBorderColor1: "#1a1a1a",
-      cardBorderColor2: "#3e78ff",
-      cardBorderWidth: "2",
-      cardRadius: "12",
-      cardShadow: "0 10px 30px rgba(0,0,0,0.5)",
-      btnRadius: "4",
-      btnShadow: "none",
-      fontTitle: "Bebas Neue",
-      fontBody: "Inter",
-    },
+  const DEFAULT_STYLES = {
+    colorBoton: "#3e78ff",
+    colorTitulo: "#ffffff",
+    colorParrafo: "#7a7a7a",
+    textoTitulo: "NEON HOODIE",
+    textoCuerpo: "Streetwear essentials designed for the urban landscape.",
+    cardBg: "#0f0f0f",
+    cardBorderColor1: "#1a1a1a",
+    cardBorderColor2: "#3e78ff",
+    cardBorderWidth: "2",
+    cardRadius: "12",
+    cardShadow: "0 10px 30px rgba(0,0,0,0.5)",
+    btnRadius: "4",
+    btnShadow: "none",
+    fontTitle: "Bebas Neue",
+    fontBody: "Inter",
+  };
+
+  // design se deriva del contexto: la IA puede actualizarlo y el panel lo refleja al instante
+  const design = useMemo(
+    () => ({ ...DEFAULT_STYLES, ...(state.styles ?? {}) }),
+    [state.styles],
   );
 
   const handleUpdate = (key, value) => {
-    setDesign((prev) => ({ ...prev, [key]: value }));
+    saveProgress("styles", { ...design, [key]: value });
   };
 
-  // ← Guarda lo que lleva y vuelve al paso 3
+  //  Guarda lo que lleva y vuelve al paso 3
   const handleBack = () => {
-    saveProgress(4, design); // guarda sin marcar como completado
+    saveProgress(4, design);
     navigate("/layout");
   };
 
-  // → Guarda y avanza al paso 5
+  // ' Guarda y avanza al paso 5
   const handleSave = () => {
     completeStep(4, design); // guarda design directamente como styles
     navigate("/component");
   };
 
   const dynamicStyles = {
-    // ── Solo variables de la tarjeta de preview ──
-    // --accent se aplica SOLO en la tarjeta, no aquí
+    // "" Solo variables de la tarjeta de preview ""
+    // --accent se aplica SOLO en la tarjeta, no aqui
     "--title-color": design.colorTitulo,
     "--text-color": design.colorParrafo,
     "--card-bg": design.cardBg,
@@ -74,29 +78,28 @@ const CustomizationPanel = () => {
         <StepProgress />
         <main className="main-content">
         <header className="top-header">
-          {/* ← Vuelve al paso anterior guardando el progreso */}
+          {/*  Vuelve al paso anterior guardando el progreso */}
           <button
             onClick={handleBack}
             className="btn-back-arrow"
             title="Volver"
           >
-            ←
+            <ArrowLeft size={16} />
           </button>
 
           <div className="store-name">
             {state.store?.name ?? "EDITOR PROFESIONAL"}
           </div>
 
-          {/* → Guarda y continúa al paso 5 */}
           <button className="btn-save-primary" onClick={handleSave}>
-            GUARDAR Y CONTINUAR →
+            GUARDAR Y CONTINUAR <ArrowRight size={14} />
           </button>
         </header>
 
         <section className="editor-grid">
           <div className="control-panel">
             <div className="tabs-header">
-              {["colores", "tarjetas", "botones", "tipografía"].map((tab) => (
+              {["colores", "tarjetas", "botones", "tipografia"].map((tab) => (
                 <button
                   key={tab}
                   className={`tab-links ${activeTab === tab ? "active" : ""}`}
@@ -112,7 +115,7 @@ const CustomizationPanel = () => {
                 <div className="control-group animate-fade">
                   <label className="section-title">PALETA GLOBAL</label>
                   <div className="input-field">
-                    <span>Títulos</span>
+                    <span>Titulos</span>
                     <input
                       type="color"
                       value={design.colorTitulo}
@@ -122,7 +125,7 @@ const CustomizationPanel = () => {
                     />
                   </div>
                   <div className="input-field">
-                    <span>Párrafos</span>
+                    <span>Parrafos</span>
                     <input
                       type="color"
                       value={design.colorParrafo}
@@ -132,7 +135,7 @@ const CustomizationPanel = () => {
                     />
                   </div>
                   <div className="input-field">
-                    <span>Botón</span>
+                    <span>Boton</span>
                     <input
                       type="color"
                       value={design.colorBoton}
@@ -239,11 +242,11 @@ const CustomizationPanel = () => {
                 </div>
               )}
 
-              {activeTab === "tipografía" && (
+              {activeTab === "tipografia" && (
                 <div className="control-group animate-fade">
                   <label className="section-title">FUENTES Y CONTENIDO</label>
                   <div className="edit-block">
-                    <span>Título producto</span>
+                    <span>Titulo producto</span>
                     <input
                       type="text"
                       value={design.textoTitulo}
@@ -253,7 +256,7 @@ const CustomizationPanel = () => {
                     />
                   </div>
                   <div className="edit-block">
-                    <span>Descripción producto</span>
+                    <span>Descripcion producto</span>
                     <input
                       type="text"
                       value={design.textoCuerpo}
@@ -263,7 +266,7 @@ const CustomizationPanel = () => {
                     />
                   </div>
                   <div className="select-field">
-                    <span>Fuente Títulos</span>
+                    <span>Fuente Titulos</span>
                     <select
                       value={design.fontTitle}
                       onChange={(e) =>

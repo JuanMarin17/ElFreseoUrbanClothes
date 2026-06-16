@@ -3,8 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getProductById, updateProduct } from "../../services/productService";
 import { getCategories, createCategory } from "../../services/CategoryService";
 import { getBrands, createBrand } from "../../services/BrandService";
+import { getSuppliersByStore } from "../../services/SupplierService";
 import { uploadFile } from "../../../../../utils/uploadService";
 import "../UploadProduct/UploadProduct.css";
+import PageSpinner from "../../../../../components/ui/PageSpinner.jsx";
 
 const TALLAS_DISPONIBLES = ["S", "M", "L", "XL", "XXL"];
 
@@ -144,6 +146,7 @@ export default function EditProduct() {
     name: "",
     description: "",
     brandId: "",
+    supplierId: "",
     categoryIds: [],
     variants: [],
     images: [],
@@ -151,6 +154,7 @@ export default function EditProduct() {
 
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
   const [fetching, setFetching] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -160,14 +164,16 @@ export default function EditProduct() {
     const load = async () => {
       setFetching(true);
       try {
-        const [product, cats, brnds] = await Promise.all([
+        const [product, cats, brnds, supps] = await Promise.all([
           getProductById(id),
           getCategories(),
           getBrands(),
+          getSuppliersByStore().catch(() => []),
         ]);
 
         setCategories(Array.isArray(cats) ? cats : []);
         setBrands(Array.isArray(brnds) ? brnds : []);
+        setSuppliers(Array.isArray(supps) ? supps : []);
 
         const matchedCategoryIds = (product.categories ?? []).reduce((acc, catName) => {
           const found = (Array.isArray(cats) ? cats : []).find(
@@ -185,6 +191,7 @@ export default function EditProduct() {
           name: product.name ?? "",
           description: product.description ?? "",
           brandId: matchedBrandId,
+          supplierId: product.supplierId ?? "",
           categoryIds: matchedCategoryIds,
           variants: (product.variants ?? []).map(v => ({
             sku: v.sku ?? "",
@@ -296,6 +303,7 @@ export default function EditProduct() {
         name: form.name.trim(),
         description: form.description,
         brandId: form.brandId || null,
+        supplierId: form.supplierId || null,
         categoryIds: form.categoryIds,
         images: form.images.map(img => img.cloudinaryUrl).filter(Boolean),
         variants: form.variants,
@@ -313,9 +321,7 @@ export default function EditProduct() {
     return (
       <div className="adminContainer">
         <main className="mainContent">
-          <p style={{ color: "#666", textAlign: "center", marginTop: 80, fontSize: 14 }}>
-            Cargando producto…
-          </p>
+          <PageSpinner label="Cargando producto..." />
         </main>
       </div>
     );
@@ -362,6 +368,31 @@ export default function EditProduct() {
 
               <BrandSelector brands={brands} value={form.brandId} onChange={handleChange}
                 onBrandCreated={b => setBrands(prev => [...prev, b])} disabled={loading} />
+
+              <div className="inputGroup">
+                <label>Proveedor</label>
+                <div className="selectWrapper">
+                  <span className="selectIcon">◈</span>
+                  <select
+                    name="supplierId"
+                    value={form.supplierId}
+                    onChange={handleChange}
+                    disabled={loading || suppliers.length === 0}
+                    className="selectWithIcon"
+                  >
+                    {suppliers.length === 0 ? (
+                      <option value="">— Sin proveedores (créalos en Proveedores) —</option>
+                    ) : (
+                      <>
+                        <option value="">— Sin proveedor —</option>
+                        {suppliers.map(s => (
+                          <option key={s.supplierId} value={s.supplierId}>{s.name}</option>
+                        ))}
+                      </>
+                    )}
+                  </select>
+                </div>
+              </div>
 
               <CategorySelector categories={categories} selectedIds={form.categoryIds}
                 onToggle={handleCategoryToggle}

@@ -6,7 +6,7 @@ import './Preferences.css';
 const PREFS_CONFIG = [
   { key: 'newCollections', label: 'NUEVAS COLECCIONES',    icon: <Bell size={16} />,     desc: 'Alertas de lanzamientos y drops exclusivos.' },
   { key: 'offers',         label: 'OFERTAS Y DESCUENTOS',  icon: <Tag size={16} />,      desc: 'Notificaciones de promociones temporales.' },
-  { key: 'events',         label: 'EVENTOS EL FRESEO',     icon: <Calendar size={16} />, desc: 'Invitaciones a activaciones y pop-up stores.' },
+  { key: 'events',         label: 'EVENTOS DE VEXIO',     icon: <Calendar size={16} />, desc: 'Invitaciones a activaciones y pop-up stores.' },
   { key: 'blog',           label: 'CONTENIDO URBANO',      icon: <BookOpen size={16} />, desc: 'Tendencias, estilo y cultura callejera.' },
 ];
 
@@ -32,7 +32,7 @@ export default function Preferences() {
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } catch (error) {
-      console.error("Error al sincronizar preferencias");
+      console.error("Error al sincronizar preferencias " + error);
     }
   };
 

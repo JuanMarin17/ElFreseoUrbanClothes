@@ -1,48 +1,56 @@
 /* ==========================================================================
-   VEXIO — Sistema de Diseño Global e Identidad de Marca
-   Paleta: Dark Modern / Futurista — Azul Eléctrico + Negro Profundo
+   VEXIO — Sistema de Diseño Global
+   Paleta: Dark Premium — Azul Eléctrico + Negro Profundo
+   Fuente única: system sans-serif stack (Inter / -apple-system)
    ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 :root {
-  /* ── Fondos Premium Oscuros ── */
-  --vx-bg:           #050505;   /* Negro profundo principal */
-  --vx-bg2:          #0A0A0A;   /* Variación de fondo sutil */
-  --vx-card:         #111111;   /* Tarjetas nivel 1 */
-  --vx-card2:        #181818;   /* Tarjetas nivel 2 */
+  /* ── Fondos ── */
+  --vx-bg:           #060608;
+  --vx-bg2:          #0c0c10;
+  --vx-card:         #111116;
+  --vx-card2:        #18181f;
+  --vx-card-hover:   #1c1c24;
 
-  /* ── Bordes Sutiles ── */
-  --vx-border:       #2A2A2A;
-  --vx-border2:      rgba(255, 255, 255, 0.13);
+  /* ── Bordes ── */
+  --vx-border:       rgba(255, 255, 255, 0.07);
+  --vx-border2:      rgba(255, 255, 255, 0.12);
 
-  /* ── Identidad Cromática: Azul Eléctrico (Principal) ── */
+  /* ── Azul eléctrico ── */
   --vx-cyan:         #2563FF;
   --vx-cyan-dim:     rgba(37, 99, 255, 0.10);
-  --vx-cyan-mid:     rgba(37, 99, 255, 0.25);
-  --vx-cyan-glow:    rgba(37, 99, 255, 0.40);
+  --vx-cyan-mid:     rgba(37, 99, 255, 0.22);
+  --vx-cyan-glow:    rgba(37, 99, 255, 0.35);
 
-  /* ── Hover / Brillante ── */
-  --vx-blue-bright:  #3B82F6;
+  --vx-blue-bright:  #4f8fff;
 
-  /* ── Tonos de Apoyo ── */
-  --vx-amber:        #EAB308;   /* Estados pendientes */
-  --vx-green:        #22C55E;   /* Estados activos */
-  --vx-purple:       #a855f7;   /* Toques de diseño (uso medido) */
+  /* ── Apoyo ── */
+  --vx-amber:        #f59e0b;
+  --vx-green:        #22c55e;
+  --vx-red:          #ef4444;
 
   /* ── Tipografía ── */
-  --vx-text:         #FFFFFF;
-  --vx-muted:        #9CA3AF;
-  --vx-muted2:       rgba(156, 163, 175, 0.55);
+  --vx-text:         #f0f0f5;
+  --vx-text2:        #c8c8d4;
+  --vx-muted:        #8888a0;
+  --vx-muted2:       rgba(136, 136, 160, 0.5);
 
-  /* ── Fuentes ── */
-  --vx-font-display: 'Syne', sans-serif;
-  --vx-font-body:    'Plus Jakarta Sans', sans-serif;
+  /* ── Fuente ÚNICA ── */
+  --vx-font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-  /* ── Radios de Curvatura ── */
+  /* ── Espacios ── */
+  --vx-section-gap:  80px;
+  --vx-section-gap-sm: 48px;
+
+  /* ── Radios ── */
   --vx-radius:       10px;
   --vx-radius-lg:    16px;
-  --vx-radius-xl:    22px;
+  --vx-radius-xl:    20px;
+  --vx-radius-2xl:   28px;
 }
 
-/* ── Reseteo y Normalización Global ── */
+/* ── Reset ── */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -54,137 +62,260 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--vx-bg);
   color: var(--vx-text);
-  font-family: var(--vx-font-body);
+  font-family: var(--vx-font);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--vx-bg2); }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--vx-cyan-mid); border-radius: 99px; }
 
-/* ── Root de la Landing ── */
-.vx-landing,
+/* ── Root ── */
 .vexio-market-root {
-  min-height: 100vh;
+
   width: 100%;
   background: var(--vx-bg);
   color: var(--vx-text);
-  font-family: var(--vx-font-body);
+  font-family: var(--vx-font);
   overflow-x: hidden;
   position: relative;
 }
 
-/* Textura Noise sutil */
-.vx-landing::before,
-.vexio-market-root::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.022'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 9;
-}
-
 /* ── Viewport ── */
 .vx-market-viewport {
-  width: 100%;
-  padding-top: 95px;
+  width: 100vw;
+  padding-top: 72px;
 }
 
-/* ── Secciones ── */
+/* ── Contenedor global ── */
 .vx-section-wrap {
   width: 100%;
-  max-width: 1440px;
+  max-width: 1720px;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0 48px;
 }
 
-@media (max-width: 768px) {
-  .vx-section-wrap { padding: 0 20px; }
-}
+@media (max-width: 1024px) { .vx-section-wrap { padding: 0 32px; } }
+@media (max-width: 640px)  { .vx-section-wrap { padding: 0 20px; } }
 
-/* ── Botones Globales ── */
+/* ── Botones ── */
 .vx-btn-cyan {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 26px;
-  background: var(--vx-cyan);
-  color: #ffffff;
-  font-family: var(--vx-font-body);
-  font-weight: 700;
+  padding: 13px 28px;
+  background: linear-gradient(135deg, var(--vx-cyan) 0%, #7C3AED 100%);
+  color: #fff;
+  font-family: var(--vx-font);
+  font-weight: 600;
   font-size: 14px;
+  letter-spacing: 0.01em;
   border-radius: var(--vx-radius);
   border: none;
   cursor: pointer;
-  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  transition: opacity 200ms ease-out, transform 160ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 200ms ease-out;
   text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(37, 99, 255, 0.28);
 }
 
-.vx-btn-cyan:hover {
-  background: var(--vx-blue-bright);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 28px var(--vx-cyan-glow);
+@media (hover: hover) and (pointer: fine) {
+  .vx-btn-cyan:hover {
+    opacity: 0.88;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(37, 99, 255, 0.42);
+  }
+}
+
+.vx-btn-cyan:active {
+  transform: scale(0.97);
+  box-shadow: none;
+  opacity: 1;
 }
 
 .vx-btn-ghost {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 11px 26px;
+  padding: 12px 28px;
   background: transparent;
   color: var(--vx-text);
-  font-family: var(--vx-font-body);
+  font-family: var(--vx-font);
   font-weight: 600;
   font-size: 14px;
+  letter-spacing: 0.01em;
   border-radius: var(--vx-radius);
   border: 1px solid var(--vx-border2);
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, transform 0.15s;
+  transition: border-color 200ms ease-out, color 200ms ease-out, background 200ms ease-out, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
   text-decoration: none;
+  white-space: nowrap;
 }
 
-.vx-btn-ghost:hover {
-  border-color: var(--vx-cyan);
-  color: var(--vx-cyan);
-  transform: translateY(-2px);
+@media (hover: hover) and (pointer: fine) {
+  .vx-btn-ghost:hover {
+    border-color: var(--vx-cyan);
+    color: var(--vx-cyan);
+    background: var(--vx-cyan-dim);
+    transform: translateY(-2px);
+  }
 }
 
-/* ── Encabezados de Secciones ── */
+.vx-btn-ghost:active {
+  transform: scale(0.97);
+}
+
+/* ── Cabeceras de sección ── */
 .vx-section-head {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
   gap: 16px;
 }
 
 .vx-section-head h2 {
-  font-family: var(--vx-font-display);
-  font-size: clamp(1.3rem, 2.5vw, 1.75rem);
-  font-weight: 800;
+  font-family: var(--vx-font);
+  font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+  font-weight: 700;
   color: var(--vx-text);
-  letter-spacing: -0.4px;
+  letter-spacing: -0.03em;
 }
 
 .vx-section-head h2 span { color: var(--vx-cyan); }
 
 .vx-section-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   background: none;
   border: none;
-  color: var(--vx-cyan);
-  font-family: var(--vx-font-body);
-  font-size: 0.88rem;
-  font-weight: 600;
+  color: var(--vx-muted);
+  font-family: var(--vx-font);
+  font-size: 0.85rem;
+  font-weight: 500;
   cursor: pointer;
-  white-space: nowrap;
   text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 4px;
   transition: color 0.2s;
+  white-space: nowrap;
 }
 
-.vx-section-link:hover { color: var(--vx-blue-bright); }
+.vx-section-link:hover { color: var(--vx-cyan); }
+
+/* ── Eyebrow chip genérico ── */
+.vx-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 14px;
+  background: var(--vx-cyan-dim);
+  border: 1px solid var(--vx-cyan-mid);
+  border-radius: 99px;
+  color: var(--vx-cyan);
+  font-family: var(--vx-font);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── Animación de entrada base ── */
+@keyframes vx-fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.vx-anim-item {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 500ms cubic-bezier(0.23, 1, 0.32, 1), transform 500ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.vx-anim-item.vx-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── CTA Catálogo ── */
+.vx-catalog-cta {
+  display: flex;
+  justify-content: center;
+  padding: 64px 24px;
+  background: linear-gradient(135deg, rgba(37,99,255,0.07) 0%, rgba(37,99,255,0.02) 100%);
+  border-top: 1px solid rgba(37,99,255,0.14);
+  border-bottom: 1px solid rgba(37,99,255,0.14);
+}
+
+.vx-catalog-cta__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+  max-width: 540px;
+}
+
+.vx-catalog-cta__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vx-catalog-cta__icon { color: #2563FF; }
+
+.vx-catalog-cta__title {
+  margin: 0;
+  font-size: clamp(1.4rem, 3vw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--vx-text);
+}
+
+.vx-catalog-cta__sub {
+  margin: 0;
+  color: var(--vx-muted);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.vx-catalog-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 32px;
+  background: #2563FF;
+  color: #fff;
+  border-radius: 99px;
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.07em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    background 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vx-catalog-cta__btn:hover {
+    background: #3b74ff;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(37,99,255,0.4);
+  }
+}
+
+.vx-catalog-cta__btn:active { transform: scale(0.97); }
+
+@media (prefers-reduced-motion: reduce) {
+  .vx-anim-item {
+    transition: opacity 200ms ease;
+    transform: none !important;
+  }
+  .vx-btn-cyan, .vx-btn-ghost {
+    transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+  }
+  .vx-btn-cyan:active, .vx-btn-ghost:active { transform: none; }
+}

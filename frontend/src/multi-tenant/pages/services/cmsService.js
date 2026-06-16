@@ -6,7 +6,7 @@
  * Requieren: Authorization: Bearer <jwt>  y  X-Store-Id: <uuid>
  */
 
-const API_ROOT = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
+const API_ROOT = import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_URL;
 
 function buildHeaders(storeId) {
   return {
@@ -21,10 +21,13 @@ async function request(url, storeId, options = {}) {
     ...options,
     headers: buildHeaders(storeId),
   });
-  const ct   = res.headers.get("Content-Type") ?? "";
-  const body = ct.includes("application/json") ? await res.json() : await res.text();
+  const ct = res.headers.get("Content-Type") ?? "";
+  const body = ct.includes("application/json")
+    ? await res.json()
+    : await res.text();
   if (!res.ok) {
-    const msg = typeof body === "object" ? (body.message ?? `Error ${res.status}`) : body;
+    const msg =
+      typeof body === "object" ? (body.message ?? `Error ${res.status}`) : body;
     throw new Error(msg || `Error ${res.status}`);
   }
   return body?.data ?? body;
@@ -39,4 +42,21 @@ export function patchCms(storeId, data) {
     method: "PATCH",
     body: JSON.stringify(data),
   });
+}
+
+/** Lectura pública sin JWT — para páginas del cliente final */
+export async function getPublicCms(storeId) {
+  const res = await fetch(`${API_ROOT}/stores/cms`, {
+    headers: { "Content-Type": "application/json", "X-Store-Id": storeId },
+  });
+  const ct = res.headers.get("Content-Type") ?? "";
+  const body = ct.includes("application/json")
+    ? await res.json()
+    : await res.text();
+  if (!res.ok) {
+    const msg =
+      typeof body === "object" ? (body.message ?? `Error ${res.status}`) : body;
+    throw new Error(msg || `Error ${res.status}`);
+  }
+  return body?.data ?? body;
 }

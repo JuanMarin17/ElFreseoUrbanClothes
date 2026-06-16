@@ -2,6 +2,30 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: #252535 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #252535;
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #35354f;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* Ocultar el ojo nativo del navegador en TODOS los inputs de contraseña */
@@ -18,5 +42,4 @@ body {
 .main-container {
   width: 100%;
   min-height: 100vh;
-  overflow-x: hidden;
 }

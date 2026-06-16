@@ -4,7 +4,7 @@
  * El gateway inyecta X-User-Id y X-Store-Id desde el JWT; no los enviamos manualmente.
  */
 
-const BASE = `${import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1"}/ia/user`;
+const BASE = `${import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_URL}/ia/user`;
 
 const buildHeaders = (storeId) => {
   const jwt = localStorage.getItem("jwt");
@@ -26,7 +26,11 @@ async function request(method, path, body, storeId) {
   if (res.status === 204) return null;
 
   let data;
-  try { data = await res.json(); } catch { data = {}; }
+  try {
+    data = await res.json();
+  } catch {
+    data = {};
+  }
 
   if (!res.ok) {
     const msg = data?.message ?? data?.error ?? `Error ${res.status}`;
@@ -46,7 +50,13 @@ async function request(method, path, body, storeId) {
  * @param {string|null} imageMimeType
  * @param {string|null} storeId
  */
-export const sendMessage = (sessionId, message, imageBase64 = null, imageMimeType = null, storeId = null) => {
+export const sendMessage = (
+  sessionId,
+  message,
+  imageBase64 = null,
+  imageMimeType = null,
+  storeId = null,
+) => {
   const body = { message };
   if (sessionId) body.session_id = sessionId;
   if (imageBase64) {
@@ -57,15 +67,22 @@ export const sendMessage = (sessionId, message, imageBase64 = null, imageMimeTyp
 };
 
 /** Listar sesiones del usuario. */
-export const getSessions = (storeId) => request("GET", "/sessions", undefined, storeId);
+export const getSessions = (storeId) =>
+  request("GET", "/sessions", undefined, storeId);
 
 /** Obtener historial de una sesión. */
 export const getSessionHistory = (sessionId, storeId) =>
   request("GET", `/sessions/${sessionId}/history`, undefined, storeId);
 
 /** Obtener alertas de stock pendientes. */
-export const getStockNotifications = (storeId) => request("GET", "/stock-notifications", undefined, storeId);
+export const getStockNotifications = (storeId) =>
+  request("GET", "/stock-notifications", undefined, storeId);
 
 /** Cancelar una alerta de stock. */
 export const cancelStockNotification = (notificationId, storeId) =>
-  request("DELETE", `/stock-notifications/${notificationId}`, undefined, storeId);
+  request(
+    "DELETE",
+    `/stock-notifications/${notificationId}`,
+    undefined,
+    storeId,
+  );

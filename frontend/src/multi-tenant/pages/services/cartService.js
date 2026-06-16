@@ -4,7 +4,9 @@
  * Nota: storeId va en la URL, NO en los headers.
  */
 
-const BASE = "http://localhost:8080/api/v1";
+import { authFetch } from "../../../utils/authFetch";
+
+const BASE = import.meta.env.VITE_API_URL;
 
 const buildHeaders = () => {
   const jwt = localStorage.getItem("jwt");
@@ -16,7 +18,7 @@ const buildHeaders = () => {
 };
 
 async function request(method, path, body) {
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await authFetch(`${BASE}${path}`, {
     method,
     headers: buildHeaders(),
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
@@ -42,16 +44,15 @@ async function request(method, path, body) {
 }
 
 /** Obtener carrito activo (lo crea si no existe, nunca devuelve 404). */
-export const getCart = (storeId) =>
-  request("GET", `/stores/${storeId}/cart`);
+export const getCart = (storeId) => request("GET", `/stores/${storeId}/cart`);
 
 /** Agregar producto al carrito. Si ya existe, suma la cantidad. */
-export const addItem = (storeId, { productId, quantity }) =>
-  request("POST", `/stores/${storeId}/cart/items`, storeId, { productId, quantity });
+export const addItem = (storeId, { productId, variantId, quantity }) =>
+  request("POST", `/stores/${storeId}/cart/items`, { productId, variantId, quantity });
 
 /** Cambiar cantidad de un ítem. quantity=0 elimina el ítem automáticamente. */
 export const updateItem = (storeId, cartItemId, { quantity }) =>
-  request("PUT", `/stores/${storeId}/cart/items/${cartItemId}`, storeId, { quantity });
+  request("PUT", `/stores/${storeId}/cart/items/${cartItemId}`, { quantity });
 
 /** Eliminar un ítem del carrito. */
 export const removeItem = (storeId, cartItemId) =>

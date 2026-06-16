@@ -740,3 +740,183 @@
   .sp-modal { width: 95vw; max-height: 95vh; }
   .sp-toast { left: 16px; right: 16px; min-width: unset; }
 }
+
+/* ── Modo Claro ─────────────────────────────────────────────────────────── */
+.admin-terminal-wrapper[data-theme="light"] .sp-root {
+  --sp-bg:         var(--at-bg);
+  --sp-bg-card:    var(--at-surface);
+  --sp-bg-hover:   var(--at-elevated);
+  --sp-bg-input:   var(--at-input-bg);
+  --sp-border:     var(--at-border);
+  --sp-border-2:   var(--at-border);
+  --sp-text:       var(--at-text-1);
+  --sp-text-sub:   var(--at-text-2);
+  --sp-text-muted: var(--at-text-3);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sp-modal {
+  background: var(--at-elevated);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sp-detail-hero {
+  background: var(--at-surface);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sp-th {
+  background: var(--at-surface);
+}
+
+/* ── Tipo badge (tabla) ────────────────────────────────────────────────────── */
+.sp-tipo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #93c5fd;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Field hint ─────────────────────────────────────────────────────────────── */
+.sp-field-hint {
+  font-size: 10px;
+  color: var(--sp-text-sub);
+  margin-top: 4px;
+  display: block;
+}
+
+/* ── Detail tabs ──────────────────────────────────────────────────────────── */
+.sp-detail-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--sp-border);
+  padding: 0 20px;
+  gap: 4px;
+}
+
+.sp-detail-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--sp-text-sub);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  letter-spacing: 0.02em;
+  margin-bottom: -1px;
+}
+
+.sp-detail-tab:hover { color: var(--sp-text); }
+
+.sp-detail-tab--active {
+  color: var(--sp-accent);
+  border-bottom-color: var(--sp-accent);
+}
+
+/* ── Supplier products panel ─────────────────────────────────────────────── */
+.sp-products-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 32px 24px;
+  color: var(--sp-text-sub);
+  font-size: 13px;
+}
+
+.sp-products-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 36px 24px;
+  text-align: center;
+}
+
+.sp-products-empty-icon {
+  color: var(--sp-text-muted);
+  margin-bottom: 4px;
+}
+
+.sp-products-empty-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sp-text);
+  margin: 0;
+}
+
+.sp-products-empty-sub {
+  font-size: 12px;
+  color: var(--sp-text-sub);
+  margin: 0 0 8px;
+  max-width: 280px;
+}
+
+.sp-products-list {
+  padding: 8px 0;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.sp-product-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--sp-border);
+  transition: background 0.12s;
+}
+
+.sp-product-row:last-child { border-bottom: none; }
+.sp-product-row:hover { background: var(--sp-bg-hover); }
+
+.sp-product-thumb {
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  background: var(--sp-bg-hover);
+  border: 1px solid var(--sp-border-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sp-text-sub);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sp-product-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sp-product-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sp-product-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--sp-text);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-product-price {
+  font-size: 11px;
+  color: var(--sp-text-sub);
+  margin: 2px 0 0;
+}

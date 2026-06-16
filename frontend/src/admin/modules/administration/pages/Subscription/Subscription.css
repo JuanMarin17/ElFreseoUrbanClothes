@@ -283,7 +283,404 @@
   margin-bottom: 16px;
 }
 
+/* ── Grid de 4 columnas ── */
+.sub-plans--wide { max-width: 1200px; }
+
+.sub-plans__grid--4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* ── Plan actual highlight ── */
+.sub-plan-card--current {
+  border-color: #22c55e;
+  background: linear-gradient(160deg, #0e1220 60%, #0d2010);
+}
+
+.sub-plan-card__badge--active {
+  background: #22c55e;
+}
+
+/* ── Downgrade note ── */
+.sub-plan-downgrade-note {
+  font-size: 11px;
+  color: #fbbf24;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+/* ── Current plan info bar ── */
+.sub-current-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #0e1220;
+  border: 1px solid #1e2230;
+  border-radius: 10px;
+  padding: 10px 18px;
+  margin-bottom: 28px;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+.sub-current-info__label { color: #475569; }
+.sub-current-info__plan  { color: #a5b4fc; font-weight: 700; }
+.sub-current-info__exp   { color: #64748b; }
+.sub-current-info__alert { color: #fbbf24; font-size: 12px; }
+
+/* ── Loading state ── */
+.sub-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #475569;
+  font-size: 14px;
+}
+
+/* ── Button loading ── */
+.sub-btn-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* ── Danger button ── */
+.sub-btn--danger {
+  background: #7f1d1d;
+  color: #fca5a5;
+  border: 1px solid #991b1b;
+}
+.sub-btn--danger:hover:not(:disabled) { background: #991b1b; }
+
+/* ── Footer note ── */
+.sub-footer-note {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 12px;
+  color: #334155;
+}
+
 /* ── Responsive ── */
 @media (max-width: 760px) {
   .sub-plans__grid { grid-template-columns: 1fr; max-width: 380px; margin: 0 auto; }
 }
+
+@media (max-width: 1100px) {
+  .sub-plans__grid--4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .sub-plans__grid--4 { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════
+   SUBSCRIPTION MANAGEMENT PAGE (smg-*)
+═══════════════════════════════════════ */
+
+.smg-root {
+  padding: 28px 32px;
+  font-family: "Inter", -apple-system, sans-serif;
+  color: #e2e8f0;
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* ── Header ── */
+.smg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.smg-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #f0f4ff;
+}
+.smg-btn-plans { width: auto; padding: 10px 20px; }
+.smg-btn-cancel { width: auto; padding: 8px 16px; font-size: 13px; }
+
+/* ── Sections ── */
+.smg-section {
+  background: #0e1220;
+  border: 1px solid #1e2230;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.smg-section__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #cbd5e1;
+  margin-bottom: 18px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* ── Subscription card ── */
+.smg-sub-card {}
+.smg-sub-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.smg-sub-card__plan {
+  font-size: 24px;
+  font-weight: 900;
+  color: #f0f4ff;
+  margin-bottom: 8px;
+}
+.smg-sub-card__details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Detail rows ── */
+.smg-detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  gap: 16px;
+}
+.smg-detail-label { color: #475569; }
+.smg-detail-value { color: #e2e8f0; font-weight: 600; }
+.smg-days         { color: #94a3b8; font-weight: 400; }
+.smg-days--warn   { color: #fbbf24; }
+
+/* ── Alert ── */
+.smg-alert {
+  margin-top: 16px;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 13px;
+}
+.smg-alert--warn {
+  background: #271e0c;
+  border: 1px solid #92400e;
+  color: #fde68a;
+}
+
+/* ── Empty states ── */
+.smg-empty-sub {
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+  padding: 16px 0;
+}
+.smg-benefits-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+.smg-benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+.smg-benefit-check {
+  color: #4ade80;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.smg-empty {
+  color: #475569;
+  font-size: 13px;
+  padding: 8px 0;
+}
+
+/* ── Badges ── */
+.smg-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.smg-badge--green  { background: #14291f; color: #4ade80; }
+.smg-badge--yellow { background: #271e0c; color: #fbbf24; }
+.smg-badge--red    { background: #2d1010; color: #f87171; }
+.smg-badge--gray   { background: #1e2230; color: #64748b; }
+.smg-badge--blue   { background: #0c1a2d; color: #60a5fa; }
+
+.smg-type-badge {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: #1e2230;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ── Tables ── */
+.smg-table-wrapper {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid #1e2230;
+}
+.smg-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.smg-table th {
+  background: #080b14;
+  color: #475569;
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  white-space: nowrap;
+}
+.smg-table td {
+  padding: 12px 14px;
+  border-top: 1px solid #1e2230;
+  color: #cbd5e1;
+  vertical-align: middle;
+}
+.smg-table tr:hover td { background: #0e1220; }
+.smg-mp-id { font-family: monospace; font-size: 12px; color: #64748b; }
+
+/* ── Modal ── */
+.smg-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+.smg-modal {
+  background: #0e1220;
+  border: 1px solid #1e2230;
+  border-radius: 18px;
+  padding: 32px;
+  max-width: 440px;
+  width: 100%;
+}
+.smg-modal__title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #f0f4ff;
+  margin-bottom: 12px;
+}
+.smg-modal__text {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+.smg-modal__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.smg-modal__actions .sub-btn {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* ── Toast ── */
+.smg-toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 10000;
+  white-space: nowrap;
+  animation: smg-fadein .25s ease;
+}
+.smg-toast--success { background: #14291f; border: 1px solid #22c55e; color: #4ade80; }
+.smg-toast--error   { background: #2d1010; border: 1px solid #991b1b; color: #fca5a5; }
+@keyframes smg-fadein { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+/* ── Status results badges ── */
+.sub-result__status--active    { background: #14291f; color: #4ade80; }
+.sub-result__status--cancelled { background: #1e2230; color: #64748b; }
+.sub-result__status--expired   { background: #2d1010; color: #f87171; }
+
+/* ── Light theme overrides for SMG ── */
+.admin-terminal-wrapper[data-theme="light"] .smg-root { color: var(--at-text-1); }
+.admin-terminal-wrapper[data-theme="light"] .smg-title { color: var(--at-text-1); }
+.admin-terminal-wrapper[data-theme="light"] .smg-section { background: var(--at-elevated); border-color: var(--at-border); }
+.admin-terminal-wrapper[data-theme="light"] .smg-section__title { color: var(--at-text-2); }
+.admin-terminal-wrapper[data-theme="light"] .smg-sub-card__plan { color: var(--at-text-1); }
+.admin-terminal-wrapper[data-theme="light"] .smg-detail-label { color: var(--at-text-3); }
+.admin-terminal-wrapper[data-theme="light"] .smg-detail-value { color: var(--at-text-1); }
+.admin-terminal-wrapper[data-theme="light"] .smg-table th { background: var(--at-surface); color: var(--at-text-3); }
+.admin-terminal-wrapper[data-theme="light"] .smg-table td { color: var(--at-text-2); border-color: var(--at-border); }
+.admin-terminal-wrapper[data-theme="light"] .smg-table tr:hover td { background: var(--at-elevated); }
+.admin-terminal-wrapper[data-theme="light"] .smg-table-wrapper { border-color: var(--at-border); }
+.admin-terminal-wrapper[data-theme="light"] .smg-modal { background: var(--at-elevated); border-color: var(--at-border); }
+.admin-terminal-wrapper[data-theme="light"] .smg-modal__title { color: var(--at-text-1); }
+.admin-terminal-wrapper[data-theme="light"] .smg-modal__text { color: var(--at-text-3); }
+.admin-terminal-wrapper[data-theme="light"] .smg-current-info { background: var(--at-surface); border-color: var(--at-border); }
+.admin-terminal-wrapper[data-theme="light"] .sub-current-info { background: var(--at-surface); border-color: var(--at-border); }
+
+/* ── Modo Claro ──────────────────────────────────────────── */
+.admin-terminal-wrapper[data-theme="light"] .sub-root {
+  background: var(--at-bg);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sub-brand__logo,
+.admin-terminal-wrapper[data-theme="light"] .sub-plans__title,
+.admin-terminal-wrapper[data-theme="light"] .sub-plan-card__price,
+.admin-terminal-wrapper[data-theme="light"] .sub-result__title {
+  color: var(--at-text-1);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sub-brand__tag,
+.admin-terminal-wrapper[data-theme="light"] .sub-plans__sub,
+.admin-terminal-wrapper[data-theme="light"] .sub-plan-card__name,
+.admin-terminal-wrapper[data-theme="light"] .sub-plan-card__period,
+.admin-terminal-wrapper[data-theme="light"] .sub-result__text {
+  color: var(--at-text-3);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sub-plan-card {
+  background: var(--at-elevated);
+  border-color: var(--at-border);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sub-plan-card--featured {
+  background: linear-gradient(160deg, var(--at-elevated) 60%, var(--at-surface));
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sub-plan-card__features li {
+  color: var(--at-text-2);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sub-btn--outline {
+  border-color: var(--at-border);
+  color: var(--at-text-2);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sub-result__card {
+  background: var(--at-elevated);
+  border-color: var(--at-border);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sub-result__row-label { color: var(--at-text-3); }
+.admin-terminal-wrapper[data-theme="light"] .sub-result__row-value { color: var(--at-text-1); }

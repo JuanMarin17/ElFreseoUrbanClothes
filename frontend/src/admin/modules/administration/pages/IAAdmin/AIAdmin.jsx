@@ -1,242 +1,618 @@
 import { useState, useEffect, useRef } from "react";
+import { useIAAdmin } from "./service/useIAAdmin";
+import ActionRenderer from "./components/ActionRenderer";
 import "./AIAdmin.css";
-
-// ─── Datos Estáticos ─────────────────────────────────────────
-
-const SALES_DATA = [
-  { day: "Lun", value: 68 },
-  { day: "Mar", value: 85 },
-  { day: "Mié", value: 72 },
-  { day: "Jue", value: 91 },
-  { day: "Vie", value: 78 },
-  { day: "Sáb", value: 95 },
-  { day: "Hoy", value: 62 },
-];
-
-const TOP_PRODUCTS = [
-  { name: "Zapatillas Pro X1",  sales: 148, pct: 100 },
-  { name: "Mochila Urban 30L",  sales: 112, pct: 76  },
-  { name: "Audífonos BT-500",   sales: 89,  pct: 60  },
-  { name: "Reloj Smart V3",     sales: 67,  pct: 45  },
-];
-
-const INITIAL_ALERTS = [
-  { id: 1, type: "warning", text: "7 productos con stock bajo requieren reposición urgente." },
-  { id: 2, type: "info",    text: "Campaña de verano activa hasta el 15 de junio." },
-];
 
 const SUGGESTIONS = [
   "¿Cómo van las ventas hoy?",
   "¿Qué productos tienen bajo stock?",
-  "¿Cuál es el ticket promedio?",
+  "Sugerencias de colores para mi tienda",
+  "Resumen de pedidos recientes",
 ];
 
-// ─── Base de Conocimiento del Chat ───────────────────────────
-
-const KB = {
-  ventas:       "Las ventas de hoy alcanzan $142,500, un 8 % por encima del promedio diario. El mejor horario fue entre las 14h–17h con $48,200 en transacciones. El canal más activo es la app móvil (62 %).",
-  hoy:          "Hoy se han procesado 38 pedidos. Hora pico: 15:30 con 9 pedidos simultáneos. La tasa de abandono de carrito es del 22 %, por debajo del promedio mensual.",
-  stock:        "Hay 7 productos con stock crítico: Zapatillas Pro X1 (3 uds.), Audífonos BT-500 (5), Mochila Urban 30L (2) y 4 SKUs adicionales. Recomiendo generar órdenes de compra automáticas.",
-  ticket:       "El ticket promedio del mes es $36.00, un 4.2 % superior al mes anterior. Pedidos con más de 2 artículos tienen ticket de $54.80.",
-  fallback:     "Puedo ayudarte con información sobre ventas, inventario, métricas de conversión y rendimiento de productos. ¿Qué aspecto te interesa analizar?",
-};
-
-function getResponse(text) {
-  const t = text.toLowerCase();
-  if (t.includes("ventas") && t.includes("hoy")) return KB.hoy;
-  if (t.includes("ventas"))                        return KB.ventas;
-  if (t.includes("hoy"))                           return KB.hoy;
-  if (t.includes("stock") || t.includes("inventario")) return KB.stock;
-  if (t.includes("ticket") || t.includes("promedio"))  return KB.ticket;
-  return KB.fallback;
-}
-
-// ─── Subcomponentes Visuales ─────────────────────────────────
-
-function MetricCard({ label, value, delta, deltaClass, warn }) {
+// ─── Shared: Typing Indicator ────────────────────────────────────────────────
+function TypingIndicator() {
   return (
-    <div className={`ai__metric${warn ? " ai__metric--warn" : ""}`}>
-      <p className="ai__metric-label">{label}</p>
-      <p className="ai__metric-value">{value}</p>
-      {delta && <p className={`ai__metric-delta ai__metric-delta--${deltaClass}`}>{delta}</p>}
-    </div>
-  );
-}
-
-const MAX_BAR = Math.max(...SALES_DATA.map((d) => d.value));
-
-function BarChart() {
-  return (
-    <div className="ai__card">
-      <p className="ai__section-title">Ventas semanales</p>
-      <div className="ai__bars">
-        {SALES_DATA.map(({ day, value }) => {
-          const h = Math.round((value / MAX_BAR) * 45);
-          const today = day === "Hoy";
-          return (
-            <div key={day} className="ai__bar-col">
-              <span className="ai__bar-val">{value}</span>
-              <div className={`ai__bar-fill${today ? " ai__bar-fill--today" : ""}`} style={{ height: h }} />
-              <span className={`ai__bar-day${today ? " ai__bar-day--today" : ""}`}>{day}</span>
-            </div>
-          );
-        })}
+    <div className="ai__bubble-wrap ai__bubble-wrap--bot">
+      <div className="ai__bubble ai__bubble--bot ai__typing">
+        <span className="ai__dot" />
+        <span className="ai__dot" />
+        <span className="ai__dot" />
       </div>
     </div>
   );
 }
 
-function TopProducts() {
-  return (
-    <div className="ai__card">
-      <p className="ai__section-title">Top productos</p>
-      {TOP_PRODUCTS.map(({ name, sales, pct }) => (
-        <div key={name} className="ai__prog-row">
-          <div className="ai__prog-meta">
-            <span className="ai__prog-name">{name}</span>
-            <span className="ai__prog-sales">{sales} u.</span>
-          </div>
-          <div className="ai__prog-track">
-            <div className="ai__prog-fill" style={{ width: `${pct}%` }} />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+// ─── Markdown renderer (sin dependencias externas) ───────────────────────────
+function parseInline(text) {
+  const parts = [];
+  const regex = /\*\*([^*]+)\*\*/g;
+  let lastIndex = 0;
+  let match;
+  let idx = 0;
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) parts.push(text.slice(lastIndex, match.index));
+    parts.push(<strong key={idx++}>{match[1]}</strong>);
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) parts.push(text.slice(lastIndex));
+  return parts;
 }
 
-function Alerts({ alerts, onDismiss }) {
-  if (!alerts.length) return null;
-  return (
-    <div className="ai__alerts-container">
-      {alerts.map(({ id, type, text }) => (
-        <div key={id} className={`ai__alert ai__alert--${type}`}>
-          <span>{text}</span>
-          <button className="ai__alert-dismiss" onClick={() => onDismiss(id)}>✕</button>
-        </div>
-      ))}
-    </div>
-  );
-}
+function MarkdownText({ content }) {
+  if (!content) return null;
 
-// ─── Componente Principal (Sidebar de Layout) ─────────────────
+  // Convierte listas numeradas inline ("intro 2. item 3. item") a líneas separadas
+  const normalized = content
+    .replace(/([^\n])\s+(\d+)\.\s+/g, (_, before, num) => `${before}\n${num}. `)
+    .trim();
 
-export default function AIAdmin({ isOpen, setIsOpen }) {
-  const [darkMode, setDarkMode] = useState(false);
-  const [alerts, setAlerts] = useState(INITIAL_ALERTS);
-  const [messages, setMessages] = useState([
-    { id: 0, role: "bot", text: "¡Hola! Soy tu asistente VX AI integrado. ¿Qué métricas de la plataforma deseas auditar hoy?" },
-  ]);
-  const [input, setInput] = useState("");
-  const [typing, setTyping] = useState(false);
-  const logRef = useRef(null);
+  const lines = normalized.split('\n');
+  const elements = [];
+  let listItems = [];
+  let listType = null;
+  let key = 0;
 
-  useEffect(() => {
-    if (logRef.current) {
-      logRef.current.scrollTop = logRef.current.scrollHeight;
-    }
-  }, [messages, typing]);
-
-  const sendMessage = (text) => {
-    const txt = (text ?? input).trim();
-    if (!txt || typing) return;
-    setInput("");
-    setMessages((prev) => [...prev, { id: Date.now(), role: "user", text: txt }]);
-    setTyping(true);
-    
-    setTimeout(() => {
-      setTyping(false);
-      setMessages((prev) => [...prev, { id: Date.now() + 1, role: "bot", text: getResponse(txt) }]);
-    }, 850);
+  const flushList = () => {
+    if (!listItems.length) return;
+    const Tag = listType === 'ul' ? 'ul' : 'ol';
+    elements.push(
+      <Tag key={key++} className={`ai__md-${listType}`}>
+        {listItems.map((item, i) => (
+          <li key={i} className="ai__md-li">{parseInline(item)}</li>
+        ))}
+      </Tag>
+    );
+    listItems = [];
+    listType = null;
   };
 
-  const dismiss = (id) => setAlerts((prev) => prev.filter((a) => a.id !== id));
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) { flushList(); continue; }
+
+    const numMatch = line.match(/^(\d+)[.)]\s+(.+)/);
+    if (numMatch) {
+      if (listType === 'ul') flushList();
+      listType = 'ol';
+      listItems.push(numMatch[2]);
+      continue;
+    }
+
+    const bulletMatch = line.match(/^[-*•]\s+(.+)/);
+    if (bulletMatch) {
+      if (listType === 'ol') flushList();
+      listType = 'ul';
+      listItems.push(bulletMatch[1]);
+      continue;
+    }
+
+    flushList();
+    elements.push(<p key={key++} className="ai__md-p">{parseInline(line)}</p>);
+  }
+
+  flushList();
+  return <div className="ai__markdown">{elements}</div>;
+}
+
+// ─── Shared: Message Bubble ──────────────────────────────────────────────────
+function MessageBubble({ msg }) {
+  const isUser = msg.role === "user";
+  return (
+    <div
+      className={[
+        "ai__bubble-wrap",
+        `ai__bubble-wrap--${isUser ? "user" : "bot"}`,
+        msg.isError ? "ai__bubble-wrap--error" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <div
+        className={[
+          "ai__bubble",
+          `ai__bubble--${isUser ? "user" : "bot"}`,
+          msg.isError ? "ai__bubble--error" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        {isUser && msg.imagePreviewUrl && (
+          <img
+            src={msg.imagePreviewUrl}
+            alt="Imagen adjunta"
+            className="ai__bubble-image"
+          />
+        )}
+        {isUser
+          ? <p className="ai__bubble-text">{msg.content}</p>
+          : <MarkdownText content={msg.content} />
+        }
+        {!isUser && msg.action && (
+          <ActionRenderer
+            action={msg.action}
+            action_data={msg.action_data}
+            enhanced_image_base64={msg.enhanced_image_base64}
+            enhanced_image_mime_type={msg.enhanced_image_mime_type}
+            originalImageSrc={msg.originalImagePreviewUrl}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Shared: Input Area ──────────────────────────────────────────────────────
+function InputArea({ inputText, setInputText, selectedImage, setSelectedImage, sendMessage, isLoading }) {
+  const fileInputRef = useRef(null);
+
+  const handleKey = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
 
   return (
-    <div className={`ai-layout-sidebar ${isOpen ? "is-open" : "is-closed"} ${darkMode ? "ai--dark" : "ai--light"}`}>
+    <div className="ai__input-area">
+      {selectedImage && (
+        <div className="ai__img-preview">
+          <img
+            src={URL.createObjectURL(selectedImage)}
+            alt="Vista previa"
+            className="ai__img-thumb"
+          />
+          <span className="ai__img-name">{selectedImage.name}</span>
+          <button
+            className="ai__img-remove"
+            onClick={() => setSelectedImage(null)}
+            title="Quitar imagen"
+          >
+            ×
+          </button>
+        </div>
+      )}
+      <div className="ai__input-row">
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={(e) => {
+            setSelectedImage(e.target.files?.[0] || null);
+            e.target.value = "";
+          }}
+        />
+        <button
+          className="ai__attach-btn"
+          onClick={() => fileInputRef.current?.click()}
+          title="Adjuntar imagen"
+          disabled={isLoading}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
+          </svg>
+        </button>
+        <textarea
+          className="ai__input"
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          onKeyDown={handleKey}
+          placeholder="Pregúntame algo..."
+          rows={1}
+          disabled={isLoading}
+        />
+        <button
+          className="ai__send-btn"
+          onClick={() => sendMessage()}
+          disabled={isLoading || !inputText.trim()}
+        >
+          {isLoading ? (
+            <span className="ai__spinner" />
+          ) : (
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="22" y1="2" x2="11" y2="13" />
+              <polygon points="22 2 15 22 11 13 2 9 22 2" />
+            </svg>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Sidebar Mode (embedded in AdminLayout) ───────────────────────────────────
+function IAAdminSidebar({ isOpen, setIsOpen }) {
+  const {
+    hasAccess,
+    sessionId,
+    messages,
+    isLoading,
+    inputText,
+    setInputText,
+    selectedImage,
+    setSelectedImage,
+    sessions,
+    sendMessage,
+    loadSessions,
+    loadSession,
+    newConversation,
+  } = useIAAdmin();
+
+  const [darkMode, setDarkMode] = useState(
+    () => localStorage.getItem("adminTheme") !== "light"
+  );
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isLoading]);
+
+  useEffect(() => {
+    if (isOpen && hasAccess) loadSessions();
+  }, [isOpen, hasAccess, loadSessions]);
+
+  useEffect(() => {
+    const wrapper = document.querySelector(".admin-terminal-wrapper");
+    if (!wrapper) return;
+    const obs = new MutationObserver(() => {
+      setDarkMode(wrapper.dataset.theme !== "light");
+    });
+    obs.observe(wrapper, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => obs.disconnect();
+  }, []);
+
+  if (!hasAccess) return null;
+
+  return (
+    <div
+      className={`ai-layout-sidebar ${isOpen ? "is-open" : "is-closed"} ${
+        darkMode ? "ai--dark" : "ai--light"
+      }`}
+    >
       <div className="ai-sidebar-inner">
-        {/* Cabecera */}
+        {/* Header */}
         <header className="ai__header">
           <div className="ai__header-info">
             <div className="ai__status-dot" />
             <div>
               <h1 className="ai__header-title">VX AI Workspace</h1>
-              <p className="ai__header-sub">Análisis Operativo</p>
+              <p className="ai__header-sub">Asistente Administrativo</p>
             </div>
           </div>
-          
           <div className="ai__header-actions">
-            {/* Toggle de modo claro/oscuro */}
-            <button className="ai__theme-toggle" onClick={() => setDarkMode(!darkMode)} title="Cambiar tema">
+            <button
+              className="ai__icon-btn"
+              onClick={newConversation}
+              title="Nueva conversación"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </button>
+            <button
+              className="ai__theme-toggle"
+              onClick={() => setDarkMode(!darkMode)}
+              title="Cambiar tema"
+            >
               {darkMode ? (
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.22" x2="5.64" y2="17.78"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.22" x2="5.64" y2="17.78" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
               ) : (
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
               )}
             </button>
-            <button className="ai__close-btn" onClick={() => setIsOpen(false)} title="Colapsar panel">
+            <button
+              className="ai__close-btn"
+              onClick={() => setIsOpen(false)}
+              title="Colapsar panel"
+            >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </button>
           </div>
         </header>
 
-        {/* Panel de Contenidos Scrolleable */}
         <div className="ai-sidebar__body">
-          
-          {/* Tarjetas métricas */}
-          <div className="ai__metrics">
-            <MetricCard label="Ventas" value="$4.5M" delta="+18%" deltaClass="pos" />
-            <MetricCard label="Pedidos" value="125" delta="+6 hoy" deltaClass="pos" />
-            <MetricCard label="Stock Bajo" value="7" delta="Acción" deltaClass="warn" warn />
-          </div>
+          {/* Session chips */}
+          {sessions.length > 0 && (
+            <div className="ai__session-chips">
+              {sessions.slice(0, 6).map((sid, i) => (
+                <button
+                  key={sid}
+                  className={`ai__session-chip${sessionId === sid ? " ai__session-chip--active" : ""}`}
+                  onClick={() => loadSession(sid)}
+                  title={sid}
+                >
+                  Conv. {sessions.length - i}
+                </button>
+              ))}
+            </div>
+          )}
 
-          {/* Reportes Visuales */}
-          <div className="ai__visual-row">
-            <BarChart />
-            <TopProducts />
-          </div>
-
-          {/* Alertas */}
-          <Alerts alerts={alerts} onDismiss={dismiss} />
-
-          {/* Sección de Chat */}
-          <div className="ai__chat-container">
+          {/* Suggestions (only when chat is empty) */}
+          {messages.length === 0 && !isLoading && (
             <div className="ai__suggestions">
               {SUGGESTIONS.map((q) => (
-                <button key={q} className="ai__sugg-btn" onClick={() => sendMessage(q)}>{q}</button>
+                <button
+                  key={q}
+                  className="ai__sugg-btn"
+                  onClick={() => sendMessage(q)}
+                >
+                  {q}
+                </button>
               ))}
             </div>
+          )}
 
-            <div className="ai__chat-log" ref={logRef}>
-              {messages.map(({ id, role, text }) => (
-                <div key={id} className={`ai__bubble ai__bubble--${role}`}>{text}</div>
+          {/* Chat log */}
+          <div className="ai__chat-container">
+            <div className="ai__chat-log">
+              {messages.map((msg) => (
+                <MessageBubble key={msg.message_id} msg={msg} />
               ))}
-              {typing && (
-                <div className="ai__bubble ai__bubble--bot ai__typing">
-                  <span className="ai__dot" /><span className="ai__dot" /><span className="ai__dot" />
-                </div>
-              )}
+              {isLoading && <TypingIndicator />}
+              <div ref={bottomRef} />
             </div>
 
-            <div className="ai__input-row">
-              <input
-                className="ai__input"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                placeholder="Pregúntame algo..."
-              />
-              <button className="ai__send-btn" onClick={() => sendMessage()} disabled={typing}>
-                Enviar
-              </button>
-            </div>
+            <InputArea
+              inputText={inputText}
+              setInputText={setInputText}
+              selectedImage={selectedImage}
+              setSelectedImage={setSelectedImage}
+              sendMessage={sendMessage}
+              isLoading={isLoading}
+            />
           </div>
-
         </div>
       </div>
     </div>
   );
+}
+
+// ─── Full Page Mode (standalone route /IA) ────────────────────────────────────
+function IAAdminPage() {
+  const {
+    hasAccess,
+    role,
+    sessionId,
+    messages,
+    isLoading,
+    inputText,
+    setInputText,
+    selectedImage,
+    setSelectedImage,
+    sessions,
+    sessionsLoading,
+    sendMessage,
+    loadSessions,
+    loadSession,
+    newConversation,
+  } = useIAAdmin();
+
+  const [darkMode, setDarkMode]           = useState(
+    () => localStorage.getItem("adminTheme") !== "light"
+  );
+  const [showSessions, setShowSessions]   = useState(true);
+  const messagesAreaRef = useRef(null);
+
+  useEffect(() => {
+    const el = messagesAreaRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [messages, isLoading]);
+
+  useEffect(() => {
+    if (hasAccess) loadSessions();
+  }, [hasAccess, loadSessions]);
+
+  useEffect(() => {
+    const wrapper = document.querySelector(".admin-terminal-wrapper");
+    if (!wrapper) return;
+    const obs = new MutationObserver(() => {
+      setDarkMode(wrapper.dataset.theme !== "light");
+    });
+    obs.observe(wrapper, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => obs.disconnect();
+  }, []);
+
+  if (!hasAccess) {
+    return (
+      <div className={`ia-page ${darkMode ? "ai--dark" : "ai--light"} ia-page--denied`}>
+        <div className="ia-denied-card">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+          </svg>
+          <h2>Acceso Denegado</h2>
+          <p>Solo administradores y propietarios pueden acceder al asistente de IA.</p>
+          {role && <p className="ia-denied-role">Tu rol actual: <strong>{role}</strong></p>}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`ia-page ${darkMode ? "ai--dark" : "ai--light"}`}>
+      {/* Sessions sidebar */}
+      <aside className={`ia-sessions-panel${showSessions ? " is-open" : ""}`}>
+        <div className="ia-sessions-header">
+          <h2 className="ia-sessions-title">Conversaciones</h2>
+          <button
+            className="ai__icon-btn ia-sessions-new"
+            onClick={newConversation}
+            title="Nueva conversación"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Nueva
+          </button>
+        </div>
+
+        <div className="ia-sessions-list">
+          {sessionsLoading ? (
+            <p className="ia-sessions-empty">Cargando...</p>
+          ) : sessions.length === 0 ? (
+            <p className="ia-sessions-empty">Sin conversaciones anteriores.</p>
+          ) : (
+            sessions.map((sid, i) => (
+              <button
+                key={sid}
+                className={`ia-session-item${sessionId === sid ? " ia-session-item--active" : ""}`}
+                onClick={() => loadSession(sid)}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                Conversación {sessions.length - i}
+              </button>
+            ))
+          )}
+        </div>
+      </aside>
+
+      {/* Main chat */}
+      <main className="ia-chat-main">
+        {/* Header */}
+        <header className="ia-chat-header">
+          <div className="ia-chat-header-left">
+            <button
+              className="ai__icon-btn"
+              onClick={() => setShowSessions(!showSessions)}
+              title="Historial"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+            <div className="ai__status-dot" />
+            <div>
+              <h1 className="ia-chat-title">Asistente IA</h1>
+              <p className="ia-chat-sub">
+                {sessionId ? "Sesión activa" : "Nueva conversación"}
+              </p>
+            </div>
+          </div>
+          <div className="ia-chat-header-right">
+            <button
+              className="ai__icon-btn"
+              onClick={newConversation}
+              title="Nueva conversación"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </button>
+            <button
+              className="ai__theme-toggle"
+              onClick={() => setDarkMode(!darkMode)}
+              title="Cambiar tema"
+            >
+              {darkMode ? (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.22" x2="5.64" y2="17.78" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+              ) : (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </header>
+
+        {/* Messages */}
+        <div className="ia-messages-area" ref={messagesAreaRef}>
+          {messages.length === 0 && !isLoading && (
+            <div className="ia-welcome">
+              <div className="ia-welcome-icon">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z" />
+                </svg>
+              </div>
+              <h3 className="ia-welcome-title">Asistente IA de Vexio</h3>
+              <p className="ia-welcome-sub">
+                Pregúntame sobre ventas, inventario, pedidos, promociones y más.
+                También puedo analizar imágenes de tus productos.
+              </p>
+              <div className="ia-welcome-suggestions">
+                {SUGGESTIONS.map((q) => (
+                  <button
+                    key={q}
+                    className="ai__sugg-btn"
+                    onClick={() => sendMessage(q)}
+                  >
+                    {q}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {messages.map((msg) => (
+            <MessageBubble key={msg.message_id} msg={msg} />
+          ))}
+          {isLoading && <TypingIndicator />}
+        </div>
+
+        {/* Input */}
+        <div className="ia-input-wrapper">
+          <InputArea
+            inputText={inputText}
+            setInputText={setInputText}
+            selectedImage={selectedImage}
+            setSelectedImage={setSelectedImage}
+            sendMessage={sendMessage}
+            isLoading={isLoading}
+          />
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// ─── Root Export: detects sidebar vs page mode ────────────────────────────────
+export default function AIAdmin({ isOpen, setIsOpen }) {
+  if (isOpen === undefined) {
+    return <IAAdminPage />;
+  }
+  return <IAAdminSidebar isOpen={isOpen} setIsOpen={setIsOpen} />;
 }

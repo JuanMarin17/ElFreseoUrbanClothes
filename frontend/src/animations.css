@@ -3,59 +3,105 @@
    Importa este archivo en tu index.css o App.css
    ============================================ */
 
-/* Estado inicial: invisible y desplazado */
+/* ── Curva de entrada de referencia ──────────
+   Usada en todos los elementos de scroll.
+   Es más decisiva que ease: acelera rápido y
+   frena suavemente — se siente natural y rápida. */
+
+/* ── Fade-in desde abajo (scroll) ─────────── */
 .fade-in-section {
   opacity: 0;
-  transform: translateY(32px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transform: translateY(24px);
+  transition:
+    opacity   0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* will-change solo mientras el elemento aún no es visible —
+   se elimina una vez completada la transición para liberar la capa. */
+.fade-in-section:not(.is-visible) {
   will-change: opacity, transform;
 }
 
-/* Estado visible: aparece al entrar al viewport */
 .fade-in-section.is-visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-/* ── Variantes opcionales ── */
-
-/* Aparece desde la izquierda */
+/* ── Desde la izquierda ───────────────────── */
 .fade-in-left {
   opacity: 0;
-  transform: translateX(-40px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transform: translateX(-32px);
+  transition:
+    opacity   0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .fade-in-left.is-visible {
   opacity: 1;
   transform: translateX(0);
 }
 
-/* Aparece desde la derecha */
+/* ── Desde la derecha ────────────────────── */
 .fade-in-right {
   opacity: 0;
-  transform: translateX(40px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transform: translateX(32px);
+  transition:
+    opacity   0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .fade-in-right.is-visible {
   opacity: 1;
   transform: translateX(0);
 }
 
-/* Aparece con zoom */
+/* ── Zoom suave ──────────────────────────── */
 .fade-in-scale {
   opacity: 0;
-  transform: scale(0.92);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transform: scale(0.93);
+  transition:
+    opacity   0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .fade-in-scale.is-visible {
   opacity: 1;
   transform: scale(1);
 }
 
-/* ── Delays escalonados para listas/grids ──
-   Úsalos así: <div class="fade-in-section delay-1"> */
-.delay-1 { transition-delay: 0.1s; }
-.delay-2 { transition-delay: 0.2s; }
-.delay-3 { transition-delay: 0.3s; }
-.delay-4 { transition-delay: 0.4s; }
-.delay-5 { transition-delay: 0.5s; }
+/* ── Delays escalonados ──────────────────────
+   Uso: <div class="fade-in-section delay-2">  */
+.delay-1 { transition-delay: 0.08s; }
+.delay-2 { transition-delay: 0.16s; }
+.delay-3 { transition-delay: 0.24s; }
+.delay-4 { transition-delay: 0.32s; }
+.delay-5 { transition-delay: 0.40s; }
+.delay-6 { transition-delay: 0.48s; }
+.delay-7 { transition-delay: 0.56s; }
+.delay-8 { transition-delay: 0.64s; }
+
+/* ── Stagger para grids y listas ─────────────
+   Uso: <div class="stagger-in" style="--i:0">
+         <div class="stagger-in" style="--i:1">
+   Cada elemento entra 50ms después del anterior. */
+.stagger-in {
+  animation: stagger-up 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+
+@keyframes stagger-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ── Accesibilidad ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-section,
+  .fade-in-left,
+  .fade-in-right,
+  .fade-in-scale {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .stagger-in { animation: none; opacity: 1; }
+}

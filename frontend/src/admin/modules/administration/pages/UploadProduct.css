@@ -343,3 +343,58 @@
   align-items: center;
   color: var(--text-muted);
 }
+
+/* ── Modo Claro ──────────────────────────────────────────── */
+.admin-terminal-wrapper[data-theme="light"] .adminContainer {
+  --bg-dark:      var(--at-bg);
+  --bg-card:      var(--at-elevated);
+  --text-main:    var(--at-text-1);
+  --text-muted:   var(--at-text-3);
+  --border-color: var(--at-border);
+  background-color: var(--at-bg);
+  color: var(--at-text-1);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .searchBar input,
+.admin-terminal-wrapper[data-theme="light"] .inputGroup input,
+.admin-terminal-wrapper[data-theme="light"] .inputGroup textarea,
+.admin-terminal-wrapper[data-theme="light"] .inputGroup select {
+  background: var(--at-input-bg);
+  color: var(--at-text-1);
+  border-color: var(--at-accent-bd, rgba(37,99,235,0.25));
+}
+
+.admin-terminal-wrapper[data-theme="light"] .priceInput {
+  background: var(--at-input-bg);
+  border-color: var(--at-border);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .sizeBtnU {
+  background: var(--at-input-bg);
+  color: var(--at-text-3);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .mainPreview {
+  background: var(--at-elevated);
+  border-color: var(--at-border);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .mainImagePlaceholder {
+  background: var(--at-surface);
+  border-color: var(--at-border);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .roundBtn {
+  background: var(--at-surface);
+  border-color: var(--at-border);
+  color: var(--at-text-1);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .thumb {
+  background: var(--at-surface);
+  border-color: var(--at-border);
+}
+
+.admin-terminal-wrapper[data-theme="light"] .thumbAdd {
+  border-color: var(--at-border);
+}

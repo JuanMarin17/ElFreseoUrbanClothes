@@ -1,12 +1,12 @@
 /**
- * CMSLocations.jsx — Ubicaciones / Puntos de venta
+ * CMSLocations.jsx " Ubicaciones / Puntos de venta
  * Modo wizard : StoreContext
  * Modo admin  : GET + PATCH /stores/cms
  */
 
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useStore } from "../pages/StoreContext";
+import { useStore } from "../pages/useStore";
 import { getCms, patchCms } from "../pages/services/cmsService";
 import StepProgress from "../components/StepProgress";
 import "../components/styles/CMSeditor.css";
@@ -68,15 +68,15 @@ export default function CMSLocations() {
         const prev = state.cms ?? {};
         saveProgress("cms", { ...prev, locations: locsData, completed: [...new Set([...(prev.completed ?? []), "locations"])] });
       }
-      showToast("✓ Ubicaciones guardadas");
+      showToast("Ubicaciones guardadas");
     } catch {
-      showToast("✗ Error al guardar");
+      showToast("Error al guardar");
     } finally {
       setSaving(false);
     }
   };
 
-  // ── Formulario ────────────────────────────────────────────────────────────
+  // "" Formulario """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
   const form = (
     <div className="cms-page cms-page--locations">
       {!isAdminMode && (
@@ -84,17 +84,17 @@ export default function CMSLocations() {
           <div className="cms-page__icon"><i className="ti ti-map-pin" /></div>
           <div className="cms-page__titles">
             <h1 className="cms-page__title">Ubicaciones</h1>
-            <p className="cms-page__sub">Agrega tus tiendas físicas y puntos de venta</p>
+            <p className="cms-page__sub">Agrega tus tiendas fisicas y puntos de venta</p>
           </div>
         </div>
       )}
 
       <div className="cms-form-card">
-        <p className="cms-section-title">Configuración Global</p>
+        <p className="cms-section-title">Configuracion Global</p>
         <div className="toggle-field">
           <div className="toggle-field__info">
             <span className="toggle-field__label">Mostrar mapa integrado</span>
-            <span className="toggle-field__desc">Muestra un mapa de Google Maps en la página de ubicaciones</span>
+            <span className="toggle-field__desc">Muestra un mapa de Google Maps en la pagina de ubicaciones</span>
           </div>
           <label className="toggle-wrap">
             <input type="checkbox" checked={showMap} onChange={e => setShowMap(e.target.checked)} />
@@ -111,7 +111,7 @@ export default function CMSLocations() {
               <div className="cms-list-item__header">
                 <div className="cms-list-item__num">{idx + 1}</div>
                 <span style={{ fontFamily: "Inter", fontSize: 13, color: "#888", fontWeight: 500 }}>
-                  {loc.name || "Nueva Ubicación"}
+                  {loc.name || "Nueva Ubicacion"}
                 </span>
                 {loc.isPrimary && (
                   <span style={{ fontSize: 10, background: "#00d4aa22", color: "#00d4aa", border: "1px solid #00d4aa44", borderRadius: 20, padding: "2px 8px", fontFamily: "Inter", fontWeight: 700, letterSpacing: 1 }}>
@@ -119,7 +119,7 @@ export default function CMSLocations() {
                   </span>
                 )}
                 {locations.length > 1 && (
-                  <button className="cms-list-item__remove" onClick={() => removeLoc(loc.id)} title="Eliminar">×</button>
+                  <button className="cms-list-item__remove" onClick={() => removeLoc(loc.id)} title="Eliminar">X</button>
                 )}
               </div>
 
@@ -131,26 +131,26 @@ export default function CMSLocations() {
                 </div>
                 <div className="field-group">
                   <label>Ciudad</label>
-                  <input className="f-input-dark" placeholder="Medellín"
+                  <input className="f-input-dark" placeholder="Medellin"
                     value={loc.city} onChange={e => updateLoc(loc.id, "city", e.target.value)} />
                 </div>
               </div>
 
               <div className="field-group">
-                <label>Dirección Completa</label>
+                <label>Direccion Completa</label>
                 <input className="f-input-dark" placeholder="Calle 50 #10-45, El Poblado"
                   value={loc.address} onChange={e => updateLoc(loc.id, "address", e.target.value)} />
               </div>
 
               <div className="field-row-2">
                 <div className="field-group">
-                  <label>Teléfono</label>
+                  <label>Telefono</label>
                   <input className="f-input-dark" placeholder="+57 300 000 0000"
                     value={loc.phone} onChange={e => updateLoc(loc.id, "phone", e.target.value)} />
                 </div>
                 <div className="field-group">
                   <label>Horario</label>
-                  <input className="f-input-dark" placeholder="Lun–Sáb 9am–7pm"
+                  <input className="f-input-dark" placeholder="Lun-Sab 9am-7pm"
                     value={loc.hours} onChange={e => updateLoc(loc.id, "hours", e.target.value)} />
                 </div>
               </div>
@@ -176,11 +176,11 @@ export default function CMSLocations() {
             </div>
           ))}
         </div>
-        <button className="btn-add-item" onClick={addLoc}>+ AGREGAR UBICACIÓN</button>
+        <button className="btn-add-item" onClick={addLoc}>+ AGREGAR UBICACION</button>
       </div>
 
       <div className="cms-save-row">
-        <button className="btn-cms-back" onClick={handleBack}>← Volver al CMS</button>
+        <button className="btn-cms-back" onClick={handleBack}> Volver al CMS</button>
         <button className="btn-cms-save" onClick={handleSave} disabled={saving}>
           {saving ? "Guardando..." : "GUARDAR CAMBIOS"}
         </button>
@@ -194,7 +194,7 @@ export default function CMSLocations() {
     return (
       <>
         <header className="admin-nav" style={{ position: "relative", marginBottom: 8 }}>
-          <button onClick={handleBack} className="btn-back-arrow">←</button>
+          <button onClick={handleBack} className="btn-back-arrow"></button>
           <div className="brand">Ubicaciones <span>CMS</span></div>
           <button className="btn-save-top" onClick={handleSave} disabled={saving}>
             {saving ? "..." : "GUARDAR"}
@@ -209,7 +209,7 @@ export default function CMSLocations() {
   return (
     <div className="admin-frame">
       <header className="admin-nav">
-        <button onClick={handleBack} className="btn-back-arrow" title="Volver">←</button>
+        <button onClick={handleBack} className="btn-back-arrow" title="Volver"></button>
         <div className="brand">{state.store?.name ?? "VEXIO"} <span>STUDIO V3</span></div>
         <button className="btn-save-top" onClick={handleSave} disabled={saving}>
           {saving ? "..." : "GUARDAR"}

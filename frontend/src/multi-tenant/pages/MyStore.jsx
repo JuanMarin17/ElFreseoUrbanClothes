@@ -1,31 +1,35 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useStore } from "./StoreContext";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useStore } from "./useStore";
 import { useAuth } from "../../admin/modules/auth/pages/hook/Useauth";
 import "../components/styles/MyStore.css";
 import "../../admin/modules/administration/components/AdminLayout/AdminLayout.css";
 import { FiPlus, FiExternalLink, FiCopy, FiCheck } from "react-icons/fi";
-import { Store, CreditCard } from "lucide-react";
+import { Store, CreditCard, Users, BarChart2 } from "lucide-react";
 import { getStoresByUser, getStoreSettingsByHeader, getAllStores } from "./services/storeService";
+import PlatformUsersPanel from "./PlatformUsers/PlatformUsersPanel";
 import Sidebar from "../../admin/modules/administration/components/Sidebar/Sidebar";
 import AdminHeader from "../../admin/modules/administration/components/AdminHeader/AdminHeader";
 import IAAdmin from "../../admin/modules/administration/pages/IAAdmin/AIAdmin";
 import Transaction from "../../multi-tenant/pages/Transaction/Transaction";
+import SalesReport from "./SalesReport/SalesReport";
 
 const SUPERADMIN_MENU = [
-  { path: "/mis-tiendas",   label: "MIS TIENDAS",   icon: Store      },
-  { path: "/transacciones", label: "TRANSACCIONES", icon: CreditCard },
+  { path: "/admin-super/mis-tiendas",         label: "MIS TIENDAS",       icon: Store      },
+  { path: "/admin-super/transacciones",       label: "TRANSACCIONES",     icon: CreditCard },
+  { path: "/admin-super/plataforma-usuarios", label: "USUARIOS",          icon: Users      },
+  { path: "/admin-super/informe-ventas",      label: "INFORME DE VENTAS", icon: BarChart2  },
 ];
 
 const ADMIN_MENU = [
-  { path: "/mis-tiendas",   label: "MIS TIENDAS",   icon: Store      },
-  { path: "/transacciones", label: "TRANSACCIONES", icon: CreditCard },
+  { path: "/admin-super/mis-tiendas",   label: "MIS TIENDAS",   icon: Store      },
+  { path: "/admin-super/transacciones", label: "TRANSACCIONES", icon: CreditCard },
 ];
 
 const MyStore = () => {
   const navigate  = useNavigate();
   const location  = useLocation();
-  const { state } = useStore();
+  useStore();
   const { user, logout } = useAuth();
 
   const userId = user?.id ?? user?.userId ?? null;
@@ -33,9 +37,11 @@ const MyStore = () => {
   const role   = "SUPERADMIN"; // ajusta cuando tengas roles reales
 
   const menuItems       = role === "SUPERADMIN" ? SUPERADMIN_MENU : ADMIN_MENU;
-  const isTransacciones = location.pathname === "/transacciones";
+  const isTransacciones  = location.pathname === "/admin-super/transacciones";
+  const isUsuarios       = location.pathname === "/admin-super/plataforma-usuarios";
+  const isInformeVentas  = location.pathname === "/admin-super/informe-ventas";
 
-  // ── Estados ───────────────────────────────────────────────────────────────
+  // "" Estados """"""""""""""""""""""""""""""""""""""""""
   const [isAiOpen,       setIsAiOpen]       = useState(false);
   const [stores,         setStores]         = useState([]);
   const [storeSettings,  setStoreSettings]  = useState({});
@@ -74,7 +80,7 @@ const MyStore = () => {
       }
     };
     load();
-  }, [userId]);
+  }, [userId, location.key]);
 
   const handleCopyId = (id) => {
     navigator.clipboard.writeText(id);
@@ -91,7 +97,7 @@ const MyStore = () => {
   return (
     <div className="admin-terminal-wrapper">
 
-      {/* ── Sidebar ───────────────────────────────────────────────────────── */}
+      {/* "" Sidebar """""""""""""""""""""""""""""""""""""" */}
       <Sidebar
         menuItems={menuItems}
         brandName="VEXIO"
@@ -103,7 +109,7 @@ const MyStore = () => {
 
       <div className="admin-main-section">
 
-        {/* ── Header ────────────────────────────────────────────────────── */}
+        {/* "" Header """""""""""""""""""""""""""""""""""" */}
         <AdminHeader
           isAiOpen={isAiOpen}
           setIsAiOpen={setIsAiOpen}
@@ -113,7 +119,7 @@ const MyStore = () => {
           isSuperAdmin={role === "SUPERADMIN"}
           searchValue={search}
           onSearchChange={(e) => setSearch(e.target.value)}
-          searchPlaceholder={isTransacciones ? "Buscar transacción..." : "Buscar tienda o ID..."}
+          searchPlaceholder={isTransacciones ? "Buscar transaccion..." : isInformeVentas ? "Buscar plan..." : "Buscar tienda o ID..."}
           userName={name ?? "Usuario"}
           userRole={role}
         />
@@ -122,17 +128,24 @@ const MyStore = () => {
 
           <main className="admin-page-body">
 
-            {/* ── Vista condicional ──────────────────────────────────── */}
+            {/* "" Vista condicional """""""""""""""""""""""" */}
             {isTransacciones ? (
               <Transaction />
+            ) : isUsuarios ? (
+              <PlatformUsersPanel />
+            ) : isInformeVentas ? (
+              <SalesReport />
             ) : (
               <>
                 <div className="ms-section-header">
                   <div>
                     <h1 className="ms-section-title">Mis tiendas</h1>
-                    <p className="ms-section-sub">
-                      {stores.length} tienda{stores.length !== 1 ? "s" : ""} registrada{stores.length !== 1 ? "s" : ""}
-                    </p>
+                    <div className="ms-section-meta">
+                      <p className="ms-section-sub">Gestiona y accede a tus tiendas</p>
+                      {stores.length > 0 && (
+                        <span className="ms-section-count">{stores.length} tienda{stores.length !== 1 ? "s" : ""}</span>
+                      )}
+                    </div>
                   </div>
                   <button className="ms-btn-create" onClick={() => navigate("/plan")}>
                     <FiPlus size={14} /> Nueva tienda
@@ -140,24 +153,33 @@ const MyStore = () => {
                 </div>
 
       {loadingStores && (
-        <div className="ms-state">
-          <div className="ms-spinner" />
-          <span>Cargando tiendas...</span>
+        <div className="ms-grid">
+          {[0, 1, 2].map(i => (
+            <div key={i} className="ms-skeleton-card">
+              <div className="ms-skeleton-banner" />
+              <div className="ms-skeleton-body">
+                <div className="ms-skeleton-line ms-skeleton-line--title" />
+                <div className="ms-skeleton-line ms-skeleton-line--sub" />
+                <div className="ms-skeleton-line ms-skeleton-line--id" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
       {storesError && (
         <div className="ms-state ms-state--error">
-          <span>⚠ {storesError}</span>
+          <span> {storesError}</span>
         </div>
       )}
 
                 <div className="ms-grid">
                   {!loadingStores &&
-                    filtered.map((store) => (
+                    filtered.map((store, index) => (
                       <div
                         key={store.storeId}
                         className="ms-store-card"
+                        style={{ '--i': index }}
                         onClick={() => navigate(`/tienda/${store.slug}`)}
                       >
                         <div
@@ -166,11 +188,10 @@ const MyStore = () => {
                             backgroundImage: storeSettings[store.storeId]?.components?.banner?.image
                               ? `url(${storeSettings[store.storeId].components.banner.image})`
                               : undefined,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
                           }}
                         >
                           <span className={`ms-store-badge ms-store-badge--${store.isActive ? "activa" : "borrador"}`}>
+                            {store.isActive && <span className="ms-badge-dot" />}
                             {store.isActive ? "ACTIVA" : "BORRADOR"}
                           </span>
                           {storeSettings[store.storeId]?.basic?.logoPreview ? (
@@ -188,12 +209,12 @@ const MyStore = () => {
 
                         <div className="ms-store-body">
                           <h3 className="ms-store-name">{store.name}</h3>
-                          <p className="ms-store-url">{store.slug}.freseo.com</p>
+                          <p className="ms-store-url">{store.slug}.vexio.com</p>
                           <div className="ms-store-id-row">
                             <span className="ms-store-id-label">ID</span>
                             <code className="ms-store-id">{store.storeId}</code>
                             <button
-                              className="ms-copy-btn"
+                              className={`ms-copy-btn${copiedId === store.storeId ? " ms-copy-btn--copied" : ""}`}
                               onClick={(e) => { e.stopPropagation(); handleCopyId(store.storeId); }}
                               title="Copiar ID"
                             >
@@ -202,7 +223,7 @@ const MyStore = () => {
                           </div>
                           <div className="ms-store-footer">
                             <span className="ms-store-plan">
-                              {storeSettings[store.storeId]?.plan?.name ?? "—"}
+                              {storeSettings[store.storeId]?.plan?.name ?? ""}
                             </span>
                             <button
                               className="ms-store-link"
@@ -217,8 +238,8 @@ const MyStore = () => {
 
                   {!loadingStores && !storesError && filtered.length === 0 && (
                     <div className="ms-empty">
-                      <span className="ms-empty-icon">🏪</span>
-                      <p className="ms-empty-title">Sin tiendas aún</p>
+                      <span className="ms-empty-icon"></span>
+                      <p className="ms-empty-title">Sin tiendas aun</p>
                       <p className="ms-empty-sub">Crea tu primera tienda para empezar</p>
                       <button className="ms-btn-create" onClick={() => navigate("/plan")}>
                         <FiPlus size={14} /> Crear tienda
@@ -231,7 +252,7 @@ const MyStore = () => {
 
           </main>
 
-          {/* ── Panel IA ────────────────────────────────────────────── */}
+          {/* "" Panel IA """"""""""""""""""""""""""""""" */}
           <IAAdmin isOpen={isAiOpen} setIsOpen={setIsAiOpen} />
 
         </div>

@@ -1,94 +1,47 @@
-import axios from "axios";
+const BASE = import.meta.env.VITE_API_URL;
 
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL || "http://46.225.21.146:8080/api";
+function buildHeaders() {
+  const jwt     = localStorage.getItem("jwt");
+  const storeId = localStorage.getItem("storeId");
+  const h = { "Content-Type": "application/json" };
 
-const api = axios.create({
-  baseURL: API_BASE,
-  timeout: 10000,
-  headers: { "Content-Type": "application/json" },
-});
+  if (jwt && jwt !== "null")     h["Authorization"] = `Bearer ${jwt}`;
+  if (storeId && storeId !== "null") h["X-Store-Id"] = storeId;
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("vx_token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+  return h;
+}
 
-api.interceptors.response.use(
-  (response) => response.data,
-  (error) => {
-    const message =
-      error.response?.data?.message || error.message || "Error desconocido";
-    return Promise.reject(new Error(message));
-  },
-);
+async function apiFetch(method, path, body) {
+  const options = { method, headers: buildHeaders() };
+  if (body !== undefined) options.body = JSON.stringify(body);
 
-/* ─────────────────────────────────────────────
-   PROMOCIONES — /promotions
-   ───────────────────────────────────────────── */
+  const res  = await fetch(`${BASE}${path}`, options);
+  let   data;
+  try { data = await res.json(); } catch { data = {}; }
 
-/** GET /promotions/all */
-export const fetchAllPromotions = () => api.get("/promotions/all");
+  if (!res.ok) {
+    const msg = data?.message ?? data?.error ?? `Error ${res.status}`;
+    const err = new Error(msg);
+    err.status = res.status;
+    throw err;
+  }
 
-/** GET /promotions/getActivePromotions */
-export const fetchActivePromotions = () =>
-  api.get("/promotions/getActivePromotions");
+  return data?.data ?? data;
+}
 
-/**
- * POST /promotions/createPromotion
- *
- * Payload actual del backend (ampliar cuando el DTO esté listo):
- * {
- *   name, discount, discountType,        ← ya soportados
- *   productId, startDate, endDate,        ← pendientes en el DTO
- *   userId, reason                        ← pendientes en el DTO
- * }
- */
-export const createPromotion = (dto) =>
-  api.post("/promotions/createPromotion", dto);
+// ── PROMOCIONES ──────────────────────────────────────────────────────────────
+export const fetchAllPromotions    = ()          => apiFetch("GET",    "/promotions/getAllPromotions");
+export const fetchActivePromotions = ()          => apiFetch("GET",    "/promotions/getActivePromotions");
+export const createPromotion       = (dto)       => apiFetch("POST",   "/promotions/createPromotion", dto);
+export const updatePromotion       = (id, dto)   => apiFetch("PUT",    `/promotions/updatePromotion/${id}`, dto);
+export const deactivatePromotion   = (id)        => apiFetch("DELETE", `/promotions/deactivatePromotion/${id}`);
 
-/** PUT /promotions/:id */
-export const updatePromotion = (promotionId, dto) =>
-  api.put(`/promotions/${promotionId}`, dto);
-
-/** DELETE /promotions/:id — desactiva (no borra) */
-export const deactivatePromotion = (promotionId) =>
-  api.delete(`/promotions/${promotionId}`);
-
-/* ─────────────────────────────────────────────
-   CUPONES — /coupons
-   ───────────────────────────────────────────── */
-
-/** GET /coupons/all */
-export const fetchAllCoupons = () => api.get("/coupons/all");
-
-/** GET /coupons/getActiveCoupons */
-export const fetchActiveCoupons = () => api.get("/coupons/getActiveCoupons");
-
-/**
- * POST /coupons/createCoupon
- *
- * Payload actual:
- * {
- *   code, discount, discountType,         ← ya soportados
- *   productId, startDate, endDate,        ← pendientes en el DTO
- *   userId, reason                        ← pendientes en el DTO
- * }
- */
-export const createCoupon = (dto) => api.post("/coupons/createCoupon", dto);
-
-/** PUT /coupons/:id */
-export const updateCoupon = (couponId, dto) =>
-  api.put(`/coupons/${couponId}`, dto);
-
-/** DELETE /coupons/:id */
-export const deactivateCoupon = (couponId) =>
-  api.delete(`/coupons/${couponId}`);
-
-/** POST /coupons/redeem/:code */
-export const redeemCoupon = (code) => api.post(`/coupons/redeem/${code}`);
-
-/** GET /coupons/:id/redemptions */
-export const fetchRedemptions = (couponId) =>
-  api.get(`/coupons/${couponId}/redemptions`);
+// ── CUPONES ──────────────────────────────────────────────────────────────────
+export const fetchAllCoupons    = ()          => apiFetch("GET",    "/coupons/getAllCoupons");
+export const fetchActiveCoupons = ()          => apiFetch("GET",    "/coupons/getActiveCoupons");
+export const createCoupon       = (dto)       => apiFetch("POST",   "/coupons/createCoupon", dto);
+export const updateCoupon       = (id, dto)   => apiFetch("PUT",    `/coupons/updateCoupon/${id}`, dto);
+export const deactivateCoupon   = (id)        => apiFetch("DELETE", `/coupons/deactivateCoupon/${id}`);
+export const validateCoupon     = (code)      => apiFetch("POST",   "/coupons/validate", { code });
+export const redeemCoupon       = (code)      => apiFetch("POST",   "/coupons/redeem",   { code });
+export const fetchRedemptions   = (couponId)  => apiFetch("GET",    `/coupons/redemptions/${couponId}`);

@@ -21,10 +21,9 @@ import "./ProductReviews.css";
    Ajusta el BASE_URL y el helper getToken() a tu proyecto
 ══════════════════════════════════════════════════════════ */
 
-const BASE_URL = "http://46.225.21.146:8080/api/v1/reviews";
+const BASE_URL = `${import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_URL}/reviews`;
 
-/** Obtén el JWT de donde lo guardes: localStorage, contexto, etc. */
-const getToken = () => localStorage.getItem("token") || "";
+const getToken = () => localStorage.getItem("jwt") || "";
 
 const authHeaders = () => ({
   "Content-Type": "application/json",
@@ -544,10 +543,13 @@ function RatingSummary({ reviews }) {
      currentUserId string  — ID del usuario autenticado
      isStoreOwner  bool    — true si es el dueño de la tienda
 ══════════════════════════════════════════════════════════ */
+const MAX_REVIEWS_PER_USER = 3;
+
 export default function ProductReviews({
   productId,
   currentUserId,
   isStoreOwner = false,
+  onCountChange,
 }) {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -564,9 +566,10 @@ export default function ProductReviews({
     try {
       setLoading(true);
       const data = await api.getByProduct(productId);
-      setReviews(data);
+      setReviews(Array.isArray(data) ? data : []);
     } catch (err) {
       showToast(err.message, "error");
+      setReviews([]);
     } finally {
       setLoading(false);
     }
@@ -576,9 +579,14 @@ export default function ProductReviews({
     loadReviews();
   }, [loadReviews]);
 
-  /* ── ¿El usuario ya reseñó este producto? ── */
-  const userReview = reviews.find((r) => r.userId === currentUserId);
-  const canWrite = currentUserId && !userReview;
+  /* Notifica el conteo real al padre para el badge del tab */
+  useEffect(() => {
+    if (!loading && onCountChange) onCountChange(reviews.length);
+  }, [reviews.length, loading, onCountChange]);
+
+  /* ── Límite por usuario ── */
+  const userReviews = reviews.filter((r) => r.userId === currentUserId);
+  const canWrite = currentUserId && userReviews.length < MAX_REVIEWS_PER_USER;
 
   /* ── Orden de las reseñas ── */
   const sorted = [...reviews].sort((a, b) => {
@@ -614,9 +622,10 @@ export default function ProductReviews({
             <Edit3 size={14} /> Escribir reseña
           </button>
         )}
-        {userReview && (
+        {currentUserId && userReviews.length >= MAX_REVIEWS_PER_USER && (
           <span className="rvx-already-badge">
-            <CheckCircle size={13} /> Ya reseñaste este producto
+            <CheckCircle size={13} /> Límite de {MAX_REVIEWS_PER_USER} reseñas
+            alcanzado
           </span>
         )}
       </div>

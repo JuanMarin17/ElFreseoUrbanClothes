@@ -9,6 +9,7 @@ import StoreCatalog from './StoreCatalog.jsx';
 import StoreFooter from './StoreFooter.jsx';
 import CartDrawer from './CartDrawer.jsx';
 import AiChatDrawer from './AiChatDrawer.jsx';
+import PromoBar from './PromoBar.jsx';
 
 /* ══════════════════════════════════════════
    StoreFront — Vista pública de la tienda
@@ -16,7 +17,7 @@ import AiChatDrawer from './AiChatDrawer.jsx';
      layoutType: "minimalista" | "urbano" | "clasico"
      data: { header, banner, footer, products, styles, widgets }
 ══════════════════════════════════════════ */
-export default function StoreFront({ layoutType = "minimalista", data = {}, isOwner = false, storeId = null, storeSlug = null }) {
+export default function StoreFront({ layoutType = "minimalista", data = {}, isOwner = false, storeId = null, storeSlug = null, storeName = null, headerTopOffset = 0 }) {
   const header   = data.header   ?? DEMO.header;
   const footer   = data.footer   ?? DEMO.footer;
   const products = data.products ?? DEMO.products;
@@ -33,6 +34,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
 
   const [isDark, setIsDark] = useState(true);
   const toggleDark = useCallback(() => setIsDark(d => !d), []);
+
 
   /* ── Tokens de estilo (reaccionan a isDark) ── */
   const accent = styles.colorBoton ?? (isMin ? "#2563eb" : isUrb ? "#ffffff" : "#2563eb");
@@ -151,6 +153,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
     activeCategory, setActiveCategory,
     activePrices, togglePrice,
     activeSizes, toggleSize,
+    sortBy, setSortBy,
     clearFilters, filteredProducts, hasActiveFilters,
   } = useFilters(products);
 
@@ -181,6 +184,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
         onCartOpen={openCart}
         isDark={isDark}
         onToggleDark={toggleDark}
+        topOffset={headerTopOffset}
       />
 
       <CartDrawer
@@ -194,9 +198,12 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
         onRemoveItem={removeCartItem}
         onClearCart={emptyCart}
         onClearError={clearError}
+        storeSlug={storeSlug}
       />
 
       <StoreHero banner={banner} theme={theme} />
+
+      <PromoBar storeId={storeId} />
 
       {/* Sidebar + contenido principal */}
       <div style={{ display: "flex", alignItems: "stretch" }}>
@@ -225,18 +232,21 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
             justAdded={justAdded}
             searchCfg={searchCfg}
             onSearchChange={setSearchQuery}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            storeId={storeId}
           />
         </div>
       </div>
 
-      <StoreFooter footer={footer} header={header} theme={theme} />
+      <StoreFooter footer={footer} header={header} theme={theme} storeSlug={storeSlug} />
 
       <AiChatDrawer
         storeId={storeId}
         onCartRefresh={handleIaCartRefresh}
         accentColor={accent}
         products={products}
-        storeName={banner.title ?? "Tienda"}
+        storeName={storeName ?? banner.title ?? "Tienda"}
       />
 
     </div>

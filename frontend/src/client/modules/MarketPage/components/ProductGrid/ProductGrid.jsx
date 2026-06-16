@@ -1,100 +1,260 @@
-import React, { useState, useEffect } from 'react';
-import { Heart, ShoppingCart, ArrowRight, Star } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Heart, ShoppingBag, ChevronLeft, ChevronRight, Store, Star } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import {
+  getWishlist,
+  toggleInWishlist,
+  isWishlisted,
+} from '../../../../../utils/wishlistService';
 import './ProductGrid.css';
 
-// ─────────────────────────────────────────────
-// ProductGrid — reutilizable para cualquier listado
-// Props:
-//   title    — string: título de la sección
-//   products — array de productos (mock o API)
-//   loading  — boolean (opcional)
-//
-// 🔌 API TODO: El padre (MarketPage) hace el fetch
-//    y pasa los productos como prop. Añadir `loading`
-//    prop para mostrar skeletons mientras carga.
-// ─────────────────────────────────────────────
+const PLACEHOLDER = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400"><rect width="300" height="400" fill="%231a1d27"/><rect x="110" y="140" width="80" height="60" rx="6" fill="%232a2d3a"/><polyline points="110,200 150,165 175,185 190,170 210,200" fill="none" stroke="%2344475a" stroke-width="4" stroke-linejoin="round"/><circle cx="135" cy="162" r="8" fill="%2344475a"/></svg>';
 
-export default function ProductGrid({ title, products = [], loading = false }) {
-  const [wishlist, setWishlist] = useState([]);
-
+function useItemsPerPage() {
+  const [ipp, setIpp] = useState(4);
   useEffect(() => {
-    if (loading || products.length === 0) return;
-    const cards = document.querySelectorAll('.vx-product-card');
-    const obs = new IntersectionObserver(
-      (entries) => entries.forEach((e, i) => {
-        if (e.isIntersecting) {
-          setTimeout(() => e.target.classList.add('vx-visible'), i * 60);
-          obs.unobserve(e.target);
-        }
-      }),
-      { threshold: 0.08 }
-    );
-    cards.forEach(el => obs.observe(el));
-    return () => obs.disconnect();
-  }, [loading, products]);
+    const calc = () => {
+      const w = window.innerWidth;
+      setIpp(w < 480 ? 1 : w < 720 ? 2 : w < 1024 ? 3 : 4);
+    };
+    calc();
+    window.addEventListener('resize', calc);
+    return () => window.removeEventListener('resize', calc);
+  }, []);
+  return ipp;
+}
+
+function formatPrice(product) {
+  if (product.priceFormatted) return product.priceFormatted;
+  const n = Number(product.price || 0);
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency', currency: 'COP', maximumFractionDigits: 0,
+  }).format(n);
+}
+
+function ProductCard({ product, wishlisted, onWish, onClick }) {
+  const [imgSrc, setImgSrc] = useState(product.image || PLACEHOLDER);
+  const displayName = product.name || product.title || 'Producto';
 
   return (
-    <section className="vx-pgrid-root">
-      <div className="vx-section-wrap">
-        <div className="vx-section-head">
-          <h2>{title}</h2>
-          <a href="/productos" className="vx-section-link">
-            Ver más <ArrowRight size={14} />
-          </a>
-        </div>
+    <article
+      className="vx-product-card pgc-card-anim"
+      style={{ '--pgc-i': product._idx ?? 0 }}
+      onClick={() => onClick(product)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={e => e.key === 'Enter' && onClick(product)}
+    >
+      <div className="vx-product-img-wrap">
+        <img
+          src={imgSrc}
+          alt={displayName}
+          className="vx-product-img"
+          onError={() => setImgSrc(PLACEHOLDER)}
+        />
 
-        <div className="vx-pgrid-grid">
-          {loading
-            ? [...Array(6)].map((_, i) => (
-                <div key={i} className="vx-product-skeleton" />
-              ))
-            : products.map(product => (
-                <article key={product.id} className="vx-product-card">
-                  {/* Imagen */}
-                  <div className="vx-product-img-wrap">
-                    <img
-                      src={product.image}
-                      alt={product.title}
-                      className="vx-product-img"
-                      loading="lazy"
-                    />
+        {/* Badge */}
+        {product.badge && (
+          <span className="vx-product-badge">{product.badge}</span>
+        )}
 
-                    {/* Badge */}
-                    {product.badge && (
-                      <span className="vx-product-badge">{product.badge}</span>
-                    )}
+        {/* Store — solo si el nombre está disponible */}
+        {(product.storeName || product.storeSlug) && (
+          <span className="vx-product-store-badge">
+            <Store size={9} />
+            {product.storeName || product.storeSlug}
+          </span>
+        )}
 
-                    {/* Acciones hover */}
-                    <div className="vx-product-actions">
-                      <button
-                        className="vx-product-action-btn"
-                        aria-label="Agregar al carrito"
-                      >
-                        <ShoppingCart size={15} />
-                      </button>
-                      <button
-                        className={`vx-product-action-btn ${wishlist.includes(product.id) ? 'is-wished' : ''}`}
-                        aria-label="Agregar a favoritos"
-                        onClick={() => toggleWish(product.id)}
-                      >
-                        <Heart size={15} fill={wishlist.includes(product.id) ? 'currentColor' : 'none'} />
-                      </button>
-                    </div>
-                  </div>
+        {/* Wishlist */}
+        <button
+          className={`vx-product-wish ${wishlisted ? 'is-wished' : ''}`}
+          aria-label="Añadir a favoritos"
+          onClick={e => { e.stopPropagation(); onWish(product); }}
+        >
+          <Heart size={13} fill={wishlisted ? '#ef4444' : 'none'} />
+        </button>
 
-                  {/* Meta */}
-                  <div className="vx-product-meta">
-                    <p className="vx-product-title">{product.title}</p>
-                    <div className="vx-product-bottom">
-                      <span className="vx-product-price">${product.price.toFixed(2)}</span>
-                      <span className="vx-product-sales">{product.badge}</span>
-                    </div>
-                  </div>
-                </article>
-              ))
-          }
+        {/* CTA hover */}
+        <div className="vx-product-cta">
+          <button
+            className="vx-product-cta-btn"
+            aria-label="Ver producto"
+            onClick={e => { e.stopPropagation(); onClick(product); }}
+          >
+            <ShoppingBag size={13} />
+            Ver producto
+          </button>
         </div>
       </div>
+
+      <div className="vx-product-meta">
+        <p className="vx-product-title">{displayName}</p>
+
+        {product.brand && (
+          <p className="vx-product-brand">{product.brand}</p>
+        )}
+
+        <div className="vx-product-bottom">
+          <span className="vx-product-price">{formatPrice(product)}</span>
+
+          <div className="vx-product-right">
+            {product.rating > 0 && (
+              <span className="vx-product-rating">
+                <Star size={10} fill="#f59e0b" color="#f59e0b" />
+                {Number(product.rating).toFixed(1)}
+              </span>
+            )}
+            {product.stock > 0 && product.stock < 10 && (
+              <span className="vx-product-stock-warn">¡Últimas {product.stock}!</span>
+            )}
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export default function ProductGrid({ title, products = [], loading = false, emptyText }) {
+  const navigate   = useNavigate();
+  const ipp        = useItemsPerPage();
+  const totalPages = Math.max(1, Math.ceil(products.length / ipp));
+
+  const [page,     setPage]     = useState(0);
+  const [animKey,  setAnimKey]  = useState(0);
+  const [dir,      setDir]      = useState(1);
+  const [paused,   setPaused]   = useState(false);
+  // IDs en wishlist — sincronizado con localStorage
+  const [wishedIds, setWishedIds] = useState(() =>
+    new Set(getWishlist().map(p => p.id))
+  );
+
+  useEffect(() => {
+    const sync = () => setWishedIds(new Set(getWishlist().map(p => p.id)));
+    window.addEventListener('wishlist-updated', sync);
+    return () => window.removeEventListener('wishlist-updated', sync);
+  }, []);
+  const sectionRef = useRef(null);
+  const [visible,  setVisible]  = useState(false);
+  const timerRef   = useRef(null);
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setVisible(true); },
+      { threshold: 0.10 }
+    );
+    if (sectionRef.current) obs.observe(sectionRef.current);
+    return () => obs.disconnect();
+  }, []);
+
+  const goTo = useCallback((p, d = 1) => {
+    const target = (p + totalPages) % totalPages;
+    setDir(d);
+    setPage(target);
+    setAnimKey(k => k + 1);
+  }, [totalPages]);
+
+  const next = useCallback(() => goTo(page + 1,  1), [goTo, page]);
+  const prev = useCallback(() => goTo(page - 1, -1), [goTo, page]);
+
+  useEffect(() => {
+    if (paused || totalPages <= 1) return;
+    timerRef.current = setInterval(next, 5000);
+    return () => clearInterval(timerRef.current);
+  }, [paused, next, totalPages]);
+
+  // Reset page when products change
+  useEffect(() => { setPage(0); setAnimKey(k => k + 1); }, [products.length]);
+
+  const toggleWish = (product) => {
+    toggleInWishlist(product);
+    setWishedIds(new Set(getWishlist().map(p => p.id)));
+  };
+
+  const handleProductClick = (product) => {
+    const jwt = localStorage.getItem('jwt');
+    if (!jwt || jwt === 'null') { navigate('/login'); return; }
+    if (product.storeId) localStorage.setItem('storeId', product.storeId);
+    navigate(`/products/${product.id}`);
+  };
+
+  const currentProducts = products
+    .slice(page * ipp, page * ipp + ipp)
+    .map((p, i) => ({ ...p, _idx: i }));
+
+  return (
+    <section
+      ref={sectionRef}
+      className={`vx-pcarousel-root vx-section-wrap ${visible ? 'pgc-visible' : ''}`}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      {/* Header */}
+      <div className="vx-pcarousel-head">
+        <div className="vx-pcarousel-title-block">
+          <h2>{title}</h2>
+          {!loading && products.length > 0 && totalPages > 1 && (
+            <span className="pgc-page-indicator">{page + 1} / {totalPages}</span>
+          )}
+          {!loading && products.length > 0 && (
+            <span className="pgc-count-badge">{products.length} productos</span>
+          )}
+        </div>
+        <div className="vx-carousel-controls">
+          <button className="vx-cc-btn" onClick={prev} aria-label="Anterior" disabled={totalPages <= 1}>
+            <ChevronLeft size={16} />
+          </button>
+          <button className="vx-cc-btn" onClick={next} aria-label="Siguiente" disabled={totalPages <= 1}>
+            <ChevronRight size={16} />
+          </button>
+        </div>
+      </div>
+
+      {/* Cards */}
+      <div
+        key={loading ? 'loading' : `page-${animKey}`}
+        className="pgc-cards"
+        data-dir={dir}
+      >
+        {loading
+          ? [...Array(ipp)].map((_, i) => (
+              <div key={i} className="vx-product-skeleton-card">
+                <div className="sk-img" />
+                <div className="sk-text-1" />
+                <div className="sk-text-2" />
+              </div>
+            ))
+          : currentProducts.length > 0
+            ? currentProducts.map(product => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  wishlisted={wishedIds.has(product.id)}
+                  onWish={toggleWish}
+                  onClick={handleProductClick}
+                />
+              ))
+            : (
+              <div className="pgc-empty">
+                <p>{emptyText || 'No hay productos disponibles en este momento.'}</p>
+              </div>
+            )
+        }
+      </div>
+
+      {/* Dots */}
+      {!loading && totalPages > 1 && (
+        <div className="pgc-dots">
+          {Array.from({ length: totalPages }).map((_, i) => (
+            <button
+              key={i}
+              className={`pgc-dot ${i === page ? 'pgc-dot--active' : ''}`}
+              onClick={() => goTo(i, i > page ? 1 : -1)}
+              aria-label={`Página ${i + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

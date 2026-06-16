@@ -42,17 +42,21 @@ export function useCart(storeId) {
     setJustAdded(idx);
     setTimeout(() => setJustAdded(null), 1200);
 
-    if (!storeId || !isLoggedIn()) return; // animación sin API si no hay sesión
+    if (!storeId || !isLoggedIn()) return;
 
     setLoading(true);
     setError(null);
     try {
-      const updated = await cartService.addItem(storeId, {
+      await cartService.addItem(storeId, {
         productId: product.id,
         quantity: 1,
       });
-      setCart(updated);
+      // Siempre refrescar el carrito completo (addItem puede devolver solo el item añadido)
+      const fresh = await cartService.getCart(storeId);
+      setCart(fresh);
       setIsOpen(true);
+      // Notificar a useMultiCart (HeaderMarket) con el storeId concreto
+      window.dispatchEvent(new CustomEvent("cart-updated", { detail: { storeId } }));
     } catch (err) {
       setError(err.message ?? "Error al agregar al carrito.");
     } finally {
