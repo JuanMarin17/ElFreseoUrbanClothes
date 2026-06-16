@@ -4,7 +4,7 @@ import {
   fetchProductReviews,
   fetchRelatedProducts,
   addToCart,
-} from "./Productservice";
+} from "./productService";
 import { isWishlisted, toggleInWishlist } from "../../../../utils/wishlistService.js";
 
 /**
