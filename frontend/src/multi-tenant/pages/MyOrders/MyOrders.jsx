@@ -90,7 +90,7 @@ export default function MyOrders() {
   return (
     <div className="mo-root">
       <div className="mo-topbar">
-        <button className="mo-back" onClick={() => navigate(`/tienda/${slug}/catalogo`)}>
+        <button className="mo-back" onClick={() => navigate(-1)}>
           ← Volver a la tienda
         </button>
         <span className="mo-brand">VEXIO</span>
