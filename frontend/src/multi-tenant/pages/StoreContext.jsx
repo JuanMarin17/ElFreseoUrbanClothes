@@ -105,7 +105,7 @@ export const StoreProvider = ({ children }) => {
         [field]: data,
         completedStep: Math.max(
           prev.completedStep,
-          idx >= 0 ? idx : typeof key === "number" ? key : 0,
+          idx >= 0 ? idx + 1 : typeof key === "number" ? key : 0,
         ),
         // Si el paso incluye storeId (viene del backend), lo guardamos en la raíz
         ...(data.storeId ? { storeId: data.storeId } : {}),

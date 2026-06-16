@@ -16,11 +16,15 @@ export function forceLogout() {
  * Drop-in replacement for the fetch().then(check401) pattern used in all service files.
  * Returns the fetch Response; throws nothing on 401 (instead calls forceLogout).
  */
+const hadSession = () => {
+  const jwt = localStorage.getItem("jwt");
+  return !!jwt && jwt !== "null";
+};
+
 export async function authFetch(url, options = {}) {
   const res = await fetch(url, options);
-  if (res.status === 401) {
+  if (res.status === 401 && hadSession()) {
     forceLogout();
-    // Return a never-resolving promise so the caller's chain never proceeds
     return new Promise(() => {});
   }
   return res;

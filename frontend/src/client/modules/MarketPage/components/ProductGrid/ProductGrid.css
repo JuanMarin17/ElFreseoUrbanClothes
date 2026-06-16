@@ -126,7 +126,7 @@
   aspect-ratio: 3 / 4;
   border-radius: var(--vx-radius-lg);
   overflow: hidden;
-  background: var(--vx-card);
+  background: #1a1d27;
   border: 1px solid var(--vx-border);
   transition: border-color 250ms ease-out, box-shadow 250ms ease-out;
 }

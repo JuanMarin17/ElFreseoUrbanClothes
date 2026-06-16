@@ -14,9 +14,9 @@ export default function SettingsBasic({ settings, onSave }) {
 
   useEffect(() => {
     if (!settings) return;
-    setName(settings.basic?.name ?? '');
+    setName(settings.basic?.name ?? settings.store?.name ?? '');
     setDescription(settings.basic?.description ?? '');
-    setLogoUrl(settings.logoUrl ?? '');
+    setLogoUrl(settings.basic?.logoPreview ?? settings.logoUrl ?? '');
   }, [settings]);
 
   const showMsg = (text, ok = true) => {

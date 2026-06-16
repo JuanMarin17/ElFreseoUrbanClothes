@@ -5,6 +5,7 @@ import {
   getTransactionHistory,
   getPlanHistory,
   cancelSubscription,
+  getLimits,
 } from "../../../../../multi-tenant/pages/services/transactionService.js";
 import "./Subscription.css";
 
@@ -73,6 +74,57 @@ const REASON_LABELS = {
   CANCELLED: "Cancelación",
 };
 
+const FEATURE_LABEL_MAP = {
+  POS:          "Punto de venta presencial",
+  customDomain: "Dominio personalizado",
+  analytics:    "Analíticas avanzadas",
+  multiUser:    "Múltiples usuarios",
+  support:      "Soporte prioritario",
+  api:          "Acceso a API",
+  whiteLabel:   "Sin marca Vexio",
+  exportData:   "Exportación de datos",
+  ai:           "Asistente IA",
+  reports:      "Informes avanzados",
+};
+
+const PLAN_STATIC_BENEFITS = {
+  GRATUITO: ["Tienda pública en Vexio", "Pasarela de pago básica", "Soporte por email"],
+  BASICO:   ["Tienda pública en Vexio", "Dominio personalizado", "Pasarela de pago completa", "Soporte estándar"],
+  PRO:      ["Tienda pública en Vexio", "Dominio personalizado", "Punto de venta presencial", "Analíticas avanzadas", "Soporte prioritario"],
+  PREMIUM:  ["Tienda pública en Vexio", "Dominio personalizado", "Punto de venta presencial", "Analíticas avanzadas", "Múltiples usuarios", "Sin marca Vexio", "Soporte 24/7"],
+};
+
+function buildBenefitsList(limits) {
+  if (!limits) return [];
+  const lines = [
+    limits.maxProducts === -1 || limits.maxProducts >= 9999
+      ? "Productos ilimitados"
+      : `Hasta ${limits.maxProducts} productos`,
+    limits.maxPages === -1 || limits.maxPages >= 99
+      ? "Páginas ilimitadas"
+      : `Hasta ${limits.maxPages} páginas`,
+    limits.maxAiCalls === -1 || limits.maxAiCalls >= 9999
+      ? "IA ilimitada"
+      : `${limits.maxAiCalls} llamadas IA / mes`,
+  ];
+  let hasExtras = false;
+  try {
+    const extras = JSON.parse(limits.features ?? "{}");
+    for (const [k, v] of Object.entries(extras)) {
+      if (v === false || v === null || v === "") continue;
+      hasExtras = true;
+      const label = FEATURE_LABEL_MAP[k];
+      if (label) lines.push(label);
+      else if (v !== true) lines.push(`${k}: ${v}`);
+      else lines.push(k);
+    }
+  } catch {}
+  if (!hasExtras && PLAN_STATIC_BENEFITS[limits.planName]) {
+    lines.push(...PLAN_STATIC_BENEFITS[limits.planName]);
+  }
+  return lines;
+}
+
 function Badge({ status, map }) {
   const cfg = map[status] ?? { label: status, cls: "smg-badge--gray" };
   return <span className={`smg-badge ${cfg.cls}`}>{cfg.label}</span>;
@@ -85,6 +137,7 @@ export default function SubscriptionManagement() {
   const storeId  = localStorage.getItem("storeId");
 
   const [sub,        setSub]        = useState(null);
+  const [limits,     setLimits]     = useState(null);
   const [history,    setHistory]    = useState([]);
   const [planHist,   setPlanHist]   = useState([]);
   const [loading,    setLoading]    = useState(true);
@@ -101,8 +154,9 @@ export default function SubscriptionManagement() {
     if (!storeId) { setLoading(false); return; }
     setLoading(true);
     try {
-      const [subRes, histRes, planHistRes] = await Promise.allSettled([
+      const [subRes, limitsRes, histRes, planHistRes] = await Promise.allSettled([
         getSubscription(storeId),
+        getLimits(storeId),
         getTransactionHistory(storeId),
         getPlanHistory(storeId),
       ]);
@@ -110,6 +164,8 @@ export default function SubscriptionManagement() {
       if (subRes.status === "fulfilled") setSub(subRes.value);
       else if (subRes.reason?.status !== 404)
         showToast("error", "No se pudo cargar la suscripción.");
+
+      if (limitsRes.status === "fulfilled") setLimits(limitsRes.value);
 
       if (histRes.status === "fulfilled")
         setHistory(Array.isArray(histRes.value) ? histRes.value : []);
@@ -266,6 +322,25 @@ export default function SubscriptionManagement() {
               </div>
             )}
           </section>
+
+          {/* ── Beneficios del plan actual ── */}
+          {(limits || sub) && (() => {
+            const benefits = buildBenefitsList(limits ?? { planName: sub?.planName ?? sub?.plan });
+            if (!benefits.length) return null;
+            return (
+              <section className="smg-section">
+                <h2 className="smg-section__title">Beneficios de tu plan</h2>
+                <ul className="smg-benefits-list">
+                  {benefits.map((b) => (
+                    <li key={b} className="smg-benefit-item">
+                      <span className="smg-benefit-check">✓</span>
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })()}
 
           {/* ── Historial de transacciones ── */}
           <section className="smg-section">

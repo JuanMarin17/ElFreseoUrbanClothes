@@ -17,11 +17,16 @@ function forceLogout() {
   window.location.replace('/login');
 }
 
+const hadSession = () => {
+  const jwt = localStorage.getItem('jwt');
+  return !!jwt && jwt !== 'null';
+};
+
 // Patch global window.fetch — covers every fetch() call in the app
 const _nativeFetch = window.fetch.bind(window);
 window.fetch = async (...args) => {
   const res = await _nativeFetch(...args);
-  if (res.status === 401) {
+  if (res.status === 401 && hadSession()) {
     forceLogout();
     // Return a promise that never resolves so callers never process the 401 body
     return new Promise(() => {});
@@ -33,7 +38,7 @@ window.fetch = async (...args) => {
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error?.response?.status === 401) {
+    if (error?.response?.status === 401 && hadSession()) {
       forceLogout();
     }
     return Promise.reject(error);

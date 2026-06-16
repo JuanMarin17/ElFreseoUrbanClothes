@@ -473,6 +473,26 @@
   font-size: 14px;
   padding: 16px 0;
 }
+.smg-benefits-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+.smg-benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+.smg-benefit-check {
+  color: #4ade80;
+  font-weight: 700;
+  flex-shrink: 0;
+}
 .smg-empty {
   color: #475569;
   font-size: 13px;

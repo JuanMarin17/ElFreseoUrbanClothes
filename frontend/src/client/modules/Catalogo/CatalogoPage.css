@@ -193,6 +193,13 @@
     transform: none !important;
     flex-shrink: 0;
     width: var(--cat-sidebar-w);
+    overflow: hidden;
+  }
+  .cat-sb-body {
+    overflow-y: auto;
+    height: 0;
+    min-height: 0;
+    flex: 1;
   }
   .cat-overlay  { display: none !important; }
   .cat-filter-btn { display: none; }

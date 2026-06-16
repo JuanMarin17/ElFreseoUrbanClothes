@@ -92,6 +92,8 @@ export default function VexioCategories() {
   }, [featured, loading]);
 
   const handleProductClick = (p) => {
+    const jwt = localStorage.getItem('jwt');
+    if (!jwt || jwt === 'null') { navigate('/login'); return; }
     if (p.storeId) localStorage.setItem('storeId', p.storeId);
     navigate(`/products/${p.id}`);
   };

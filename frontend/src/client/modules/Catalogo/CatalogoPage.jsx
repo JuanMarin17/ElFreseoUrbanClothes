@@ -244,7 +244,7 @@ function QuickAddModal({ product, onClose }) {
             </button>
 
             {/* Ver producto completo */}
-            <button className="cat-modal-link" onClick={() => { if (product.storeId) localStorage.setItem("storeId", product.storeId); navigate(`/products/${product.id}?src=catalog`); }}>
+            <button className="cat-modal-link" onClick={() => { const jwt = localStorage.getItem("jwt"); if (!jwt || jwt === "null") { navigate("/login"); return; } if (product.storeId) localStorage.setItem("storeId", product.storeId); navigate(`/products/${product.id}?src=catalog`); }}>
               Ver detalle del producto →
             </button>
           </div>
@@ -286,6 +286,8 @@ function ProductCard({ product, index, onQuickAdd }) {
   const [imgError, setImgError] = useState(false);
 
   const go = useCallback(() => {
+    const jwt = localStorage.getItem("jwt");
+    if (!jwt || jwt === "null") { navigate("/login"); return; }
     if (product.storeId) localStorage.setItem("storeId", product.storeId);
     navigate(`/products/${product.id}?src=catalog`);
   }, [product.id, product.storeId, navigate]);
@@ -522,6 +524,8 @@ function ForYouCard({ product, index, onQuickAdd }) {
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: Math.min(index * 0.028, 0.26), duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
       onClick={() => {
+        const jwt = localStorage.getItem("jwt");
+        if (!jwt || jwt === "null") { navigate("/login"); return; }
         if (product.storeId) localStorage.setItem("storeId", product.storeId);
         navigate(`/products/${product.id}?src=catalog`);
       }}
@@ -564,6 +568,9 @@ export default function CatalogoPage() {
   const [userTastes,  setUserTastes]  = useState(null);
   const [quickProd,   setQuickProd]   = useState(null); // modal
   const searchRef = useRef(null);
+
+  // Scroll to top on mount
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, []);
 
   // Load
   useEffect(() => {

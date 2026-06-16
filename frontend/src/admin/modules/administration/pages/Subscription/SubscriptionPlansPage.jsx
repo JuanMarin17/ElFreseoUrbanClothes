@@ -25,14 +25,43 @@ const formatDate = (d) =>
       })
     : "—";
 
+const FEATURE_LABEL_MAP = {
+  POS:          "Punto de venta presencial",
+  customDomain: "Dominio personalizado",
+  analytics:    "Analíticas avanzadas",
+  multiUser:    "Múltiples usuarios",
+  support:      "Soporte prioritario",
+  api:          "Acceso a API",
+  whiteLabel:   "Sin marca Vexio",
+  exportData:   "Exportación de datos",
+  ai:           "Asistente IA",
+  reports:      "Informes avanzados",
+};
+
+const PLAN_STATIC_BENEFITS = {
+  GRATUITO: ["Tienda pública en Vexio", "Pasarela de pago básica", "Soporte por email"],
+  BASICO:   ["Tienda pública en Vexio", "Dominio personalizado", "Pasarela de pago completa", "Soporte estándar"],
+  PRO:      ["Tienda pública en Vexio", "Dominio personalizado", "Punto de venta presencial", "Analíticas avanzadas", "Soporte prioritario"],
+  PREMIUM:  ["Tienda pública en Vexio", "Dominio personalizado", "Punto de venta presencial", "Analíticas avanzadas", "Múltiples usuarios", "Sin marca Vexio", "Soporte 24/7"],
+};
+
 function parseFeaturesLabel(plan) {
   const lines = [];
+  let hasExtras = false;
   try {
     const obj = JSON.parse(plan.features ?? "{}");
     for (const [k, v] of Object.entries(obj)) {
-      if (v !== false && v !== null && v !== "") lines.push(`${k}: ${v}`);
+      if (v === false || v === null || v === "") continue;
+      hasExtras = true;
+      const label = FEATURE_LABEL_MAP[k];
+      if (label) lines.push(label);
+      else if (v !== true) lines.push(`${k}: ${v}`);
+      else lines.push(k);
     }
   } catch {}
+  if (!hasExtras && PLAN_STATIC_BENEFITS[plan.name]) {
+    lines.push(...PLAN_STATIC_BENEFITS[plan.name]);
+  }
   return lines;
 }
 

@@ -123,6 +123,7 @@ export default function POSPage() {
   const [sales, setSales]               = useState([]);
   const [daily, setDaily]               = useState(null);
   const [histLoading, setHistLoading]   = useState(false);
+  const [histError, setHistError]       = useState('');
   const [cancelling, setCancelling]     = useState(null);
 
   /* Cargar productos — espera a que AdminLayout setee storeId en localStorage */
@@ -150,12 +151,18 @@ export default function POSPage() {
   useEffect(() => {
     if (tab !== 'history') return;
     setHistLoading(true);
-    Promise.all([getSales(), getDailySummary()])
-      .then(([s, d]) => {
-        setSales(Array.isArray(s) ? s : []);
-        setDaily(d);
+    setHistError('');
+    Promise.allSettled([getSales(), getDailySummary()])
+      .then(([salesRes, dailyRes]) => {
+        if (salesRes.status === 'fulfilled') {
+          setSales(Array.isArray(salesRes.value) ? salesRes.value : []);
+        } else {
+          setHistError(salesRes.reason?.message ?? 'No se pudo cargar el historial.');
+        }
+        if (dailyRes.status === 'fulfilled') {
+          setDaily(dailyRes.value);
+        }
       })
-      .catch(() => {})
       .finally(() => setHistLoading(false));
   }, [tab]);
 
@@ -255,11 +262,12 @@ export default function POSPage() {
   /* ── Cancelar venta ──────────────────────────────────────────────────── */
   const handleCancel = async (saleId) => {
     setCancelling(saleId);
+    setHistError('');
     try {
       await cancelSale(saleId);
       setSales(prev => prev.map(s => s.saleId === saleId ? { ...s, status: 'CANCELLED' } : s));
     } catch (e) {
-      alert(e.message ?? 'No se pudo cancelar la venta.');
+      setHistError(e.message ?? 'No se pudo cancelar la venta.');
     } finally {
       setCancelling(null);
     }
@@ -505,6 +513,8 @@ export default function POSPage() {
       {tab === 'history' && (
         <div className="pos-history">
           <DailySummary summary={daily} />
+
+          {histError && <p className="pos-error">{histError}</p>}
 
           {histLoading ? (
             <div className="pos-hist-loading">Cargando historial…</div>

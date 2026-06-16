@@ -235,6 +235,34 @@ export default function ProductPage() {
 
   /* ── Error ── */
   if (error) {
+    const jwt = localStorage.getItem("jwt");
+    const hasSession = !!jwt && jwt !== "null";
+
+    if (error === "REQUIRES_AUTH" && !hasSession) {
+      return (
+        <div className="vx-page vx-noise">
+          <HeaderMarket />
+          <div className="vx-wrap">
+            <div className="vx-error-state" role="alert">
+              <i className="fa-solid fa-lock vx-error-state__icon" aria-hidden="true" />
+              <h1 className="vx-error-state__title">Inicia sesión para ver este producto</h1>
+              <p className="vx-error-state__msg">
+                Necesitas una cuenta para ver el detalle completo de los productos.
+              </p>
+              <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+                <button onClick={() => navigate("/login")} className="vx-btn vx-btn--primary vx-btn--sm">
+                  Iniciar sesión
+                </button>
+                <button onClick={() => navigate(-1)} className="vx-btn vx-btn--ghost vx-btn--sm">
+                  <i className="fa-solid fa-arrow-left" aria-hidden="true" /> Volver
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="vx-page vx-noise">
         <div className="vx-wrap">

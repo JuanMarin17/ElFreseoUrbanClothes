@@ -32,8 +32,11 @@ productApi.interceptors.request.use((config) => {
 });
 
 productApi.interceptors.response.use(
-  (response) => response.data, // Devuelve el wrapper completo { message, status, data }
+  (response) => response.data,
   (error) => {
+    if (error.response?.status === 401) {
+      return Promise.reject(new Error("REQUIRES_AUTH"));
+    }
     const message =
       error.response?.data?.message || error.message || "Error desconocido";
     return Promise.reject(new Error(message));

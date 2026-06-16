@@ -85,6 +85,16 @@ const HeaderMarket = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, [userMenuOpen]);
 
+  // Close notification panel when clicking outside
+  useEffect(() => {
+    if (!notifOpen) return;
+    const handler = (e) => {
+      if (!e.target.closest('.notif-wrapper')) setNotifOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [notifOpen]);
+
   // Prevent body scroll when mobile menu open
   useEffect(() => {
     document.body.style.overflow = isMobileOpen ? 'hidden' : '';
@@ -169,9 +179,7 @@ const HeaderMarket = () => {
                 </button>
 
                 {notifOpen && (
-                  <>
-                    <div className="notif-backdrop" onClick={() => setNotifOpen(false)} />
-                    <div className="notif-panel" role="dialog" aria-label="Notificaciones">
+                  <div className="notif-panel" role="dialog" aria-label="Notificaciones">
                       <div className="notif-panel-header">
                         <Bell size={14} />
                         <span>NOTIFICACIONES</span>
@@ -190,7 +198,6 @@ const HeaderMarket = () => {
                         )}
                       </div>
                     </div>
-                  </>
                 )}
               </div>
             )}

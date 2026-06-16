@@ -8,7 +8,7 @@ import {
 } from '../../../../../utils/wishlistService';
 import './ProductGrid.css';
 
-const PLACEHOLDER = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400"><rect width="300" height="400" fill="%23111116"/><text x="150" y="200" text-anchor="middle" fill="%2333334a" font-size="40" font-family="sans-serif">◻</text></svg>';
+const PLACEHOLDER = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400"><rect width="300" height="400" fill="%231a1d27"/><rect x="110" y="140" width="80" height="60" rx="6" fill="%232a2d3a"/><polyline points="110,200 150,165 175,185 190,170 210,200" fill="none" stroke="%2344475a" stroke-width="4" stroke-linejoin="round"/><circle cx="135" cy="162" r="8" fill="%2344475a"/></svg>';
 
 function useItemsPerPage() {
   const [ipp, setIpp] = useState(4);
@@ -50,7 +50,6 @@ function ProductCard({ product, wishlisted, onWish, onClick }) {
           src={imgSrc}
           alt={displayName}
           className="vx-product-img"
-          loading="lazy"
           onError={() => setImgSrc(PLACEHOLDER)}
         />
 
@@ -173,6 +172,8 @@ export default function ProductGrid({ title, products = [], loading = false, emp
   };
 
   const handleProductClick = (product) => {
+    const jwt = localStorage.getItem('jwt');
+    if (!jwt || jwt === 'null') { navigate('/login'); return; }
     if (product.storeId) localStorage.setItem('storeId', product.storeId);
     navigate(`/products/${product.id}`);
   };

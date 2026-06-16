@@ -55,11 +55,15 @@ export function useMultiCart() {
   const clearError = useCallback(() => setError(null), []);
 
   // Llamado cuando se despacha "cart-updated" desde cualquier página
-  const refreshCart = useCallback(async () => {
-    const s = localStorage.getItem("storeId");
+  const refreshCart = useCallback(async (event) => {
+    // Prioridad: storeId del evento → localStorage.storeId
+    const evStoreId = event?.detail?.storeId;
+    const lsStoreId = localStorage.getItem("storeId");
+    const storeId = evStoreId ?? (lsStoreId !== "null" && lsStoreId !== "undefined" ? lsStoreId : null);
+
     let ids = loadStoreIds();
-    if (s && s !== "null" && s !== "undefined" && !ids.includes(s)) {
-      ids = [...ids, s];
+    if (storeId && !ids.includes(storeId)) {
+      ids = [...ids, storeId];
       persistStoreIds(ids);
       setStoreIds(ids);
     }

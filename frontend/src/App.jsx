@@ -338,20 +338,32 @@ export default function App() {
                   />
                   <Route
                     path="/crear-tienda/basico"
-                    element={<StepBasicPage />}
+                    element={
+                      <ProtectedStep requiredStep={1}>
+                        <StepBasicPage />
+                      </ProtectedStep>
+                    }
                   />
                   <Route
                     path="/crear-tienda/legal"
-                    element={<StepLegalPage />}
+                    element={
+                      <ProtectedStep requiredStep={2}>
+                        <StepLegalPage />
+                      </ProtectedStep>
+                    }
                   />
                   <Route
                     path="/crear-tienda/pagos"
-                    element={<StepPaymentPage />}
+                    element={
+                      <ProtectedStep requiredStep={3}>
+                        <StepPaymentPage />
+                      </ProtectedStep>
+                    }
                   />
                   <Route
                     path="/layout"
                     element={
-                      <ProtectedStep requiredStep={3}>
+                      <ProtectedStep requiredStep={4}>
                         <LayoutSelect />
                       </ProtectedStep>
                     }
@@ -359,7 +371,7 @@ export default function App() {
                   <Route
                     path="/customer"
                     element={
-                      <ProtectedStep requiredStep={4}>
+                      <ProtectedStep requiredStep={5}>
                         <CustomizationPanel />
                       </ProtectedStep>
                     }
@@ -367,7 +379,7 @@ export default function App() {
                   <Route
                     path="/component"
                     element={
-                      <ProtectedStep requiredStep={5}>
+                      <ProtectedStep requiredStep={6}>
                         <ComponentCustomizer />
                       </ProtectedStep>
                     }
@@ -375,7 +387,7 @@ export default function App() {
                   <Route
                     path="/widgets"
                     element={
-                      <ProtectedStep requiredStep={6}>
+                      <ProtectedStep requiredStep={7}>
                         <WidgetsCustomizer />
                       </ProtectedStep>
                     }
@@ -383,7 +395,7 @@ export default function App() {
                   <Route
                     path="/cms"
                     element={
-                      <ProtectedStep requiredStep={7}>
+                      <ProtectedStep requiredStep={8}>
                         <CMSEditor />
                       </ProtectedStep>
                     }
@@ -391,7 +403,7 @@ export default function App() {
                   <Route
                     path="/cms/about"
                     element={
-                      <ProtectedStep requiredStep={7}>
+                      <ProtectedStep requiredStep={8}>
                         <CMSAbout />
                       </ProtectedStep>
                     }
@@ -399,7 +411,7 @@ export default function App() {
                   <Route
                     path="/cms/contact"
                     element={
-                      <ProtectedStep requiredStep={7}>
+                      <ProtectedStep requiredStep={8}>
                         <CMSContact />
                       </ProtectedStep>
                     }
@@ -407,7 +419,7 @@ export default function App() {
                   <Route
                     path="/cms/locations"
                     element={
-                      <ProtectedStep requiredStep={7}>
+                      <ProtectedStep requiredStep={8}>
                         <CMSLocations />
                       </ProtectedStep>
                     }
@@ -415,7 +427,7 @@ export default function App() {
                   <Route
                     path="/cms/returns"
                     element={
-                      <ProtectedStep requiredStep={7}>
+                      <ProtectedStep requiredStep={8}>
                         <CMSReturns />
                       </ProtectedStep>
                     }
@@ -423,7 +435,7 @@ export default function App() {
                   <Route
                     path="/cms/faq"
                     element={
-                      <ProtectedStep requiredStep={7}>
+                      <ProtectedStep requiredStep={8}>
                         <CMSFAQ />
                       </ProtectedStep>
                     }
@@ -431,7 +443,7 @@ export default function App() {
                   <Route
                     path="/crear-tienda"
                     element={
-                      <ProtectedStep requiredStep={8}>
+                      <ProtectedStep requiredStep={9}>
                         <CreateStore />
                       </ProtectedStep>
                     }
@@ -439,7 +451,7 @@ export default function App() {
                   <Route
                     path="/resultado"
                     element={
-                      <ProtectedStep requiredStep={9}>
+                      <ProtectedStep requiredStep={10}>
                         <StoreResult />
                       </ProtectedStep>
                     }
