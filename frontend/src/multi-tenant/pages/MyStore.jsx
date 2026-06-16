@@ -15,15 +15,14 @@ import Transaction from "../../multi-tenant/pages/Transaction/Transaction";
 import SalesReport from "./SalesReport/SalesReport";
 
 const SUPERADMIN_MENU = [
-  { path: "/admin-super/mis-tiendas",         label: "MIS TIENDAS",       icon: Store      },
-  { path: "/admin-super/transacciones",       label: "TRANSACCIONES",     icon: CreditCard },
-  { path: "/admin-super/plataforma-usuarios", label: "USUARIOS",          icon: Users      },
-  { path: "/admin-super/informe-ventas",      label: "INFORME DE VENTAS", icon: BarChart2  },
+  { path: "/mis-tiendas",   label: "TIENDAS",           icon: Store      },
+  { path: "/transacciones", label: "TRANSACCIONES",     icon: CreditCard },
+  { path: "/usuarios",      label: "USUARIOS",          icon: Users      },
+  { path: "/informe-ventas",label: "INFORME DE VENTAS", icon: BarChart2  },
 ];
 
 const ADMIN_MENU = [
-  { path: "/admin-super/mis-tiendas",   label: "MIS TIENDAS",   icon: Store      },
-  { path: "/admin-super/transacciones", label: "TRANSACCIONES", icon: CreditCard },
+  { path: "/mis-tiendas", label: "MIS TIENDAS", icon: Store },
 ];
 
 const MyStore = () => {
@@ -34,12 +33,22 @@ const MyStore = () => {
 
   const userId = user?.id ?? user?.userId ?? null;
   const name   = user?.userName ?? user?.name ?? null;
-  const role   = "SUPERADMIN"; // ajusta cuando tengas roles reales
 
-  const menuItems       = role === "SUPERADMIN" ? SUPERADMIN_MENU : ADMIN_MENU;
-  const isTransacciones  = location.pathname === "/admin-super/transacciones";
-  const isUsuarios       = location.pathname === "/admin-super/plataforma-usuarios";
-  const isInformeVentas  = location.pathname === "/admin-super/informe-ventas";
+  // Rol real desde JWT
+  const role = (() => {
+    try {
+      const jwt = localStorage.getItem("jwt");
+      if (!jwt || jwt === "null") return "OWNER";
+      const decoded = JSON.parse(atob(jwt.split(".")[1]));
+      return decoded.role ?? localStorage.getItem("userRole") ?? "OWNER";
+    } catch { return "OWNER"; }
+  })();
+
+  const isSuperAdmin = role === "SUPERADMIN";
+  const menuItems    = isSuperAdmin ? SUPERADMIN_MENU : ADMIN_MENU;
+  const isTransacciones  = location.pathname === "/transacciones";
+  const isUsuarios       = location.pathname === "/usuarios";
+  const isInformeVentas  = location.pathname === "/informe-ventas";
 
   // "" Estados """"""""""""""""""""""""""""""""""""""""""
   const [isAiOpen,       setIsAiOpen]       = useState(false);
@@ -54,8 +63,9 @@ const MyStore = () => {
     const load = async () => {
       setLoadingStores(true);
       setStoresError(null);
-      const fetchStores =
-        role === "SUPERADMIN" ? getAllStores : () => getStoresByUser(userId);
+      const fetchStores = isSuperAdmin
+        ? () => getAllStores()
+        : () => getStoresByUser(userId);
       try {
         const data = await fetchStores();
         const tiendas = Array.isArray(data)
@@ -101,7 +111,7 @@ const MyStore = () => {
       <Sidebar
         menuItems={menuItems}
         brandName="VEXIO"
-        brandSub={role === "SUPERADMIN" ? "SUPER ADMIN" : "ADMIN"}
+        brandSub={isSuperAdmin ? "SUPER ADMIN" : "ADMIN"}
         onLogout={logout}
         useImageLogo={true}
         logoUrl={storeSettings[stores[0]?.storeId]?.basic?.logoPreview ?? null}
@@ -116,7 +126,7 @@ const MyStore = () => {
           showAi={true}
           showBell={true}
           showSettings={true}
-          isSuperAdmin={role === "SUPERADMIN"}
+          isSuperAdmin={isSuperAdmin}
           searchValue={search}
           onSearchChange={(e) => setSearch(e.target.value)}
           searchPlaceholder={isTransacciones ? "Buscar transaccion..." : isInformeVentas ? "Buscar plan..." : "Buscar tienda o ID..."}
@@ -129,7 +139,7 @@ const MyStore = () => {
           <main className="admin-page-body">
 
             {/* "" Vista condicional """""""""""""""""""""""" */}
-            {isTransacciones ? (
+            {isTransacciones && isSuperAdmin ? (
               <Transaction />
             ) : isUsuarios ? (
               <PlatformUsersPanel />
@@ -139,9 +149,9 @@ const MyStore = () => {
               <>
                 <div className="ms-section-header">
                   <div>
-                    <h1 className="ms-section-title">Mis tiendas</h1>
+                    <h1 className="ms-section-title">{isSuperAdmin ? "Tiendas" : "Mis tiendas"}</h1>
                     <div className="ms-section-meta">
-                      <p className="ms-section-sub">Gestiona y accede a tus tiendas</p>
+                      <p className="ms-section-sub">{isSuperAdmin ? "Todas las tiendas de la plataforma" : "Gestiona y accede a tus tiendas"}</p>
                       {stores.length > 0 && (
                         <span className="ms-section-count">{stores.length} tienda{stores.length !== 1 ? "s" : ""}</span>
                       )}

@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import {
   Users, Store, Crown, Shield, Search, RefreshCw,
-  ChevronRight, UserCheck, AlertTriangle,
+  UserCheck, AlertTriangle, X, Calendar, BadgeCheck, BadgeX,
 } from 'lucide-react';
 import { getAllStores, getUsersByStore } from '../services/storeService';
 import './PlatformUsersPanel.css';
@@ -79,6 +80,9 @@ export default function PlatformUsersPanel() {
             storeId:   store.storeId,
             storeName: store.name,
             storeSlug: store.slug,
+            isActive:  store.isActive ?? null,
+            createdAt: store.createdAt ?? store.createdDate ?? store.created ?? null,
+            plan:      store.plan ?? store.subscriptionPlan ?? store.planName ?? null,
             role:      m.role ?? 'STAFF',
           });
         });
@@ -217,7 +221,6 @@ export default function PlatformUsersPanel() {
             <span>Tipo</span>
             <span>Tiendas</span>
             <span>Estado</span>
-            <span />
           </div>
 
           {displayed.map((user, index) => {
@@ -254,15 +257,12 @@ export default function PlatformUsersPanel() {
                       key={s.storeId}
                       className="pu-store-chip"
                       onClick={() => navigate(`/tienda/${s.storeSlug}`)}
-                      title={`Ir a ${s.storeName}`}
                     >
                       {s.storeName}
                     </button>
                   ))}
                   {user.stores.length > 2 && (
-                    <span className="pu-store-chip pu-store-chip--more">
-                      +{user.stores.length - 2}
-                    </span>
+                    <StoresModal user={user} navigate={navigate} />
                   )}
                 </div>
 
@@ -272,19 +272,6 @@ export default function PlatformUsersPanel() {
                     <span className="pu-dot" />
                     {user.isActive ? 'Activo' : 'Inactivo'}
                   </span>
-                </div>
-
-                {/* Actions */}
-                <div className="pu-cell-actions">
-                  {user.stores[0]?.storeSlug && (
-                    <button
-                      className="pu-btn-admin"
-                      onClick={() => navigate(`/tienda/${user.stores[0].storeSlug}/admin/dashboard`)}
-                      title="Ir al panel admin de su tienda"
-                    >
-                      Admin <ChevronRight size={12} />
-                    </button>
-                  )}
                 </div>
               </div>
             );
@@ -296,6 +283,62 @@ export default function PlatformUsersPanel() {
         * Solo se muestran usuarios vinculados a tiendas. Clientes sin tienda requieren integración con el endpoint <code>/usuarios</code>.
       </p>
     </div>
+  );
+}
+
+// ── Stores modal (portal, centrado en pantalla) ───────────────────────────────
+
+function StoresModal({ user, navigate }) {
+  const [open, setOpen] = useState(false);
+  const extra = user.stores.length - 2;
+
+  return (
+    <>
+      <button className="pu-store-chip pu-store-chip--more" onClick={() => setOpen(true)}>
+        +{extra}
+      </button>
+
+      {open && createPortal(
+        <div className="pu-modal-overlay" onClick={() => setOpen(false)}>
+          <div className="pu-modal" onClick={e => e.stopPropagation()}>
+            <div className="pu-modal-header">
+              <div>
+                <p className="pu-modal-title">Tiendas de {user.userName}</p>
+                <p className="pu-modal-sub">{user.stores.length} tienda{user.stores.length !== 1 ? 's' : ''}</p>
+              </div>
+              <button className="pu-modal-close" onClick={() => setOpen(false)}><X size={16}/></button>
+            </div>
+            <div className="pu-modal-list">
+              {user.stores.map((s) => {
+                const fecha = s.createdAt
+                  ? new Date(s.createdAt).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' })
+                  : null;
+                return (
+                  <div key={s.storeId} className="pu-modal-card">
+                    <div className="pu-modal-card-left">
+                      <span className="pu-modal-item-name">{s.storeName}</span>
+                      <code className="pu-modal-item-id">{s.storeId}</code>
+                    </div>
+                    <div className="pu-modal-card-right">
+                      <span className="pu-modal-role-tag">{s.role}</span>
+                      {s.isActive != null && (
+                        s.isActive
+                          ? <span className="pu-modal-status pu-modal-status--on"><BadgeCheck size={10}/> Activa</span>
+                          : <span className="pu-modal-status pu-modal-status--off"><BadgeX size={10}/> Inactiva</span>
+                      )}
+                      <button className="pu-modal-goto" onClick={() => { navigate(`/tienda/${s.storeSlug}`); setOpen(false); }}>
+                        Ver →
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
   );
 }
 

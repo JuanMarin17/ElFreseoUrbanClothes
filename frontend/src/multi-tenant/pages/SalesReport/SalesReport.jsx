@@ -1,36 +1,34 @@
 import { useEffect, useRef, useState } from "react";
 import {
   TrendingUp, Users, DollarSign, Award,
-  ArrowUpRight, ArrowDownRight, BarChart2, Download
+  ArrowUpRight, ArrowDownRight, BarChart2, Download, AlertTriangle, RefreshCw
 } from "lucide-react";
+import { getPlanStats, getMonthlyRevenue, exportSalesCSV } from "../services/salesReportService";
 import "./SalesReport.css";
 
-// ── Datos mock de planes ──────────────────────────────────────────
-const PLANS = [
-  { id: "gratuito", label: "Gratuito", price: 0,     color: "#6b7280", accent: "#374151" },
-  { id: "basico",   label: "Básico",   price: 9.99,  color: "#3b82f6", accent: "#1e3a5f" },
-  { id: "pro",      label: "Pro",      price: 24.99, color: "#8b5cf6", accent: "#3b1f6e" },
-  { id: "premium",  label: "Premium",  price: 49.99, color: "#f59e0b", accent: "#5a3a00" },
-];
+// Configuración visual de planes (colores, precio, label) — estático
+const PLAN_CONFIG = {
+  gratuito: { label: "Gratuito", price: 0,     color: "#6b7280", accent: "#374151" },
+  basico:   { label: "Básico",   price: 9.99,  color: "#3b82f6", accent: "#1e3a5f" },
+  pro:      { label: "Pro",      price: 24.99, color: "#8b5cf6", accent: "#3b1f6e" },
+  premium:  { label: "Premium",  price: 49.99, color: "#f59e0b", accent: "#5a3a00" },
+};
 
-const PLAN_STATS = [
-  { id: "gratuito", stores: 142, mrr: 0,       growth: 12.4,  churn: 8.2,  newThisMonth: 18 },
-  { id: "basico",   stores: 87,  mrr: 869.13,  growth: 7.1,   churn: 3.4,  newThisMonth: 12 },
-  { id: "pro",      stores: 64,  mrr: 1599.36, growth: 19.8,  churn: 2.1,  newThisMonth: 22 },
-  { id: "premium",  stores: 31,  mrr: 1549.69, growth: 31.2,  churn: 1.0,  newThisMonth: 9  },
+// Datos mock mientras el backend implementa los endpoints
+const MOCK_PLANS = [
+  { id: "gratuito", label: "Gratuito", stores: 142, mrr: 0,       growthPercent: 12.4, churnPercent: 8.2, newThisMonth: 18 },
+  { id: "basico",   label: "Básico",   stores: 87,  mrr: 869.13,  growthPercent: 7.1,  churnPercent: 3.4, newThisMonth: 12 },
+  { id: "pro",      label: "Pro",      stores: 64,  mrr: 1599.36, growthPercent: 19.8, churnPercent: 2.1, newThisMonth: 22 },
+  { id: "premium",  label: "Premium",  stores: 31,  mrr: 1549.69, growthPercent: 31.2, churnPercent: 1.0, newThisMonth: 9  },
 ];
-
-const MONTHLY_REVENUE = [
-  { month: "Ene", gratuito: 0, basico: 640, pro: 1150, premium: 1050 },
-  { month: "Feb", gratuito: 0, basico: 700, pro: 1225, premium: 1100 },
-  { month: "Mar", gratuito: 0, basico: 740, pro: 1300, premium: 1150 },
-  { month: "Abr", gratuito: 0, basico: 790, pro: 1375, premium: 1250 },
-  { month: "May", gratuito: 0, basico: 830, pro: 1450, premium: 1400 },
-  { month: "Jun", gratuito: 0, basico: 869, pro: 1599, premium: 1549 },
+const MOCK_MONTHLY = [
+  { month: "Ene", basico: 640,  pro: 1150, premium: 1050 },
+  { month: "Feb", basico: 700,  pro: 1225, premium: 1100 },
+  { month: "Mar", basico: 740,  pro: 1300, premium: 1150 },
+  { month: "Abr", basico: 790,  pro: 1375, premium: 1250 },
+  { month: "May", basico: 830,  pro: 1450, premium: 1400 },
+  { month: "Jun", basico: 869,  pro: 1599, premium: 1549 },
 ];
-
-const TOTAL_MRR   = PLAN_STATS.reduce((s, p) => s + p.mrr, 0);
-const TOTAL_STORES = PLAN_STATS.reduce((s, p) => s + p.stores, 0);
 
 // ── Utilidades ────────────────────────────────────────────────────
 const fmt = (v) =>
@@ -221,10 +219,85 @@ function GroupedBarChart({ data }) {
 
 // ── Componente principal ──────────────────────────────────────────
 export default function SalesReport() {
-  const donutSlices = PLAN_STATS.map((ps) => {
-    const plan = PLANS.find((p) => p.id === ps.id);
-    return { value: ps.stores, color: plan.color, label: plan.label };
+  const [planStats,      setPlanStats]      = useState([]);
+  const [monthlyRevenue, setMonthlyRevenue] = useState([]);
+  const [loading,        setLoading]        = useState(true);
+  const [error,          setError]          = useState(null);
+
+  const [usingMock, setUsingMock] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [plans, monthly] = await Promise.all([getPlanStats(), getMonthlyRevenue(6)]);
+      setPlanStats(Array.isArray(plans) ? plans : []);
+      setMonthlyRevenue(Array.isArray(monthly) ? monthly : []);
+      setUsingMock(false);
+    } catch (err) {
+      if (err.status === 404 || err.status === 501) {
+        // Backend aún no implementa el endpoint — usar mock
+        setPlanStats(MOCK_PLANS);
+        setMonthlyRevenue(MOCK_MONTHLY);
+        setUsingMock(true);
+      } else {
+        setError(err.message || "No se pudo cargar el informe.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const TOTAL_MRR    = planStats.reduce((s, p) => s + (p.mrr ?? 0), 0);
+  const TOTAL_STORES = planStats.reduce((s, p) => s + (p.stores ?? 0), 0);
+  const TOTAL_NEW    = planStats.reduce((s, p) => s + (p.newThisMonth ?? 0), 0);
+  const AVG_GROWTH   = planStats.length
+    ? (planStats.reduce((s, p) => s + (p.growthPercent ?? 0), 0) / planStats.length).toFixed(1)
+    : "0.0";
+  const AVG_CHURN    = planStats.length
+    ? (planStats.reduce((s, p) => s + (p.churnPercent ?? 0), 0) / planStats.length).toFixed(1)
+    : "0.0";
+  const leaderPlan   = [...planStats].sort((a, b) => (b.mrr ?? 0) - (a.mrr ?? 0))[0];
+
+  const donutSlices = planStats.map((ps) => {
+    const cfg = PLAN_CONFIG[ps.id] ?? { color: "#6b7280", label: ps.label ?? ps.id };
+    return { value: ps.stores, color: cfg.color, label: cfg.label };
   });
+
+  if (loading) {
+    return (
+      <div className="sr-root">
+        <div className="sr-page-header">
+          <div>
+            <h1 className="sr-title">Informe de Ventas por Plan</h1>
+            <p className="sr-subtitle">Cargando datos...</p>
+          </div>
+        </div>
+        <div className="sr-kpi-row">
+          {[0,1,2,3].map(i => <div key={i} className="sr-kpi-card sr-kpi-skeleton" />)}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="sr-root">
+        <div className="sr-page-header">
+          <div>
+            <h1 className="sr-title">Informe de Ventas por Plan</h1>
+          </div>
+        </div>
+        <div className="sr-error">
+          <AlertTriangle size={20} />
+          <span>{error}</span>
+          <button className="sr-retry-btn" onClick={load}><RefreshCw size={14}/> Reintentar</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="sr-root">
@@ -235,10 +308,16 @@ export default function SalesReport() {
           <h1 className="sr-title">Informe de Ventas por Plan</h1>
           <p className="sr-subtitle">Rendimiento de suscripciones y distribución de ingresos recurrentes.</p>
         </div>
-        <button className="sr-export-btn">
+        <button className="sr-export-btn" onClick={exportSalesCSV}>
           <Download size={13} /> Exportar CSV
         </button>
       </div>
+
+      {usingMock && (
+        <div className="sr-mock-banner">
+          ⚠ Mostrando datos de ejemplo — el backend aún no tiene implementado <code>/admin/reports/plans</code>
+        </div>
+      )}
 
       {/* KPIs globales */}
       <div className="sr-kpi-row">
@@ -247,7 +326,7 @@ export default function SalesReport() {
           <div className="sr-kpi-body">
             <span className="sr-kpi-label">MRR Total</span>
             <strong className="sr-kpi-val">{fmt(TOTAL_MRR)}</strong>
-            <span className="sr-kpi-trend sr-up"><ArrowUpRight size={12} /> +18.4% vs mes anterior</span>
+            <span className="sr-kpi-trend sr-up"><ArrowUpRight size={12} /> +{AVG_GROWTH}% crecimiento prom.</span>
           </div>
         </div>
 
@@ -256,7 +335,7 @@ export default function SalesReport() {
           <div className="sr-kpi-body">
             <span className="sr-kpi-label">Tiendas Activas</span>
             <strong className="sr-kpi-val">{TOTAL_STORES}</strong>
-            <span className="sr-kpi-trend sr-up"><ArrowUpRight size={12} /> +61 este mes</span>
+            <span className="sr-kpi-trend sr-up"><ArrowUpRight size={12} /> +{TOTAL_NEW} este mes</span>
           </div>
         </div>
 
@@ -264,8 +343,13 @@ export default function SalesReport() {
           <div className="sr-kpi-icon"><Award size={18} /></div>
           <div className="sr-kpi-body">
             <span className="sr-kpi-label">Plan Líder (MRR)</span>
-            <strong className="sr-kpi-val">Pro</strong>
-            <span className="sr-kpi-trend sr-up"><ArrowUpRight size={12} /> 39.8% del MRR</span>
+            <strong className="sr-kpi-val">
+              {leaderPlan ? (PLAN_CONFIG[leaderPlan.id]?.label ?? leaderPlan.id) : "—"}
+            </strong>
+            <span className="sr-kpi-trend sr-up">
+              <ArrowUpRight size={12} />
+              {TOTAL_MRR > 0 ? (((leaderPlan?.mrr ?? 0) / TOTAL_MRR) * 100).toFixed(1) : "0"}% del MRR
+            </span>
           </div>
         </div>
 
@@ -273,29 +357,23 @@ export default function SalesReport() {
           <div className="sr-kpi-icon"><TrendingUp size={18} /></div>
           <div className="sr-kpi-body">
             <span className="sr-kpi-label">Crecimiento Prom.</span>
-            <strong className="sr-kpi-val">+17.6%</strong>
-            <span className="sr-kpi-trend sr-down"><ArrowDownRight size={12} /> Churn 1.8% global</span>
+            <strong className="sr-kpi-val">+{AVG_GROWTH}%</strong>
+            <span className="sr-kpi-trend sr-down"><ArrowDownRight size={12} /> Churn {AVG_CHURN}% global</span>
           </div>
         </div>
       </div>
 
       {/* Tarjetas por plan */}
       <div className="sr-plans-row">
-        {PLANS.map((plan) => {
-          const stats = PLAN_STATS.find((s) => s.id === plan.id);
-          const pct = TOTAL_STORES > 0 ? ((stats.stores / TOTAL_STORES) * 100).toFixed(1) : "0";
-          const mrrPct = TOTAL_MRR > 0 ? ((stats.mrr / TOTAL_MRR) * 100).toFixed(1) : "0";
+        {planStats.map((stats) => {
+          const cfg    = PLAN_CONFIG[stats.id] ?? { label: stats.label ?? stats.id, price: 0, color: "#6b7280", accent: "#374151" };
+          const pct    = TOTAL_STORES > 0 ? ((stats.stores / TOTAL_STORES) * 100).toFixed(1) : "0";
+          const mrrPct = TOTAL_MRR    > 0 ? ((stats.mrr    / TOTAL_MRR)    * 100).toFixed(1) : "0";
           return (
-            <div
-              key={plan.id}
-              className="sr-plan-card"
-              style={{ "--plan-color": plan.color, "--plan-accent": plan.accent }}
-            >
+            <div key={stats.id} className="sr-plan-card" style={{ "--plan-color": cfg.color, "--plan-accent": cfg.accent }}>
               <div className="sr-plan-header">
-                <span className="sr-plan-badge" style={{ background: plan.color }}>{plan.label}</span>
-                <span className="sr-plan-price">
-                  {plan.price === 0 ? "Gratis" : `$${plan.price}/mo`}
-                </span>
+                <span className="sr-plan-badge" style={{ background: cfg.color }}>{cfg.label}</span>
+                <span className="sr-plan-price">{cfg.price === 0 ? "Gratis" : `$${cfg.price}/mo`}</span>
               </div>
               <div className="sr-plan-stores">
                 <span className="sr-plan-num">{stats.stores}</span>
@@ -306,16 +384,11 @@ export default function SalesReport() {
                 <span className="sr-plan-mrr-label">MRR · {mrrPct}%</span>
               </div>
               <div className="sr-plan-bar-track">
-                <div
-                  className="sr-plan-bar-fill"
-                  style={{ width: `${pct}%`, background: plan.color }}
-                />
+                <div className="sr-plan-bar-fill" style={{ width: `${pct}%`, background: cfg.color }} />
               </div>
               <div className="sr-plan-footer">
-                <span className="sr-plan-growth sr-up">
-                  <ArrowUpRight size={11} /> +{stats.growth}% crecimiento
-                </span>
-                <span className="sr-plan-new">+{stats.newThisMonth} este mes</span>
+                <span className="sr-plan-growth sr-up"><ArrowUpRight size={11} /> +{stats.growthPercent ?? 0}% crecimiento</span>
+                <span className="sr-plan-new">+{stats.newThisMonth ?? 0} este mes</span>
               </div>
             </div>
           );
@@ -324,118 +397,73 @@ export default function SalesReport() {
 
       {/* Gráficos */}
       <div className="sr-charts-row">
-
-        {/* Donut */}
         <div className="sr-chart-card">
-          <div className="sr-chart-header">
-            <BarChart2 size={14} />
-            <span>Distribución de Tiendas por Plan</span>
-          </div>
+          <div className="sr-chart-header"><BarChart2 size={14} /><span>Distribución de Tiendas por Plan</span></div>
           <div className="sr-donut-wrap">
             <DonutChart slices={donutSlices} size={180} />
             <div className="sr-donut-legend">
-              {donutSlices.map((s) => {
-                const pct = ((s.value / TOTAL_STORES) * 100).toFixed(1);
-                return (
-                  <div key={s.label} className="sr-donut-legend-item">
-                    <span className="sr-donut-dot" style={{ background: s.color }} />
-                    <span className="sr-donut-lbl">{s.label}</span>
-                    <span className="sr-donut-pct">{pct}%</span>
-                    <span className="sr-donut-num">{s.value} tiendas</span>
-                  </div>
-                );
-              })}
+              {donutSlices.map((s) => (
+                <div key={s.label} className="sr-donut-legend-item">
+                  <span className="sr-donut-dot" style={{ background: s.color }} />
+                  <span className="sr-donut-lbl">{s.label}</span>
+                  <span className="sr-donut-pct">{TOTAL_STORES > 0 ? ((s.value / TOTAL_STORES) * 100).toFixed(1) : "0"}%</span>
+                  <span className="sr-donut-num">{s.value} tiendas</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Barras mensuales */}
         <div className="sr-chart-card sr-chart-card--wide">
-          <div className="sr-chart-header">
-            <TrendingUp size={14} />
-            <span>Ingresos Mensuales por Plan (USD)</span>
-          </div>
-          <GroupedBarChart data={MONTHLY_REVENUE} />
+          <div className="sr-chart-header"><TrendingUp size={14} /><span>Ingresos Mensuales por Plan (USD)</span></div>
+          <GroupedBarChart data={monthlyRevenue} />
         </div>
-
       </div>
 
       {/* Tabla detallada */}
       <div className="sr-table-card">
         <div className="sr-table-header">
           <span className="sr-table-title">Desglose por Plan</span>
-          <span className="sr-table-period">Junio 2026</span>
+          <span className="sr-table-period">{new Date().toLocaleDateString("es-CO", { month: "long", year: "numeric" })}</span>
         </div>
         <div className="sr-table-wrap">
           <table className="sr-table">
             <thead>
               <tr>
-                <th>Plan</th>
-                <th>Precio/mo</th>
-                <th>Tiendas</th>
-                <th>% Total</th>
-                <th>MRR</th>
-                <th>% MRR</th>
-                <th>Nuevas (mes)</th>
-                <th>Crecimiento</th>
-                <th>Churn</th>
-                <th>ARR Proyectado</th>
+                <th>Plan</th><th>Precio/mo</th><th>Tiendas</th><th>% Total</th>
+                <th>MRR</th><th>% MRR</th><th>Nuevas (mes)</th>
+                <th>Crecimiento</th><th>Churn</th><th>ARR Proyectado</th>
               </tr>
             </thead>
             <tbody>
-              {PLANS.map((plan) => {
-                const stats = PLAN_STATS.find((s) => s.id === plan.id);
-                const pct    = ((stats.stores / TOTAL_STORES) * 100).toFixed(1);
-                const mrrPct = TOTAL_MRR > 0 ? ((stats.mrr / TOTAL_MRR) * 100).toFixed(1) : "0.0";
-                const arr    = stats.mrr * 12;
+              {planStats.map((stats) => {
+                const cfg    = PLAN_CONFIG[stats.id] ?? { label: stats.id, price: 0, color: "#6b7280" };
+                const pct    = TOTAL_STORES > 0 ? ((stats.stores / TOTAL_STORES) * 100).toFixed(1) : "0.0";
+                const mrrPct = TOTAL_MRR    > 0 ? ((stats.mrr    / TOTAL_MRR)    * 100).toFixed(1) : "0.0";
                 return (
-                  <tr key={plan.id}>
-                    <td>
-                      <span className="sr-tbl-badge" style={{ background: `${plan.color}22`, color: plan.color, border: `1px solid ${plan.color}44` }}>
-                        {plan.label}
-                      </span>
-                    </td>
-                    <td className="sr-tbl-mono">
-                      {plan.price === 0 ? <span className="sr-tbl-free">Gratis</span> : `$${plan.price}`}
-                    </td>
+                  <tr key={stats.id}>
+                    <td><span className="sr-tbl-badge" style={{ background: `${cfg.color}22`, color: cfg.color, border: `1px solid ${cfg.color}44` }}>{cfg.label}</span></td>
+                    <td className="sr-tbl-mono">{cfg.price === 0 ? <span className="sr-tbl-free">Gratis</span> : `$${cfg.price}`}</td>
                     <td className="sr-tbl-num">{stats.stores}</td>
-                    <td>
-                      <div className="sr-tbl-bar-wrap">
-                        <div className="sr-tbl-bar" style={{ width: `${pct}%`, background: plan.color }} />
-                        <span className="sr-tbl-pct">{pct}%</span>
-                      </div>
-                    </td>
+                    <td><div className="sr-tbl-bar-wrap"><div className="sr-tbl-bar" style={{ width: `${pct}%`, background: cfg.color }} /><span className="sr-tbl-pct">{pct}%</span></div></td>
                     <td className="sr-tbl-mrr">{fmt(stats.mrr)}</td>
-                    <td>
-                      <div className="sr-tbl-bar-wrap">
-                        <div className="sr-tbl-bar" style={{ width: `${mrrPct}%`, background: plan.color }} />
-                        <span className="sr-tbl-pct">{mrrPct}%</span>
-                      </div>
-                    </td>
-                    <td className="sr-tbl-new">+{stats.newThisMonth}</td>
-                    <td>
-                      <span className="sr-tbl-growth">
-                        <ArrowUpRight size={11} /> {stats.growth}%
-                      </span>
-                    </td>
-                    <td>
-                      <span className="sr-tbl-churn">{stats.churn}%</span>
-                    </td>
-                    <td className="sr-tbl-arr">{fmt(arr)}</td>
+                    <td><div className="sr-tbl-bar-wrap"><div className="sr-tbl-bar" style={{ width: `${mrrPct}%`, background: cfg.color }} /><span className="sr-tbl-pct">{mrrPct}%</span></div></td>
+                    <td className="sr-tbl-new">+{stats.newThisMonth ?? 0}</td>
+                    <td><span className="sr-tbl-growth"><ArrowUpRight size={11} /> {stats.growthPercent ?? 0}%</span></td>
+                    <td><span className="sr-tbl-churn">{stats.churnPercent ?? 0}%</span></td>
+                    <td className="sr-tbl-arr">{fmt((stats.mrr ?? 0) * 12)}</td>
                   </tr>
                 );
               })}
-
-              {/* Totales */}
               <tr className="sr-tbl-total">
                 <td colSpan={2}><strong>TOTALES</strong></td>
                 <td><strong>{TOTAL_STORES}</strong></td>
                 <td><strong>100%</strong></td>
                 <td><strong>{fmt(TOTAL_MRR)}</strong></td>
                 <td><strong>100%</strong></td>
-                <td><strong>+{PLAN_STATS.reduce((s, p) => s + p.newThisMonth, 0)}</strong></td>
-                <td><span className="sr-tbl-growth"><ArrowUpRight size={11} /> 17.6%</span></td>
-                <td><span className="sr-tbl-churn">1.8%</span></td>
+                <td><strong>+{TOTAL_NEW}</strong></td>
+                <td><span className="sr-tbl-growth"><ArrowUpRight size={11} /> {AVG_GROWTH}%</span></td>
+                <td><span className="sr-tbl-churn">{AVG_CHURN}%</span></td>
                 <td><strong>{fmt(TOTAL_MRR * 12)}</strong></td>
               </tr>
             </tbody>

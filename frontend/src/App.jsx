@@ -3,7 +3,8 @@ import { AnimatePresence } from "framer-motion";
 import { Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import "./animations.css";
-import { AuthProvider } from "./admin/modules/auth/pages/hook/Useauth.jsx";
+import { AuthProvider, useAuth } from "./admin/modules/auth/pages/hook/Useauth.jsx";
+import UserNotifToast from "./client/components/UserNotifToast/UserNotifToast.jsx";
 
 import ProductPage from "./client/modules/ProductPage/ProductPage.jsx";
 
@@ -13,7 +14,6 @@ import { TokenGuard } from "./admin/modules/auth/pages/hook/TokenGuard.jsx";
 
 import { AuthProvider as MultiTenantAuthProvider } from "./multi-tenant/context/AuthContext.jsx";
 import { StoreProvider } from "./multi-tenant/pages/StoreContext.jsx";
-import MyStoreLayout from "./multi-tenant/pages/MyStoreLayout.jsx";
 
 // ── Suscripciones ─────────────────────────────────────────────────────────────
 const SubscriptionPlansPage = lazy(
@@ -176,6 +176,12 @@ function PageLoader() {
   );
 }
 
+// Muestra toasts SSE del usuario solo cuando está autenticado
+function UserNotifToastWrapper() {
+  const { isAuthenticated } = useAuth();
+  return <UserNotifToast enabled={isAuthenticated} />;
+}
+
 // ── App ───────────────────────────────────────────────────────────────────────
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -190,6 +196,7 @@ function App() {
       <MultiTenantAuthProvider>
         <StoreProvider>
           <TokenGuard />
+          <UserNotifToastWrapper />
           <div className="main-container">
             <Suspense fallback={<PageLoader />}>
               <AnimatePresence mode="wait">
@@ -247,11 +254,11 @@ function App() {
                   <Route path="/dashboard/subscription/failure" element={<SubscriptionFailure />} />
                   <Route path="/dashboard/subscription/pending" element={<SubscriptionPending />} />
 
-                  {/* ── SuperAdmin (MyStoreLayout) ───────────────────────── */}
-                  <Route element={<MyStoreLayout />}>
-                    <Route path="/mis-tiendas"   element={<MyStore />} />
-                    <Route path="/transacciones" element={<Transaction />} />
-                  </Route>
+                  {/* ── SuperAdmin ───────────────────────────────────────── */}
+                  <Route path="/mis-tiendas"    element={<MyStore />} />
+                  <Route path="/transacciones"  element={<MyStore />} />
+                  <Route path="/usuarios"       element={<MyStore />} />
+                  <Route path="/informe-ventas" element={<MyStore />} />
 
                   {/* ── Tienda pública ───────────────────────────────────── */}
                   <Route path="/tienda/:slug" element={<StorePage />} />
