@@ -1,8 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getCart } from "../services/cartService";
-import { createOrder, simulateOrder } from "../services/orderService";
+import { createOrder } from "../services/orderService";
 import "./CheckoutPage.css";
+
+const isLoggedIn = () => {
+  const jwt = localStorage.getItem("jwt");
+  return !!jwt && jwt !== "null";
+};
 
 const formatCOP = (n) =>
   new Intl.NumberFormat("es-CO", {
@@ -255,6 +260,7 @@ export default function CheckoutPage() {
   const [processing,   setProcessing]   = useState(false);
   const [successOrder, setSuccessOrder] = useState(null);
   const [errors,       setErrors]       = useState({});
+  const [payError,     setPayError]     = useState("");
 
   const [shipping, setShipping] = useState({
     fullName: "", email: "", phone: "", address: "", city: "", department: "",
@@ -265,6 +271,7 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
+    if (!isLoggedIn()) { navigate("/login"); return; }
     if (cartFromNav) return;
     if (!storeId) { navigate(backTarget); return; }
 
@@ -321,55 +328,33 @@ export default function CheckoutPage() {
 
   const handlePay = async () => {
     setProcessing(true);
+    setPayError("");
+
+    // El backend espera shippingAddress como String plano, no como objeto.
+    const shippingAddress = [
+      shipping.fullName, shipping.address, shipping.city, shipping.department, shipping.phone,
+    ].map((v) => v?.trim()).filter(Boolean).join(", ");
 
     const payload = {
-      shippingAddress: shipping,
-      paymentMethod:   payment.method,
+      shippingAddress,
+      paymentMethod: payment.method,
       shippingCost,
-      subtotal,
-      total,
-      items: items.map(({ productId, cartItemId, productName, quantity, subtotal: st, currentPrice }) => ({
-        productId,
-        cartItemId,
-        productName,
-        quantity,
-        unitPrice: currentPrice,
-        subtotal: st,
-      })),
     };
 
-    let order;
     try {
       const raw = await createOrder(storeId, payload);
-      // El backend puede devolver el ID como "id" o "orderId"
-      const resolvedId = raw?.orderId ?? raw?.id ?? raw?.order_id;
-      if (!resolvedId) throw new Error("sin ID");
-      order = {
+      const resolvedId = raw?.orderId ?? raw?.id;
+      if (!resolvedId) throw new Error("El pedido se creó pero el servidor no devolvió un ID.");
+      setSuccessOrder({
         ...raw,
         orderId:     resolvedId,
-        orderNumber: raw.orderNumber ?? raw.order_number ?? String(resolvedId),
-      };
-    } catch {
-      order = await simulateOrder(payload);
+        orderNumber: raw.orderNumber ?? String(resolvedId),
+      });
+    } catch (err) {
+      setPayError(err.message ?? "No se pudo registrar el pedido. Intenta de nuevo.");
+    } finally {
+      setProcessing(false);
     }
-
-    const storageKey = `order_${order.orderId}`;
-    localStorage.setItem(
-      storageKey,
-      JSON.stringify({
-        order,
-        items,
-        subtotal,
-        shippingCost,
-        total,
-        shipping,
-        paymentMethod: payment.method,
-        paymentMethodLabel: PAYMENT_METHODS.find((m) => m.id === payment.method)?.label,
-      })
-    );
-
-    setProcessing(false);
-    setSuccessOrder(order);
   };
 
   /* ── Estados de carga / procesamiento ── */
@@ -431,7 +416,7 @@ export default function CheckoutPage() {
         </div>
 
         <p className="ck-processing__title" style={{ color: "#16a34a", fontSize: 22 }}>
-          ¡Pedido confirmado!
+          ¡Pedido registrado!
         </p>
 
         <div style={{
@@ -445,7 +430,7 @@ export default function CheckoutPage() {
         </div>
 
         <p className="ck-processing__sub" style={{ textAlign: "center", maxWidth: 300 }}>
-          Método de pago: <strong>{methodLabel}</strong>.<br />
+          Método de pago: <strong>{methodLabel}</strong>. Tu pedido está <strong>pendiente de confirmación</strong>.<br />
           Te contactaremos a <strong>{shipping.email}</strong> para coordinar los detalles.
         </p>
 
@@ -523,6 +508,10 @@ export default function CheckoutPage() {
               shippingCost={shippingCost}
               total={total}
             />
+          )}
+
+          {payError && (
+            <p className="ck-field__error ck-field__error--standalone">{payError}</p>
           )}
 
           <div className="ck-actions">

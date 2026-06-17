@@ -132,6 +132,9 @@ const OrdersDashboard = lazy(
 );
 const MyStore = lazy(() => import("./multi-tenant/pages/MyStore.jsx"));
 const StorePage = lazy(() => import("./multi-tenant/pages/StorePage.jsx"));
+const CheckoutPage = lazy(() => import("./multi-tenant/pages/Checkout/CheckoutPage.jsx"));
+const StoreMyOrders = lazy(() => import("./multi-tenant/pages/MyOrders/MyOrders.jsx"));
+const StoreOrderDetail = lazy(() => import("./multi-tenant/pages/OrderDetail/OrderDetail.jsx"));
 const Transaction = lazy(
   () => import("./multi-tenant/pages/Transaction/Transaction.jsx"),
 );
@@ -262,6 +265,9 @@ function App() {
 
                   {/* ── Tienda pública ───────────────────────────────────── */}
                   <Route path="/tienda/:slug" element={<StorePage />} />
+                  <Route path="/tienda/:slug/checkout" element={<CheckoutPage />} />
+                  <Route path="/tienda/:slug/orders" element={<StoreMyOrders />} />
+                  <Route path="/tienda/:slug/orders/:orderId" element={<StoreOrderDetail />} />
 
                   {/* ── Rutas protegidas ─────────────────────────────────── */}
                   <Route element={<ProtectedRoute />}>

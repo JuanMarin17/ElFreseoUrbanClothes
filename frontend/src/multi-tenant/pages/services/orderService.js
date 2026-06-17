@@ -1,23 +1,14 @@
 import { authFetch } from "../../../utils/authFetch";
 
-const BASE = import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_URL;
+const BASE = import.meta.env.VITE_API_URL;
 
+// El gateway inyecta x-user-id a partir del JWT — no se manda manualmente.
 function buildHeaders() {
-  const jwt = localStorage.getItem("jwt") ?? "";
-  let userId = "";
-  if (jwt) {
-    try {
-      const p = JSON.parse(atob(jwt.split(".")[1]));
-      userId = p.user_id ?? p.userId ?? p.sub ?? "";
-    } catch {
-      /* token malformado */
-    }
-  }
+  const jwt = localStorage.getItem("jwt");
   return {
     "Content-Type": "application/json",
     Accept: "application/json",
-    ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
-    ...(userId ? { "x-user-id": userId } : {}),
+    ...(jwt && jwt !== "null" ? { Authorization: `Bearer ${jwt}` } : {}),
   };
 }
 
@@ -51,6 +42,10 @@ async function request(method, path, body) {
 export const createOrder = (storeId, payload) =>
   request("POST", `/stores/${storeId}/orders`, payload);
 
+/** POST /stores/{storeId}/orders/quick-buy — compra directa sin pasar por el carrito */
+export const quickBuyOrder = (storeId, payload) =>
+  request("POST", `/stores/${storeId}/orders/quick-buy`, payload);
+
 /** POST /stores/{storeId}/orders/{orderId}/payment — procesa el pago */
 export const processPayment = (storeId, orderId, body) =>
   request("POST", `/stores/${storeId}/orders/${orderId}/payment`, body);
@@ -70,21 +65,3 @@ export const getOrderPayment = (storeId, orderId) =>
 /** DELETE /stores/{storeId}/orders/{orderId} — cancelar orden */
 export const cancelOrder = (storeId, orderId) =>
   request("DELETE", `/stores/${storeId}/orders/${orderId}`);
-
-/**
- * Simulación de orden — usar mientras el endpoint real no esté disponible.
- * ELIMINAR cuando el API de pagos esté integrado.
- */
-export const simulateOrder = (payload) => {
-  const numeric = String(Date.now()).slice(-8);
-  const id = `PED-${numeric}`;
-
-  return Promise.resolve({
-    orderId: id,
-    orderNumber: id,
-    status: "PENDING",
-    createdAt: new Date().toISOString(),
-    ...payload,
-    _simulated: true,
-  });
-};

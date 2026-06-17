@@ -2,23 +2,42 @@ import { authFetch } from "../../../../utils/authFetch";
 
 const BASE = import.meta.env.VITE_API_URL;
 
-function simulateOrder(payload) {
-  const numeric = String(Date.now()).slice(-8);
-  const id = `QB-${numeric}`;
+function buildHeaders() {
+  const jwt = localStorage.getItem("jwt");
   return {
-    orderId:     id,
-    orderNumber: id,
-    status:      "PENDING",
-    createdAt:   new Date().toISOString(),
-    total:       payload.total,
-    _simulated:  true,
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    ...(jwt && jwt !== "null" ? { Authorization: `Bearer ${jwt}` } : {}),
   };
 }
 
-// The backend has no quick-buy endpoint and rejects cart-based /orders when cart is empty.
-// Simulate locally (same as CheckoutPage fallback) until the backend implements it.
-export function placeQuickBuy(_storeId, payload) {
-  return Promise.resolve(simulateOrder(payload));
+async function request(method, path, body) {
+  const res = await authFetch(`${BASE}${path}`, {
+    method,
+    headers: buildHeaders(),
+    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+  });
+
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    data = {};
+  }
+
+  if (!res.ok) {
+    const msg = data?.message ?? data?.error ?? `Error ${res.status}`;
+    const err = new Error(msg);
+    err.status = res.status;
+    throw err;
+  }
+
+  return data?.data ?? data;
+}
+
+/** POST /stores/{storeId}/orders/quick-buy — compra directa de un producto */
+export function placeQuickBuy(storeId, payload) {
+  return request("POST", `/stores/${storeId}/orders/quick-buy`, payload);
 }
 
 export async function fetchUserProfile() {
