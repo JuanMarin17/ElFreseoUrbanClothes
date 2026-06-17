@@ -313,7 +313,23 @@
   border-color: rgba(239, 68, 68, 0.3);
   background: rgba(239, 68, 68, 0.06);
   color: #f87171;
+  justify-content: space-between;
 }
+
+.ms-state-dismiss {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0 0 12px;
+  margin: 0;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.ms-state-dismiss:hover { opacity: 1; }
 
 .ms-spinner {
   position: relative;
@@ -496,6 +512,12 @@
   background: rgba(234, 179, 8, 0.15);
   color: #eab308;
   border: 1px solid rgba(234, 179, 8, 0.2);
+}
+
+.ms-store-badge--inhabilitada {
+  background: rgba(239, 68, 68, 0.13);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.22);
 }
 
 /* Dot pulsante solo en ACTIVA */
@@ -701,6 +723,59 @@
   font-size: 12px;
   color: #3a5a7a;
   margin: 0;
+}
+
+/* ── Acciones super-admin en card ─────────── */
+.ms-store-actions {
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  margin-top: 2px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ms-toggle-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  border: none;
+  transition: background 180ms ease, box-shadow 180ms ease, transform 150ms ease, opacity 150ms ease;
+  margin: 0;
+}
+
+.ms-toggle-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.ms-toggle-btn--disable {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ms-toggle-btn--disable:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.18);
+    box-shadow: 0 2px 12px rgba(239, 68, 68, 0.2);
+  }
+}
+
+.ms-toggle-btn--enable {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ms-toggle-btn--enable:hover:not(:disabled) {
+    background: rgba(34, 197, 94, 0.18);
+    box-shadow: 0 2px 12px rgba(34, 197, 94, 0.2);
+  }
 }
 
 /* ── prefers-reduced-motion ────────────────── */

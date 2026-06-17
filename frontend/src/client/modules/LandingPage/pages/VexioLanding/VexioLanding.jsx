@@ -24,11 +24,11 @@ export default function VexioLanding() {
         {/* 2. Categorías / productos destacados */}
         <VexioCategories />
 
+        <VexioStores />
         {/* 3. Cómo funciona — tabs comprador / vendedor */}
         <VexioHowItWorks />
 
         {/* 4. Tiendas destacadas */}
-        <VexioStores />
 
         {/* 5. Propuesta para vendedores — secundaria */}
         <VexioSeller />

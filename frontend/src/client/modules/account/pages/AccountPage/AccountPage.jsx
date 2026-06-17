@@ -27,8 +27,11 @@ const Returns        = React.lazy(() => import('../../components/Returns/Returns
 const LoyaltyWidget  = React.lazy(() => import('../../components/Loyalty/LoyaltyWidget.jsx'));
 
 const SectionFallback = (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '40px 20px', color: '#666', fontSize: 12, letterSpacing: 2 }}>
-    <span>CARGANDO...</span>
+  <div className="section-fallback">
+    <div className="section-fallback-dot" />
+    <div className="section-fallback-dot" />
+    <div className="section-fallback-dot" />
+    <span>CARGANDO</span>
   </div>
 );
 

@@ -3,8 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { getAllStores, getStoreSettingsByHeader } from '../../../../../multi-tenant/pages/services/storeService';
 import './VexioStores.css';
 
-const TAG_COLORS = ['gold', 'green', 'blue', 'purple'];
-const TAG_LABELS = ['Destacada', 'Popular', 'Nueva', 'Top ventas'];
+const TAG_COLORS = ['gold', 'green', 'blue', 'purple', 'gold', 'green'];
+const TAG_LABELS = ['Destacada', 'Popular', 'Nueva', 'Top ventas', 'Destacada', 'Popular'];
+
+const normalize = (s) => s?.toLowerCase().replace(/[-_\s]/g, '') ?? '';
+
+// Slugs exactos según la BD — fallback visual mientras carga la API
+const SEED_STORES = [
+  { storeId: 'seed-1', slug: 'kiora',       name: 'Kiora',       description: '', settings: {} },
+  { storeId: 'seed-2', slug: 'transurbano', name: 'TransUrbano', description: '', settings: {} },
+  { storeId: 'seed-3', slug: 'myacces',     name: 'MyAcess',     description: '', settings: {} },
+  { storeId: 'seed-4', slug: 'bella-vita',  name: 'Bella Vita',  description: '', settings: {} },
+  { storeId: 'seed-5', slug: 'multt-shop',  name: 'MultiShop',   description: '', settings: {} },
+  { storeId: 'seed-6', slug: 'olysiar',     name: 'OLYSIAR',     description: '', settings: {} },
+];
 
 const getCover = (store) => {
   const banner = store.settings?.components?.banner;
@@ -14,78 +26,62 @@ const getCover = (store) => {
 };
 
 const getLogo = (store) => {
-  const logo = store.settings?.basic?.logoPreview
-    ?? store.settings?.components?.header?.logo;
-  return logo && logo.startsWith('http') ? logo : null;
+  const s = store.settings ?? {};
+  const logo = s.basic?.logoPreview
+    ?? s.logoUrl
+    ?? s.components?.header?.logoUrl
+    ?? s.components?.header?.logo;
+  return logo && typeof logo === 'string' && logo.startsWith('http') ? logo : null;
 };
 
 const getAccent = (store) =>
   store.settings?.styles?.colorBoton ?? '#3e78ff';
 
 export default function VexioStores() {
-  const [stores,  setStores]  = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Empieza con datos quemados — sin estado de carga
+  const [stores, setStores] = useState(SEED_STORES);
   const navigate = useNavigate();
 
   useEffect(() => {
     getAllStores()
       .then(async (data) => {
-        const list = Array.isArray(data)
-          ? data
-          : (data?.content ?? data?.stores ?? data?.data ?? []);
+        const list   = Array.isArray(data) ? data : (data?.content ?? data?.stores ?? data?.data ?? []);
+        const active = list.filter((s) => s.isActive !== false);
 
-        const active = list.filter((s) => s.isActive !== false).slice(0, 8);
+        const matched = SEED_STORES.map((seed) => {
+          const found = active.find(s => normalize(s.slug) === normalize(seed.slug));
+          return found ? { ...seed, ...found, settings: {} } : seed;
+        });
+        setStores(matched);
 
         const withSettings = await Promise.all(
-          active.map(async (store) => {
-            try {
-              const settings = await getStoreSettingsByHeader(store.storeId);
-              return { ...store, settings: settings ?? {} };
-            } catch {
-              return { ...store, settings: {} };
-            }
+          matched.map(async (store) => {
+            if (store.storeId?.startsWith('seed-')) return store;
+            const settings = await getStoreSettingsByHeader(store.storeId).catch(() => null);
+            return { ...store, settings: settings ?? {} };
           }),
         );
-
         setStores(withSettings);
       })
-      .catch(() => setStores([]))
-      .finally(() => setLoading(false));
+      .catch(() => {});
   }, []);
 
-  if (!loading && stores.length === 0) return null;
-
-  const displayStores = stores.length > 0 ? [...stores, ...stores] : [];
+  const displayStores = [...stores, ...stores, ...stores];
 
   return (
-    <section id="vx-stores" className="vx-section vx-section--dark">
+    <section id="vx-stores" className="vx-section vx-stores-section">
 
-      <div className="vx-section-head">
-        <p className="vx-section-label">Comunidad</p>
-        <h2 className="vx-section-title">Tiendas que están brillando</h2>
+      <div className="vx-section-head vx-section-head--center">
+        <p className="vx-section-label">Tiendas</p>
+        <h2 className="vx-section-title">Tiendas destacadas</h2>
         <p className="vx-section-sub">
           Emprendedores reales con productos únicos. Descubre sus historias y apóyalos directamente.
         </p>
       </div>
 
       <div className="vx-marquee-wrapper">
-        <div className={`vx-marquee-track${loading ? ' vx-marquee-track--paused' : ''}`}>
-          {loading
-            ? [...Array(6)].map((_, i) => (
-                <div key={i} className="vx-store-card">
-                  <div className="vx-store-cover-wrap vx-skel-cover" />
-                  <div className="vx-store-logo-ring">
-                    <div className="vx-skel-logo" />
-                  </div>
-                  <div className="vx-store-info">
-                    <div className="vx-skel-line" style={{ width: '65%', marginBottom: 6 }} />
-                    <div className="vx-skel-line" style={{ width: '40%' }} />
-                    <div className="vx-skel-block" style={{ marginTop: 10 }} />
-                    <div className="vx-skel-btn" />
-                  </div>
-                </div>
-              ))
-            : displayStores.map((store, i) => {
+        <div className="vx-marquee-track">
+          {displayStores.map((store, i) => {
                 const cover    = getCover(store);
                 const logo     = getLogo(store);
                 const accent   = getAccent(store);
@@ -101,7 +97,7 @@ export default function VexioStores() {
                     key={`${store.storeId}-${i}`}
                     className="vx-store-card"
                     style={{ '--store-accent': accent }}
-                    aria-hidden={i >= stores.length}
+                    aria-hidden={i >= stores.length ? 'true' : undefined}
                   >
                     {/* Banner / Cover */}
                     <div className="vx-store-cover-wrap">
@@ -134,6 +130,7 @@ export default function VexioStores() {
                         className="vx-store-btn"
                         onClick={() => navigate(`/tienda/${store.slug}`)}
                         tabIndex={i >= stores.length ? -1 : 0}
+                        aria-hidden={i >= stores.length ? 'true' : undefined}
                       >
                         Visitar tienda →
                       </button>
@@ -144,16 +141,14 @@ export default function VexioStores() {
         </div>
       </div>
 
-      {!loading && stores.length > 0 && (
-        <div className="vx-stores-footer">
-          <p className="vx-stores-footer-text">
-            Únete a los <strong>{stores.length}+ emprendedores</strong> que ya venden con Vexio.
-          </p>
-          <button className="vx-btn-ghost" onClick={() => navigate('/market')}>
-            Ver todas las tiendas →
-          </button>
-        </div>
-      )}
+      <div className="vx-stores-footer">
+        <p className="vx-stores-footer-text">
+          Únete a los <strong>6+ emprendedores</strong> que ya venden con Vexio.
+        </p>
+        <button className="vx-btn-ghost" onClick={() => navigate('/market')}>
+          Ver todas las tiendas →
+        </button>
+      </div>
 
     </section>
   );

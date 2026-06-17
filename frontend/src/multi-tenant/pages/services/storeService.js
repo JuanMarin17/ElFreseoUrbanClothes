@@ -92,6 +92,18 @@ export async function getAllStores() {
   return request(`${BASE_URL}`);
 }
 
+/**
+ * PATCH /stores/:storeId/toggle-status
+ * Body: { isActive: boolean, reason: string | null }
+ * Solo SUPERADMIN. Respuesta: StoreResponseDTO actualizado (incluye disabledReason).
+ */
+export async function toggleStoreStatus(storeId, isActive, reason) {
+  return request(`${BASE_URL}/${storeId}/toggle-status`, {
+    method: "PATCH",
+    body: JSON.stringify({ isActive, reason: reason ?? null }),
+  });
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 // 2. USUARIOS DE LA TIENDA — /api/v1/stores
 // ════════════════════════════════════════════════════════════════════════════

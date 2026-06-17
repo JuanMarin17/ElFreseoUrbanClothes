@@ -127,3 +127,11 @@
   padding: 20px 16px;
   justify-content: flex-start;
 }
+
+.notif-item--unread {
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.notif-item--clickable {
+  cursor: pointer;
+}

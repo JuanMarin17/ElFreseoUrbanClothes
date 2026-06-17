@@ -6,7 +6,7 @@ import './VexioHowItWorks.css';
 const BUYER_STEPS = [
   { num: '01', Icon: Search,       title: 'Descubre tiendas', desc: 'Explora miles de tiendas de emprendedores reales.Filtra por categoría' },
   { num: '02', Icon: ShoppingCart, title: 'Elige y compra',   desc: 'Agrega productos al carrito y paga con tarjeta, PSE, Seguro y sin complicaciones.' },
-  { num: '03', Icon: Package,      title: 'Recibe en tu puerta', desc: 'Seguimiento en tiempo real desde que el emprendedor despacha hasta que el domicilio llega a ti.' },
+  { num: '03', Icon: Package,      title: 'Recibe en tu puerta', desc: 'Tu pedido llegara lo mas pronto posible a la puerta de tu casa.' },
   { num: '04', Icon: Star,         title: 'Califica', desc: 'Deja tu reseña, ayuda a la comunidad brinando una opinión sobre tu experiencia.' },
 ];
 

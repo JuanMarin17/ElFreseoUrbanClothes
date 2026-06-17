@@ -1,144 +1,318 @@
-/* Sidebar Refinado EL FRESEO */
+/* ══════════════════════════════════════════════════════════════════════════════
+   ACCOUNT SIDEBAR — Diseño inspirado en AdminLayout + Dashboard
+   ══════════════════════════════════════════════════════════════════════════════ */
+
 .account-sidebar {
   width: 260px;
-  height: 100%; /* Cambiado de min-height para control total */
+  height: 100%;
   background-color: #050505;
-  padding: 30px 15px;
+  padding: 24px 14px;
   display: flex;
   flex-direction: column;
   border-right: 1px solid rgba(255, 255, 255, 0.05);
   font-family: 'Barlow Condensed', sans-serif;
+  position: relative;
+  overflow: hidden;
+  animation: sidebar-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Botón volver */
+@keyframes sidebar-enter {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Glow ambiental sutil en la esquina inferior */
+.account-sidebar::after {
+  content: '';
+  position: absolute;
+  bottom: -60px;
+  left: -30px;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(ellipse, rgba(59, 130, 246, 0.07) 0%, transparent 70%);
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+/* ── Botón volver ──────────────────────────────────────────────────────────── */
 .sidebar-back-btn {
   display: flex;
   align-items: center;
   gap: 7px;
   background: transparent;
   border: none;
-  color: #555;
+  color: #444;
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
   text-transform: uppercase;
   cursor: pointer;
-  padding: 0 10px 18px 10px;
-  transition: color 0.2s;
+  padding: 0 10px 20px 10px;
+  transition: color 0.2s ease;
 }
 .sidebar-back-btn:hover {
-  color: #aaa;
+  color: #888;
+}
+.sidebar-back-btn svg {
+  transition: transform 0.2s ease;
+}
+.sidebar-back-btn:hover svg {
+  transform: translateX(-3px);
 }
 
-/* Avatar y Perfil */
-.sidebar-avatar {
+/* ── Área de usuario ───────────────────────────────────────────────────────── */
+.sidebar-user-area {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 10px 20px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  margin-bottom: 20px;
+  padding: 14px 10px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: rgba(59, 130, 246, 0.04);
+  border: 1px solid rgba(59, 130, 246, 0.08);
+  position: relative;
+  overflow: hidden;
+  animation: sidebar-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+
+/* brillo de borde superior */
+.sidebar-user-area::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20px; right: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.35), transparent);
+}
+
+.avatar-glow-container {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .avatar-circle {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: #111;
-  border: 1px solid #1a1a1a;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #111 0%, #1a1a2e 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #3b82f6;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+
+.avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.sidebar-user-area:hover .avatar-circle {
+  border-color: rgba(59, 130, 246, 0.45);
 }
 
 .online-indicator {
   position: absolute;
-  bottom: -1px;
-  right: -1px;
+  bottom: -2px;
+  right: -2px;
   width: 10px;
   height: 10px;
   background: #22c55e;
   border: 2px solid #050505;
   border-radius: 50%;
+  animation: pulse-online 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse-online {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
+  50%       { box-shadow: 0 0 0 5px rgba(34, 197, 94, 0); }
+}
+
+.avatar-info {
+  min-width: 0;
+  flex: 1;
 }
 
 .info-tag {
   display: block;
   font-size: 9px;
-  color: rgba(255, 255, 255, 0.852); /* Un poco más claro para legibilidad */
+  color: #3b82f6;
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  opacity: 0.8;
 }
 
 .avatar-name {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: #fff;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
 }
 
-/* Navegación Compacta */
+/* ── Separador con label ───────────────────────────────────────────────────── */
+.sidebar-group-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #333;
+  text-transform: uppercase;
+  padding: 16px 12px 6px;
+  display: block;
+}
+
+/* ── Navegación ────────────────────────────────────────────────────────────── */
 .sidebar-nav-account {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  flex: 1; /* Esto empuja el footer hacia abajo */
+  gap: 2px;
+  flex: 1;
 }
+
+/* Animaciones escalonadas para los items del menú */
+.sidebar-nav-account .sidebar-item:nth-child(1) { animation-delay: 0.08s; }
+.sidebar-nav-account .sidebar-item:nth-child(2) { animation-delay: 0.12s; }
+.sidebar-nav-account .sidebar-item:nth-child(3) { animation-delay: 0.16s; }
+.sidebar-nav-account .sidebar-item:nth-child(4) { animation-delay: 0.20s; }
+.sidebar-nav-account .sidebar-item:nth-child(5) { animation-delay: 0.24s; }
+.sidebar-nav-account .sidebar-item:nth-child(6) { animation-delay: 0.28s; }
+.sidebar-nav-account .sidebar-item:nth-child(7) { animation-delay: 0.32s; }
+.sidebar-nav-account .sidebar-item:nth-child(8) { animation-delay: 0.36s; }
+.sidebar-nav-account .sidebar-item:nth-child(9) { animation-delay: 0.40s; }
 
 .sidebar-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 11px;
   width: 100%;
-  padding: 10px 15px;
-  border-radius: 8px;
+  padding: 9px 14px;
+  border-radius: 9px;
   background: transparent;
   border: none;
-  color: #b6b3b3;
-  font-size: 0.8rem;
+  color: #555;
+  font-size: 0.75rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  font-family: 'Barlow Condensed', sans-serif;
+  animation: item-slide-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes item-slide-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 .sidebar-item:hover {
   background: rgba(255, 255, 255, 0.03);
-  color: #eee;
+  color: #bbb;
 }
 
+.sidebar-item:hover .sidebar-icon {
+  color: #888;
+}
+
+/* ── Estado activo con glow y borde izquierdo ─────────────────────────────── */
 .sidebar-item--active {
-  background: rgba(59, 130, 246, 0.08);
-  color: #3b82f6;
-  box-shadow: inset 3px 0 0 #3b82f6;
+  background: rgba(59, 130, 246, 0.08) !important;
+  color: #60a5fa !important;
+  border: 1px solid rgba(59, 130, 246, 0.12) !important;
+  box-shadow: inset 3px 0 0 #3b82f6, 0 0 12px rgba(59, 130, 246, 0.06);
 }
 
-/* Footer y Logout */
+.sidebar-item--active .sidebar-icon {
+  color: #3b82f6 !important;
+}
+
+/* indicador de punto activo */
+.sidebar-item--active::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #3b82f6;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.8);
+}
+
+.sidebar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #444;
+  transition: color 0.18s ease;
+}
+
+.sidebar-label {
+  flex: 1;
+  text-align: left;
+}
+
+/* ── Footer y Logout ───────────────────────────────────────────────────────── */
 .sidebar-footer {
-  margin-top: auto; /* Se pega al final del contenedor */
-  padding-top: 15px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  animation: sidebar-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both;
 }
 
 .logout-btn {
-  color: #833 !important;
-  margin-top: 5px;
+  color: #5a2222 !important;
+  border: 1px solid transparent !important;
 }
 
 .logout-btn:hover {
-  background: rgba(255, 0, 0, 0.05) !important;
-  color: #ff4d4d !important;
+  background: rgba(239, 68, 68, 0.06) !important;
+  border-color: rgba(239, 68, 68, 0.12) !important;
+  color: #f87171 !important;
+}
+.logout-btn:hover .sidebar-icon {
+  color: #ef4444 !important;
 }
 
+/* ── Responsive ────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .account-sidebar {
     width: 100%;
     height: auto;
-    padding: 15px;
+    padding: 12px;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   }
-  .sidebar-avatar, .sidebar-footer {
-    display: none; /* Ocultar en móvil para ahorrar espacio si usas menú horizontal */
+  .sidebar-user-area,
+  .sidebar-footer {
+    display: none;
   }
+  .sidebar-nav-account {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .sidebar-item {
+    flex: 1;
+    min-width: 100px;
+    justify-content: center;
+    padding: 8px 10px;
+  }
+  .sidebar-label { display: none; }
+  .sidebar-icon  { color: #777; }
+  .sidebar-group-label { display: none; }
 }

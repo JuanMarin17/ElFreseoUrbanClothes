@@ -5,16 +5,18 @@ import { useAuth } from "../../admin/modules/auth/pages/hook/Useauth";
 import "../components/styles/MyStore.css";
 import "../../admin/modules/administration/components/AdminLayout/AdminLayout.css";
 import { FiPlus, FiExternalLink, FiCopy, FiCheck } from "react-icons/fi";
-import { Store, CreditCard, Users, BarChart2 } from "lucide-react";
-import { getStoresByUser, getStoreSettingsByHeader, getAllStores } from "./services/storeService";
+import { Store, CreditCard, Users, BarChart2, Home } from "lucide-react";
+import { getStoresByUser, getStoreSettingsByHeader, getAllStores, toggleStoreStatus } from "./services/storeService";
 import PlatformUsersPanel from "./PlatformUsers/PlatformUsersPanel";
 import Sidebar from "../../admin/modules/administration/components/Sidebar/Sidebar";
 import AdminHeader from "../../admin/modules/administration/components/AdminHeader/AdminHeader";
 import IAAdmin from "../../admin/modules/administration/pages/IAAdmin/AIAdmin";
 import Transaction from "../../multi-tenant/pages/Transaction/Transaction";
 import SalesReport from "./SalesReport/SalesReport";
+import DisableStoreModal from "./DisableStoreModal/DisableStoreModal";
 
 const SUPERADMIN_MENU = [
+  { path: "/market",         label: "INICIO",            icon: Home       },
   { path: "/mis-tiendas",   label: "TIENDAS",           icon: Store      },
   { path: "/transacciones", label: "TRANSACCIONES",     icon: CreditCard },
   { path: "/usuarios",      label: "USUARIOS",          icon: Users      },
@@ -58,6 +60,60 @@ const MyStore = () => {
   const [storesError,    setStoresError]    = useState(null);
   const [copiedId,       setCopiedId]       = useState(null);
   const [search,         setSearch]         = useState("");
+  const [disableTarget,  setDisableTarget]  = useState(null);
+  const [togglingId,     setTogglingId]     = useState(null);
+  const [actionError,    setActionError]    = useState(null); // { storeId, message }
+
+  const describeToggleError = (err, fallback) => {
+    if (err.status === 403) {
+      return err.message || "Solo un SUPERADMIN puede inhabilitar o habilitar tiendas.";
+    }
+    if (err.status === 404) {
+      return "Esta tienda ya no existe. Se actualizó la lista.";
+    }
+    if (err.status === 400) {
+      return err.message || "Solicitud inválida al actualizar el estado de la tienda.";
+    }
+    return err.message || fallback;
+  };
+
+  const handleDisableStore = async (storeId, reason) => {
+    setTogglingId(storeId);
+    setActionError(null);
+    try {
+      const updated = await toggleStoreStatus(storeId, false, reason);
+      setStores((prev) =>
+        prev.map((s) => s.storeId === storeId ? { ...s, ...updated } : s)
+      );
+      setDisableTarget(null);
+    } catch (err) {
+      if (err.status === 404) {
+        setStores((prev) => prev.filter((s) => s.storeId !== storeId));
+        setDisableTarget(null);
+      }
+      setActionError({ storeId, message: describeToggleError(err, "No se pudo inhabilitar la tienda.") });
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
+  const handleEnableStore = async (storeId) => {
+    setTogglingId(storeId);
+    setActionError(null);
+    try {
+      const updated = await toggleStoreStatus(storeId, true, null);
+      setStores((prev) =>
+        prev.map((s) => s.storeId === storeId ? { ...s, ...updated } : s)
+      );
+    } catch (err) {
+      if (err.status === 404) {
+        setStores((prev) => prev.filter((s) => s.storeId !== storeId));
+      }
+      setActionError({ storeId, message: describeToggleError(err, "No se pudo habilitar la tienda.") });
+    } finally {
+      setTogglingId(null);
+    }
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -183,6 +239,19 @@ const MyStore = () => {
         </div>
       )}
 
+      {actionError && !disableTarget && (
+        <div className="ms-state ms-state--error">
+          <span>{actionError.message}</span>
+          <button
+            className="ms-state-dismiss"
+            onClick={() => setActionError(null)}
+            aria-label="Cerrar"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
                 <div className="ms-grid">
                   {!loadingStores &&
                     filtered.map((store, index) => (
@@ -200,9 +269,9 @@ const MyStore = () => {
                               : undefined,
                           }}
                         >
-                          <span className={`ms-store-badge ms-store-badge--${store.isActive ? "activa" : "borrador"}`}>
+                          <span className={`ms-store-badge ms-store-badge--${store.isActive ? "activa" : store.disabledReason ? "inhabilitada" : "borrador"}`}>
                             {store.isActive && <span className="ms-badge-dot" />}
-                            {store.isActive ? "ACTIVA" : "BORRADOR"}
+                            {store.isActive ? "ACTIVA" : store.disabledReason ? "INHABILITADA" : "BORRADOR"}
                           </span>
                           {storeSettings[store.storeId]?.basic?.logoPreview ? (
                             <img
@@ -242,6 +311,28 @@ const MyStore = () => {
                               Ver tienda <FiExternalLink size={11} />
                             </button>
                           </div>
+
+                          {isSuperAdmin && (
+                            <div className="ms-store-actions">
+                              <button
+                                className={`ms-toggle-btn ms-toggle-btn--${store.isActive ? "disable" : "enable"}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActionError(null);
+                                  if (store.isActive) {
+                                    setDisableTarget(store);
+                                  } else {
+                                    handleEnableStore(store.storeId);
+                                  }
+                                }}
+                                disabled={togglingId === store.storeId}
+                              >
+                                {togglingId === store.storeId
+                                  ? "Procesando…"
+                                  : store.isActive ? "Inhabilitar" : "Habilitar"}
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -267,6 +358,21 @@ const MyStore = () => {
 
         </div>
       </div>
+
+      {/* Modal inhabilitación */}
+      {disableTarget && (
+        <DisableStoreModal
+          store={disableTarget}
+          onConfirm={handleDisableStore}
+          onClose={() => {
+            if (togglingId) return;
+            setDisableTarget(null);
+            setActionError(null);
+          }}
+          loading={togglingId === disableTarget?.storeId}
+          error={actionError?.storeId === disableTarget.storeId ? actionError.message : null}
+        />
+      )}
     </div>
   );
 };
