@@ -38,21 +38,35 @@ async function apiFetch(path, options = {}) {
 
 /**
  * GET /stores/{storeId}/orders/admin/all
- * Page<Order>
+ * Normaliza la respuesta del backend sin importar si viene como:
+ *   { content, totalElements }  |  { data: { content, totalElements } }  |  { data: [] }  |  []
  */
-export const getOrders = ({ status, page = 0, size = 20 } = {}) => {
+export const getOrders = async ({ status, page = 0, size = 20 } = {}) => {
   const storeId = localStorage.getItem('storeId');
   const params  = new URLSearchParams({ page, size });
   if (status) params.set('status', status);
-  return apiFetch(`/stores/${storeId}/orders/admin/all?${params}`);
+  const raw = await apiFetch(`/stores/${storeId}/orders/admin/all?${params}`);
+
+  // Desenvuelve { data: ... } si el backend lo envuelve así
+  const payload = raw?.data ?? raw;
+
+  if (Array.isArray(payload)) {
+    return { content: payload, totalElements: payload.length, totalPages: 1 };
+  }
+  return {
+    content:       payload?.content       ?? [],
+    totalElements: payload?.totalElements ?? 0,
+    totalPages:    payload?.totalPages    ?? 0,
+  };
 };
 
 /**
  * GET /stores/{storeId}/orders/{orderId}
  */
-export const getOrder = (orderId) => {
+export const getOrder = async (orderId) => {
   const storeId = localStorage.getItem('storeId');
-  return apiFetch(`/stores/${storeId}/orders/${orderId}`);
+  const raw = await apiFetch(`/stores/${storeId}/orders/${orderId}`);
+  return raw?.data ?? raw;
 };
 
 /**

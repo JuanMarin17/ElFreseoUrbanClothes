@@ -7,7 +7,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import StoreFront from "../components/Store/StoreFront.jsx";
-import { getStoreBySlug, getStoreSettingsByHeader } from "./services/storeService";
+import { getStoreBySlug, getStoreSettingsByHeader, checkIsOwner } from "./services/storeService";
 import { getPublicActiveProducts } from "../../admin/modules/administration/services/productService";
 import "../components/styles/StorePage.css";
 
@@ -59,17 +59,21 @@ export default function StorePage() {
         localStorage.setItem("storeSlug", slug);
         localStorage.setItem("storeName", store.name ?? slug);
 
-        // Verificar ownership desde el JWT (sin llamada al backend)
-        const ownerFromJwt = (() => {
-          try {
-            const jwt = localStorage.getItem("jwt");
-            if (!jwt || jwt === "null") return false;
-            const p = JSON.parse(atob(jwt.split(".")[1]));
-            const jwtStore = p.storeId ?? p.store_id ?? p.store ?? null;
-            return jwtStore === resolvedStoreId;
-          } catch { return false; }
-        })();
-        setIsOwner(ownerFromJwt);
+        // Verificar ownership contra el backend (GET /stores/:storeId/isOwner/:userId)
+        // El endpoint responde con el rol del usuario en la tienda (ej. "OWNER"), no un booleano.
+        const userId = getUserIdFromJwt();
+        if (userId) {
+          checkIsOwner(resolvedStoreId, userId)
+            .then((owner) => {
+              setIsOwner(owner === true || String(owner).toUpperCase() === "OWNER");
+            })
+            .catch((e) => {
+              console.warn("[StorePage] Error verificando ownership:", e.status, e.message);
+              setIsOwner(false);
+            });
+        } else {
+          setIsOwner(false);
+        }
 
         const settings = await getStoreSettingsByHeader(resolvedStoreId);
 

@@ -107,68 +107,38 @@ const accountService = {
 
   /* ── Órdenes ─────────────────────────────────────────────────────────────── */
   getOrders: async () => {
-    // Read from localStorage order_* keys saved by CheckoutPage
-    const local = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (!key?.startsWith("order_")) continue;
-      try {
-        const saved = JSON.parse(localStorage.getItem(key));
-        if (!saved?.order) continue;
-        const { order, items = [], total } = saved;
-        local.push({
-          id:     order.orderId ?? order.id ?? key.replace("order_", ""),
-          date:   order.createdAt
-                    ? new Date(order.createdAt).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })
-                    : new Date().toLocaleDateString("es-CO"),
-          status: (order.status === "PENDING" || !order.status) ? "Pendiente"
-                : order.status === "SHIPPED"    ? "Enviado"
-                : order.status === "DELIVERED"  ? "Entregado"
-                : order.status === "CANCELLED"  ? "Cancelado"
-                : order.status,
-          total,
-          items: items.map(it => ({
-            image: it.imageUrl ?? it.image ?? "",
-            name:  it.productName ?? it.name ?? "Producto",
-            qty:   it.quantity ?? it.qty ?? 1,
-            price: it.unitPrice ?? it.price ?? 0,
-          })),
-        });
-      } catch { /* skip corrupt entries */ }
-    }
-    local.sort((a, b) => new Date(b.date) - new Date(a.date));
+    const STATUS_LABELS = {
+      PENDING:    "Pendiente",
+      CONFIRMED:  "Confirmado",
+      PROCESSING: "En proceso",
+      SHIPPED:    "Enviado",
+      DELIVERED:  "Entregado",
+      CANCELLED:  "Cancelado",
+      REFUNDED:   "Reembolsado",
+    };
 
-    // Also try the API for the current active store
     const storeId = localStorage.getItem("storeId");
-    if (storeId && storeId !== "null") {
-      try {
-        const res = await fetchApi("GET", `/stores/${storeId}/orders`);
-        const apiOrders = Array.isArray(res.data) ? res.data : (res.data?.content ?? []);
-        const localIds = new Set(local.map(o => String(o.id)));
-        const normalized = apiOrders
-          .filter(o => !localIds.has(String(o.id ?? o.orderId)))
-          .map(o => ({
-            id:     o.id ?? o.orderId,
-            date:   o.createdAt
-                      ? new Date(o.createdAt).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })
-                      : "—",
-            status: o.status === "PENDING"   ? "Pendiente"
-                  : o.status === "SHIPPED"   ? "Enviado"
-                  : o.status === "DELIVERED" ? "Entregado"
-                  : o.status === "CANCELLED" ? "Cancelado"
-                  : o.status ?? "Pendiente",
-            total: o.total ?? 0,
-            items: (o.items ?? []).map(it => ({
-              image: it.imageUrl ?? it.image ?? "",
-              name:  it.productName ?? it.name ?? "Producto",
-              qty:   it.quantity ?? it.qty ?? 1,
-              price: it.unitPrice ?? it.price ?? 0,
-            })),
-          }));
-        return { data: [...normalized, ...local] };
-      } catch { /* fallback to local only */ }
-    }
-    return { data: local };
+    if (!storeId || storeId === "null") return { data: [] };
+
+    const res = await fetchApi("GET", `/stores/${storeId}/orders`);
+    const apiOrders = Array.isArray(res.data) ? res.data : (res.data?.content ?? []);
+
+    const normalized = apiOrders.map((o) => ({
+      id:     o.id ?? o.orderId,
+      date:   o.createdAt
+                ? new Date(o.createdAt).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })
+                : "—",
+      status: STATUS_LABELS[o.status] ?? o.status ?? "Pendiente",
+      total:  o.total ?? 0,
+      items: (o.items ?? []).map((it) => ({
+        image: it.imageUrl ?? it.image ?? "",
+        name:  it.productName ?? it.name ?? "Producto",
+        qty:   it.quantity ?? it.qty ?? 1,
+        price: it.unitPrice ?? it.price ?? 0,
+      })),
+    }));
+
+    return { data: normalized };
   },
   getOrderDetail: async () => ({ data: {} }),
 

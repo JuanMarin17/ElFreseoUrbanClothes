@@ -4,11 +4,19 @@ import accountService from '../../services/accountService';
 import './MyOrders.css';
 
 const STATUS_CONFIG = {
-  Pendiente: { color: '#f28a60', icon: <Clock size={14} /> },
-  Enviado:   { color: '#7880fd', icon: <Truck size={14} /> },
-  Entregado: { color: '#00ffff', icon: <CheckCircle size={14} /> },
-  Cancelado: { color: '#ff4d4d', icon: <XCircle size={14} /> },
+  Pendiente:    { color: '#f28a60', icon: <Clock size={14} /> },
+  Confirmado:   { color: '#7880fd', icon: <CheckCircle size={14} /> },
+  'En proceso': { color: '#7880fd', icon: <Truck size={14} /> },
+  Enviado:      { color: '#7880fd', icon: <Truck size={14} /> },
+  Entregado:    { color: '#00ffff', icon: <CheckCircle size={14} /> },
+  Cancelado:    { color: '#ff4d4d', icon: <XCircle size={14} /> },
+  Reembolsado:  { color: '#ff4d4d', icon: <XCircle size={14} /> },
 };
+
+const formatCOP = (n) =>
+  new Intl.NumberFormat('es-CO', {
+    style: 'currency', currency: 'COP', minimumFractionDigits: 0,
+  }).format(n ?? 0);
 
 export default function MyOrders() {
   const [orders, setOrders]     = useState([]);
@@ -58,7 +66,7 @@ export default function MyOrders() {
                     {STATUS_CONFIG[order.status]?.icon}
                     <span>{order.status.toUpperCase()}</span>
                   </div>
-                  <span className="order-total-price">${order.total}</span>
+                  <span className="order-total-price">{formatCOP(order.total)}</span>
                   <div className="expand-icon-box">
                     {expanded === order.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </div>
@@ -76,11 +84,11 @@ export default function MyOrders() {
                         <div className="item-info">
                           <p className="item-name">{item.name}</p>
                           <p className="item-meta">
-                            CANTIDAD: {item.qty} <span className="divider">|</span> UNIDAD: ${item.price}
+                            CANTIDAD: {item.qty} <span className="divider">|</span> UNIDAD: {formatCOP(item.price)}
                           </p>
                         </div>
                         <div className="item-subtotal">
-                          ${(item.qty * parseFloat(item.price.replace(/[^0-9.-]+/g,""))).toLocaleString()}
+                          {formatCOP(item.qty * item.price)}
                         </div>
                       </div>
                     ))}
