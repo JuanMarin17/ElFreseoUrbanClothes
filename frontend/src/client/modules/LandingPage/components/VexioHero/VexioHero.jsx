@@ -1,23 +1,102 @@
 import React, { useEffect, useState } from 'react';
-import { getAllStores, getStoreSettingsByHeader } from '../../../../../multi-tenant/pages/services/storeService';
+import { useNavigate } from 'react-router-dom';
+import { getStoreSettingsByHeader, getAllStores } from '../../../../../multi-tenant/pages/services/storeService';
 import './VexioHero.css';
+
+// ─── Constantes ───────────────────────────────────────────────────────────────
 
 const AVATARS = ['SR', 'MC', 'DP', 'AL'];
 
-const ORBIT_COLORS = ['#3B82F6', '#EC4899', '#F59E0B', '#8B5CF6', '#06B6D4', '#22C55E'];
-
-/* Usados mientras la API carga o si retorna menos de 3 tiendas */
-const FALLBACK_STORES = [
-  { storeId: 'f1', name: 'StepUp Store',       slug: 'stepup'   },
-  { storeId: 'f2', name: 'Luna Cosmetics',     slug: 'luna'     },
-  { storeId: 'f3', name: 'Raíces Artesanales', slug: 'raices'   },
-  { storeId: 'f4', name: 'UrbanFit Co.',       slug: 'urbanfit' },
-  { storeId: 'f5', name: 'TechZone',           slug: 'techzone' },
-  { storeId: 'f6', name: 'Casa & Deco',        slug: 'casadeco' },
+const SEED_STORES = [
+  { storeId: 'seed-1', slug: 'kiora',       name: 'Kiora',       color: '#3B82F6', settings: {} },
+  { storeId: 'seed-2', slug: 'transurbano', name: 'TransUrbano', color: '#EC4899', settings: {} },
+  { storeId: 'seed-3', slug: 'myacces',     name: 'MyAcess',     color: '#F59E0B', settings: {} },
+  { storeId: 'seed-4', slug: 'bella-vita',  name: 'Bella Vita',  color: '#8B5CF6', settings: {} },
+  { storeId: 'seed-5', slug: 'multt-shop',  name: 'MultiShop',   color: '#06B6D4', settings: {} },
+  { storeId: 'seed-6', slug: 'olysiar',     name: 'OLYSIAR',     color: '#22C55E', settings: {} },
 ];
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+// Elimina guiones, underscores y espacios para comparar slugs sin importar formato
+const normalize = (s) => s?.toLowerCase().replace(/[-_\s]/g, '') ?? '';
+
+function getLogoSrc(s) {
+  const url = s.basic?.logoPreview
+    ?? s.logoUrl
+    ?? s.components?.header?.logo
+    ?? s.components?.header?.logoUrl
+    ?? null;
+  return url && typeof url === 'string' && url.trim() ? url : null;
+}
+
+// ─── OrbitCard ────────────────────────────────────────────────────────────────
+
+function OrbitCard({ store, index, total, onNavigate }) {
+  const s         = store.settings ?? {};
+  const angle     = (360 / total) * index;
+  const initial   = (store.name?.[0] ?? 'T').toUpperCase();
+  const logoSrc   = getLogoSrc(s);
+  const bannerImg = s.components?.banner?.image ?? null;
+  const bannerBg  = s.components?.banner?.bg ?? null;
+  const accent    = s.styles?.colorBoton ?? store.color;
+
+  return (
+    <div
+      className="vx-orbit-card"
+      style={{ '--angle': angle, '--color': accent }}
+      onClick={() => onNavigate(store.slug)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && onNavigate(store.slug)}
+      title={`Visitar ${store.name}`}
+    >
+
+      <div
+        className="vx-orbit-card-banner"
+        style={!bannerImg && bannerBg ? { background: bannerBg } : undefined}
+      >
+        {bannerImg && <img src={bannerImg} alt="" className="vx-orbit-card-banner-img" />}
+        <div className="vx-orbit-card-banner-overlay" />
+
+        {logoSrc ? (
+          <img
+            src={logoSrc}
+            alt=""
+            className="vx-orbit-card-logo"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              if (e.currentTarget.nextElementSibling) {
+                e.currentTarget.nextElementSibling.style.display = 'flex';
+              }
+            }}
+          />
+        ) : null}
+
+        <span
+          className="vx-orbit-card-initial"
+          style={{ color: accent, display: logoSrc ? 'none' : 'flex' }}
+        >
+          {initial}
+        </span>
+      </div>
+
+      <div className="vx-orbit-card-info">
+        <span className="vx-orbit-card-name">{store.name}</span>
+        <span className="vx-orbit-card-cat">{store.slug}.vexio.com</span>
+        <span className="vx-orbit-card-status">● Activa</span>
+      </div>
+
+    </div>
+  );
+}
+
+// ─── VexioHero ────────────────────────────────────────────────────────────────
+
 export default function VexioHero() {
-  const [apiStores, setApiStores] = useState([]);
+  const [stores,     setStores]     = useState(SEED_STORES);
+  const [totalCount, setTotalCount] = useState(null);
+  const navigate = useNavigate();
 
   const scrollTo = (id) =>
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -25,29 +104,32 @@ export default function VexioHero() {
   useEffect(() => {
     getAllStores()
       .then(async (data) => {
-        const list = Array.isArray(data)
-          ? data
-          : (data?.content ?? data?.stores ?? data?.data ?? []);
-        const active = list.filter((s) => s.isActive !== false).slice(0, 6);
-        if (active.length < 3) return;
+        const list   = Array.isArray(data) ? data : (data?.content ?? data?.stores ?? data?.data ?? []);
+        const active = list.filter((s) => s.isActive !== false);
+        setTotalCount(active.length);
 
+        // Busca cada una de las 6 tiendas deseadas por slug normalizado
+        // (ej: seed "bellavita" encuentra "bella-vita", "myaccess" encuentra "my-access")
+        const matched = SEED_STORES.map((seed) => {
+          const found = active.find(s => normalize(s.slug) === normalize(seed.slug));
+          return found
+            ? { ...found, color: seed.color, settings: {} }
+            : seed; // fallback: seed estático si la tienda no existe en el backend
+        });
+        setStores(matched);
+
+        // Carga logos y banners para las tiendas con storeId real
         const withSettings = await Promise.all(
-          active.map(async (store) => {
-            try {
-              const settings = await getStoreSettingsByHeader(store.storeId);
-              return { ...store, settings: settings ?? {} };
-            } catch {
-              return { ...store, settings: {} };
-            }
+          matched.map(async (store) => {
+            if (store.storeId?.startsWith('seed-')) return store;
+            const settings = await getStoreSettingsByHeader(store.storeId).catch(() => null);
+            return { ...store, settings: settings ?? {} };
           }),
         );
-        setApiStores(withSettings);
+        setStores(withSettings);
       })
-      .catch(() => {/* usa fallback */});
+      .catch(() => {}); // sin auth → queda el seed data estático
   }, []);
-
-  /* Usa tiendas reales si hay ≥3, si no muestra el fallback */
-  const orbitStores = apiStores.length >= 3 ? apiStores : FALLBACK_STORES;
 
   return (
     <section id="vx-hero" className="vx-hero">
@@ -57,7 +139,7 @@ export default function VexioHero() {
 
       <div className="vx-hero-inner">
 
-        {/* Columna izquierda — texto */}
+        {/* ── Texto ── */}
         <div className="vx-hero-text">
           <h1 className="vx-hero-h1">
             Miles de tiendas.<br />
@@ -97,47 +179,23 @@ export default function VexioHero() {
           </div>
         </div>
 
-        {/* Columna derecha — orbital 3D con tiendas reales */}
-        <div className="vx-hero-visual" aria-hidden="true">
+        {/* ── Orbital ── */}
+        <div className="vx-hero-visual">
           <div className="vx-orbit-scene">
             <div className="vx-orbit-ring">
-              {orbitStores.map((store, i) => {
-                const angle = (360 / orbitStores.length) * i;
-                const color = ORBIT_COLORS[i % ORBIT_COLORS.length];
-                const initial = (store.name?.[0] ?? 'T').toUpperCase();
-
-                const logo = store.settings?.basic?.logoPreview
-                    ?? store.settings?.components?.header?.logo;
-                  const logoUrl = logo && logo.startsWith('http') ? logo : null;
-
-                  return (
-                  <div
-                    key={store.storeId}
-                    className="vx-orbit-card"
-                    style={{ '--angle': angle, '--color': color }}
-                  >
-                    {logoUrl ? (
-                      <img src={logoUrl} alt="" className="vx-orbit-card-logo" />
-                    ) : (
-                      <span className="vx-orbit-card-initial" style={{ color }}>
-                        {initial}
-                      </span>
-                    )}
-                    <span className="vx-orbit-card-name">{store.name}</span>
-                    <span className="vx-orbit-card-cat">
-                      {store.slug}.vexio.com
-                    </span>
-                    <span className="vx-orbit-card-status">● Activa</span>
-                  </div>
-                );
-              })}
+              {stores.map((store, i) => (
+                <OrbitCard
+                  key={store.storeId}
+                  store={store}
+                  index={i}
+                  total={stores.length}
+                  onNavigate={(slug) => navigate(`/tienda/${slug}`)}
+                />
+              ))}
             </div>
 
-            {/* Centro estático */}
             <div className="vx-orbit-center">
-              <span className="vx-orbit-center-num">
-                {orbitStores === apiStores ? `${apiStores.length}` : '100+'}
-              </span>
+              <span className="vx-orbit-center-num">{totalCount ?? 6}</span>
               <span className="vx-orbit-center-label">tiendas</span>
             </div>
           </div>

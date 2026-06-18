@@ -106,7 +106,7 @@
 }
 
 .vp-logo-wrapper img {
-  height: 56px;
+  height: 146px;
   width: auto;
   object-fit: contain;
 }
@@ -344,14 +344,18 @@
 @media (max-width: 480px) {
   .vp-card {
     padding: 30px 20px;
-    border-radius: 0;
-    height: 100vh;
+    border-radius: 24px;
+    min-height: 100dvh;
+    height: auto;
     max-width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    border: none;
   }
+  /* Orbs reducidos para evitar scroll horizontal en pantallas estrechas */
+  .vp-bg-orb--1 { width: 280px; height: 280px; top: -60px; left: -60px; }
+  .vp-bg-orb--2 { width: 240px; height: 240px; bottom: -60px; right: -30px; }
+  .vp-bg-orb--3 { width: 180px; height: 180px; }
 }
 
 /* ─── Toasts de Notificación ─── */
@@ -512,39 +516,6 @@
 .vc-otp-input--filled {
   border-color: rgba(79,110,247,0.4);
   background: rgba(79,110,247,0.05);
-}/* ─── OTP inputs — VerifyCode ─── */
-.vc-otp-row {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 28px;
-}
-
-.vc-otp-input {
-  width: 48px;
-  height: 56px;
-  text-align: center;
-  font-size: 1.4rem;
-  font-weight: 700;
-  font-family: 'Rajdhani', sans-serif;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  color: #e8e8f0;
-  outline: none;
-  transition: all 0.2s;
-  caret-color: #4f6ef7;
-}
-
-.vc-otp-input:focus {
-  border-color: #4f6ef7;
-  background: rgba(79,110,247,0.06);
-  box-shadow: 0 0 0 4px rgba(79,110,247,0.1);
-}
-
-.vc-otp-input--filled {
-  border-color: rgba(79,110,247,0.4);
-  background: rgba(79,110,247,0.05);
 }
 
 .vc-otp-input--blocked {
@@ -572,7 +543,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
+  z-index: 1;
   transition: background 0.2s;
 }
 

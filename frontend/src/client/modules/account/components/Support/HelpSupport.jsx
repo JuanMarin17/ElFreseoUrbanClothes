@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { HelpCircle, Plus, ExternalLink, MessageSquare, History, Send, X, Package, CreditCard, RefreshCw, ShieldCheck } from 'lucide-react';
 import accountService from '../../services/accountService';
 import './HelpSupport.css';
@@ -21,12 +21,29 @@ export default function HelpSupport() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm]         = useState({ subject: '', message: '' });
   const [sending, setSending]   = useState(false);
+  const revealRefs = useRef([]);
 
   useEffect(() => {
     accountService.getTickets()
       .then(({ data }) => setTickets(data))
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    const els = revealRefs.current.filter(Boolean);
+    if (!els.length) return;
+    const obs = new IntersectionObserver(
+      entries => entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('hs-in-view');
+          obs.unobserve(e.target);
+        }
+      }),
+      { threshold: 0.1 }
+    );
+    els.forEach(el => obs.observe(el));
+    return () => obs.disconnect();
+  }, [showForm]);
 
   const handleCreate = async () => {
     if (!form.subject.trim() || !form.message.trim()) return;
@@ -66,9 +83,9 @@ export default function HelpSupport() {
 
       {/* ── Atajos rápidos ── */}
       {!showForm && (
-        <div className="hs-topics">
-          {QUICK_TOPICS.map(({ icon: Icon, label, desc }) => (
-            <button key={label} className="hs-topic-card" onClick={() => handleTopicClick(label)}>
+        <div className="hs-topics hs-reveal" ref={el => { revealRefs.current[0] = el; }}>
+          {QUICK_TOPICS.map(({ icon: Icon, label, desc }, i) => (
+            <button key={label} className="hs-topic-card" onClick={() => handleTopicClick(label)} style={{ '--delay': `${i * 70}ms` }}>
               <span className="hs-topic-icon"><Icon size={18} /></span>
               <div>
                 <p className="hs-topic-label">{label}</p>
@@ -121,7 +138,7 @@ export default function HelpSupport() {
       )}
 
       {/* ── Historial de Tickets ── */}
-      <div className="hs-history-card">
+      <div className="hs-history-card hs-reveal" ref={el => { revealRefs.current[1] = el; }}>
         <div className="hs-card-header">
           <History size={15} />
           <span>Mis tickets</span>
@@ -150,10 +167,10 @@ export default function HelpSupport() {
                 </tr>
               </thead>
               <tbody>
-                {tickets.map(t => {
+                {tickets.map((t, i) => {
                   const s = TICKET_STATUS[t.status] ?? TICKET_STATUS['Abierto'];
                   return (
-                    <tr key={t.id}>
+                    <tr key={t.id} style={{ '--delay': `${i * 55}ms` }}>
                       <td className="hs-id-cell">#{t.id}</td>
                       <td className="hs-subject-cell">{t.subject}</td>
                       <td>

@@ -1,9 +1,10 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import "./animations.css";
-import { AuthProvider } from "./admin/modules/auth/pages/hook/Useauth.jsx";
+import { AuthProvider, useAuth } from "./admin/modules/auth/pages/hook/Useauth.jsx";
+import UserNotifToast from "./client/components/UserNotifToast/UserNotifToast.jsx";
 
 import ProductPage from "./client/modules/ProductPage/ProductPage.jsx";
 
@@ -13,7 +14,6 @@ import { TokenGuard } from "./admin/modules/auth/pages/hook/TokenGuard.jsx";
 
 import { AuthProvider as MultiTenantAuthProvider } from "./multi-tenant/context/AuthContext.jsx";
 import { StoreProvider } from "./multi-tenant/pages/StoreContext.jsx";
-import MyStoreLayout from "./multi-tenant/pages/MyStoreLayout.jsx";
 import StoreBuilderChat from "./multi-tenant/components/StoreBuilderChat/StoreBuilderChat.jsx";
 
 // ── Suscripciones ─────────────────────────────────────────────────────────────
@@ -67,6 +67,24 @@ const SuppliersPage = lazy(
 const PromotionsDashboard = lazy(
   () => import("./admin/modules/administration/promotions/PromotionsDashboards.jsx"),
 );
+const AdminProductsPage = lazy(
+  () => import("./admin/modules/administration/pages/AdminProducts/AdminProductsPage.jsx"),
+);
+const CustomersPage = lazy(
+  () => import("./admin/modules/administration/pages/CustomersPage/CustomersPage.jsx"),
+);
+const AdminReturnsPage = lazy(
+  () => import("./admin/modules/administration/pages/AdminReturns/AdminReturnsPage.jsx"),
+);
+const POSPage = lazy(
+  () => import("./admin/modules/administration/pages/POS/POSPage.jsx"),
+);
+const LocationsPage = lazy(
+  () => import("./admin/modules/administration/pages/Locations/LocationsPage.jsx"),
+);
+const SubscriptionManagement = lazy(
+  () => import("./admin/modules/administration/pages/Subscription/SubscriptionManagement.jsx"),
+);
 const StoreSettings = lazy(
   () => import("./admin/modules/administration/pages/StoreSettings/StoreSettings.jsx"),
 );
@@ -87,6 +105,9 @@ const VerifyCode = lazy(
 );
 
 // ── Cliente ───────────────────────────────────────────────────────────────────
+const CatalogoPage = lazy(
+  () => import("./client/modules/Catalogo/CatalogoPage.jsx"),
+);
 const VexioLanding = lazy(
   () => import("./client/modules/landingPage/pages/VexioLanding/VexioLanding.jsx"),
 );
@@ -183,21 +204,21 @@ function PageLoader() {
   );
 }
 
+// Muestra toasts SSE del usuario solo cuando está autenticado
+function UserNotifToastWrapper() {
+  const { isAuthenticated } = useAuth();
+  return <UserNotifToast enabled={isAuthenticated} />;
+}
+
 // ── App ───────────────────────────────────────────────────────────────────────
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <AuthProvider>
       <MultiTenantAuthProvider>
         <StoreProvider>
           <TokenGuard />
           <StoreBuilderChat />
+          <UserNotifToastWrapper />
           <div className="main-container">
             <Suspense fallback={<PageLoader />}>
               <AnimatePresence mode="wait">
@@ -206,6 +227,7 @@ function App() {
                   <Route path="/" element={<VexioLanding />} />
                   <Route path="/landing" element={<VexioLanding />} />
                   <Route path="/market" element={<MarketPage />} />
+                  <Route path="/catalogo" element={<CatalogoPage />} />
                   <Route path="/products/:productId" element={<ProductPage />} />
                   <Route path="/cuenta/*" element={<AccountPage />} />
 
@@ -255,15 +277,16 @@ function App() {
                   <Route path="/dashboard/subscription/failure" element={<SubscriptionFailure />} />
                   <Route path="/dashboard/subscription/pending" element={<SubscriptionPending />} />
 
-                  {/* ── SuperAdmin (MyStoreLayout) ───────────────────────── */}
-                  <Route element={<MyStoreLayout />}>
-                    <Route path="/mis-tiendas"   element={<MyStore />} />
-                    <Route path="/transacciones" element={<Transaction />} />
-                  </Route>
+                  {/* ── SuperAdmin ───────────────────────────────────────── */}
+                  <Route path="/mis-tiendas"    element={<MyStore />} />
+                  <Route path="/transacciones"  element={<MyStore />} />
+                  <Route path="/usuarios"       element={<MyStore />} />
+                  <Route path="/informe-ventas" element={<MyStore />} />
 
                   {/* ── Tienda pública ───────────────────────────────────── */}
                   <Route path="/tienda/:slug" element={<StorePage />} />
                   <Route path="/tienda/:slug/checkout" element={<CheckoutPage />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
                   <Route path="/tienda/:slug/orders" element={<StoreMyOrders />} />
                   <Route path="/tienda/:slug/orders/:orderId" element={<StoreOrderDetail />} />
 
@@ -298,21 +321,27 @@ function App() {
                       <Route path="proveedores"           element={<SuppliersPage />} />
                       <Route path="IA"                    element={<IAAdmin />} />
                       <Route path="dashboard"             element={<Dashboard />} />
+                      <Route path="productos"             element={<AdminProductsPage />} />
                       <Route path="subir-producto"        element={<UploadProduct />} />
                       <Route path="editar-producto/:id"   element={<EditProduct />} />
                       <Route path="inventario"            element={<InventaryStock />} />
                       <Route path="usuarios"              element={<Dashboard />} />
+                      <Route path="clientes"              element={<CustomersPage />} />
+                      <Route path="devoluciones"          element={<AdminReturnsPage />} />
+                      <Route path="pos"                   element={<POSPage />} />
+                      <Route path="ubicaciones"           element={<LocationsPage />} />
                       <Route path="promociones"           element={<PromotionsDashboard />} />
                       <Route path="report"                element={<Report />} />
                       <Route path="pedidos"               element={<OrdersManagement />} />
                       <Route path="alertas"               element={<ShockAlerts />} />
+                      <Route path="suscripcion"           element={<SubscriptionManagement />} />
+                      <Route path="configuracion"         element={<StoreSettings />} />
                       <Route path="cms"           element={<CMSEditor />} />
                       <Route path="cms/about"     element={<CMSAbout />} />
                       <Route path="cms/contact"   element={<CMSContact />} />
                       <Route path="cms/locations" element={<CMSLocations />} />
                       <Route path="cms/returns"   element={<CMSReturns />} />
                       <Route path="cms/faq"       element={<CMSFAQ />} />
-                      <Route path="configuracion" element={<StoreSettings />} />
                     </Route>
                   </Route>
 

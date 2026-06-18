@@ -8,8 +8,11 @@ import {
 } from "../../../../../multi-tenant/pages/services/storeService";
 import IAAdmin from "../../pages/IAAdmin/AIAdmin";
 import AdminHeader from "../AdminHeader/AdminHeader";
+import AdminNotifToast from "../AdminNotifToast/AdminNotifToast";
 import Sidebar from "../Sidebar/Sidebar";
 import StockAlertToast from "../StockAlertToast/StockAlertToast";
+import { useAdminNotifications } from "../../../../../hooks/useAdminNotifications";
+import { useNotificationInbox } from "../../../../../hooks/useUserNotifications";
 
 import "./AdminLayout.css";
 
@@ -25,6 +28,12 @@ const ROUTE_TITLES = {
   proveedores:       "Proveedores",
   promociones:       "Promociones",
   productos:         "Productos",
+  clientes:          "Clientes",
+  devoluciones:      "Devoluciones",
+  pos:               "Punto de Venta",
+  ubicaciones:       "Ubicaciones",
+  suscripcion:       "Suscripción",
+  configuracion:     "Configuración",
   cms:               "Contenido CMS",
   IA:                "Asistente IA",
 };
@@ -63,6 +72,12 @@ const AdminLayout = () => {
   const [isAiOpen,      setIsAiOpen]      = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [storeReady,    setStoreReady]    = useState(!slug);
+  const [sseStoreId,    setSseStoreId]    = useState(
+    () => {
+      const id = localStorage.getItem("storeId");
+      return id && id !== "null" && id !== "undefined" ? id : null;
+    },
+  );
 
   // ── Brand: logo + nombre real de la tienda ──────────────────────────────
   const [storeInfo, setStoreInfo] = useState({ name: null, logo: null });
@@ -104,6 +119,16 @@ const AdminLayout = () => {
 
   const userInfo = useMemo(() => parseUserFromJwt(), []);
 
+  // ── SSE: notificaciones en tiempo real de la tienda (órdenes, tickets, reseñas) ──
+  // Solo toasts efímeros — no hay endpoint de persistencia para este dominio.
+  const { notifications: storeNotifications, unread: storeUnread } = useAdminNotifications(sseStoreId);
+
+  // ── Bandeja persistida del usuario (STORE_DISABLED, SESSION_ALERT, pedidos, pagos) ──
+  const { unread: inboxUnread, markAllRead: markInboxRead } = useNotificationInbox();
+
+  const unread = storeUnread + inboxUnread;
+  const markAllRead = () => { markInboxRead(); };
+
   const pageTitle = useMemo(() => {
     const segments = location.pathname.split("/").filter(Boolean);
     const last = segments[segments.length - 1];
@@ -125,6 +150,7 @@ const AdminLayout = () => {
         const storeId = store?.storeId ?? store?.id ?? store?.store_id ?? null;
         if (storeId) {
           localStorage.setItem("storeId", storeId);
+          setSseStoreId(storeId);
 
           // Nombre real de la tienda desde el objeto store
           const name = store.name ?? store.storeName ?? null;
@@ -221,6 +247,7 @@ const AdminLayout = () => {
           const id = first?.storeId ?? first?.store_id ?? first?.id ?? null;
           if (id) {
             localStorage.setItem("storeId", id);
+            setSseStoreId(id);
             const role = first?.role ?? "OWNER";
             localStorage.setItem("userRole", role);
             const name = first?.name ?? first?.storeName ?? null;
@@ -274,6 +301,8 @@ const AdminLayout = () => {
           onToggleTheme={toggleTheme}
           sidebarColor={sidebarColor}
           onSidebarColorChange={handleSidebarColorChange}
+          notifCount={unread}
+          onBellClick={markAllRead}
         />
 
         <div className="admin-workspace-split">
@@ -286,6 +315,7 @@ const AdminLayout = () => {
       </div>
 
       <StockAlertToast />
+      <AdminNotifToast notifications={storeNotifications} />
     </div>
   );
 };

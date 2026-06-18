@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Store, Plus, ExternalLink, Settings2, Copy, Check,
-  AlertCircle, Globe, Calendar, Shield, Zap,
+  AlertCircle, Globe, Calendar, Shield, Zap, Search, X,
 } from "lucide-react";
 import HeaderMarket from "../../../utils/Header/HeaderMarket";
 import { useAuth } from "../../../admin/modules/auth/pages/hook/Useauth";
@@ -106,6 +106,7 @@ export default function MisTiendasPage() {
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState(null);
   const [copiedId, setCopiedId] = useState(null);
+  const [search,   setSearch]   = useState("");
 
   useEffect(() => {
     if (!userId) { setLoading(false); return; }
@@ -202,6 +203,37 @@ export default function MisTiendasPage() {
     return logo && logo.startsWith("http") ? logo : null;
   };
 
+  /* ── Filtrado de tiendas ────────────────────────────────────────────────── */
+  const query = search.trim().toLowerCase();
+  const filteredStores = query
+    ? stores.filter(s => {
+        // Campos de texto
+        const desc     = settings[s.storeId]?.basic?.description ?? s.description ?? "";
+
+        // Plan: combinar todas las fuentes igual que en el render
+        const su       = usage[s.storeId] ?? {};
+        const subPlan  = (su.subscription?.planName  ?? "").toUpperCase();
+        const limPlan  = (su.limits?.planName        ?? "").toUpperCase();
+        const setPlan  = (settings[s.storeId]?.plan?.name ?? "").toUpperCase();
+        const planKey  = subPlan || limPlan || setPlan || "GRATUITO";
+        const planLbl  = (PLAN_LABEL[planKey] ?? planKey).toLowerCase();
+
+        // Rol y estado
+        const roleKey  = (s.role ?? "OWNER").toUpperCase();
+        const roleLbl  = (ROLE_LABEL[roleKey] ?? roleKey).toLowerCase();
+        const status   = s.isActive ? "activa" : "borrador";
+
+        return (
+          (s.name  ?? "").toLowerCase().includes(query) ||
+          (s.slug  ?? "").toLowerCase().includes(query) ||
+          desc.toLowerCase().includes(query)            ||
+          planLbl.includes(query)                       ||
+          roleLbl.includes(query)                       ||
+          status.includes(query)
+        );
+      })
+    : stores;
+
   /* ── Sin sesión ─────────────────────────────────────────────────────────── */
   if (!loading && !user) {
     return (
@@ -236,9 +268,11 @@ export default function MisTiendasPage() {
             <p className="mtp-sub">
               {loading
                 ? "Cargando tus tiendas…"
-                : stores.length > 0
-                  ? `${stores.length} tienda${stores.length !== 1 ? "s" : ""} en tu cuenta`
-                  : "Gestiona y accede a tus tiendas"}
+                : query
+                  ? `${filteredStores.length} resultado${filteredStores.length !== 1 ? "s" : ""} para "${search.trim()}"`
+                  : stores.length > 0
+                    ? `${stores.length} tienda${stores.length !== 1 ? "s" : ""} en tu cuenta`
+                    : "Gestiona y accede a tus tiendas"}
             </p>
           </div>
           {!loading && stores.length > 0 && (
@@ -257,13 +291,39 @@ export default function MisTiendasPage() {
           </div>
         )}
 
+        {/* Buscador */}
+        {!loading && stores.length > 0 && (
+          <div className="mtp-toolbar">
+            <div className="mtp-search-wrap">
+              <Search size={15} className="mtp-search-icon" />
+              <input
+                className="mtp-search-input"
+                type="text"
+                placeholder="Nombre, URL, plan, rol, estado…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                autoComplete="off"
+              />
+              {search && (
+                <button
+                  className="mtp-search-clear"
+                  onClick={() => setSearch("")}
+                  aria-label="Limpiar búsqueda"
+                >
+                  <X size={13} />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Loading */}
         {loading ? (
           <div className="mtp-grid">
             {[0, 1, 2].map(i => <SkeletonCard key={i} />)}
           </div>
 
-        /* Empty */
+        /* Empty — sin tiendas */
         ) : !error && stores.length === 0 ? (
           <div className="mtp-empty">
             <div className="mtp-empty-icon"><Store size={44} /></div>
@@ -276,10 +336,23 @@ export default function MisTiendasPage() {
             </button>
           </div>
 
+        /* Empty — sin resultados de búsqueda */
+        ) : !error && filteredStores.length === 0 ? (
+          <div className="mtp-empty">
+            <div className="mtp-empty-icon"><Search size={38} /></div>
+            <h2 className="mtp-empty-title">Sin resultados</h2>
+            <p className="mtp-empty-sub">
+              No hay tiendas que coincidan con &ldquo;{search.trim()}&rdquo;.
+            </p>
+            <button className="mtp-btn-primary" onClick={() => setSearch("")}>
+              Limpiar búsqueda
+            </button>
+          </div>
+
         /* Cards */
         ) : (
           <div className="mtp-grid">
-            {stores.map((store, i) => {
+            {filteredStores.map((store, i) => {
               const logoUrl     = getLogoUrl(store.storeId);
               const desc        = settings[store.storeId]?.basic?.description ?? store.description ?? null;
               const createdAt   = formatDate(store.createdAt ?? store.created_at);

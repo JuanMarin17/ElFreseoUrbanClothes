@@ -1,4 +1,4 @@
-﻿import { useState, createContext, useContext } from 'react';
+﻿import { useState, useEffect, createContext, useContext } from 'react';
 import authService from '../../services/Authservice';
 
 const AuthContext = createContext(null);
@@ -96,6 +96,55 @@ export function AuthProvider({ children }) {
     authService.logout();
     setUser(null);
   };
+
+  /* ── Detectar sesión cerrada / expirada automáticamente ── */
+  useEffect(() => {
+    if (!user) return;
+
+    // 1. Timer exacto para cuando el JWT venza
+    let expTimer;
+    try {
+      const jwt = localStorage.getItem('jwt');
+      if (jwt && jwt !== 'null') {
+        const { exp } = JSON.parse(atob(jwt.split('.')[1]));
+        if (exp) {
+          const ms = exp * 1000 - Date.now();
+          if (ms <= 0) {
+            logout();
+            window.location.replace('/login');
+            return;
+          }
+          expTimer = setTimeout(() => {
+            logout();
+            window.location.replace('/login');
+          }, ms);
+        }
+      }
+    } catch { /* token malformado */ }
+
+    // 2. Chequeo cada 60 s para detectar sesión invalidada desde otro dispositivo
+    const interval = setInterval(() => {
+      const jwt = localStorage.getItem('jwt');
+      if (!jwt || jwt === 'null') {
+        logout();
+        window.location.replace('/login');
+        return;
+      }
+      try {
+        const { exp } = JSON.parse(atob(jwt.split('.')[1]));
+        if (exp && exp * 1000 < Date.now()) {
+          logout();
+          window.location.replace('/login');
+        }
+      } catch { /* silent */ }
+    }, 60_000);
+
+    return () => {
+      clearTimeout(expTimer);
+      clearInterval(interval);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const value = {
     login,

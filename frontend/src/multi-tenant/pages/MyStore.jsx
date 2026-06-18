@@ -5,25 +5,26 @@ import { useAuth } from "../../admin/modules/auth/pages/hook/Useauth";
 import "../components/styles/MyStore.css";
 import "../../admin/modules/administration/components/AdminLayout/AdminLayout.css";
 import { FiPlus, FiExternalLink, FiCopy, FiCheck } from "react-icons/fi";
-import { Store, CreditCard, Users, BarChart2 } from "lucide-react";
-import { getStoresByUser, getStoreSettingsByHeader, getAllStores } from "./services/storeService";
+import { Store, CreditCard, Users, BarChart2, Home } from "lucide-react";
+import { getStoresByUser, getStoreSettingsByHeader, getAllStores, toggleStoreStatus } from "./services/storeService";
 import PlatformUsersPanel from "./PlatformUsers/PlatformUsersPanel";
 import Sidebar from "../../admin/modules/administration/components/Sidebar/Sidebar";
 import AdminHeader from "../../admin/modules/administration/components/AdminHeader/AdminHeader";
 import IAAdmin from "../../admin/modules/administration/pages/IAAdmin/AIAdmin";
 import Transaction from "../../multi-tenant/pages/Transaction/Transaction";
 import SalesReport from "./SalesReport/SalesReport";
+import DisableStoreModal from "./DisableStoreModal/DisableStoreModal";
 
 const SUPERADMIN_MENU = [
-  { path: "/admin-super/mis-tiendas",         label: "MIS TIENDAS",       icon: Store      },
-  { path: "/admin-super/transacciones",       label: "TRANSACCIONES",     icon: CreditCard },
-  { path: "/admin-super/plataforma-usuarios", label: "USUARIOS",          icon: Users      },
-  { path: "/admin-super/informe-ventas",      label: "INFORME DE VENTAS", icon: BarChart2  },
+  { path: "/market",         label: "INICIO",            icon: Home       },
+  { path: "/mis-tiendas",   label: "TIENDAS",           icon: Store      },
+  { path: "/transacciones", label: "TRANSACCIONES",     icon: CreditCard },
+  { path: "/usuarios",      label: "USUARIOS",          icon: Users      },
+  { path: "/informe-ventas",label: "INFORME DE VENTAS", icon: BarChart2  },
 ];
 
 const ADMIN_MENU = [
-  { path: "/admin-super/mis-tiendas",   label: "MIS TIENDAS",   icon: Store      },
-  { path: "/admin-super/transacciones", label: "TRANSACCIONES", icon: CreditCard },
+  { path: "/mis-tiendas", label: "MIS TIENDAS", icon: Store },
 ];
 
 const MyStore = () => {
@@ -34,12 +35,22 @@ const MyStore = () => {
 
   const userId = user?.id ?? user?.userId ?? null;
   const name   = user?.userName ?? user?.name ?? null;
-  const role   = "SUPERADMIN"; // ajusta cuando tengas roles reales
 
-  const menuItems       = role === "SUPERADMIN" ? SUPERADMIN_MENU : ADMIN_MENU;
-  const isTransacciones  = location.pathname === "/admin-super/transacciones";
-  const isUsuarios       = location.pathname === "/admin-super/plataforma-usuarios";
-  const isInformeVentas  = location.pathname === "/admin-super/informe-ventas";
+  // Rol real desde JWT
+  const role = (() => {
+    try {
+      const jwt = localStorage.getItem("jwt");
+      if (!jwt || jwt === "null") return "OWNER";
+      const decoded = JSON.parse(atob(jwt.split(".")[1]));
+      return decoded.role ?? localStorage.getItem("userRole") ?? "OWNER";
+    } catch { return "OWNER"; }
+  })();
+
+  const isSuperAdmin = role === "SUPERADMIN";
+  const menuItems    = isSuperAdmin ? SUPERADMIN_MENU : ADMIN_MENU;
+  const isTransacciones  = location.pathname === "/transacciones";
+  const isUsuarios       = location.pathname === "/usuarios";
+  const isInformeVentas  = location.pathname === "/informe-ventas";
 
   // "" Estados """"""""""""""""""""""""""""""""""""""""""
   const [isAiOpen,       setIsAiOpen]       = useState(false);
@@ -49,13 +60,68 @@ const MyStore = () => {
   const [storesError,    setStoresError]    = useState(null);
   const [copiedId,       setCopiedId]       = useState(null);
   const [search,         setSearch]         = useState("");
+  const [disableTarget,  setDisableTarget]  = useState(null);
+  const [togglingId,     setTogglingId]     = useState(null);
+  const [actionError,    setActionError]    = useState(null); // { storeId, message }
+
+  const describeToggleError = (err, fallback) => {
+    if (err.status === 403) {
+      return err.message || "Solo un SUPERADMIN puede inhabilitar o habilitar tiendas.";
+    }
+    if (err.status === 404) {
+      return "Esta tienda ya no existe. Se actualizó la lista.";
+    }
+    if (err.status === 400) {
+      return err.message || "Solicitud inválida al actualizar el estado de la tienda.";
+    }
+    return err.message || fallback;
+  };
+
+  const handleDisableStore = async (storeId, reason) => {
+    setTogglingId(storeId);
+    setActionError(null);
+    try {
+      const updated = await toggleStoreStatus(storeId, false, reason);
+      setStores((prev) =>
+        prev.map((s) => s.storeId === storeId ? { ...s, ...updated } : s)
+      );
+      setDisableTarget(null);
+    } catch (err) {
+      if (err.status === 404) {
+        setStores((prev) => prev.filter((s) => s.storeId !== storeId));
+        setDisableTarget(null);
+      }
+      setActionError({ storeId, message: describeToggleError(err, "No se pudo inhabilitar la tienda.") });
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
+  const handleEnableStore = async (storeId) => {
+    setTogglingId(storeId);
+    setActionError(null);
+    try {
+      const updated = await toggleStoreStatus(storeId, true, null);
+      setStores((prev) =>
+        prev.map((s) => s.storeId === storeId ? { ...s, ...updated } : s)
+      );
+    } catch (err) {
+      if (err.status === 404) {
+        setStores((prev) => prev.filter((s) => s.storeId !== storeId));
+      }
+      setActionError({ storeId, message: describeToggleError(err, "No se pudo habilitar la tienda.") });
+    } finally {
+      setTogglingId(null);
+    }
+  };
 
   useEffect(() => {
     const load = async () => {
       setLoadingStores(true);
       setStoresError(null);
-      const fetchStores =
-        role === "SUPERADMIN" ? getAllStores : () => getStoresByUser(userId);
+      const fetchStores = isSuperAdmin
+        ? () => getAllStores()
+        : () => getStoresByUser(userId);
       try {
         const data = await fetchStores();
         const tiendas = Array.isArray(data)
@@ -101,7 +167,7 @@ const MyStore = () => {
       <Sidebar
         menuItems={menuItems}
         brandName="VEXIO"
-        brandSub={role === "SUPERADMIN" ? "SUPER ADMIN" : "ADMIN"}
+        brandSub={isSuperAdmin ? "SUPER ADMIN" : "ADMIN"}
         onLogout={logout}
         useImageLogo={true}
         logoUrl={storeSettings[stores[0]?.storeId]?.basic?.logoPreview ?? null}
@@ -116,7 +182,7 @@ const MyStore = () => {
           showAi={true}
           showBell={true}
           showSettings={true}
-          isSuperAdmin={role === "SUPERADMIN"}
+          isSuperAdmin={isSuperAdmin}
           searchValue={search}
           onSearchChange={(e) => setSearch(e.target.value)}
           searchPlaceholder={isTransacciones ? "Buscar transaccion..." : isInformeVentas ? "Buscar plan..." : "Buscar tienda o ID..."}
@@ -129,7 +195,7 @@ const MyStore = () => {
           <main className="admin-page-body">
 
             {/* "" Vista condicional """""""""""""""""""""""" */}
-            {isTransacciones ? (
+            {isTransacciones && isSuperAdmin ? (
               <Transaction />
             ) : isUsuarios ? (
               <PlatformUsersPanel />
@@ -139,9 +205,9 @@ const MyStore = () => {
               <>
                 <div className="ms-section-header">
                   <div>
-                    <h1 className="ms-section-title">Mis tiendas</h1>
+                    <h1 className="ms-section-title">{isSuperAdmin ? "Tiendas" : "Mis tiendas"}</h1>
                     <div className="ms-section-meta">
-                      <p className="ms-section-sub">Gestiona y accede a tus tiendas</p>
+                      <p className="ms-section-sub">{isSuperAdmin ? "Todas las tiendas de la plataforma" : "Gestiona y accede a tus tiendas"}</p>
                       {stores.length > 0 && (
                         <span className="ms-section-count">{stores.length} tienda{stores.length !== 1 ? "s" : ""}</span>
                       )}
@@ -173,6 +239,19 @@ const MyStore = () => {
         </div>
       )}
 
+      {actionError && !disableTarget && (
+        <div className="ms-state ms-state--error">
+          <span>{actionError.message}</span>
+          <button
+            className="ms-state-dismiss"
+            onClick={() => setActionError(null)}
+            aria-label="Cerrar"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
                 <div className="ms-grid">
                   {!loadingStores &&
                     filtered.map((store, index) => (
@@ -190,9 +269,9 @@ const MyStore = () => {
                               : undefined,
                           }}
                         >
-                          <span className={`ms-store-badge ms-store-badge--${store.isActive ? "activa" : "borrador"}`}>
+                          <span className={`ms-store-badge ms-store-badge--${store.isActive ? "activa" : store.disabledReason ? "inhabilitada" : "borrador"}`}>
                             {store.isActive && <span className="ms-badge-dot" />}
-                            {store.isActive ? "ACTIVA" : "BORRADOR"}
+                            {store.isActive ? "ACTIVA" : store.disabledReason ? "INHABILITADA" : "BORRADOR"}
                           </span>
                           {storeSettings[store.storeId]?.basic?.logoPreview ? (
                             <img
@@ -232,6 +311,28 @@ const MyStore = () => {
                               Ver tienda <FiExternalLink size={11} />
                             </button>
                           </div>
+
+                          {isSuperAdmin && (
+                            <div className="ms-store-actions">
+                              <button
+                                className={`ms-toggle-btn ms-toggle-btn--${store.isActive ? "disable" : "enable"}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActionError(null);
+                                  if (store.isActive) {
+                                    setDisableTarget(store);
+                                  } else {
+                                    handleEnableStore(store.storeId);
+                                  }
+                                }}
+                                disabled={togglingId === store.storeId}
+                              >
+                                {togglingId === store.storeId
+                                  ? "Procesando…"
+                                  : store.isActive ? "Inhabilitar" : "Habilitar"}
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -257,6 +358,21 @@ const MyStore = () => {
 
         </div>
       </div>
+
+      {/* Modal inhabilitación */}
+      {disableTarget && (
+        <DisableStoreModal
+          store={disableTarget}
+          onConfirm={handleDisableStore}
+          onClose={() => {
+            if (togglingId) return;
+            setDisableTarget(null);
+            setActionError(null);
+          }}
+          loading={togglingId === disableTarget?.storeId}
+          error={actionError?.storeId === disableTarget.storeId ? actionError.message : null}
+        />
+      )}
     </div>
   );
 };

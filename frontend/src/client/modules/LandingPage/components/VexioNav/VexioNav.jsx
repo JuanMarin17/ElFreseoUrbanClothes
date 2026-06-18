@@ -8,7 +8,7 @@ const isAuthenticated = () => !!localStorage.getItem('jwt');
 const NAV_LINKS = [
   { id: 'vx-features', label: 'Características' },
   { id: 'vx-how',      label: 'Cómo funciona'  },
-  { id: 'vx-pricing',  label: 'Precios'         },
+  { id: 'vx-pricing',  label: 'Planes'         },
   { id: 'vx-reviews',  label: 'Reseñas'         },
   { id: 'vx-faq',      label: 'FAQ'             },
 ];
