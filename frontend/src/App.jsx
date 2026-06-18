@@ -14,6 +14,7 @@ import { TokenGuard } from "./admin/modules/auth/pages/hook/TokenGuard.jsx";
 import { AuthProvider as MultiTenantAuthProvider } from "./multi-tenant/context/AuthContext.jsx";
 import { StoreProvider } from "./multi-tenant/pages/StoreContext.jsx";
 import MyStoreLayout from "./multi-tenant/pages/MyStoreLayout.jsx";
+import StoreBuilderChat from "./multi-tenant/components/StoreBuilderChat/StoreBuilderChat.jsx";
 
 // ── Suscripciones ─────────────────────────────────────────────────────────────
 const SubscriptionPlansPage = lazy(
@@ -65,6 +66,9 @@ const SuppliersPage = lazy(
 );
 const PromotionsDashboard = lazy(
   () => import("./admin/modules/administration/promotions/PromotionsDashboards.jsx"),
+);
+const StoreSettings = lazy(
+  () => import("./admin/modules/administration/pages/StoreSettings/StoreSettings.jsx"),
 );
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
@@ -193,6 +197,7 @@ function App() {
       <MultiTenantAuthProvider>
         <StoreProvider>
           <TokenGuard />
+          <StoreBuilderChat />
           <div className="main-container">
             <Suspense fallback={<PageLoader />}>
               <AnimatePresence mode="wait">
@@ -283,6 +288,7 @@ function App() {
                     <Route path="report"                element={<Report />} />
                     <Route path="pedidos"               element={<OrdersManagement />} />
                     <Route path="alertas"               element={<ShockAlerts />} />
+                    <Route path="configuracion"         element={<StoreSettings />} />
                   </Route>
 
                   {/* ── Admin por tienda /tienda/:slug/admin ─────────────── */}
@@ -306,6 +312,7 @@ function App() {
                       <Route path="cms/locations" element={<CMSLocations />} />
                       <Route path="cms/returns"   element={<CMSReturns />} />
                       <Route path="cms/faq"       element={<CMSFAQ />} />
+                      <Route path="configuracion" element={<StoreSettings />} />
                     </Route>
                   </Route>
 

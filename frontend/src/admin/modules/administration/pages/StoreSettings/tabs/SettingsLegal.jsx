@@ -29,14 +29,15 @@ export default function SettingsLegal({ settings, onSave }) {
 
   useEffect(() => {
     if (!settings) return;
-    const legal = settings.legal ?? {};
+    const legal   = settings.legal   ?? {};
+    const payment = settings.payment ?? {};
     setForm(f => ({
       ...f,
       legalName:    legal.legalName    ?? '',
       idNumber:     legal.idNumber     ?? '',
       documentName: legal.documentName ?? 'CUIT',
-      paymentMethod: settings.paymentMethod ?? 'mercadopago',
-      shipping:      settings.shipping      ?? 'fisico',
+      paymentMethod: payment.paymentMethod ?? 'mercadopago',
+      shipping:      payment.shipping      ?? 'fisico',
     }));
   }, [settings]);
 
@@ -51,9 +52,8 @@ export default function SettingsLegal({ settings, onSave }) {
     setSaving(true);
     try {
       await onSave({
-        legal:         { legalName: form.legalName, idNumber: form.idNumber, documentName: form.documentName },
-        paymentMethod: form.paymentMethod,
-        shipping:      form.shipping,
+        legal:   { legalName: form.legalName, idNumber: form.idNumber, documentName: form.documentName },
+        payment: { paymentMethod: form.paymentMethod, shipping: form.shipping },
       });
       showMsg('Información legal guardada.');
     } catch (err) {

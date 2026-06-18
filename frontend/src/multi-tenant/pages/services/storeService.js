@@ -161,8 +161,12 @@ export async function getStoreSettingsByHeader(storeId) {
 
 /**
  * POST /stores/settings/createSettings
- * Semántica PATCH: solo actualiza los campos que vienen en el body.
- * El campo `completedStep` es obligatorio.
+ * `completedStep` es obligatorio en TODA llamada (400 si se omite).
+ * Cada sección de nivel superior (styles, basic, components, plan, layout,
+ * legal, payment) se reemplaza completa — el backend hace un overwrite del
+ * JSON, no un merge clave por clave. Solo las secciones que se omiten del
+ * body quedan intactas. Para cambiar un solo valor dentro de una sección:
+ * leer la sección completa (GET), mergear en el cliente, y reenviarla entera.
  */
 export async function saveStoreSettings(storeId, payload) {
   return request(`${SETTINGS_URL}/createSettings`, {

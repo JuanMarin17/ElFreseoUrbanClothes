@@ -10,9 +10,11 @@ const API_BASE = import.meta.env.VITE_API_URL;
 function buildHeaders(extra = {}) {
   const jwt     = localStorage.getItem("jwt");
   const storeId = localStorage.getItem("storeId");
-  const h = { Accept: "application/json", ...extra };
-  if (jwt && jwt !== "null")         h.Authorization = `Bearer ${jwt}`;
-  if (storeId && storeId !== "null") h["X-Store-Id"]  = storeId;
+  if (!storeId || storeId === "null") {
+    throw new Error("No hay una tienda seleccionada (falta storeId).");
+  }
+  const h = { Accept: "application/json", "X-Store-Id": storeId, ...extra };
+  if (jwt && jwt !== "null") h.Authorization = `Bearer ${jwt}`;
   return h;
 }
 

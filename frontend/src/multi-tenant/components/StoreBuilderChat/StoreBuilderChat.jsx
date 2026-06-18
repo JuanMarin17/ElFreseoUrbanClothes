@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "../../pages/useStore";
 import {
   sendBuilderMessage,
@@ -27,6 +27,36 @@ const WIZARD_PATHS = new Set([
   "/cms/faq",
   "/crear-tienda",
 ]);
+
+// Orden real del wizard (mismo orden que StepProgress.jsx / ProtectedStep.jsx)
+const WIZARD_STEPS = [
+  { path: "/plan",                label: "Elegir plan" },
+  { path: "/crear-tienda/basico", label: "Información básica" },
+  { path: "/crear-tienda/legal",  label: "Información legal" },
+  { path: "/crear-tienda/pagos",  label: "Métodos de pago y envío" },
+  { path: "/layout",              label: "Selección de layout" },
+  { path: "/customer",            label: "Colores y estilos" },
+  { path: "/component",           label: "Componentes visuales" },
+  { path: "/widgets",             label: "Widgets" },
+  { path: "/cms",                 label: "Contenido (CMS)" },
+  { path: "/crear-tienda",        label: "Confirmar y crear tienda" },
+];
+
+function currentWizardStep(pathname) {
+  const normalized = pathname.startsWith("/cms/") ? "/cms" : pathname;
+  const idx = WIZARD_STEPS.findIndex((s) => s.path === normalized);
+  return idx >= 0 ? { ...WIZARD_STEPS[idx], index: idx, total: WIZARD_STEPS.length } : null;
+}
+
+// A qué paso conviene llevar al usuario después de aplicar cada tipo de sugerencia
+const NEXT_STEP_PATH = {
+  SUGGEST_BASIC:      "/crear-tienda/legal",
+  SUGGEST_LEGAL:      "/crear-tienda/pagos",
+  SUGGEST_PAYMENT:    "/layout",
+  SUGGEST_LAYOUT:     "/customer",
+  SUGGEST_STYLES:     "/component",
+  SUGGEST_COMPONENTS: "/widgets",
+};
 
 const SESSION_KEY = "builder_chat_session_id";
 
@@ -148,7 +178,9 @@ function SuggestionCard({ action, actionData, onApply, onEdit, onReject }) {
 ════════════════════════════════════════ */
 export default function StoreBuilderChat() {
   const location = useLocation();
-  const { state, saveProgress } = useStore();
+  const navigate = useNavigate();
+  const { state, completeStep } = useStore();
+  const wizardStep = currentWizardStep(location.pathname);
 
   const [isOpen,         setIsOpen]         = useState(false);
   const [messages,       setMessages]       = useState([]);
@@ -219,45 +251,45 @@ export default function StoreBuilderChat() {
     return () => { cancelled = true; };
   }, [isOpen, historyLoaded, sessionId, isLoggedIn, messages.length]);
 
-  /* ── Aplicar acción al wizard ── */
+  /* ── Aplicar acción al wizard (completa el paso, no solo guarda un borrador) ── */
   const applyAction = useCallback((action, actionData) => {
     switch (action) {
       case "SUGGEST_BASIC":
-        saveProgress("basic", {
+        completeStep("basic", {
           ...(state.basic ?? {}),
           name:        actionData.name        ?? "",
           description: actionData.description ?? "",
         });
         break;
       case "SUGGEST_STYLES":
-        saveProgress("styles", { ...(state.styles ?? {}), ...actionData });
+        completeStep("styles", { ...(state.styles ?? {}), ...actionData });
         break;
       case "SUGGEST_COMPONENTS":
-        saveProgress("components", { ...(state.components ?? {}), ...actionData });
+        completeStep("components", { ...(state.components ?? {}), ...actionData });
         break;
       case "SUGGEST_LAYOUT":
-        saveProgress("layout", {
+        completeStep("layout", {
           id:          actionData.id,
           title:       actionData.title,
           description: actionData.description,
         });
         break;
       case "SUGGEST_LEGAL":
-        saveProgress("legal", {
+        completeStep("legal", {
           ...(state.legal ?? {}),
           legalName: actionData.legalName ?? "",
           idNumber:  actionData.idNumber  ?? "",
         });
         break;
       case "SUGGEST_PAYMENT":
-        saveProgress("payment", {
+        completeStep("payment", {
           ...(state.payment ?? {}),
           paymentMethod: actionData.paymentMethod ?? "",
           shipping:      actionData.shipping       ?? "",
         });
         break;
     }
-  }, [saveProgress, state]);
+  }, [completeStep, state]);
 
   /* ── Enviar mensaje ── */
   const doSend = useCallback(async (overrideText, { suppressAction = false } = {}) => {
@@ -276,7 +308,13 @@ export default function StoreBuilderChat() {
     setLoading(true);
 
     try {
-      const res = await sendBuilderMessage(sessionId, content);
+      const res = await sendBuilderMessage(sessionId, content, {
+        path: location.pathname,
+        step: wizardStep?.label ?? null,
+        stepIndex: wizardStep?.index ?? null,
+        totalSteps: wizardStep?.total ?? null,
+        completedStep: state.completedStep,
+      });
 
       if (!sessionId && res.session_id) setSessionId(res.session_id);
 
@@ -304,15 +342,21 @@ export default function StoreBuilderChat() {
     } finally {
       setLoading(false);
     }
-  }, [text, loading, sessionId, isLoggedIn]);
+  }, [text, loading, sessionId, isLoggedIn, location.pathname, wizardStep, state.completedStep]);
 
   /* ── Handlers de sugerencia ── */
   const handleApply = useCallback(() => {
     if (!pendingAction) return;
     applyAction(pendingAction.action, pendingAction.action_data ?? {});
     setPendingAction(null);
-    doSend("Perfecto, apliqué la sugerencia.", { suppressAction: true });
-  }, [pendingAction, applyAction, doSend]);
+    const nextPath = NEXT_STEP_PATH[pendingAction.action];
+    if (nextPath) {
+      doSend("Perfecto, apliqué la sugerencia. Avanzando al siguiente paso.", { suppressAction: true });
+      navigate(nextPath);
+    } else {
+      doSend("Perfecto, apliqué la sugerencia.", { suppressAction: true });
+    }
+  }, [pendingAction, applyAction, doSend, navigate]);
 
   /* Editar: pre-rellena el formulario y cierra el panel para que el usuario lo edite */
   const handleEdit = useCallback(() => {
