@@ -1,117 +1,131 @@
-import React, { useState } from 'react';
-import { 
-  CreditCard, 
-  ArrowUpRight, 
-  DollarSign, 
-  Search, 
-  Filter, 
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  CreditCard,
+  DollarSign,
+  Search,
+  Filter,
   Layers,
   ArrowUpDown,
-  Download,
-  AlertCircle,
-  CheckCircle2,
+  RefreshCw,
+  AlertTriangle,
   XCircle
 } from 'lucide-react';
+import { getAllTransactions } from '../services/transactionService';
+import { getAllStores } from '../services/storeService';
 import './Transaction.css';
 
-const INITIAL_TRANSACTIONS = [
-  {
-    id: "TXN-2026-8801",
-    customer: { name: "Marcos Acuña", email: "m.acuna@dev.io" },
-    plan: "Premium",
-    amount: 49.99,
-    date: "Hoy, 02:14 PM",
-    gateway: "Stripe",
-    status: "Aprobado"
-  },
-  {
-    id: "TXN-2026-8800",
-    customer: { name: "Elena Rostova", email: "elena.ros@design.com" },
-    plan: "Pro",
-    amount: 24.99,
-    date: "Hoy, 11:05 AM",
-    gateway: "PayPal",
-    status: "Aprobado"
-  },
-  {
-    id: "TXN-2026-8799",
-    customer: { name: "Daniel Ortega", email: "d.ortega@テック.jp" },
-    plan: "Basico",
-    amount: 9.99,
-    date: "Ayer, 05:40 PM",
-    gateway: "Stripe",
-    status: "Aprobado"
-  },
-  {
-    id: "TXN-2026-8798",
-    customer: { name: "Lucas Silva", email: "lucas.silva@Fintech.br" },
-    plan: "Premium",
-    amount: 49.99,
-    date: "Ayer, 09:12 AM",
-    gateway: "Tarjeta de Crédito",
-    status: "Fallido"
-  },
-  {
-    id: "TXN-2026-8797",
-    customer: { name: "Camila Buendía", email: "cami.buendia@gmail.com" },
-    plan: "Pro",
-    amount: 24.99,
-    date: "29 May 2026",
-    gateway: "Stripe",
-    status: "Disputa"
-  }
-];
+const STATUS_CONFIG = {
+  APPROVED:  { label: 'Aprobado',   cls: 'status-approved' },
+  PENDING:   { label: 'Pendiente',  cls: 'status-dispute'  },
+  IN_PROCESS:{ label: 'En proceso', cls: 'status-dispute'  },
+  REJECTED:  { label: 'Rechazado',  cls: 'status-failed'   },
+  CANCELLED: { label: 'Cancelado',  cls: 'status-failed'   },
+  REFUNDED:  { label: 'Reembolsado', cls: 'status-failed'  },
+};
+
+const formatCOP = (n) =>
+  new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(n ?? 0);
+
+const formatDate = (iso) => {
+  if (!iso) return '—';
+  return new Intl.DateTimeFormat('es-CO', {
+    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+  }).format(new Date(iso));
+};
+
+const getStatusConfig = (status) =>
+  STATUS_CONFIG[status?.toUpperCase()] ?? { label: status ?? '—', cls: '' };
+
+const planBadgeClass = (plan) => {
+  const p = (plan ?? '').toUpperCase();
+  if (p.includes('PREMIUM')) return 'plan-premium';
+  if (p.includes('PRO'))     return 'plan-pro';
+  if (p.includes('BASIC'))   return 'plan-basico';
+  return '';
+};
 
 export default function Transactions() {
-  const [transactions] = useState(INITIAL_TRANSACTIONS);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [planFilter, setPlanFilter] = useState("Todos");
+  const [transactions, setTransactions] = useState([]);
+  const [stores,       setStores]       = useState([]);
+  const [loading,       setLoading]     = useState(false);
+  const [error,         setError]       = useState(null);
+  const [searchTerm,    setSearchTerm]  = useState("");
+  const [planFilter,    setPlanFilter]  = useState("Todos");
 
-  // Filtro inteligente en tiempo real
-  const filteredTransactions = transactions.filter(txn => {
-    const matchesSearch = 
-      txn.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      txn.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      txn.customer.email.toLowerCase().includes(searchTerm.toLowerCase());
+  const load = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [txnsRaw, storesRaw] = await Promise.all([
+        getAllTransactions(),
+        getAllStores().catch(() => []),
+      ]);
+      const txns = Array.isArray(txnsRaw) ? txnsRaw : (txnsRaw?.content ?? txnsRaw?.data ?? []);
+      const storeList = Array.isArray(storesRaw) ? storesRaw : (storesRaw?.content ?? storesRaw?.data ?? []);
+      setTransactions(txns);
+      setStores(storeList);
+    } catch (err) {
+      setError(err.message ?? 'No se pudieron cargar las transacciones.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const matchesPlan = planFilter === "Todos" || txn.plan === planFilter;
+  useEffect(() => { load(); }, []);
 
+  const storeMap = useMemo(
+    () => new Map(stores.map((s) => [s.storeId, s])),
+    [stores],
+  );
+
+  const planOptions = useMemo(
+    () => Array.from(new Set(transactions.map((t) => t.planName).filter(Boolean))),
+    [transactions],
+  );
+
+  const filteredTransactions = transactions.filter((txn) => {
+    const store = storeMap.get(txn.storeId);
+    const haystack = `${txn.transactionId ?? ''} ${store?.name ?? ''} ${txn.mpPaymentId ?? ''}`.toLowerCase();
+    const matchesSearch = haystack.includes(searchTerm.toLowerCase());
+    const matchesPlan = planFilter === "Todos" || txn.planName === planFilter;
     return matchesSearch && matchesPlan;
   });
 
-  // Clases dinámicas para las etiquetas de los planes
-  const getPlanBadgeClass = (plan) => {
-    switch (plan) {
-      case 'Premium': return 'plan-premium';
-      case 'Pro': return 'plan-pro';
-      case 'Basico': return 'plan-basico';
-      default: return '';
-    }
-  };
+  const approved = useMemo(
+    () => transactions.filter((t) => t.status?.toUpperCase() === 'APPROVED'),
+    [transactions],
+  );
+  const totalVolume = approved.reduce((acc, t) => acc + (t.amount ?? 0), 0);
 
-  // Clases dinámicas para el estado del pago
-  const getStatusClass = (status) => {
-    switch (status) {
-      case 'Aprobado': return 'status-approved';
-      case 'Disputa': return 'status-dispute';
-      case 'Fallido': return 'status-failed';
-      default: return '';
-    }
-  };
-
-  // Cálculos financieros basados en el estado actual
-  const totalVolume = transactions.filter(t => t.status === "Aprobado").reduce((acc, t) => acc + t.amount, 0);
+  const leadingPlan = useMemo(() => {
+    if (!approved.length) return null;
+    const counts = {};
+    approved.forEach((t) => { if (t.planName) counts[t.planName] = (counts[t.planName] ?? 0) + 1; });
+    const entries = Object.entries(counts);
+    if (!entries.length) return null;
+    const [name, count] = entries.sort((a, b) => b[1] - a[1])[0];
+    return { name, pct: Math.round((count / approved.length) * 100) };
+  }, [approved]);
 
   return (
     <div className="transactions-container">
-      
+
       {/* ── ENCABEZADO DE LA SECCIÓN ── */}
       <div className="txn-page-header">
         <div>
           <h1 className="txn-title">Historial de Transacciones</h1>
-          <p className="txn-subtitle">Auditoría de pasarela de pagos, suscripciones activas y pasarela recurrente del SaaS.</p>
+          <p className="txn-subtitle">Auditoría de pagos de suscripción de toda la plataforma (MercadoPago).</p>
         </div>
+        <button className="txn-refresh-btn" onClick={load} disabled={loading} title="Recargar">
+          <RefreshCw size={15} className={loading ? 'txn-spin' : ''} />
+        </button>
       </div>
+
+      {error && (
+        <div className="txn-alert">
+          <AlertTriangle size={15} /> {error}
+        </div>
+      )}
 
       {/* ── METRICAS DE FACTURACIÓN ── */}
       <div className="txn-stats-grid">
@@ -120,9 +134,9 @@ export default function Transactions() {
             <DollarSign size={18} />
           </div>
           <div className="kpi-content">
-            <span className="kpi-title-label">Volumen Aprobado (Mes)</span>
-            <h3 className="kpi-main-number">${totalVolume.toFixed(2)}</h3>
-            <span className="kpi-subtext-label text-green">Fuga de capital: 0.00%</span>
+            <span className="kpi-title-label">Volumen Aprobado</span>
+            <h3 className="kpi-main-number">{formatCOP(totalVolume)}</h3>
+            <span className="kpi-subtext-label text-green">{approved.length} transacciones aprobadas</span>
           </div>
         </div>
 
@@ -132,8 +146,10 @@ export default function Transactions() {
           </div>
           <div className="kpi-content">
             <span className="kpi-title-label">Suscripción Líder</span>
-            <h3 className="kpi-main-number">Premium</h3>
-            <span className="kpi-subtext-label">Representa el 60% del MRR</span>
+            <h3 className="kpi-main-number">{leadingPlan?.name ?? '—'}</h3>
+            <span className="kpi-subtext-label">
+              {leadingPlan ? `Representa el ${leadingPlan.pct}% de las aprobadas` : 'Sin datos aún'}
+            </span>
           </div>
         </div>
 
@@ -142,9 +158,9 @@ export default function Transactions() {
             <CreditCard size={18} />
           </div>
           <div className="kpi-content">
-            <span className="kpi-title-label">Pasarela Principal</span>
-            <h3 className="kpi-main-number">Stripe API</h3>
-            <span className="kpi-subtext-label">Tiempo de respuesta: 140ms</span>
+            <span className="kpi-title-label">Total de Transacciones</span>
+            <h3 className="kpi-main-number">{transactions.length}</h3>
+            <span className="kpi-subtext-label">En todas las tiendas de la plataforma</span>
           </div>
         </div>
       </div>
@@ -153,9 +169,9 @@ export default function Transactions() {
       <div className="txn-filter-bar">
         <div className="txn-search-box">
           <Search size={14} className="search-icon-inside" />
-          <input 
-            type="text" 
-            placeholder="Buscar por ID de pago o cliente..." 
+          <input
+            type="text"
+            placeholder="Buscar por ID, tienda o ID de pago..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="txn-input-field"
@@ -165,15 +181,15 @@ export default function Transactions() {
         <div className="txn-select-filters">
           <div className="select-wrapper">
             <Filter size={12} className="select-icon" />
-            <select 
-              value={planFilter} 
+            <select
+              value={planFilter}
               onChange={(e) => setPlanFilter(e.target.value)}
               className="txn-dropdown-select"
             >
               <option value="Todos">Todos los planes</option>
-              <option value="Basico">Plan Básico ($9.99)</option>
-              <option value="Pro">Plan Pro ($24.99)</option>
-              <option value="Premium">Plan Premium ($49.99)</option>
+              {planOptions.map((p) => (
+                <option key={p} value={p}>{p}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -185,54 +201,54 @@ export default function Transactions() {
           <thead>
             <tr>
               <th>ID Transacción <ArrowUpDown size={11} className="sort-arrow" /></th>
-              <th>Usuario Suscrito</th>
-              <th>Plan Adquirido</th>
-              <th>Monto Tarifa</th>
-              <th>Fecha Pasarela</th>
-              <th>Canal de Pago</th>
-              <th>Estado Transacción</th>
-              <th className="text-right">Reporte</th>
+              <th>Tienda</th>
+              <th>Plan</th>
+              <th>Monto</th>
+              <th>Fecha</th>
+              <th>ID Pago (MercadoPago)</th>
+              <th>Estado</th>
             </tr>
           </thead>
           <tbody>
-            {filteredTransactions.length > 0 ? (
-              filteredTransactions.map((txn) => (
-                <tr key={txn.id}>
-                  <td className="font-code text-cyan">{txn.id}</td>
-                  <td>
-                    <div className="txn-user-cell">
-                      <span className="user-fullname">{txn.customer.name}</span>
-                      <span className="user-email-address">{txn.customer.email}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`plan-badge ${getPlanBadgeClass(txn.plan)}`}>
-                      {txn.plan}
-                    </span>
-                  </td>
-                  <td className="font-weight-heavy">${txn.amount.toFixed(2)}</td>
-                  <td className="text-gray-dim">{txn.date}</td>
-                  <td className="text-gray-dim font-sm">{txn.gateway}</td>
-                  <td>
-                    <span className={`txn-status-indicator ${getStatusClass(txn.status)}`}>
-                      <span className="indicator-circle"></span>
-                      {txn.status}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="txn-row-actions">
-                      <button className="download-btn-table" title="Descargar Log JSON">
-                        <Download size={13} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+            {loading ? (
+              <tr>
+                <td colSpan="7" className="txn-empty-state">Cargando transacciones...</td>
+              </tr>
+            ) : filteredTransactions.length > 0 ? (
+              filteredTransactions.map((txn) => {
+                const store = storeMap.get(txn.storeId);
+                const sc = getStatusConfig(txn.status);
+                return (
+                  <tr key={txn.transactionId}>
+                    <td className="font-code text-cyan">{txn.transactionId}</td>
+                    <td>
+                      <div className="txn-user-cell">
+                        <span className="user-fullname">{store?.name ?? txn.storeId}</span>
+                        {store?.slug && <span className="user-email-address">{store.slug}.vexio.com</span>}
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`plan-badge ${planBadgeClass(txn.planName)}`}>
+                        {txn.planName ?? '—'}
+                      </span>
+                    </td>
+                    <td className="font-weight-heavy">{formatCOP(txn.amount)}</td>
+                    <td className="text-gray-dim">{formatDate(txn.createdAt)}</td>
+                    <td className="text-gray-dim font-sm font-code">{txn.mpPaymentId ?? '—'}</td>
+                    <td>
+                      <span className={`txn-status-indicator ${sc.cls}`}>
+                        <span className="indicator-circle"></span>
+                        {sc.label}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
-                <td colSpan="8" className="txn-empty-state">
+                <td colSpan="7" className="txn-empty-state">
                   <XCircle size={28} className="empty-state-graphic" />
-                  <p>Ningún registro coincide con los filtros de pasarela establecidos.</p>
+                  <p>Ningún registro coincide con los filtros establecidos.</p>
                 </td>
               </tr>
             )}

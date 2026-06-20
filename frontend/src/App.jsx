@@ -3,7 +3,8 @@ import { AnimatePresence } from "framer-motion";
 import { Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import "./animations.css";
-import { AuthProvider } from "./admin/modules/auth/pages/hook/Useauth.jsx";
+import { AuthProvider, useAuth } from "./admin/modules/auth/pages/hook/Useauth.jsx";
+import UserNotifToast from "./client/components/UserNotifToast/UserNotifToast.jsx";
 
 import ProductPage from "./client/modules/ProductPage/ProductPage.jsx";
 
@@ -14,6 +15,7 @@ import { TokenGuard } from "./admin/modules/auth/pages/hook/TokenGuard.jsx";
 import { AuthProvider as MultiTenantAuthProvider } from "./multi-tenant/context/AuthContext.jsx";
 import { StoreProvider } from "./multi-tenant/pages/StoreContext.jsx";
 import MyStoreLayout from "./multi-tenant/pages/MyStoreLayout.jsx";
+import StoreBuilderChat from "./multi-tenant/components/StoreBuilderChat/StoreBuilderChat.jsx";
 
 // ── Suscripciones ─────────────────────────────────────────────────────────────
 const SubscriptionPlansPage = lazy(
@@ -138,6 +140,9 @@ const StoreOrderDetail = lazy(() => import("./multi-tenant/pages/OrderDetail/Ord
 const Transaction = lazy(
   () => import("./multi-tenant/pages/Transaction/Transaction.jsx"),
 );
+const PlatformUsersPanel = lazy(
+  () => import("./multi-tenant/pages/PlatformUsers/PlatformUsersPanel.jsx"),
+);
 
 // ── CMS ───────────────────────────────────────────────────────────────────────
 const CMSEditor = lazy(() => import("./multi-tenant/cms/CMSeditor.jsx"));
@@ -179,6 +184,12 @@ function PageLoader() {
   );
 }
 
+// Muestra toasts SSE del usuario solo cuando está autenticado
+function UserNotifToastWrapper() {
+  const { isAuthenticated } = useAuth();
+  return <UserNotifToast enabled={isAuthenticated} />;
+}
+
 // ── App ───────────────────────────────────────────────────────────────────────
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -193,6 +204,8 @@ function App() {
       <MultiTenantAuthProvider>
         <StoreProvider>
           <TokenGuard />
+          <UserNotifToastWrapper />
+          <StoreBuilderChat />
           <div className="main-container">
             <Suspense fallback={<PageLoader />}>
               <AnimatePresence mode="wait">
@@ -250,12 +263,6 @@ function App() {
                   <Route path="/dashboard/subscription/failure" element={<SubscriptionFailure />} />
                   <Route path="/dashboard/subscription/pending" element={<SubscriptionPending />} />
 
-                  {/* ── SuperAdmin (MyStoreLayout) ───────────────────────── */}
-                  <Route element={<MyStoreLayout />}>
-                    <Route path="/mis-tiendas"   element={<MyStore />} />
-                    <Route path="/transacciones" element={<Transaction />} />
-                  </Route>
-
                   {/* ── Tienda pública ───────────────────────────────────── */}
                   <Route path="/tienda/:slug" element={<StorePage />} />
                   <Route path="/tienda/:slug/checkout" element={<CheckoutPage />} />
@@ -264,25 +271,38 @@ function App() {
 
                   {/* ── Rutas protegidas ─────────────────────────────────── */}
                   <Route element={<ProtectedRoute />}>
-                    <Route path="/tiendas" element={<MyStore />} />
+                    <Route element={<MyStoreLayout />}>
+                      <Route path="/mis-tiendas"   element={<MyStore />} />
+                      <Route path="/tiendas"       element={<MyStore />} />
+                      <Route path="/transacciones" element={<Transaction />} />
+                    </Route>
                     <Route path="/ordenes" element={<OrdersDashboard />} />
                     <Route path="/mi-tienda/productos" element={<StoreProductsAdmin />} />
                     <Route path="/inventario" element={<Navigate to="/tiendas" replace />} />
                   </Route>
 
+                  {/* ── SUPERADMIN: panel de usuarios de toda la plataforma ── */}
+                  <Route element={<ProtectedRoute allowedRoles={["SUPERADMIN"]} />}>
+                    <Route element={<MyStoreLayout />}>
+                      <Route path="/usuarios" element={<PlatformUsersPanel />} />
+                    </Route>
+                  </Route>
+
                   {/* ── Admin plano (ruta legacy /admin) ─────────────────── */}
-                  <Route path="/admin" element={<AdminLayout />}>
-                    <Route index element={<Navigate to="dashboard" replace />} />
-                    <Route path="IA"                    element={<IAAdmin />} />
-                    <Route path="dashboard"             element={<Dashboard />} />
-                    <Route path="subir-producto"        element={<UploadProduct />} />
-                    <Route path="editar-producto/:id"   element={<EditProduct />} />
-                    <Route path="inventario"            element={<InventaryStock />} />
-                    <Route path="usuarios"              element={<Dashboard />} />
-                    <Route path="promociones"           element={<PromotionsDashboard />} />
-                    <Route path="report"                element={<Report />} />
-                    <Route path="pedidos"               element={<OrdersManagement />} />
-                    <Route path="alertas"               element={<ShockAlerts />} />
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="/admin" element={<AdminLayout />}>
+                      <Route index element={<Navigate to="dashboard" replace />} />
+                      <Route path="IA"                    element={<IAAdmin />} />
+                      <Route path="dashboard"             element={<Dashboard />} />
+                      <Route path="subir-producto"        element={<UploadProduct />} />
+                      <Route path="editar-producto/:id"   element={<EditProduct />} />
+                      <Route path="inventario"            element={<InventaryStock />} />
+                      <Route path="usuarios"              element={<Dashboard />} />
+                      <Route path="promociones"           element={<PromotionsDashboard />} />
+                      <Route path="report"                element={<Report />} />
+                      <Route path="pedidos"               element={<OrdersManagement />} />
+                      <Route path="alertas"               element={<ShockAlerts />} />
+                    </Route>
                   </Route>
 
                   {/* ── Admin por tienda /tienda/:slug/admin ─────────────── */}
