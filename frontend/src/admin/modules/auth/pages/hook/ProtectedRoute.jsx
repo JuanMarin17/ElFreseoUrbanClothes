@@ -22,7 +22,7 @@ export const ProtectedRoute = ({ allowedRoles }) => {
   }
 
   // 🔹 3. Usuario sin permisos
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  if (allowedRoles && !allowedRoles.includes(user.rolId)) {
     return <Navigate to="/" replace />;
   }
 

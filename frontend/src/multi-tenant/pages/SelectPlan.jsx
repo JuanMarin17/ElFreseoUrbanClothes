@@ -25,14 +25,19 @@ const FEATURE_LABEL_MAP = {
   whiteLabel:   "Sin marca Vexio",
   exportData:   "Exportación de datos",
   ai:           "Asistente IA",
+  ia:           "Asistente IA",
   reports:      "Informes avanzados",
 };
+
+// Si llega una key sin mapear, la mostramos legible en vez de cruda (ej: "customField" → "Custom Field")
+const prettyFeatureKey = (k) =>
+  k.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase()).trim();
 
 const PLAN_STATIC_BENEFITS = {
   GRATUITO: ["Tienda pública en Vexio", "Pasarela de pago básica", "Soporte por email"],
   BASICO:   ["Tienda pública en Vexio", "Dominio personalizado", "Pasarela de pago completa", "Soporte estándar"],
-  PRO:      ["Tienda pública en Vexio", "Dominio personalizado", "Punto de venta presencial", "Analíticas avanzadas", "Soporte prioritario"],
-  PREMIUM:  ["Tienda pública en Vexio", "Dominio personalizado", "Punto de venta presencial", "Analíticas avanzadas", "Múltiples usuarios", "Sin marca Vexio", "Soporte 24/7"],
+  PRO:      ["Tienda pública en Vexio", "Dominio personalizado", "Analíticas avanzadas", "Soporte prioritario"],
+  PREMIUM:  ["Tienda pública en Vexio", "Dominio personalizado", "Punto de venta presencial", "Analíticas avanzadas", "Múltiples usuarios", "Soporte 24/7"],
 };
 
 function parsePlanFeatures(plan) {
@@ -55,8 +60,8 @@ function parsePlanFeatures(plan) {
       hasExtras = true;
       const label = FEATURE_LABEL_MAP[k];
       if (label) lines.push(label);
-      else if (v !== true) lines.push(`${k}: ${v}`);
-      else lines.push(k);
+      else if (v !== true) lines.push(`${prettyFeatureKey(k)}: ${v}`);
+      else lines.push(prettyFeatureKey(k));
     }
   } catch { {/** */} }
   if (!hasExtras && PLAN_STATIC_BENEFITS[plan.name]) {

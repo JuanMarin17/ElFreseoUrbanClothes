@@ -1,18 +1,21 @@
 import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../admin/modules/auth/pages/hook/Useauth";
-import { Store, CreditCard } from "lucide-react";
+import { Home, Store, CreditCard, Users } from "lucide-react";
 import Sidebar from "../../admin/modules/administration/components/Sidebar/Sidebar";
 import AdminHeader from "../../admin/modules/administration/components/AdminHeader/AdminHeader";
 import IAAdmin from "../../admin/modules/administration/pages/IAAdmin/AIAdmin";
 import "../../admin/modules/administration/components/AdminLayout/AdminLayout.css";
 
 const SUPERADMIN_MENU = [
+  { path: "/market",        label: "INICIO",        icon: Home       },
   { path: "/mis-tiendas",   label: "MIS TIENDAS",   icon: Store      },
   { path: "/transacciones", label: "TRANSACCIONES", icon: CreditCard },
+  { path: "/usuarios",      label: "USUARIOS",      icon: Users      },
 ];
 
 const ADMIN_MENU = [
+  { path: "/market",        label: "INICIO",        icon: Home       },
   { path: "/mis-tiendas",   label: "MIS TIENDAS",   icon: Store      },
   { path: "/transacciones", label: "TRANSACCIONES", icon: CreditCard },
 ];
@@ -22,16 +25,16 @@ const MyStoreLayout = () => {
   const location = useLocation();
 
   const name = user?.userName ?? user?.name ?? "Usuario";
-  const role = "SUPERADMIN"; // ajusta cuando tengas roles reales
+  const role = user?.rolId ?? "OWNER";
 
   const menuItems = role === "SUPERADMIN" ? SUPERADMIN_MENU : ADMIN_MENU;
 
   const [isAiOpen, setIsAiOpen] = useState(false);
 
   const searchPlaceholder =
-    location.pathname === "/transacciones"
-      ? "Buscar transacción..."
-      : "Buscar tienda o ID...";
+    location.pathname === "/transacciones" ? "Buscar transacción..."
+    : location.pathname === "/usuarios"    ? "Buscar usuario..."
+    : "Buscar tienda o ID...";
 
   return (
     <div className="admin-terminal-wrapper">
