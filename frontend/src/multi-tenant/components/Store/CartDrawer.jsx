@@ -120,7 +120,8 @@ export default function CartDrawer({
 
   const handleCheckout = () => {
     onClose();
-    navigate(`/tienda/${storeSlug}/checkout`, { state: { cart } });
+    const path = storeSlug ? `/tienda/${storeSlug}/checkout` : "/checkout";
+    navigate(path, { state: { cart } });
   };
 
   // Bloquear scroll del body mientras está abierto

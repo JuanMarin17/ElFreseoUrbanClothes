@@ -66,6 +66,27 @@ const SuppliersPage = lazy(
 const PromotionsDashboard = lazy(
   () => import("./admin/modules/administration/promotions/PromotionsDashboards.jsx"),
 );
+const AdminProductsPage = lazy(
+  () => import("./admin/modules/administration/pages/AdminProducts/AdminProductsPage.jsx"),
+);
+const CustomersPage = lazy(
+  () => import("./admin/modules/administration/pages/CustomersPage/CustomersPage.jsx"),
+);
+const AdminReturnsPage = lazy(
+  () => import("./admin/modules/administration/pages/AdminReturns/AdminReturnsPage.jsx"),
+);
+const POSPage = lazy(
+  () => import("./admin/modules/administration/pages/POS/POSPage.jsx"),
+);
+const LocationsPage = lazy(
+  () => import("./admin/modules/administration/pages/Locations/LocationsPage.jsx"),
+);
+const SubscriptionManagement = lazy(
+  () => import("./admin/modules/administration/pages/Subscription/SubscriptionManagement.jsx"),
+);
+const StoreSettings = lazy(
+  () => import("./admin/modules/administration/pages/StoreSettings/StoreSettings.jsx"),
+);
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 const Login = lazy(() => import("./admin/modules/auth/pages/Login/login.jsx"));
@@ -83,6 +104,9 @@ const VerifyCode = lazy(
 );
 
 // ── Cliente ───────────────────────────────────────────────────────────────────
+const CatalogoPage = lazy(
+  () => import("./client/modules/Catalogo/CatalogoPage.jsx"),
+);
 const VexioLanding = lazy(
   () => import("./client/modules/landingPage/pages/VexioLanding/VexioLanding.jsx"),
 );
@@ -132,6 +156,9 @@ const OrdersDashboard = lazy(
 );
 const MyStore = lazy(() => import("./multi-tenant/pages/MyStore.jsx"));
 const StorePage = lazy(() => import("./multi-tenant/pages/StorePage.jsx"));
+const CheckoutPage = lazy(() => import("./multi-tenant/pages/Checkout/CheckoutPage.jsx"));
+const StoreMyOrders = lazy(() => import("./multi-tenant/pages/MyOrders/MyOrders.jsx"));
+const StoreOrderDetail = lazy(() => import("./multi-tenant/pages/OrderDetail/OrderDetail.jsx"));
 const Transaction = lazy(
   () => import("./multi-tenant/pages/Transaction/Transaction.jsx"),
 );
@@ -205,6 +232,7 @@ function App() {
                   <Route path="/" element={<VexioLanding />} />
                   <Route path="/landing" element={<VexioLanding />} />
                   <Route path="/market" element={<MarketPage />} />
+                  <Route path="/catalogo" element={<CatalogoPage />} />
                   <Route path="/products/:productId" element={<ProductPage />} />
                   <Route path="/cuenta/*" element={<AccountPage />} />
 
@@ -262,6 +290,10 @@ function App() {
 
                   {/* ── Tienda pública ───────────────────────────────────── */}
                   <Route path="/tienda/:slug" element={<StorePage />} />
+                  <Route path="/tienda/:slug/checkout" element={<CheckoutPage />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/tienda/:slug/orders" element={<StoreMyOrders />} />
+                  <Route path="/tienda/:slug/orders/:orderId" element={<StoreOrderDetail />} />
 
                   {/* ── Rutas protegidas ─────────────────────────────────── */}
                   <Route element={<ProtectedRoute />}>
@@ -293,14 +325,21 @@ function App() {
                       <Route path="proveedores"           element={<SuppliersPage />} />
                       <Route path="IA"                    element={<IAAdmin />} />
                       <Route path="dashboard"             element={<Dashboard />} />
+                      <Route path="productos"             element={<AdminProductsPage />} />
                       <Route path="subir-producto"        element={<UploadProduct />} />
                       <Route path="editar-producto/:id"   element={<EditProduct />} />
                       <Route path="inventario"            element={<InventaryStock />} />
                       <Route path="usuarios"              element={<Dashboard />} />
+                      <Route path="clientes"              element={<CustomersPage />} />
+                      <Route path="devoluciones"          element={<AdminReturnsPage />} />
+                      <Route path="pos"                   element={<POSPage />} />
+                      <Route path="ubicaciones"           element={<LocationsPage />} />
                       <Route path="promociones"           element={<PromotionsDashboard />} />
                       <Route path="report"                element={<Report />} />
                       <Route path="pedidos"               element={<OrdersManagement />} />
                       <Route path="alertas"               element={<ShockAlerts />} />
+                      <Route path="suscripcion"           element={<SubscriptionManagement />} />
+                      <Route path="configuracion"         element={<StoreSettings />} />
                       <Route path="cms"           element={<CMSEditor />} />
                       <Route path="cms/about"     element={<CMSAbout />} />
                       <Route path="cms/contact"   element={<CMSContact />} />

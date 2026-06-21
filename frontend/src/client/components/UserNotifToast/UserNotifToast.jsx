@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCircle, XCircle, Clock, ShieldAlert, X } from "lucide-react";
+import { CheckCircle, XCircle, Clock, ShieldAlert, Ban, Store, X } from "lucide-react";
 import { useUserNotifToasts } from "../../../hooks/useUserNotifications";
 import "./UserNotifToast.css";
 
@@ -8,6 +8,8 @@ const TYPE_CONFIG = {
   ORDER_CANCELLED:      { icon: XCircle,      color: "#ef4444", label: "Orden cancelada"    },
   PAYMENT_RESULT:       { icon: CheckCircle,  color: "#22c55e", label: "Resultado de pago"  },
   SESSION_ALERT:        { icon: ShieldAlert,  color: "#f97316", label: "Alerta de seguridad" },
+  STORE_DISABLED:       { icon: Ban,          color: "#ef4444", label: "Tienda inhabilitada" },
+  STORE_ENABLED:        { icon: Store,        color: "#22c55e", label: "Tienda habilitada"   },
 };
 
 function UserToastItem({ toast, onDismiss }) {
@@ -23,6 +25,11 @@ function UserToastItem({ toast, onDismiss }) {
         .filter(Boolean).join(" · ")
     : null;
 
+  // Para STORE_DISABLED mostramos el motivo persistido por el backend
+  const disableReason = toast.type === "STORE_DISABLED"
+    ? (toast.data?.reason ?? toast.data?.disabledReason ?? toast.reason ?? null)
+    : null;
+
   return (
     <div className="unt-item" style={{ "--unt-color": color }}>
       <div className="unt-icon"><Icon size={16} /></div>
@@ -31,6 +38,7 @@ function UserToastItem({ toast, onDismiss }) {
         <p className="unt-title">{toast.title}</p>
         {toast.message && <p className="unt-msg">{toast.message}</p>}
         {sessionDetail && <p className="unt-msg unt-msg--mono">{sessionDetail}</p>}
+        {disableReason && <p className="unt-msg">Motivo: {disableReason}</p>}
       </div>
       <button className="unt-close" onClick={() => onDismiss(toast.id)} aria-label="Cerrar">
         <X size={13} />

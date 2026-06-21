@@ -1,77 +1,140 @@
+/* ══════════════════════════════════════════════════════════════════════════════
+   LOYALTY WIDGET — diseño alineado con el sistema de cuenta/admin
+   ══════════════════════════════════════════════════════════════════════════════ */
+
 .loy-root {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  font-family: 'Barlow Condensed', sans-serif;
+  animation: loy-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.loy-header { display: flex; flex-direction: column; gap: 4px; }
-.loy-eyebrow {
-  font-size: 11px;
-  letter-spacing: 2px;
-  color: rgba(255,255,255,0.35);
-  text-transform: uppercase;
-  margin: 0;
-}
-.loy-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: #fff;
-  margin: 0;
-}
-.loy-subtitle {
-  font-size: 13px;
-  color: rgba(255,255,255,0.4);
-  margin: 0;
+@keyframes loy-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Points badge ──────────────────────────────────────────────────────────── */
-.loy-points-badge {
+/* ── Encabezado ────────────────────────────────────────────────────────────── */
+.loy-header {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px 24px;
-  border-radius: 14px;
-  border: 1px solid;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 20px;
   position: relative;
 }
 
-.loy-star-icon { flex-shrink: 0; }
+.loy-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(59,130,246,0.3), rgba(255,255,255,0.04), transparent);
+}
+
+.loy-eyebrow {
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  color: #3b82f6;
+  text-transform: uppercase;
+  margin: 0;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.loy-title {
+  font-size: 2rem;
+  font-weight: 950;
+  color: #fff;
+  margin: 0;
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+.loy-subtitle {
+  font-size: 0.8rem;
+  color: #555;
+  margin: 4px 0 0;
+  font-weight: 500;
+}
+
+/* ── Badge de puntos ───────────────────────────────────────────────────────── */
+.loy-points-badge {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 22px 24px;
+  border-radius: 16px;
+  border: 1px solid;
+  position: relative;
+  overflow: hidden;
+  animation: loy-card-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+
+/* glow detrás del badge */
+.loy-points-badge::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -20px;
+  width: 160px; height: 160px;
+  background: radial-gradient(ellipse, currentColor 0%, transparent 65%);
+  opacity: 0.06;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+@keyframes loy-card-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.loy-badge-star-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.loy-badge-info { flex: 1; min-width: 0; }
 
 .loy-points-number {
-  font-size: 32px;
-  font-weight: 800;
+  font-size: 2.4rem;
+  font-weight: 950;
   margin: 0;
   line-height: 1;
   letter-spacing: -1px;
 }
+
 .loy-points-label {
-  font-size: 12px;
-  color: rgba(255,255,255,0.5);
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.4);
   margin: 4px 0 0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .loy-tier-tag {
   position: absolute;
-  top: 12px;
-  right: 16px;
-  font-size: 10px;
-  font-weight: 700;
+  top: 14px;
+  right: 18px;
+  font-size: 9px;
+  font-weight: 800;
   letter-spacing: 2px;
   text-transform: uppercase;
   border: 1px solid;
   border-radius: 20px;
-  padding: 2px 10px;
+  padding: 3px 10px;
 }
 
-/* ── Progress ──────────────────────────────────────────────────────────────── */
+/* ── Barra de progreso ─────────────────────────────────────────────────────── */
 .loy-progress-card {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 12px;
-  padding: 16px 20px;
+  background: #0f0f0f;
+  border: 1px solid #1a1a1a;
+  border-radius: 14px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  animation: loy-card-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
 }
 
 .loy-progress-header {
@@ -79,43 +142,154 @@
   justify-content: space-between;
   align-items: center;
 }
+
 .loy-progress-label {
-  font-size: 12px;
-  color: rgba(255,255,255,0.5);
-  letter-spacing: 0.5px;
-}
-.loy-progress-pct {
-  font-size: 13px;
+  font-size: 0.72rem;
+  color: #555;
+  letter-spacing: 1px;
+  text-transform: uppercase;
   font-weight: 700;
-  color: rgba(255,255,255,0.8);
+}
+
+.loy-progress-pct {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #ffd700;
 }
 
 .loy-progress-bar {
   height: 6px;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 99px;
   overflow: hidden;
 }
+
 .loy-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #ffd700, #f59e0b);
+  background: linear-gradient(90deg, #b8860b, #ffd700);
   border-radius: 99px;
-  transition: width 0.6s ease;
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
 }
 
 .loy-progress-sub {
-  font-size: 12px;
-  color: rgba(255,255,255,0.35);
+  font-size: 0.72rem;
+  color: #444;
   margin: 0;
 }
-.loy-progress-sub strong { color: rgba(255,255,255,0.7); }
 
-/* ── History card ──────────────────────────────────────────────────────────── */
-.loy-history-card {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.07);
+.loy-progress-sub strong { color: rgba(255, 255, 255, 0.6); }
+
+/* ── Estado vacío ──────────────────────────────────────────────────────────── */
+.loy-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 24px;
+  background: #0f0f0f;
+  border: 1px solid #1a1a1a;
+  border-radius: 16px;
+  gap: 12px;
+  animation: loy-card-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+
+.loy-empty-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3b82f6;
+  margin-bottom: 4px;
+}
+
+.loy-empty-title {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #fff;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.loy-empty-desc {
+  font-size: 0.8rem;
+  color: #555;
+  margin: 0;
+  max-width: 340px;
+  line-height: 1.5;
+}
+
+/* ── Sección ¿Cómo funciona? ───────────────────────────────────────────────── */
+.loy-how-section {
+  animation: loy-card-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both;
+}
+
+.loy-how-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0 0 12px;
+}
+
+.loy-how-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+@media (min-width: 700px) {
+  .loy-how-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.loy-how-card {
+  background: #0f0f0f;
+  border: 1px solid #1a1a1a;
   border-radius: 12px;
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.2s ease;
+}
+
+.loy-how-card:hover {
+  border-color: rgba(59, 130, 246, 0.15);
+}
+
+.loy-how-icon { color: #3b82f6; flex-shrink: 0; }
+
+.loy-how-label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #ddd;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.loy-how-desc {
+  font-size: 0.72rem;
+  color: #555;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.loy-how-desc strong { color: #aaa; }
+
+/* ── Historial ─────────────────────────────────────────────────────────────── */
+.loy-history-card {
+  background: #0f0f0f;
+  border: 1px solid #1a1a1a;
+  border-radius: 14px;
   overflow: hidden;
+  animation: loy-card-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
 }
 
 .loy-history-toggle {
@@ -123,30 +297,37 @@
   align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 14px 20px;
+  padding: 14px 18px;
   background: none;
   border: none;
-  color: rgba(255,255,255,0.6);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 1px;
+  color: #555;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   cursor: pointer;
-  transition: color 0.15s;
+  transition: color 0.15s ease;
+  font-family: 'Barlow Condensed', sans-serif;
 }
-.loy-history-toggle:hover { color: #fff; }
-.loy-history-toggle > *:nth-child(3) { margin-left: auto; }
+
+.loy-history-toggle:hover { color: #aaa; }
+
+/* empuja el último elemento a la derecha */
+.loy-history-toggle > *:last-child { margin-left: auto; }
+.loy-history-toggle > *:nth-last-child(2) { margin-left: auto; }
 
 .loy-count {
-  background: rgba(255,255,255,0.1);
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.2);
   border-radius: 20px;
-  padding: 2px 8px;
-  font-size: 11px;
-  color: #fff;
+  padding: 2px 9px;
+  font-size: 10px;
+  color: #60a5fa;
+  margin-left: 0 !important;
 }
 
 .loy-history-body {
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid #1a1a1a;
 }
 
 .loy-history-empty {
@@ -154,31 +335,35 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 36px 24px;
+  padding: 32px 24px;
   gap: 6px;
-  color: rgba(255,255,255,0.4);
-  font-size: 13px;
+  color: #444;
+  font-size: 0.78rem;
 }
-.loy-empty-icon { margin-bottom: 6px; color: rgba(255,255,255,0.15); }
-.loy-history-hint { font-size: 11px; color: rgba(255,255,255,0.25); margin: 0; }
 
-/* ── Movements ─────────────────────────────────────────────────────────────── */
+.loy-empty-icon { margin-bottom: 6px; color: #222; }
+.loy-history-hint { font-size: 0.7rem; color: #333; margin: 0; }
+
+/* ── Filas de movimiento ───────────────────────────────────────────────────── */
 .loy-movements { display: flex; flex-direction: column; }
 
 .loy-movement-row {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  padding: 13px 18px;
+  border-bottom: 1px solid #111;
+  transition: background 0.15s ease;
 }
+
 .loy-movement-row:last-child { border-bottom: none; }
+.loy-movement-row:hover { background: rgba(255, 255, 255, 0.02); }
 
 .loy-movement-icon {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.04);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -186,24 +371,26 @@
 }
 
 .loy-movement-info { flex: 1; min-width: 0; }
+
 .loy-movement-desc {
-  font-size: 13px;
-  font-weight: 500;
-  color: rgba(255,255,255,0.8);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
   margin: 0 0 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .loy-movement-date {
-  font-size: 11px;
-  color: rgba(255,255,255,0.3);
+  font-size: 0.68rem;
+  color: #444;
   margin: 0;
 }
 
 .loy-movement-pts {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 800;
   flex-shrink: 0;
 }
 
@@ -211,32 +398,27 @@
 .loy-footer-hint {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: rgba(255,255,255,0.3);
+  gap: 7px;
+  font-size: 0.7rem;
+  color: #333;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
-/* ── Loading / Error ───────────────────────────────────────────────────────── */
+/* ── Loading ───────────────────────────────────────────────────────────────── */
 .loy-loading {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 32px 20px;
-  color: rgba(255,255,255,0.4);
-  font-size: 13px;
+  color: #444;
+  font-size: 0.78rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
-.loy-loading.small { padding: 20px; }
 
-.loy-spinner {
-  animation: loy-spin 0.8s linear infinite;
-}
+.loy-loading.small { padding: 16px 20px; }
+
+.loy-spinner { animation: loy-spin 0.8s linear infinite; }
+
 @keyframes loy-spin { to { transform: rotate(360deg); } }
-
-.loy-error {
-  background: rgba(239,68,68,0.1);
-  border: 1px solid rgba(239,68,68,0.2);
-  color: #f87171;
-  border-radius: 10px;
-  padding: 14px 18px;
-  font-size: 13px;
-}

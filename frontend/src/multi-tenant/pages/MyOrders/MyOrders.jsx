@@ -3,6 +3,11 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { getMyOrders } from "../services/orderService.js";
 import "./MyOrders.css";
 
+const isLoggedIn = () => {
+  const jwt = localStorage.getItem("jwt");
+  return !!jwt && jwt !== "null";
+};
+
 const formatCOP = (n) =>
   new Intl.NumberFormat("es-CO", {
     style: "currency", currency: "COP", minimumFractionDigits: 0,
@@ -37,48 +42,17 @@ export default function MyOrders() {
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState(null);
 
-  const getLocalOrders = () => {
-    const local = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (!key?.startsWith("order_")) continue;
-      try {
-        const saved = JSON.parse(localStorage.getItem(key));
-        if (!saved?.order) continue;
-        const { order, items, total, shipping } = saved;
-        local.push({
-          id:          order.orderId,
-          orderId:     order.orderId,
-          orderNumber: order.orderNumber ?? order.orderId,
-          status:      order.status ?? "PENDING",
-          createdAt:   order.createdAt,
-          total:       total,
-          items:       items ?? [],
-          shippingAddress: shipping,
-          _local:      true,
-        });
-      } catch { /* ignorar entradas corruptas */ }
-    }
-    return local.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  };
-
   useEffect(() => {
+    if (!isLoggedIn()) { navigate("/login"); return; }
     const load = async () => {
       if (!storeId) { setError("No se encontró la tienda."); setLoading(false); return; }
       setLoading(true);
       setError(null);
       try {
         const data = await getMyOrders(storeId);
-        const apiOrders = Array.isArray(data) ? data : data?.content ?? [];
-        const localOrders = getLocalOrders();
-        const apiIds = new Set(apiOrders.map((o) => String(o.id ?? o.orderId)));
-        const merged = [
-          ...apiOrders,
-          ...localOrders.filter((o) => !apiIds.has(String(o.id))),
-        ];
-        setOrders(merged);
-      } catch {
-        setOrders(getLocalOrders());
+        setOrders(Array.isArray(data) ? data : data?.content ?? []);
+      } catch (err) {
+        setError(err.message ?? "No se pudieron cargar tus pedidos.");
       } finally {
         setLoading(false);
       }

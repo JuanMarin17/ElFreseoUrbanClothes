@@ -1,80 +1,119 @@
-/* Reset de desbordes globales */
+/* ── Variables del módulo cuenta (espejo del sistema admin --at-*) ─────────── */
+.account-wrapper {
+  --ac-bg:          #080808;
+  --ac-surface:     #0d0d0d;
+  --ac-card:        #111111;
+  --ac-border:      #1a1a1a;
+  --ac-border-soft: rgba(255, 255, 255, 0.05);
+  --ac-text-1:      #ffffff;
+  --ac-text-2:      #a1a1aa;
+  --ac-text-3:      #52525b;
+  --ac-accent:      #3b82f6;
+  --ac-accent-bg:   rgba(59, 130, 246, 0.10);
+  --ac-accent-bd:   rgba(59, 130, 246, 0.18);
+  --ac-success:     #10b981;
+  --ac-danger:      #ef4444;
+  --ac-warn:        #f59e0b;
+}
+
 html, body {
   margin: 0;
   padding: 0;
   width: 100%;
   overflow-x: hidden;
-  background-color: #0d0d1a;
+  background-color: var(--ac-bg);
 }
 
 .account-wrapper {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Ocupa exactamente el alto de la pantalla */
+  height: 100vh;
   width: 100%;
-  overflow: hidden; /* Evita que el wrapper genere scroll propio */
-  background-color: #0d0d1a;
+  overflow: hidden;
+  background-color: var(--ac-bg);
+  color: var(--ac-text-1);
+  font-family: 'Barlow Condensed', sans-serif;
 }
 
 .account-layout {
   display: flex;
-  flex: 1; /* Ocupa el resto del espacio después del Header */
+  flex: 1;
   width: 100%;
-  overflow: hidden; /* Mantiene el sidebar y contenido en su sitio */
+  overflow: hidden;
 }
 
-/* Área de contenido con scroll independiente */
+/* ── Área de contenido con scroll independiente ────────────────────────────── */
 .account-content {
   flex: 1;
-  overflow-y: auto; /* Solo permite scroll vertical aquí */
-  overflow-x: hidden; /* Bloqueo total de scroll horizontal */
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 40px;
-  min-width: 0; /* Fix para desbordes de flexbox */
-  scrollbar-gutter: stable; /* Evita saltos cuando aparece el scroll */
+  min-width: 0;
+  scrollbar-gutter: stable;
+  background-color: var(--ac-bg);
 }
 
-/* Contenedor interno para limitar el ancho de las tablas/forms */
+/* Animación de entrada al cambiar de sección */
 .section-content-wrapper {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  animation: ac-section-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Custom Scrollbar (Estilo Programador Dark) */
-.account-content::-webkit-scrollbar {
+@keyframes ac-section-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Loader de sección ─────────────────────────────────────────────────────── */
+.section-fallback {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 20px;
+  color: var(--ac-text-3);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  animation: ac-section-in 0.25s ease both;
+}
+
+.section-fallback-dot {
   width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ac-accent);
+  animation: ac-dot-pulse 1.2s ease-in-out infinite;
+}
+.section-fallback-dot:nth-child(2) { animation-delay: 0.2s; }
+.section-fallback-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes ac-dot-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50%       { opacity: 1;   transform: scale(1.2); }
 }
 
-.account-content::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
-}
-
+/* ── Scrollbar estilo terminal ─────────────────────────────────────────────── */
+.account-content::-webkit-scrollbar { width: 5px; }
+.account-content::-webkit-scrollbar-track { background: transparent; }
 .account-content::-webkit-scrollbar-thumb {
-  background: #1e1e3f;
+  background: var(--ac-border);
   border-radius: 10px;
 }
-
 .account-content::-webkit-scrollbar-thumb:hover {
-  background: #3b82f6; /* Azul neón de la marca */
+  background: var(--ac-accent);
 }
 
-/* Responsive */
+/* ── Responsive ────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .account-wrapper {
-    height: auto; /* En móvil permitimos que crezca */
-    overflow-y: visible;
-  }
-
-  .account-layout {
-    flex-direction: column;
-    padding-top: 60px;
-    height: auto;
-    overflow: visible;
-  }
-
-  .account-content {
-    padding: 20px 15px;
-    height: auto;
-    overflow: visible;
-  }
+  .account-wrapper  { height: auto; overflow-y: visible; }
+  .account-layout   { flex-direction: column; padding-top: 60px; height: auto; overflow: visible; }
+  .account-content  { padding: 20px 15px; height: auto; overflow: visible; }
 }

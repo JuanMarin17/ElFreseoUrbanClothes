@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Search,
   ChevronDown,
@@ -502,7 +502,7 @@ function TicketConversation({
             )}
           </div>
         ) : (
-          messages.map((msg) => {
+          messages.map((msg, i) => {
             const isOwnMessage = msg.senderId === user.id;
             const isAdminMsg =
               user.role === "OWNER" ? isOwnMessage : !isOwnMessage;
@@ -510,6 +510,7 @@ function TicketConversation({
               <div
                 key={msg.messageId}
                 className={`hc-message ${isOwnMessage ? "hc-message--own" : "hc-message--other"}`}
+                style={{ '--delay': `${Math.min(i * 40, 400)}ms` }}
               >
                 <div className="hc-message-bubble">
                   <div className="hc-message-sender">
@@ -675,11 +676,12 @@ function TicketList({ user, onSelect, onToast, refreshTrigger }) {
         </div>
       ) : (
         <div className="hc-tickets">
-          {filtered.map((ticket) => (
+          {filtered.map((ticket, i) => (
             <button
               key={ticket.ticketId}
               className="hc-ticket-row"
               onClick={() => onSelect(ticket)}
+              style={{ '--delay': `${Math.min(i * 55, 350)}ms` }}
             >
               <div className="hc-ticket-row-left">
                 <Ticket
@@ -873,16 +875,29 @@ function CreateTicketModal({ user, onClose, onCreated, onToast }) {
 ══════════════════════════════════════════════════════════ */
 
 function HcStats() {
+  const ref = useRef(null);
   const items = [
     { icon: <CheckCircle size={20} />, value: "1.2K+", label: "Tickets resueltos" },
     { icon: <Clock size={20} />,        value: "< 24h",  label: "Respuesta promedio" },
     { icon: <Zap size={20} />,          value: "4.9★",   label: "Satisfacción media" },
     { icon: <ShieldCheck size={20} />,  value: "100%",   label: "Datos encriptados" },
   ];
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { el.classList.add('hc-stats--vis'); obs.disconnect(); } },
+      { threshold: 0.2 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   return (
-    <div className="hc-stats hc-reveal">
-      {items.map((s) => (
-        <div key={s.label} className="hc-stat-item">
+    <div ref={ref} className="hc-stats">
+      {items.map((s, i) => (
+        <div key={s.label} className="hc-stat-item" style={{ '--delay': `${i * 80}ms` }}>
           <div className="hc-stat-icon">{s.icon}</div>
           <span className="hc-stat-value">{s.value}</span>
           <span className="hc-stat-label">{s.label}</span>
@@ -1253,11 +1268,11 @@ const HelpCenter = () => {
                 title: "Seguridad",
                 desc: "Privacidad de datos",
               },
-            ].map((cat) => (
+            ].map((cat, i) => (
               <div
                 key={cat.title}
                 className="category-item"
-                style={{ cursor: "pointer" }}
+                style={{ cursor: "pointer", '--delay': `${i * 65}ms` }}
                 onClick={() => setSearch(cat.title.toLowerCase())}
               >
                 <div className="category-icon">{cat.icon}</div>

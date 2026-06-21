@@ -1,8 +1,14 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getCart } from "../services/cartService";
-import { createOrder, simulateOrder } from "../services/orderService";
+import { createOrder } from "../services/orderService";
+import { getStoreById } from "../services/storeService";
 import "./CheckoutPage.css";
+
+const isLoggedIn = () => {
+  const jwt = localStorage.getItem("jwt");
+  return !!jwt && jwt !== "null";
+};
 
 const formatCOP = (n) =>
   new Intl.NumberFormat("es-CO", {
@@ -242,7 +248,8 @@ function ReviewStep({ shipping, payment, items, subtotal, shippingCost, total })
 
 export default function CheckoutPage() {
   const { slug }   = useParams();
-  const backTarget = slug ? `/tienda/${slug}` : `/market`;
+  const backTarget = slug ? `/tienda/${slug}` : `/catalogo`;
+  const backLabel  = slug ? "Volver a la tienda" : "Volver al catálogo";
   const navigate   = useNavigate();
   const location   = useLocation();
 
@@ -255,6 +262,8 @@ export default function CheckoutPage() {
   const [processing,   setProcessing]   = useState(false);
   const [successOrder, setSuccessOrder] = useState(null);
   const [errors,       setErrors]       = useState({});
+  const [payError,     setPayError]     = useState("");
+  const [ordersSlug,   setOrdersSlug]   = useState(slug ?? null);
 
   const [shipping, setShipping] = useState({
     fullName: "", email: "", phone: "", address: "", city: "", department: "",
@@ -265,6 +274,7 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
+    if (!isLoggedIn()) { navigate("/login"); return; }
     if (cartFromNav) return;
     if (!storeId) { navigate(backTarget); return; }
 
@@ -274,6 +284,18 @@ export default function CheckoutPage() {
       .finally(() => setCartLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Llegando desde el catálogo (sin slug en la URL): resolvemos el slug de la
+  // tienda a partir del storeId para que los enlaces a "mis pedidos" funcionen.
+  useEffect(() => {
+    if (slug || !storeId) return;
+    getStoreById(storeId)
+      .then((store) => {
+        const resolved = store?.data?.slug ?? store?.slug ?? null;
+        if (resolved) setOrdersSlug(resolved);
+      })
+      .catch(() => {});
+  }, [slug, storeId]);
 
   const items        = cart?.items ?? [];
   const subtotal     = cart?.subtotal ?? 0;
@@ -321,55 +343,33 @@ export default function CheckoutPage() {
 
   const handlePay = async () => {
     setProcessing(true);
+    setPayError("");
+
+    // El backend espera shippingAddress como String plano, no como objeto.
+    const shippingAddress = [
+      shipping.fullName, shipping.address, shipping.city, shipping.department, shipping.phone,
+    ].map((v) => v?.trim()).filter(Boolean).join(", ");
 
     const payload = {
-      shippingAddress: shipping,
-      paymentMethod:   payment.method,
+      shippingAddress,
+      paymentMethod: payment.method,
       shippingCost,
-      subtotal,
-      total,
-      items: items.map(({ productId, cartItemId, productName, quantity, subtotal: st, currentPrice }) => ({
-        productId,
-        cartItemId,
-        productName,
-        quantity,
-        unitPrice: currentPrice,
-        subtotal: st,
-      })),
     };
 
-    let order;
     try {
       const raw = await createOrder(storeId, payload);
-      // El backend puede devolver el ID como "id" o "orderId"
-      const resolvedId = raw?.orderId ?? raw?.id ?? raw?.order_id;
-      if (!resolvedId) throw new Error("sin ID");
-      order = {
+      const resolvedId = raw?.orderId ?? raw?.id;
+      if (!resolvedId) throw new Error("El pedido se creó pero el servidor no devolvió un ID.");
+      setSuccessOrder({
         ...raw,
         orderId:     resolvedId,
-        orderNumber: raw.orderNumber ?? raw.order_number ?? String(resolvedId),
-      };
-    } catch {
-      order = await simulateOrder(payload);
+        orderNumber: raw.orderNumber ?? String(resolvedId),
+      });
+    } catch (err) {
+      setPayError(err.message ?? "No se pudo registrar el pedido. Intenta de nuevo.");
+    } finally {
+      setProcessing(false);
     }
-
-    const storageKey = `order_${order.orderId}`;
-    localStorage.setItem(
-      storageKey,
-      JSON.stringify({
-        order,
-        items,
-        subtotal,
-        shippingCost,
-        total,
-        shipping,
-        paymentMethod: payment.method,
-        paymentMethodLabel: PAYMENT_METHODS.find((m) => m.id === payment.method)?.label,
-      })
-    );
-
-    setProcessing(false);
-    setSuccessOrder(order);
   };
 
   /* ── Estados de carga / procesamiento ── */
@@ -390,7 +390,7 @@ export default function CheckoutPage() {
           style={{ background: "none", border: "1px solid #1e2a3d", color: "#64748b", padding: "8px 18px", borderRadius: 8, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}
           onClick={() => navigate(backTarget)}
         >
-          ← Volver a la tienda
+          ← {backLabel}
         </button>
       </div>
     );
@@ -431,7 +431,7 @@ export default function CheckoutPage() {
         </div>
 
         <p className="ck-processing__title" style={{ color: "#16a34a", fontSize: 22 }}>
-          ¡Pedido confirmado!
+          ¡Pedido registrado!
         </p>
 
         <div style={{
@@ -445,24 +445,35 @@ export default function CheckoutPage() {
         </div>
 
         <p className="ck-processing__sub" style={{ textAlign: "center", maxWidth: 300 }}>
-          Método de pago: <strong>{methodLabel}</strong>.<br />
+          Método de pago: <strong>{methodLabel}</strong>. Tu pedido está <strong>pendiente de confirmación</strong>.<br />
           Te contactaremos a <strong>{shipping.email}</strong> para coordinar los detalles.
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%", maxWidth: 300 }}>
-          <button
-            className="ck-btn-primary"
-            style={{ justifyContent: "center" }}
-            onClick={() => navigate(`/tienda/${slug}/orders`, { replace: true })}
-          >
-            Ver mis pedidos
-          </button>
+          {ordersSlug && (
+            <>
+              <button
+                className="ck-btn-primary"
+                style={{ justifyContent: "center" }}
+                onClick={() => navigate(`/tienda/${ordersSlug}/orders`, { replace: true })}
+              >
+                Ver mis pedidos
+              </button>
+              <button
+                className="ck-btn-secondary"
+                style={{ justifyContent: "center" }}
+                onClick={() => navigate(`/tienda/${ordersSlug}/orders/${successOrder.orderId}`, { replace: true })}
+              >
+                Ver detalle del pedido
+              </button>
+            </>
+          )}
           <button
             className="ck-btn-secondary"
             style={{ justifyContent: "center" }}
-            onClick={() => navigate(`/tienda/${slug}/orders/${successOrder.orderId}`, { replace: true })}
+            onClick={() => navigate(backTarget, { replace: true })}
           >
-            Ver detalle del pedido
+            {backLabel}
           </button>
         </div>
       </div>
@@ -479,9 +490,9 @@ export default function CheckoutPage() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="15 18 9 12 15 6" />
           </svg>
-          Volver a la tienda
+          {backLabel}
         </button>
-        <span className="ck-nav__store">{slug ?? "Market"}</span>
+        <span className="ck-nav__store">{slug ?? "Catálogo"}</span>
         <div />
       </nav>
 
@@ -523,6 +534,10 @@ export default function CheckoutPage() {
               shippingCost={shippingCost}
               total={total}
             />
+          )}
+
+          {payError && (
+            <p className="ck-field__error ck-field__error--standalone">{payError}</p>
           )}
 
           <div className="ck-actions">

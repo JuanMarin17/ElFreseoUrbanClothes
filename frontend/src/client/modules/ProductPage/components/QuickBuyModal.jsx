@@ -9,6 +9,13 @@ const PAYMENT_METHODS = [
   { id: "CARD",        label: "Tarjeta" },
 ];
 
+// Mapeo de la selección de UI al enum PaymentMethod que espera el backend.
+const PAYMENT_METHOD_ENUM = {
+  CASH:        "CASH_ON_DELIVERY",
+  MERCADOPAGO: "DIGITAL_WALLET",
+  CARD:        "CREDIT_CARD",
+};
+
 const fmt = new Intl.NumberFormat("es-CO", {
   style: "currency",
   currency: "COP",
@@ -83,58 +90,29 @@ export default function QuickBuyModal({
     try {
       const itemSubtotal = quantity * currentPrice;
 
-      // Build flat address string (backend expects String, not object)
-      const addrParts = [
-        address.street,
-        address.city,
-        address.state,
-        address.zipCode,
-        address.country,
-      ].map((v) => v?.trim()).filter(Boolean);
-      const flatAddress = addrParts.join(", ");
+      // El backend espera shippingAddress como String plano, no como objeto.
+      const shippingAddress = [address.street, address.city, address.state]
+        .map((v) => v?.trim())
+        .filter(Boolean)
+        .join(", ") || undefined;
 
       const payload = {
-        paymentMethod,
+        productId:    product.id,
+        productName:  product.name,
+        quantity,
+        unitPrice:    currentPrice,
+        paymentMethod: PAYMENT_METHOD_ENUM[paymentMethod] ?? paymentMethod,
         shippingCost: 0,
-        subtotal:     itemSubtotal,
-        total:        itemSubtotal,
-        items: [{
-          productId:   product.id,
-          productName: product.name,
-          quantity,
-          unitPrice:   currentPrice,
-          subtotal:    itemSubtotal,
-          ...(activeVariant?.variantId ? { variantId:   activeVariant.variantId } : {}),
-          ...(variantLabel             ? { variantName: variantLabel }             : {}),
-        }],
-        ...(flatAddress                        ? { shippingAddress: flatAddress }         : {}),
+        ...(variantLabel                       ? { variantName: variantLabel }            : {}),
+        ...(shippingAddress                    ? { shippingAddress }                      : {}),
         ...(notes.trim()                       ? { notes:           notes.trim() }        : {}),
         ...(couponApplied && couponCode.trim() ? { couponCode:      couponCode.trim() }   : {}),
       };
 
       const order = await placeQuickBuy(storeId, payload);
-
-      // Persist to localStorage so MyOrders can display it (same pattern as CheckoutPage)
-      const PAYMENT_LABELS = {
-        CASH: "Efectivo", MERCADOPAGO: "MercadoPago", CARD: "Tarjeta",
-      };
-      localStorage.setItem(
-        `order_${order.orderId}`,
-        JSON.stringify({
-          order,
-          items: payload.items.map((i) => ({ ...i, subtotal: i.subtotal })),
-          subtotal: itemSubtotal,
-          shippingCost: 0,
-          total: itemSubtotal,
-          shipping: flatAddress ? { address: flatAddress } : {},
-          paymentMethod,
-          paymentMethodLabel: PAYMENT_LABELS[paymentMethod] ?? paymentMethod,
-        })
-      );
-
-      setSuccess(order);
+      setSuccess({ ...order, total: order.total ?? itemSubtotal });
     } catch (err) {
-      if (err.isCouponError) {
+      if (err.status === 400 && /cup[oó]n/i.test(err.message ?? "")) {
         setCouponApplied(false);
         setCouponError(err.message);
       } else {

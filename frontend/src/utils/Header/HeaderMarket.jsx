@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
-import { ShoppingCart, Heart, User, Menu, X, LogIn, Truck, HelpCircle, Settings, LogOut, Bell, Store } from 'lucide-react';
+import { ShoppingCart, Heart, User, Menu, X, LogIn, Truck, HelpCircle, Settings, LogOut, Bell, Store, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../admin/modules/auth/pages/hook/Useauth';
 import { useMultiCart } from '../../multi-tenant/components/Store/hooks/useMultiCart.js';
 import CartDrawer from '../../multi-tenant/components/Store/CartDrawer.jsx';
@@ -27,6 +27,15 @@ const HeaderMarket = () => {
   const { user, logout }     = useAuth();
   const navigate             = useNavigate();
   const location             = useLocation();
+
+  const isSuperAdmin = (() => {
+    try {
+      const jwt = localStorage.getItem("jwt");
+      if (!jwt || jwt === "null") return false;
+      const decoded = JSON.parse(atob(jwt.split(".")[1]));
+      return (decoded.role ?? "") === "SUPERADMIN";
+    } catch { return false; }
+  })();
   const [isScrolled, setIsScrolled]         = useState(false);
   const [isHidden, setIsHidden]             = useState(false);
   const [lastScrollY, setLastScrollY]       = useState(0);
@@ -139,6 +148,14 @@ const HeaderMarket = () => {
 
           {/* Actions */}
           <div className="header-actions">
+
+            {/* Botón super-admin — solo visible cuando el rol es SUPERADMIN */}
+            {isSuperAdmin && (
+              <Link to="/mis-tiendas" className="hm-admin-btn" aria-label="Administrar todas las tiendas">
+                <LayoutDashboard size={14} aria-hidden="true" />
+                <span>Administrar tiendas</span>
+              </Link>
+            )}
 
             <button className="icon-btn cart-btn" aria-label="Carrito de compras" onClick={openCart}>
               <ShoppingCart size={22} aria-hidden="true" />
@@ -283,6 +300,12 @@ const HeaderMarket = () => {
         aria-hidden={!isMobileOpen}
       >
         <div className="mobile-nav-links" onClick={() => setIsMobileOpen(false)}>
+          {isSuperAdmin && (
+            <Link to="/mis-tiendas" className="mobile-nav-link hm-admin-mobile">
+              <LayoutDashboard size={15} aria-hidden="true" />
+              Administrar tiendas
+            </Link>
+          )}
           {NAV_LINKS.map(({ to, label }) => {
             const active = isActivePath(to, location.pathname);
             return (

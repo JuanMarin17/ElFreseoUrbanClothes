@@ -232,6 +232,7 @@
   top: calc(100% + 10px);
   right: 0;
   width: 300px;
+  max-width: calc(100vw - 32px);
   background: #141414;
   border: 1px solid rgba(255,255,255,.1);
   border-radius: 14px;
@@ -269,7 +270,7 @@
   border-radius: 4px;
   transition: color .15s;
 }
-.notif-panel-close:hover { color: #fff; }
+.notif-panel-close:hover { color: #fff; background: rgba(255,255,255,0.06); border-radius: 4px; }
 
 .notif-panel-body { padding: 0; }
 
@@ -440,6 +441,58 @@
   font-weight: 500;
 }
 
+/* ── Botón super-admin ─────────────────────────────────────────────────── */
+.hm-admin-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 9px;
+  background: rgba(37, 99, 255, 0.1);
+  border: 1px solid rgba(37, 99, 255, 0.28);
+  color: #6ea0ff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hm-admin-btn:hover {
+    background: rgba(37, 99, 255, 0.18);
+    border-color: rgba(37, 99, 255, 0.5);
+    color: #fff;
+    box-shadow: 0 0 18px rgba(37, 99, 255, 0.22);
+    transform: translateY(-1px);
+  }
+}
+
+.hm-admin-btn:active { transform: scale(0.96); }
+
+/* Versión mobile — hereda estilos de mobile-nav-link */
+.hm-admin-mobile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #6ea0ff !important;
+  background: rgba(37, 99, 255, 0.08) !important;
+  border-left: 2px solid rgba(37, 99, 255, 0.45);
+  font-weight: 700;
+}
+
+/* Ocultar el texto del botón admin en pantallas muy pequeñas */
+@media (max-width: 600px) {
+  .hm-admin-btn span { display: none; }
+  .hm-admin-btn { padding: 7px 10px; }
+}
+
 /* ── Hamburger button ──────────────────────────────────────────────────── */
 .menu-mobile {
   display: none;
@@ -563,12 +616,21 @@
 @media (max-width: 640px) {
   .header-container { padding: 0 20px; gap: 12px; }
 
+  /* Dropdown centrado/izquierda para no salir del viewport */
   .user-dropdown {
-    right: -40px;
+    right: 0;
+    width: min(220px, calc(100vw - 24px));
   }
 
   .user-dropdown::before {
-    right: 54px;
+    right: 14px;
+  }
+
+  /* Panel de notificaciones contenido en pantalla */
+  .notif-panel {
+    right: 0;
+    width: min(300px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
   }
 }
 

@@ -1,33 +1,49 @@
 /* ============================================================
-   VexioStores.css — Marquee con banner + logo
+   VexioStores.css — Tiendas Destacadas
    ============================================================ */
 
-/* Wrapper con fade en los bordes */
+/* ── Sección: fondo diferente + separador visual respecto a HowItWorks ── */
+.vx-stores-section {
+  background: var(--vx-bg2, #111111);
+  position: relative;
+}
+
+/* Línea de separación superior con degradado */
+.vx-stores-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(37, 99, 255, 0.35) 40%, rgba(124, 58, 237, 0.35) 60%, transparent);
+  pointer-events: none;
+}
+
+/* ── Marquee ── */
 .vx-marquee-wrapper {
   position: relative;
   overflow: hidden;
   mask-image: linear-gradient(
     to right,
     transparent 0%,
-    #000 10%,
-    #000 90%,
+    #000 8%,
+    #000 92%,
     transparent 100%
   );
   -webkit-mask-image: linear-gradient(
     to right,
     transparent 0%,
-    #000 10%,
-    #000 90%,
+    #000 8%,
+    #000 92%,
     transparent 100%
   );
 }
 
 .vx-marquee-track {
   display: flex;
-  gap: 16px;
+  gap: 20px;
   width: max-content;
-  animation: vx-marquee 38s linear infinite;
-  padding: 8px 0 20px;
+  animation: vx-marquee 32s linear infinite;
+  padding: 12px 0 24px;
 }
 
 .vx-marquee-wrapper:hover .vx-marquee-track {
@@ -40,38 +56,41 @@
 
 @keyframes vx-marquee {
   0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  100% { transform: translateX(-33.333%); }
 }
 
 /* ── Card ── */
 .vx-store-card {
-  background: var(--vx-card);
-  border: 1px solid var(--vx-border);
-  border-radius: 16px;
-  width: 260px;
+  background: var(--vx-card, #181818);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 18px;
+  width: 300px;
   flex-shrink: 0;
   overflow: visible;
   display: flex;
   flex-direction: column;
   transition:
-    border-color 250ms ease-out,
-    transform 250ms cubic-bezier(0.23, 1, 0.32, 1),
-    box-shadow 250ms ease-out;
+    border-color 260ms ease,
+    transform 260ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 260ms ease;
+  position: relative;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .vx-store-card:hover {
-    border-color: rgba(37, 99, 255, 0.3);
-    transform: translateY(-4px);
-    box-shadow: 0 14px 40px rgba(37, 99, 255, 0.09);
+    border-color: rgba(var(--store-accent-rgb, 37, 99, 255), 0.4);
+    transform: translateY(-5px);
+    box-shadow:
+      0 16px 48px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(37, 99, 255, 0.12);
   }
 }
 
-/* ── Banner (cover) ── */
+/* ── Banner ── */
 .vx-store-cover-wrap {
   position: relative;
-  height: 88px;
-  border-radius: 14px 14px 0 0;
+  height: 128px;
+  border-radius: 16px 16px 0 0;
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -91,28 +110,28 @@
 .vx-store-cover-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.45) 100%);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.55) 100%);
 }
 
 /* Tag en esquina del banner */
 .vx-store-cover-wrap .vx-store-tag {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 10px;
 }
 
 /* ── Logo superpuesto ── */
 .vx-store-logo-ring {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
-  border: 2px solid var(--vx-card);
-  background: var(--vx-card);
-  margin-top: -23px;
-  margin-left: 14px;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  border: 2px solid var(--vx-card, #181818);
+  background: var(--vx-card, #181818);
+  margin-top: -26px;
+  margin-left: 16px;
   flex-shrink: 0;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   z-index: 1;
   position: relative;
 }
@@ -122,7 +141,7 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 .vx-store-logo-initial {
@@ -132,15 +151,15 @@
   align-items: center;
   justify-content: center;
   font-family: var(--vx-font-display);
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: #fff;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 /* ── Info ── */
 .vx-store-info {
-  padding: 10px 16px 16px;
+  padding: 12px 18px 18px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -149,9 +168,9 @@
 
 .vx-store-name {
   font-family: var(--vx-font-display);
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  color: var(--vx-text);
+  color: var(--vx-text, #fff);
   letter-spacing: -0.02em;
   white-space: nowrap;
   overflow: hidden;
@@ -159,15 +178,15 @@
 }
 
 .vx-store-category {
-  font-size: 0.7rem;
-  color: var(--vx-muted);
+  font-size: 0.72rem;
+  color: var(--vx-muted, #9ca3af);
 }
 
 .vx-store-desc {
-  font-size: 0.76rem;
-  color: var(--vx-muted);
-  line-height: 1.5;
-  margin: 4px 0 0;
+  font-size: 0.79rem;
+  color: var(--vx-muted, #9ca3af);
+  line-height: 1.55;
+  margin: 6px 0 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -177,43 +196,43 @@
 
 /* ── Tags ── */
 .vx-store-tag {
-  padding: 3px 8px;
-  border-radius: 5px;
-  font-size: 0.63rem;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 0.62rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   flex-shrink: 0;
   font-family: var(--vx-font-body);
+  backdrop-filter: blur(6px);
 }
 
-.vx-store-tag--gold   { background: rgba(234,179,8,.15);  color: #eab308; border: 1px solid rgba(234,179,8,.3); }
-.vx-store-tag--blue   { background: rgba(37,99,255,.15);  color: #3b82f6; border: 1px solid rgba(37,99,255,.3); }
-.vx-store-tag--green  { background: rgba(34,197,94,.15);  color: #22c55e; border: 1px solid rgba(34,197,94,.3); }
-.vx-store-tag--purple { background: rgba(139,92,246,.15); color: #8b5cf6; border: 1px solid rgba(139,92,246,.3); }
+.vx-store-tag--gold   { background: rgba(234,179,8,.18);  color: #eab308; border: 1px solid rgba(234,179,8,.32); }
+.vx-store-tag--blue   { background: rgba(37,99,255,.18);  color: #60a5fa; border: 1px solid rgba(37,99,255,.32); }
+.vx-store-tag--green  { background: rgba(34,197,94,.18);  color: #4ade80; border: 1px solid rgba(34,197,94,.32); }
+.vx-store-tag--purple { background: rgba(139,92,246,.18); color: #a78bfa; border: 1px solid rgba(139,92,246,.32); }
 
 /* ── Botón ── */
 .vx-store-btn {
   margin-top: auto;
-  padding-top: 12px;
-  background: transparent;
-  border: 1px solid var(--vx-border);
-  color: var(--vx-muted);
-  padding: 8px 14px;
-  border-radius: 7px;
+  padding: 9px 16px;
+  background: rgba(37, 99, 255, 0.08);
+  border: 1px solid rgba(37, 99, 255, 0.2);
+  color: #60a5fa;
+  border-radius: 9px;
   font-family: var(--vx-font-body);
-  font-size: 0.78rem;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  transition: background 220ms ease, border-color 220ms ease, color 220ms ease, transform 160ms cubic-bezier(0.23,1,0.32,1);
   text-align: center;
-  margin-top: 10px;
+  margin-top: 14px;
 }
 
 .vx-store-btn:hover {
-  border-color: var(--vx-accent1);
-  color: var(--vx-accent1);
-  background: var(--vx-accent1-dim);
+  background: rgba(37, 99, 255, 0.18);
+  border-color: rgba(37, 99, 255, 0.45);
+  color: #93c5fd;
 }
 
 .vx-store-btn:active { transform: scale(0.97); }
@@ -223,67 +242,67 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid var(--vx-border);
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   flex-wrap: wrap;
   gap: 12px;
 }
 
 .vx-stores-footer-text {
   font-size: 0.9rem;
-  color: var(--vx-muted);
+  color: var(--vx-muted, #9ca3af);
 }
 
 /* ── Skeleton ── */
 .vx-skel-cover {
-  background: var(--vx-border) !important;
+  background: var(--vx-border, #2a2a2a) !important;
   animation: vx-skel-pulse 1.4s ease-in-out infinite;
 }
 
 .vx-skel-logo {
   width: 100%;
   height: 100%;
-  background: var(--vx-border);
-  border-radius: 10px;
+  background: var(--vx-border, #2a2a2a);
+  border-radius: 12px;
   animation: vx-skel-pulse 1.4s ease-in-out infinite;
   animation-delay: 0.1s;
 }
 
 .vx-skel-line {
   height: 10px;
-  background: var(--vx-border);
+  background: var(--vx-border, #2a2a2a);
   border-radius: 4px;
   animation: vx-skel-pulse 1.4s ease-in-out infinite;
 }
 
 .vx-skel-block {
-  height: 42px;
-  background: var(--vx-border);
-  border-radius: 8px;
+  height: 44px;
+  background: var(--vx-border, #2a2a2a);
+  border-radius: 9px;
   opacity: 0.5;
   animation: vx-skel-pulse 1.4s ease-in-out infinite;
   animation-delay: 0.15s;
 }
 
 .vx-skel-btn {
-  height: 32px;
-  background: var(--vx-border);
-  border-radius: 7px;
+  height: 36px;
+  background: var(--vx-border, #2a2a2a);
+  border-radius: 9px;
   margin-top: 8px;
   animation: vx-skel-pulse 1.4s ease-in-out infinite;
   animation-delay: 0.2s;
 }
 
 @keyframes vx-skel-pulse {
-  0%, 100% { opacity: 0.35; }
-  50%       { opacity: 0.65; }
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 0.6; }
 }
 
 /* ── Responsive ── */
 @media (max-width: 640px) {
-  .vx-store-card            { width: 230px; }
-  .vx-store-cover-wrap      { height: 72px; }
-  .vx-stores-footer         { flex-direction: column; align-items: stretch; text-align: center; }
+  .vx-store-card       { width: 260px; }
+  .vx-store-cover-wrap { height: 100px; }
+  .vx-stores-footer    { flex-direction: column; align-items: stretch; text-align: center; }
   .vx-stores-footer .vx-btn-ghost { width: 100%; justify-content: center; }
 }

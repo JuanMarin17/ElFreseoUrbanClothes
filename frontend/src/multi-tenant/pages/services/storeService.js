@@ -9,10 +9,6 @@ const API_ROOT = import.meta.env.VITE_API_URL;
 const BASE_URL = `${API_ROOT}/stores`;
 const SETTINGS_URL = `${API_ROOT}/stores/settings`;
 
-// isOwner lives at /stores/... (without /api/v1) — different auth tier than /api/v1/stores
-
-
-
 // ─── Helpers de headers ───────────────────────────────────────────────────────
 
 const authHeader = () => {
@@ -94,6 +90,18 @@ export async function getStoreBySlug(slug) {
  */
 export async function getAllStores() {
   return request(`${BASE_URL}`);
+}
+
+/**
+ * PATCH /stores/:storeId/toggle-status
+ * Body: { isActive: boolean, reason: string | null }
+ * Solo SUPERADMIN. Respuesta: StoreResponseDTO actualizado (incluye disabledReason).
+ */
+export async function toggleStoreStatus(storeId, isActive, reason) {
+  return request(`${BASE_URL}/${storeId}/toggle-status`, {
+    method: "PATCH",
+    body: JSON.stringify({ isActive, reason: reason ?? null }),
+  });
 }
 
 // ════════════════════════════════════════════════════════════════════════════

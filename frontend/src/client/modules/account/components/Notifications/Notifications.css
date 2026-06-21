@@ -93,6 +93,7 @@
   border: 1px solid transparent;
   position: relative;
   transition: background .15s;
+  cursor: pointer;
 }
 
 .notif-item--unread {

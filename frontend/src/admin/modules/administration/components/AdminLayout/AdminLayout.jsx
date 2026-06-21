@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Outlet, useLocation, useParams } from "react-router-dom";
 import {
   getStoreBySlug,
@@ -12,6 +12,7 @@ import AdminNotifToast from "../AdminNotifToast/AdminNotifToast";
 import Sidebar from "../Sidebar/Sidebar";
 import StockAlertToast from "../StockAlertToast/StockAlertToast";
 import { useAdminNotifications } from "../../../../../hooks/useAdminNotifications";
+import { useNotificationInbox } from "../../../../../hooks/useUserNotifications";
 
 import "./AdminLayout.css";
 
@@ -27,6 +28,12 @@ const ROUTE_TITLES = {
   proveedores:       "Proveedores",
   promociones:       "Promociones",
   productos:         "Productos",
+  clientes:          "Clientes",
+  devoluciones:      "Devoluciones",
+  pos:               "Punto de Venta",
+  ubicaciones:       "Ubicaciones",
+  suscripcion:       "Suscripción",
+  configuracion:     "Configuración",
   cms:               "Contenido CMS",
   IA:                "Asistente IA",
 };
@@ -109,8 +116,15 @@ const AdminLayout = () => {
 
   const userInfo = useMemo(() => parseUserFromJwt(), []);
 
-  // ── SSE: notificaciones en tiempo real (órdenes, tickets, reseñas) ────────
-  const { notifications, unread, markAllRead } = useAdminNotifications(sseStoreId);
+  // ── SSE: notificaciones en tiempo real de la tienda (órdenes, tickets, reseñas) ──
+  // Solo toasts efímeros — no hay endpoint de persistencia para este dominio.
+  const { notifications: storeNotifications, unread: storeUnread } = useAdminNotifications(sseStoreId);
+
+  // ── Bandeja persistida del usuario (STORE_DISABLED, SESSION_ALERT, pedidos, pagos) ──
+  const { unread: inboxUnread, markAllRead: markInboxRead } = useNotificationInbox();
+
+  const unread = storeUnread + inboxUnread;
+  const markAllRead = () => { markInboxRead(); };
 
   const pageTitle = useMemo(() => {
     const segments = location.pathname.split("/").filter(Boolean);
@@ -298,7 +312,7 @@ const AdminLayout = () => {
       </div>
 
       <StockAlertToast />
-      <AdminNotifToast notifications={notifications} />
+      <AdminNotifToast notifications={storeNotifications} />
     </div>
   );
 };
