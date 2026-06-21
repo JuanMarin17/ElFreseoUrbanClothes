@@ -111,6 +111,7 @@ export default function SubscriptionPlansPage() {
   }, [storeId]);
 
   const handleSelect = async (plan) => {
+    if (processing) return; // evita doble submit mientras hay un checkout en vuelo
     if (!storeId) {
       setError(
         "No se encontró el ID de tu tienda. Asegúrate de haber creado una tienda primero."

@@ -130,6 +130,7 @@ export default function Login({ mode }) {
   /* ─── Login paso 1 ─── */
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (loading) return; // evita doble submit mientras la request está en vuelo
     clearToast();
     if (!validate()) return;
     try {
@@ -147,6 +148,7 @@ export default function Login({ mode }) {
   /* ─── Register paso 1 ─── */
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (loading) return; // evita doble submit mientras la request está en vuelo
     clearToast();
     if (!validate()) return;
     try {
