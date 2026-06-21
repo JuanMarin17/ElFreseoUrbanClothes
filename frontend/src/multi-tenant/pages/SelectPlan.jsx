@@ -58,7 +58,7 @@ function parsePlanFeatures(plan) {
       else if (v !== true) lines.push(`${k}: ${v}`);
       else lines.push(k);
     }
-  } catch {}
+  } catch { {/** */} }
   if (!hasExtras && PLAN_STATIC_BENEFITS[plan.name]) {
     lines.push(...PLAN_STATIC_BENEFITS[plan.name]);
   }
