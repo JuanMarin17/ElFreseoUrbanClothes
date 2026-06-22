@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const IA_BASE = `http://46.225.21.146:8080/api/v1/ia/admin`;
+const IA_BASE = `${import.meta.env.VITE_API_URL ?? "/api/v1"}/ia/admin`;
 
 const ia = axios.create({
   baseURL: IA_BASE,

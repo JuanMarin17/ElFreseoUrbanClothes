@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Eye, EyeOff, Loader2, Monitor, Smartphone, Globe, Power, LogOut } from 'lucide-react';
+import { Lock, Eye, EyeOff, Loader2, Monitor, Smartphone, Globe, Power, LogOut, MapPin, Clock, Activity, Timer } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import accountService from '../../services/accountService';
 import './Security.css';
@@ -43,6 +43,22 @@ function formatTs(value) {
   } catch { return '—'; }
 }
 
+/* Tiempo relativo para "última actividad" — más fácil de escanear que la fecha completa */
+function formatRelative(value) {
+  if (!value) return null;
+  try {
+    const d = typeof value === 'number' ? new Date(value * 1000) : new Date(value);
+    const diffMs = Date.now() - d.getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return 'Hace un momento';
+    if (mins < 60) return `Hace ${mins} min`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `Hace ${hrs} h`;
+    const days = Math.floor(hrs / 24);
+    return `Hace ${days} día${days !== 1 ? 's' : ''}`;
+  } catch { return null; }
+}
+
 function buildCurrentSession() {
   const token = localStorage.getItem('jwt');
   const payload = token ? parseJwt(token) : null;
@@ -69,6 +85,7 @@ function normalizeSession(raw) {
     isCurrent:  raw.current ?? false,
     startedAt:  formatTs(raw.createdAt),
     lastSeenAt: formatTs(raw.lastSeenAt),
+    lastSeenRelative: formatRelative(raw.lastSeenAt),
     expiresAt:  formatTs(raw.expiresAt),
     location:   raw.ipAddress ?? '—',
     active:     raw.active ?? true,
@@ -252,6 +269,7 @@ export default function Security() {
                   <div className={`session-item ${ses.isCurrent ? 'session-item--current' : ''}`} key={ses.id}>
                     <div className="session-icon">
                       {ses.device === 'Mobile' ? <Smartphone size={16} /> : ses.device === 'Desktop' ? <Monitor size={16} /> : <Globe size={16} />}
+                      {ses.isCurrent && <span className="session-icon-dot" />}
                     </div>
                     <div className="session-info">
                       <div className="session-device-row">
@@ -260,16 +278,26 @@ export default function Security() {
                         </p>
                         {ses.isCurrent && <span className="session-current-badge">SESIÓN ACTUAL</span>}
                       </div>
-                      <p className="session-meta">
-                        <span>{ses.location ?? '—'}</span>
-                        {ses.startedAt && ses.startedAt !== '—' && <> · Inicio: {ses.startedAt}</>}
-                      </p>
-                      {ses.lastSeenAt && ses.lastSeenAt !== '—' && (
-                        <p className="session-meta">Última actividad: {ses.lastSeenAt}</p>
-                      )}
-                      {ses.expiresAt && ses.expiresAt !== '—' && (
-                        <p className="session-meta">Expira: {ses.expiresAt}</p>
-                      )}
+                      <div className="session-meta-list">
+                        <span className="session-meta-row">
+                          <MapPin size={11} /> {ses.location ?? '—'}
+                        </span>
+                        {ses.startedAt && ses.startedAt !== '—' && (
+                          <span className="session-meta-row">
+                            <Clock size={11} /> Inicio: {ses.startedAt}
+                          </span>
+                        )}
+                        {ses.lastSeenAt && ses.lastSeenAt !== '—' && (
+                          <span className="session-meta-row" title={ses.lastSeenAt}>
+                            <Activity size={11} /> Última actividad: {ses.lastSeenRelative ?? ses.lastSeenAt}
+                          </span>
+                        )}
+                        {ses.expiresAt && ses.expiresAt !== '—' && (
+                          <span className="session-meta-row">
+                            <Timer size={11} /> Expira: {ses.expiresAt}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     {!ses.isCurrent && (
                       <button

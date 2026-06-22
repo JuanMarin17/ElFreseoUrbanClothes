@@ -17,7 +17,6 @@ const SUPERADMIN_MENU = [
 const ADMIN_MENU = [
   { path: "/market",        label: "INICIO",        icon: Home       },
   { path: "/mis-tiendas",   label: "MIS TIENDAS",   icon: Store      },
-  { path: "/transacciones", label: "TRANSACCIONES", icon: CreditCard },
 ];
 
 const MyStoreLayout = () => {

@@ -92,6 +92,7 @@ export default function VerificationPage({ email, onVerify, onBack, loading }) {
 
   /* ─── Submit ─── */
   const handleSubmit = () => {
+    if (loading) return; // evita doble envío (Enter + click, o doble Enter) con el mismo código
     const code = digits.join("");
     if (code.length < 6) return;
     onVerify(code);

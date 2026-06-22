@@ -1,7 +1,21 @@
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { sendChat, getSessions, getSessionHistory } from "./iaService";
+import { checkIsOwner } from "../../../../../../multi-tenant/pages/services/storeService";
 
-function getRole() {
+const ALLOWED_ROLES = new Set(["OWNER", "ADMIN", "STORE_USER"]);
+
+function getUserIdFromJwt() {
+  const jwt = localStorage.getItem("jwt");
+  if (!jwt || jwt === "null") return null;
+  try {
+    const payload = JSON.parse(atob(jwt.split(".")[1]));
+    return payload.user_id ?? payload.userId ?? payload.sub ?? payload.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function getStoredRole() {
   // Store-specific role (OWNER, STORE_USER, ADMIN) takes priority over JWT global role (USER)
   const stored = localStorage.getItem("userRole");
   if (stored && stored !== "null") return stored;
@@ -25,8 +39,39 @@ function toBase64(file) {
 }
 
 export function useIAAdmin() {
-  const role = getRole();
-  const hasAccess = role === "ADMIN" || role === "OWNER" || role === "STORE_USER";
+  const [role, setRole]                   = useState(() => getStoredRole());
+  const [hasAccess, setHasAccess]         = useState(() => ALLOWED_ROLES.has(getStoredRole()));
+  const [checkingAccess, setCheckingAccess] = useState(true);
+
+  // Verifica el rol contra la BD (GET /stores/{storeId}/isOwner/{userId}) —
+  // la misma llamada que usa StorePage para decidir si mostrar el panel admin.
+  // El localStorage solo se usa como valor optimista mientras esto resuelve.
+  useEffect(() => {
+    let active = true;
+    const storeId = localStorage.getItem("storeId");
+    const userId  = getUserIdFromJwt();
+
+    if (!storeId || storeId === "null" || !userId) {
+      setCheckingAccess(false);
+      return;
+    }
+
+    checkIsOwner(storeId, userId)
+      .then((res) => {
+        if (!active) return;
+        const resolvedRole = res === true ? "OWNER" : String(res ?? "").toUpperCase();
+        setRole(resolvedRole || null);
+        setHasAccess(ALLOWED_ROLES.has(resolvedRole));
+      })
+      .catch(() => {
+        if (!active) return;
+        setRole(null);
+        setHasAccess(false);
+      })
+      .finally(() => { if (active) setCheckingAccess(false); });
+
+    return () => { active = false; };
+  }, []);
 
   const [sessionId, setSessionId]         = useState(null);
   const [messages, setMessages]           = useState([]);
@@ -166,6 +211,7 @@ export function useIAAdmin() {
 
   return {
     hasAccess,
+    checkingAccess,
     role,
     sessionId,
     messages,

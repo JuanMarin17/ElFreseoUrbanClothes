@@ -3,9 +3,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useStore } from "./useStore";
 import { useAuth } from "../../admin/modules/auth/pages/hook/Useauth";
 import "../components/styles/MyStore.css";
-import { FiPlus, FiExternalLink, FiCopy, FiCheck } from "react-icons/fi";
+import { FiPlus, FiExternalLink, FiCopy, FiCheck, FiSettings } from "react-icons/fi";
 import {
   getStoresByUser,
+  getStoreById,
   getStoreSettingsByHeader,
   getAllStores,
   toggleStoreStatus,
@@ -95,9 +96,23 @@ const MyStore = () => {
         const data = role === "SUPERADMIN"
           ? await getAllStores()
           : await getStoresByUser(userId);
-        const tiendas = Array.isArray(data)
+        const rels = Array.isArray(data)
           ? data
           : (data?.content ?? data?.stores ?? data?.data ?? []);
+
+        // getStoresByUser solo devuelve { userId, storeId, role }: hay que
+        // completar nombre/slug con el detalle de cada tienda.
+        const tiendas = await Promise.all(
+          rels.map(async (rel) => {
+            if (rel.name && rel.slug) return rel;
+            try {
+              const full = await getStoreById(rel.storeId);
+              return { ...rel, ...(full ?? {}) };
+            } catch {
+              return rel;
+            }
+          }),
+        );
         setStores(tiendas);
         const settingsObj = {};
         await Promise.all(
@@ -230,12 +245,20 @@ const MyStore = () => {
                   <span className="ms-store-plan">
                     {storeSettings[store.storeId]?.plan?.name ?? ""}
                   </span>
-                  <button
-                    className="ms-store-link"
-                    onClick={(e) => { e.stopPropagation(); navigate(`/tienda/${store.slug}`); }}
-                  >
-                    Ver tienda <FiExternalLink size={11} />
-                  </button>
+                  <div className="ms-store-links">
+                    <button
+                      className="ms-store-btn ms-store-btn--config"
+                      onClick={(e) => { e.stopPropagation(); navigate(`/tienda/${store.slug}/admin/configuracion`); }}
+                    >
+                      <FiSettings size={12} /> Configurar
+                    </button>
+                    <button
+                      className="ms-store-btn ms-store-btn--view"
+                      onClick={(e) => { e.stopPropagation(); navigate(`/tienda/${store.slug}`); }}
+                    >
+                      <FiExternalLink size={12} /> Ver tienda
+                    </button>
+                  </div>
                 </div>
 
                 {isSuperAdmin && (

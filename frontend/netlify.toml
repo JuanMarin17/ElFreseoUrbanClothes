@@ -1,3 +1,39 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Proxy API calls to backend (avoids mixed content: Netlify=HTTPS, backend=HTTP)
+[[redirects]]
+  from = "/api/*"
+  to = "http://46.225.21.146:8080/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/stores/*"
+  to = "http://46.225.21.146:8080/stores/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/promotions/*"
+  to = "http://46.225.21.146:8080/promotions/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/coupons/*"
+  to = "http://46.225.21.146:8080/coupons/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/usuarios/*"
+  to = "http://46.225.21.146:8081/usuarios/:splat"
+  status = 200
+  force = true
+
+# SPA fallback - must be last
 [[redirects]]
   from = "/*"
   to = "/index.html"

@@ -114,7 +114,7 @@ const CatalogoPage = lazy(
   () => import("./client/modules/Catalogo/CatalogoPage.jsx"),
 );
 const VexioLanding = lazy(
-  () => import("./client/modules/landingPage/pages/VexioLanding/VexioLanding.jsx"),
+  () => import("./client/modules/LandingPage/pages/VexioLanding/VexioLanding.jsx"),
 );
 const HelpCenter = lazy(
   () => import("./client/modules/help/pages/HelpCenter/HelpCenter.jsx"),
@@ -298,7 +298,6 @@ function App() {
                     <Route element={<MyStoreLayout />}>
                       <Route path="/mis-tiendas"    element={<MyStore />} />
                       <Route path="/tiendas"        element={<MyStore />} />
-                      <Route path="/transacciones"  element={<Transaction />} />
                       <Route path="/informe-ventas" element={<MyStore />} />
                     </Route>
                     <Route path="/ordenes" element={<OrdersDashboard />} />
@@ -306,10 +305,11 @@ function App() {
                     <Route path="/inventario" element={<Navigate to="/tiendas" replace />} />
                   </Route>
 
-                  {/* ── SUPERADMIN: panel de usuarios de toda la plataforma ── */}
+                  {/* ── SUPERADMIN: panel de usuarios y transacciones de toda la plataforma ── */}
                   <Route element={<ProtectedRoute allowedRoles={["SUPERADMIN"]} />}>
                     <Route element={<MyStoreLayout />}>
-                      <Route path="/usuarios" element={<PlatformUsersPanel />} />
+                      <Route path="/usuarios"      element={<PlatformUsersPanel />} />
+                      <Route path="/transacciones" element={<Transaction />} />
                     </Route>
                   </Route>
 

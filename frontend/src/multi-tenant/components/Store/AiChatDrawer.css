@@ -337,6 +337,8 @@
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .ai-rec-card__price { font-size: 13px; color: #6366f1; margin-top: 3px; font-weight: 700; }
+.ai-rec-card__stock { font-size: 10px; color: #16a34a; margin-top: 2px; font-weight: 600; }
+.ai-rec-card__stock--out { color: #ef4444; }
 
 /* ══════════════════════════════════════════════
    CHIPS DE SUGERENCIA

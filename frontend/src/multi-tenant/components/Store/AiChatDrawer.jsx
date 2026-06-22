@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { sendMessage } from "../../pages/services/aiChatService.js";
 import { getChatSession, setChatSession, clearChatSession } from "../../../utils/chatSession.js";
 import "./AiChatDrawer.css";
@@ -21,12 +22,32 @@ const SUGGESTIONS = [
 ];
 
 /* ── Tarjeta de recomendación ────────────────── */
-function RecCard({ product }) {
-  const img   = product.images?.[0]?.url ?? product.imageUrl ?? null;
-  const price = product.variants?.[0]?.price ?? product.price ?? null;
-  const name  = product.name ?? "Producto";
+function RecCard({ product, storeId }) {
+  const navigate = useNavigate();
+  const img      = product.imageUrl ?? product.images?.[0]?.url ?? null;
+  const name     = product.name ?? "Producto";
+  const variants = product.variants ?? [];
+  const price    = variants.length
+    ? Math.min(...variants.map(v => v.price).filter(p => p != null))
+    : (product.price ?? null);
+  const totalStock = variants.length
+    ? variants.reduce((sum, v) => sum + (v.stock ?? 0), 0)
+    : null;
+  const productId = product.productId ?? product.id;
+
+  const goToProduct = () => {
+    if (!productId) return;
+    navigate(`/products/${productId}?src=store${storeId ? `&sid=${storeId}` : ""}`);
+  };
+
   return (
-    <div className="ai-rec-card">
+    <div
+      className="ai-rec-card"
+      onClick={goToProduct}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === "Enter" && goToProduct()}
+    >
       {img ? (
         <img src={img} alt={name} className="ai-rec-card__img" />
       ) : (
@@ -41,13 +62,18 @@ function RecCard({ product }) {
       <div className="ai-rec-card__body">
         <p className="ai-rec-card__name">{name}</p>
         {price != null && <p className="ai-rec-card__price">{formatCOP(price)}</p>}
+        {totalStock != null && (
+          <p className={`ai-rec-card__stock ${totalStock === 0 ? "ai-rec-card__stock--out" : ""}`}>
+            {totalStock === 0 ? "Sin stock" : `${totalStock} disponibles`}
+          </p>
+        )}
       </div>
     </div>
   );
 }
 
 /* ── Burbuja de mensaje ──────────────────────── */
-function Bubble({ msg }) {
+function Bubble({ msg, storeId }) {
   const isUser = msg.role === "user";
   return (
     <div className={`ai-bubble ai-bubble--${isUser ? "user" : "assistant"}`}>
@@ -64,7 +90,7 @@ function Bubble({ msg }) {
           <p className="ai-recommendations__title">Productos sugeridos</p>
           <div className="ai-recommendations__grid">
             {msg.recommendations.map((p, i) => (
-              <RecCard key={p.productId ?? p.id ?? i} product={p} />
+              <RecCard key={p.productId ?? p.id ?? i} product={p} storeId={storeId} />
             ))}
           </div>
         </div>
@@ -233,10 +259,7 @@ export default function AiChatDrawer({ storeId, onCartRefresh, accentColor, prod
       }
 
       const toast = resolveAction(res.action, res.action_data);
-      const showRecs = res.action === "GET_RECOMMENDATIONS" || res.action === "SEARCH";
-      const recs = showRecs
-        ? (res.product_recommendations ?? [])
-        : (res.product_recommendations?.length ? res.product_recommendations : []);
+      const recs = res.product_recommendations ?? [];
 
       setMessages(prev => [...prev, {
         role: "assistant",
@@ -414,7 +437,7 @@ export default function AiChatDrawer({ storeId, onCartRefresh, accentColor, prod
           ) : (
             /* ── Vista conversación ── */
             <div className="ai-messages">
-              {messages.map((msg, i) => <Bubble key={i} msg={msg} />)}
+              {messages.map((msg, i) => <Bubble key={i} msg={msg} storeId={storeId} />)}
               {loading && (
                 <div className="ai-typing">
                   <span className="ai-typing__dot" />
