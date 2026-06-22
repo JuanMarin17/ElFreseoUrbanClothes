@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Store, Plus, ExternalLink, Settings2, Copy, Check,
-  AlertCircle, Globe, Calendar, Shield, Zap, Search, X,
+  AlertCircle, Globe, Calendar, Shield, Zap, Search, X, Wrench,
 } from "lucide-react";
 import HeaderMarket from "../../../utils/Header/HeaderMarket";
 import { useAuth } from "../../../admin/modules/auth/pages/hook/Useauth";
@@ -10,6 +10,7 @@ import {
   getStoresByUser,
   getStoreById,
   getStoreSettingsByHeader,
+  saveStoreSettings,
 } from "../../../multi-tenant/pages/services/storeService";
 import { getLimits, getSubscription } from "../../../multi-tenant/pages/services/transactionService";
 import { getAllProducts } from "../../../admin/modules/administration/services/productService";
@@ -105,8 +106,9 @@ export default function MisTiendasPage() {
   const [usage,    setUsage]    = useState({});   // storeId → { limits, productCount }
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState(null);
-  const [copiedId, setCopiedId] = useState(null);
-  const [search,   setSearch]   = useState("");
+  const [copiedId,          setCopiedId]          = useState(null);
+  const [search,            setSearch]            = useState("");
+  const [maintenanceLoading, setMaintenanceLoading] = useState({});
 
   useEffect(() => {
     if (!userId) { setLoading(false); return; }
@@ -182,6 +184,21 @@ export default function MisTiendasPage() {
     load();
     return () => { alive = false; };
   }, [userId]);
+
+  const handleMaintenanceToggle = async (storeId, e) => {
+    e.stopPropagation();
+    const current = settings[storeId]?.maintenance?.enabled ?? false;
+    setMaintenanceLoading(p => ({ ...p, [storeId]: true }));
+    try {
+      await saveStoreSettings(storeId, { maintenance: { enabled: !current } });
+      setSettings(p => ({
+        ...p,
+        [storeId]: { ...(p[storeId] ?? {}), maintenance: { enabled: !current } },
+      }));
+    } catch { /* silencioso */ } finally {
+      setMaintenanceLoading(p => ({ ...p, [storeId]: false }));
+    }
+  };
 
   const handleCopy = (id, e) => {
     e.stopPropagation();
@@ -386,11 +403,21 @@ export default function MisTiendasPage() {
                   aria-label={`Gestionar tienda ${store.name}`}
                 >
                   {/* Banner */}
+                  {(() => {
+                    const inMaintenance = settings[store.storeId]?.maintenance?.enabled ?? false;
+                    return (
                   <div className="mtp-card-banner" style={getBannerStyle(store.storeId)}>
-                    <span className={`mtp-status mtp-status--${store.isActive ? "active" : "draft"}`}>
-                      {store.isActive && <span className="mtp-status-dot" />}
-                      {store.isActive ? "Activa" : "Borrador"}
-                    </span>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      <span className={`mtp-status mtp-status--${store.isActive ? "active" : "draft"}`}>
+                        {store.isActive && <span className="mtp-status-dot" />}
+                        {store.isActive ? "Activa" : "Borrador"}
+                      </span>
+                      {inMaintenance && (
+                        <span className="mtp-status mtp-status--maintenance">
+                          <Wrench size={9} /> Mantenimiento
+                        </span>
+                      )}
+                    </div>
                     {logoUrl ? (
                       <img src={logoUrl} alt={`Logo ${store.name}`} className="mtp-logo" />
                     ) : (
@@ -399,6 +426,8 @@ export default function MisTiendasPage() {
                       </div>
                     )}
                   </div>
+                    );
+                  })()}
 
                   {/* Body */}
                   <div className="mtp-card-body">
@@ -498,6 +527,15 @@ export default function MisTiendasPage() {
                         title="Abrir tienda pública en nueva pestaña"
                       >
                         <ExternalLink size={13} /> Ver tienda
+                      </button>
+                      <button
+                        className={`mtp-btn-maintenance${(settings[store.storeId]?.maintenance?.enabled) ? " active" : ""}`}
+                        onClick={(e) => handleMaintenanceToggle(store.storeId, e)}
+                        disabled={!!maintenanceLoading[store.storeId]}
+                        title={settings[store.storeId]?.maintenance?.enabled ? "Desactivar mantenimiento" : "Activar modo mantenimiento"}
+                      >
+                        <Wrench size={13} />
+                        {settings[store.storeId]?.maintenance?.enabled ? "Desactivar" : "Mantenimiento"}
                       </button>
                     </div>
                   </div>
