@@ -177,6 +177,49 @@ export default function VexioHero() {
               Crea tu tienda gratis →
             </button>
           </div>
+
+          {/* ── Logos de tiendas — solo visible en mobile (< 960px) ── */}
+          <div className="vx-hero-stores-strip">
+            {stores.map((store) => {
+              const s       = store.settings ?? {};
+              const logoSrc = getLogoSrc(s);
+              const accent  = s.styles?.colorBoton ?? store.color;
+              const initial = (store.name?.[0] ?? 'T').toUpperCase();
+              return (
+                <button
+                  key={store.storeId}
+                  className="vx-hero-store-chip"
+                  style={{ '--chip-accent': accent }}
+                  onClick={() => navigate(`/tienda/${store.slug}`)}
+                  title={store.name}
+                >
+                  <span className="vx-hero-store-chip-logo">
+                    {logoSrc ? (
+                      <img
+                        src={logoSrc}
+                        alt={store.name}
+                        className="vx-hero-store-chip-img"
+                        loading="eager"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          if (e.currentTarget.nextElementSibling) {
+                            e.currentTarget.nextElementSibling.style.display = 'flex';
+                          }
+                        }}
+                      />
+                    ) : null}
+                    <span
+                      className="vx-hero-store-chip-initial"
+                      style={{ background: accent, display: logoSrc ? 'none' : 'flex' }}
+                    >
+                      {initial}
+                    </span>
+                  </span>
+                  <span className="vx-hero-store-chip-name">{store.name}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* ── Orbital ── */}

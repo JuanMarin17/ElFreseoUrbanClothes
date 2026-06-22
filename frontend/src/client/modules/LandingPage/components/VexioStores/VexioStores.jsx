@@ -31,7 +31,7 @@ const getLogo = (store) => {
     ?? s.logoUrl
     ?? s.components?.header?.logoUrl
     ?? s.components?.header?.logo;
-  return logo && typeof logo === 'string' && logo.startsWith('http') ? logo : null;
+  return logo && typeof logo === 'string' && logo.trim() ? logo : null;
 };
 
 const getAccent = (store) =>
@@ -67,6 +67,7 @@ export default function VexioStores() {
   }, []);
 
   const displayStores = [...stores, ...stores, ...stores];
+  const [paused, setPaused] = useState(false);
 
   return (
     <section id="vx-stores" className="vx-section vx-stores-section">
@@ -79,8 +80,12 @@ export default function VexioStores() {
         </p>
       </div>
 
-      <div className="vx-marquee-wrapper">
-        <div className="vx-marquee-track">
+      <div
+        className="vx-marquee-wrapper"
+        onTouchStart={() => setPaused(true)}
+        onTouchEnd={() => setPaused(false)}
+      >
+        <div className={`vx-marquee-track${paused ? ' vx-marquee-track--paused' : ''}`}>
           {displayStores.map((store, i) => {
                 const cover    = getCover(store);
                 const logo     = getLogo(store);
@@ -113,12 +118,25 @@ export default function VexioStores() {
                     {/* Logo superpuesto */}
                     <div className="vx-store-logo-ring">
                       {logo ? (
-                        <img src={logo} alt={store.name} className="vx-store-logo-img" />
-                      ) : (
-                        <div className="vx-store-logo-initial" style={{ background: accent }}>
-                          {initial}
-                        </div>
-                      )}
+                        <img
+                          src={logo}
+                          alt={store.name}
+                          className="vx-store-logo-img"
+                          loading="eager"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            if (e.currentTarget.nextElementSibling) {
+                              e.currentTarget.nextElementSibling.style.display = 'flex';
+                            }
+                          }}
+                        />
+                      ) : null}
+                      <div
+                        className="vx-store-logo-initial"
+                        style={{ background: accent, display: logo ? 'none' : 'flex' }}
+                      >
+                        {initial}
+                      </div>
                     </div>
 
                     {/* Info */}

@@ -516,6 +516,96 @@
 }
 
 
+/* ── Strip de logos de tiendas (solo mobile) ── */
+.vx-hero-stores-strip {
+  display: none; /* oculto en desktop — se activa en media query */
+}
+
+@media (max-width: 959px) {
+  .vx-hero-stores-strip {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 0 8px;
+    margin-top: 28px;
+    scrollbar-width: none;
+    width: 100%;
+    max-width: 100%;
+  }
+  .vx-hero-stores-strip::-webkit-scrollbar { display: none; }
+}
+
+.vx-hero-store-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 10px 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 200ms ease, border-color 200ms ease, transform 160ms ease;
+  min-width: 72px;
+  font-family: var(--vx-font-body);
+}
+
+.vx-hero-store-chip:active {
+  transform: scale(0.95);
+  background: rgba(255,255,255,0.07);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vx-hero-store-chip:hover {
+    background: rgba(255,255,255,0.07);
+    border-color: var(--chip-accent, rgba(37,99,255,.4));
+  }
+}
+
+.vx-hero-store-chip-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.vx-hero-store-chip-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 10px;
+}
+
+.vx-hero-store-chip-initial {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--vx-font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  border-radius: 10px;
+}
+
+.vx-hero-store-chip-name {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+  white-space: nowrap;
+  text-align: center;
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.01em;
+}
+
 /* ── Orbit skeleton ── */
 .vx-orbit-card--skel {
   width: 110px;
