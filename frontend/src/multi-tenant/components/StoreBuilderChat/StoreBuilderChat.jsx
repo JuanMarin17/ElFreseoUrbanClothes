@@ -124,12 +124,43 @@ function buildRows(action, data) {
   }
 }
 
+/* ── Descarga de imagen generada ── */
+function downloadGeneratedImage(base64, mime) {
+  const ext  = mime?.split("/")[1] ?? "jpg";
+  const link = document.createElement("a");
+  link.href     = `data:${mime};base64,${base64}`;
+  link.download = `producto.${ext}`;
+  link.click();
+}
+
 /* ── Burbuja de mensaje ── */
 function Bubble({ msg }) {
   const isUser = msg.role === "user";
+  const hasGeneratedImage = !isUser && msg.generatedImageBase64;
+
   return (
     <div className={`bc-bubble bc-bubble--${isUser ? "user" : "ai"}`}>
       <div className="bc-bubble__text">{msg.content}</div>
+      {hasGeneratedImage && (
+        <div className="bc-generated-image-wrap">
+          <img
+            src={`data:${msg.generatedImageMime};base64,${msg.generatedImageBase64}`}
+            alt="Imagen generada por IA"
+            className="bc-generated-image"
+          />
+          <button
+            className="bc-generated-image-dl"
+            onClick={() => downloadGeneratedImage(msg.generatedImageBase64, msg.generatedImageMime)}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Descargar imagen
+          </button>
+        </div>
+      )}
       <span className="bc-bubble__time">{formatTime(msg.createdAt)}</span>
     </div>
   );
@@ -319,9 +350,11 @@ export default function StoreBuilderChat() {
       if (!sessionId && res.session_id) setSessionId(res.session_id);
 
       setMessages(prev => [...prev, {
-        role: "assistant",
-        content: res.message,
-        createdAt: new Date().toISOString(),
+        role:                "assistant",
+        content:             res.message,
+        generatedImageBase64: res.generated_image_base64 ?? null,
+        generatedImageMime:   res.generated_image_mime_type ?? "image/jpeg",
+        createdAt:           new Date().toISOString(),
       }]);
 
       if (!suppressAction) {
