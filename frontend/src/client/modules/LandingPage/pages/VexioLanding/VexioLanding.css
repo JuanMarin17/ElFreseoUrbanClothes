@@ -274,6 +274,11 @@
   .vx-cta-actions { flex-direction: column; align-items: stretch; }
   .vx-cta-actions .vx-btn-primary,
   .vx-cta-actions .vx-btn-ghost   { justify-content: center; width: 100%; }
+
+  .vx-section-head {
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 480px) {
