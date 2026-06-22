@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getCart } from "../services/cartService";
-import { createOrder } from "../services/orderService";
+import { createOrder, processPayment } from "../services/orderService";
 import { getStoreById } from "../services/storeService";
 import "./CheckoutPage.css";
 
@@ -350,16 +350,18 @@ export default function CheckoutPage() {
       shipping.fullName, shipping.address, shipping.city, shipping.department, shipping.phone,
     ].map((v) => v?.trim()).filter(Boolean).join(", ");
 
-    const payload = {
+    const orderPayload = {
       shippingAddress,
-      paymentMethod: payment.method,
       shippingCost,
     };
 
     try {
-      const raw = await createOrder(storeId, payload);
+      const raw = await createOrder(storeId, orderPayload);
       const resolvedId = raw?.orderId ?? raw?.id;
       if (!resolvedId) throw new Error("El pedido se creó pero el servidor no devolvió un ID.");
+
+      await processPayment(storeId, resolvedId, { paymentMethod: payment.method });
+
       setSuccessOrder({
         ...raw,
         orderId:     resolvedId,

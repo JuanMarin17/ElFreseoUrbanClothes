@@ -104,6 +104,62 @@ function downloadGeneratedImage(base64, mime) {
   link.click();
 }
 
+// ─── Confirm dialog ─────────────────────────────────────────────────────────
+function ConfirmDialog({ title, message, onConfirm, onCancel }) {
+  return (
+    <div className="vx-confirm-overlay" onClick={onCancel} role="dialog" aria-modal="true">
+      <div className="vx-confirm-box" onClick={e => e.stopPropagation()}>
+        <div className="vx-confirm-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14H6L5 6" />
+            <path d="M10 11v6M14 11v6" />
+            <path d="M9 6V4h6v2" />
+          </svg>
+        </div>
+        <h3 className="vx-confirm-title">{title}</h3>
+        <p className="vx-confirm-msg">{message}</p>
+        <div className="vx-confirm-actions">
+          <button className="vx-confirm-cancel" onClick={onCancel}>Cancelar</button>
+          <button className="vx-confirm-ok" onClick={onConfirm}>Eliminar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Report download component ────────────────────────────────────────────────
+function ReportDownload({ base64, mimeType, filename }) {
+  const download = () => {
+    try {
+      const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+      const blob  = new Blob([bytes], { type: mimeType });
+      const url   = URL.createObjectURL(blob);
+      const a     = document.createElement("a");
+      a.href      = url;
+      a.download  = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      const a     = document.createElement("a");
+      a.href      = `data:${mimeType};base64,${base64}`;
+      a.download  = filename;
+      a.click();
+    }
+  };
+  const icon = mimeType?.includes("sheet") ? "📊" : mimeType?.includes("pdf") ? "📄" : "🖼️";
+  return (
+    <button className="ai__report-dl" onClick={download}>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
+      </svg>
+      {icon} Descargar {filename}
+    </button>
+  );
+}
+
 // ─── Shared: Message Bubble ──────────────────────────────────────────────────
 function MessageBubble({ msg }) {
   const isUser = msg.role === "user";
@@ -157,6 +213,22 @@ function MessageBubble({ msg }) {
               </svg>
               Descargar imagen
             </button>
+          </div>
+        )}
+        {!isUser && msg.report_base64 && (
+          <div className="ai__report-wrap">
+            {msg.action_data?.format === "chart" && (
+              <img
+                src={`data:image/png;base64,${msg.report_base64}`}
+                alt="Gráfica generada"
+                className="ai__report-chart"
+              />
+            )}
+            <ReportDownload
+              base64={msg.report_base64}
+              mimeType={msg.report_mime_type}
+              filename={msg.report_filename}
+            />
           </div>
         )}
         {!isUser && msg.action && (
@@ -284,6 +356,8 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
     selectedImage,
     setSelectedImage,
     sessions,
+    toastError,
+    setToastError,
     sendMessage,
     loadSessions,
     loadSession,
@@ -292,9 +366,10 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
     removeAllSessions,
   } = useIAAdmin();
 
-  const [darkMode, setDarkMode] = useState(
+  const [darkMode, setDarkMode]         = useState(
     () => localStorage.getItem("adminTheme") !== "light"
   );
+  const [confirmAction, setConfirmAction] = useState(null);
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -336,7 +411,7 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
           <div className="ai__header-actions">
             <button
               className="ai__icon-btn"
-              onClick={newConversation}
+              onClick={() => setConfirmAction({ title: "Nueva conversación", message: "¿Borrar la conversación actual y empezar una nueva?", fn: newConversation })}
               title="Nueva conversación"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -391,7 +466,7 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
                   </button>
                   <button
                     className="ai__session-chip-del"
-                    onClick={(e) => { e.stopPropagation(); removeSession(sid); }}
+                    onClick={(e) => { e.stopPropagation(); setConfirmAction({ title: "Eliminar conversación", message: "¿Eliminar esta conversación del historial?", fn: () => removeSession(sid) }); }}
                     title="Eliminar conversación"
                   >
                     ×
@@ -400,7 +475,7 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
               ))}
               <button
                 className="ai__session-chip-del-all"
-                onClick={removeAllSessions}
+                onClick={() => setConfirmAction({ title: "Borrar historial", message: "¿Borrar todas las conversaciones? Esta acción no se puede deshacer.", fn: removeAllSessions })}
                 title="Borrar todo el historial"
               >
                 Borrar todo
@@ -433,6 +508,13 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
               <div ref={bottomRef} />
             </div>
 
+            {toastError && (
+              <div className="ai__rate-toast" role="alert">
+                <span>⚠️ {toastError}</span>
+                <button className="ai__rate-toast__close" onClick={() => setToastError(null)}>×</button>
+              </div>
+            )}
+
             <InputArea
               inputText={inputText}
               setInputText={setInputText}
@@ -444,6 +526,15 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
           </div>
         </div>
       </div>
+
+      {confirmAction && (
+        <ConfirmDialog
+          title={confirmAction.title}
+          message={confirmAction.message}
+          onConfirm={() => { confirmAction.fn(); setConfirmAction(null); }}
+          onCancel={() => setConfirmAction(null)}
+        />
+      )}
     </div>
   );
 }
@@ -463,6 +554,8 @@ function IAAdminPage() {
     setSelectedImage,
     sessions,
     sessionsLoading,
+    toastError,
+    setToastError,
     sendMessage,
     loadSessions,
     loadSession,
@@ -471,10 +564,11 @@ function IAAdminPage() {
     removeAllSessions,
   } = useIAAdmin();
 
-  const [darkMode, setDarkMode]           = useState(
+  const [darkMode, setDarkMode]             = useState(
     () => localStorage.getItem("adminTheme") !== "light"
   );
-  const [showSessions, setShowSessions]   = useState(true);
+  const [showSessions, setShowSessions]     = useState(true);
+  const [confirmAction, setConfirmAction]   = useState(null);
   const messagesAreaRef = useRef(null);
 
   useEffect(() => {
@@ -533,7 +627,7 @@ function IAAdminPage() {
             {sessions.length > 0 && (
               <button
                 className="ai__icon-btn ia-sessions-del-all"
-                onClick={removeAllSessions}
+                onClick={() => setConfirmAction({ title: "Borrar historial", message: "¿Borrar todas las conversaciones? Esta acción no se puede deshacer.", fn: removeAllSessions })}
                 title="Borrar todo el historial"
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -580,7 +674,7 @@ function IAAdminPage() {
                 </button>
                 <button
                   className="ia-session-item__del"
-                  onClick={() => removeSession(sid)}
+                  onClick={() => setConfirmAction({ title: "Eliminar conversación", message: "¿Eliminar esta conversación del historial?", fn: () => removeSession(sid) })}
                   title="Eliminar conversación"
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -621,7 +715,7 @@ function IAAdminPage() {
           <div className="ia-chat-header-right">
             <button
               className="ai__icon-btn"
-              onClick={newConversation}
+              onClick={() => setConfirmAction({ title: "Nueva conversación", message: "¿Borrar la conversación actual y empezar una nueva?", fn: newConversation })}
               title="Nueva conversación"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -685,6 +779,14 @@ function IAAdminPage() {
           {isLoading && <TypingIndicator />}
         </div>
 
+        {/* Toast rate limit */}
+        {toastError && (
+          <div className="ai__rate-toast" role="alert">
+            <span>⚠️ {toastError}</span>
+            <button className="ai__rate-toast__close" onClick={() => setToastError(null)}>×</button>
+          </div>
+        )}
+
         {/* Input */}
         <div className="ia-input-wrapper">
           <InputArea
@@ -697,6 +799,15 @@ function IAAdminPage() {
           />
         </div>
       </main>
+
+      {confirmAction && (
+        <ConfirmDialog
+          title={confirmAction.title}
+          message={confirmAction.message}
+          onConfirm={() => { confirmAction.fn(); setConfirmAction(null); }}
+          onCancel={() => setConfirmAction(null)}
+        />
+      )}
     </div>
   );
 }

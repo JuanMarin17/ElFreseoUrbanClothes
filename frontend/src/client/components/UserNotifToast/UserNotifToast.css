@@ -120,9 +120,36 @@
 
 @media (max-width: 480px) {
   .unt-stack {
-    top: 12px;
-    right: 12px;
-    left: 12px;
+    top: calc(9vh + 10px);
+    right: 10px;
+    left: 10px;
     width: auto;
+    max-width: 100%;
+    gap: 8px;
+  }
+
+  .unt-item {
+    padding: 10px 12px;
+    gap: 8px;
+    border-radius: 10px;
+  }
+
+  .unt-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+  }
+
+  .unt-title {
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+
+  .unt-msg {
+    font-size: 11px;
+  }
+
+  .unt-label {
+    font-size: 8px;
   }
 }

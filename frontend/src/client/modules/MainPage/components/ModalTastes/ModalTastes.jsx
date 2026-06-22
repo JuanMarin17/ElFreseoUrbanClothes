@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import "./ModalTastes.css";
+
+const AUTH_PATHS = ["/login", "/login/register", "/recuperar-contraseña", "/verificar-codigo", "/nueva-contraseña", "/verificacion-pagina"];
 
 const QUESTIONS = [
   {
@@ -119,6 +122,7 @@ async function saveTastesToBackend(tastes) {
 }
 
 const ModalTastes = () => {
+  const { pathname } = useLocation();
   // Arrancar visible solo si localStorage no tiene respuesta
   const [visible, setVisible] = useState(
     () => !localStorage.getItem(STORAGE_KEY),
@@ -205,7 +209,7 @@ const ModalTastes = () => {
     closeModal();
   };
 
-  if (!visible || checking) return null;
+  if (!visible || checking || AUTH_PATHS.includes(pathname)) return null;
 
   const progress = ((step + 1) / QUESTIONS.length) * 100;
 

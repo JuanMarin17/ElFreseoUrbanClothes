@@ -117,7 +117,7 @@ const HeaderMarket = () => {
         <div className="header-container">
 
           {/* Logo */}
-          <Link to="/" className="logo-market-link" aria-label="Vexio – Ir al inicio">
+          <Link to={user ? '/market' : '/'} className="logo-market-link" aria-label="Vexio – Ir al inicio">
             <div className="logo-image">
               <img src={Logo} alt="Vexio" className="logo-image-img" />
             </div>

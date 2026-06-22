@@ -4,6 +4,7 @@ import { useStore } from "../../pages/useStore";
 import {
   sendBuilderMessage,
   getBuilderSessionHistory,
+  deleteBuilderSession,
 } from "../../pages/services/builderChatService";
 import "./StoreBuilderChat.css";
 
@@ -204,6 +205,30 @@ function SuggestionCard({ action, actionData, onApply, onEdit, onReject }) {
   );
 }
 
+/* ── Modal de confirmación ── */
+function ConfirmDialog({ title, message, onConfirm, onCancel }) {
+  return (
+    <div className="vx-confirm-overlay" onClick={onCancel} role="dialog" aria-modal="true">
+      <div className="vx-confirm-box" onClick={e => e.stopPropagation()}>
+        <div className="vx-confirm-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14H6L5 6" />
+            <path d="M10 11v6M14 11v6" />
+            <path d="M9 6V4h6v2" />
+          </svg>
+        </div>
+        <h3 className="vx-confirm-title">{title}</h3>
+        <p className="vx-confirm-msg">{message}</p>
+        <div className="vx-confirm-actions">
+          <button className="vx-confirm-cancel" onClick={onCancel}>Cancelar</button>
+          <button className="vx-confirm-ok" onClick={onConfirm}>Eliminar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ════════════════════════════════════════
    StoreBuilderChat — componente principal
 ════════════════════════════════════════ */
@@ -221,6 +246,7 @@ export default function StoreBuilderChat() {
   const [sessionId,      setSessionId]      = useState(() => localStorage.getItem(SESSION_KEY));
   const [pendingAction,  setPendingAction]  = useState(null);
   const [historyLoaded,  setHistoryLoaded]  = useState(false);
+  const [confirmAction,  setConfirmAction]  = useState(null);
 
   const messagesEndRef = useRef(null);
   const textareaRef    = useRef(null);
@@ -411,13 +437,17 @@ export default function StoreBuilderChat() {
   }, [doSend]);
 
   const handleNewChat = useCallback(() => {
+    const prevSession = sessionId;
     setMessages([]);
     setSessionId(null);
     setHistoryLoaded(false);
     setPendingAction(null);
     setError(null);
     setText("");
-  }, []);
+    if (prevSession) {
+      deleteBuilderSession(prevSession).catch(() => {});
+    }
+  }, [sessionId]);
 
   if (!isOnWizard) return null;
 
@@ -470,7 +500,12 @@ export default function StoreBuilderChat() {
           </div>
           <div className="bc-header__actions">
             {hasMessages && (
-              <button className="bc-header__btn" onClick={handleNewChat} title="Nueva conversación" aria-label="Nueva conversación">
+              <button
+                className="bc-header__btn"
+                onClick={() => setConfirmAction({ title: "Eliminar conversación", message: "¿Estás seguro de que quieres borrar esta conversación? Esta acción no se puede deshacer.", fn: handleNewChat })}
+                title="Nueva conversación"
+                aria-label="Nueva conversación"
+              >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="1 4 1 10 7 10" />
                   <path d="M3.51 15a9 9 0 1 0 .49-3" />
@@ -573,6 +608,15 @@ export default function StoreBuilderChat() {
           </button>
         </div>
       </aside>
+
+      {confirmAction && (
+        <ConfirmDialog
+          title={confirmAction.title}
+          message={confirmAction.message}
+          onConfirm={() => { confirmAction.fn(); setConfirmAction(null); }}
+          onCancel={() => setConfirmAction(null)}
+        />
+      )}
     </>
   );
 }

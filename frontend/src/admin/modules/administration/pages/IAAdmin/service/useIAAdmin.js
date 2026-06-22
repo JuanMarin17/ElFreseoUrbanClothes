@@ -80,6 +80,7 @@ export function useIAAdmin() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [sessions, setSessions]           = useState([]);
   const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [toastError, setToastError]       = useState(null);
 
   const addErrorMessage = (text) => {
     setMessages((prev) => [
@@ -150,13 +151,18 @@ export function useIAAdmin() {
             enhanced_image_mime_type:  response.enhanced_image_mime_type ?? null,
             generated_image_base64:    response.generated_image_base64 ?? null,
             generated_image_mime_type: response.generated_image_mime_type ?? "image/jpeg",
+            report_base64:             response.report_base64    ?? null,
+            report_mime_type:          response.report_mime_type ?? null,
+            report_filename:           response.report_filename  ?? null,
             originalImagePreviewUrl:   imagePreviewUrl,
             created_at:                new Date().toISOString(),
           },
         ]);
       } catch (err) {
         const status = err.status;
-        if (status === 401) {
+        if (status === 429) {
+          setToastError(err.message || "Demasiadas peticiones, intenta de nuevo más tarde.");
+        } else if (status === 401) {
           addErrorMessage("Sesión expirada. Por favor inicia sesión nuevamente.");
         } else if (status === 403) {
           addErrorMessage("No tienes permisos para usar el asistente de IA.");
@@ -251,6 +257,8 @@ export function useIAAdmin() {
     setSelectedImage,
     sessions,
     sessionsLoading,
+    toastError,
+    setToastError,
     sendMessage,
     loadSessions,
     loadSession,

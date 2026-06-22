@@ -126,7 +126,10 @@ export default function StoreHeader({
       )}
 
       {/* Logo */}
-      <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 10 }}>
+      <Link
+        to={storeSlug ? `/tienda/${storeSlug}` : '/market'}
+        style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}
+      >
         {header.logoUrl && !logoError && (
           <img
             src={header.logoUrl}
@@ -152,7 +155,7 @@ export default function StoreHeader({
         }}>
           {header.storeName ?? header.logo}
         </span>
-      </div>
+      </Link>
 
       {/* Buscador en header (urbano y clásico) */}
       {(isUrb || isCls) && (

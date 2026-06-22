@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Search, Bell, Settings, Bot, Menu, Sun, Moon, Truck, Store, HelpCircle, User, LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../../auth/pages/hook/Useauth';
+import VexioLogo from '../../../../../assets/LogoVexios/banervexio.png';
 import './AdminHeader.css';
 import NotifModal from '../Modals/NotifModal/NotifModal.jsx';
 import SettingsModal from '../Modals/SettingsModal/SettingsModal';
@@ -73,6 +74,10 @@ const AdminHeader = ({
             <Menu size={20} />
           </button>
         )}
+
+        <Link to="/market" className="admin-header-logo" aria-label="Vexio – Ir a home">
+          <img src={VexioLogo} alt="Vexio" />
+        </Link>
 
         {pageTitle && (
           <div className="top-bar-breadcrumb">

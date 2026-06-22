@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, PackagePlus, Package, Users, ShoppingCart,
   BarChart3, AlertTriangle, LogOut, FileText, ArrowLeft,
@@ -76,7 +76,7 @@ const Sidebar = ({
 
         {/* ── Brand / Logo ─────────────────────────────────────────────── */}
         <div className="sidebar-brand">
-          <div className="sidebar-logo-row">
+          <Link to="/market" className="sidebar-logo-row" style={{ textDecoration: 'none' }}>
             {useImageLogo && logoUrl ? (
               <img
                 src={logoUrl}
@@ -98,7 +98,7 @@ const Sidebar = ({
                 <span className="brand-subtitle">{brandSub}</span>
               </div>
             )}
-          </div>
+          </Link>
 
           {!brandName && (
             <span className="brand-subtitle">{brandSub}</span>

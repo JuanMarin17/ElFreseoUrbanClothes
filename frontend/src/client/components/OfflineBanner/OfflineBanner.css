@@ -1,0 +1,117 @@
+/* ══════════════════════════════════════════════
+   OfflineBanner — indicador de sin conexión
+══════════════════════════════════════════════ */
+
+/* ── Barra inferior ────────────────────────────────────────────────────── */
+.offline-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: #0d1117;
+  border-top: 2px solid #ef4444;
+  box-shadow: 0 -4px 24px rgba(239, 68, 68, 0.18);
+
+  /* oculto por defecto */
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+              opacity   300ms ease;
+}
+
+.offline-banner--visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.offline-banner__icon {
+  color: #ef4444;
+  flex-shrink: 0;
+  animation: ob-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes ob-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+.offline-banner__text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: 0.3px;
+}
+
+.offline-banner__sub {
+  font-size: 12px;
+  color: #64748b;
+  margin-left: 4px;
+}
+
+/* ── Toast de reconexión (esquina inferior derecha) ────────────────────── */
+.offline-reconnect {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #0a1a10;
+  border: 1px solid #166534;
+  border-left: 3px solid #22c55e;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  font-size: 13px;
+  font-weight: 600;
+  color: #f0fdf4;
+  white-space: nowrap;
+
+  /* oculto por defecto */
+  transform: translateY(12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+              opacity   280ms ease;
+}
+
+.offline-reconnect--visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.offline-reconnect__icon {
+  color: #22c55e;
+  flex-shrink: 0;
+}
+
+/* ── Mobile ────────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .offline-banner {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 16px;
+  }
+
+  .offline-banner__sub {
+    font-size: 11px;
+    margin-left: 0;
+    flex-basis: 100%;
+    padding-left: 26px;
+  }
+
+  .offline-reconnect {
+    bottom: 16px;
+    right: 12px;
+    left: 12px;
+    justify-content: center;
+  }
+}
