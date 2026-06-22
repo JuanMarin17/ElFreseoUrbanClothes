@@ -64,3 +64,11 @@ export const getBuilderSessions = () =>
 /** GET /sessions/{session_id}/history — Historial de mensajes de una sesión. */
 export const getBuilderSessionHistory = (sessionId) =>
   request("GET", `/sessions/${sessionId}/history`);
+
+/** DELETE /sessions/{session_id} — Borrar una sesión específica. */
+export const deleteBuilderSession = (sessionId) =>
+  request("DELETE", `/sessions/${sessionId}`);
+
+/** DELETE /sessions — Borrar todo el historial del builder. */
+export const deleteAllBuilderSessions = () =>
+  request("DELETE", "/sessions");

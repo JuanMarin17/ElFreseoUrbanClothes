@@ -257,6 +257,8 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
     loadSessions,
     loadSession,
     newConversation,
+    removeSession,
+    removeAllSessions,
   } = useIAAdmin();
 
   const [darkMode, setDarkMode] = useState(
@@ -348,15 +350,30 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
           {sessions.length > 0 && (
             <div className="ai__session-chips">
               {sessions.slice(0, 6).map((sid, i) => (
-                <button
-                  key={sid}
-                  className={`ai__session-chip${sessionId === sid ? " ai__session-chip--active" : ""}`}
-                  onClick={() => loadSession(sid)}
-                  title={sid}
-                >
-                  Conv. {sessions.length - i}
-                </button>
+                <div key={sid} className="ai__session-chip-wrap">
+                  <button
+                    className={`ai__session-chip${sessionId === sid ? " ai__session-chip--active" : ""}`}
+                    onClick={() => loadSession(sid)}
+                    title={sid}
+                  >
+                    Conv. {sessions.length - i}
+                  </button>
+                  <button
+                    className="ai__session-chip-del"
+                    onClick={(e) => { e.stopPropagation(); removeSession(sid); }}
+                    title="Eliminar conversación"
+                  >
+                    ×
+                  </button>
+                </div>
               ))}
+              <button
+                className="ai__session-chip-del-all"
+                onClick={removeAllSessions}
+                title="Borrar todo el historial"
+              >
+                Borrar todo
+              </button>
             </div>
           )}
 
@@ -419,6 +436,8 @@ function IAAdminPage() {
     loadSessions,
     loadSession,
     newConversation,
+    removeSession,
+    removeAllSessions,
   } = useIAAdmin();
 
   const [darkMode, setDarkMode]           = useState(
@@ -479,17 +498,33 @@ function IAAdminPage() {
       <aside className={`ia-sessions-panel${showSessions ? " is-open" : ""}`}>
         <div className="ia-sessions-header">
           <h2 className="ia-sessions-title">Conversaciones</h2>
-          <button
-            className="ai__icon-btn ia-sessions-new"
-            onClick={newConversation}
-            title="Nueva conversación"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            Nueva
-          </button>
+          <div style={{ display: "flex", gap: 6 }}>
+            {sessions.length > 0 && (
+              <button
+                className="ai__icon-btn ia-sessions-del-all"
+                onClick={removeAllSessions}
+                title="Borrar todo el historial"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14H6L5 6" />
+                  <path d="M10 11v6M14 11v6" />
+                  <path d="M9 6V4h6v2" />
+                </svg>
+              </button>
+            )}
+            <button
+              className="ai__icon-btn ia-sessions-new"
+              onClick={newConversation}
+              title="Nueva conversación"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Nueva
+            </button>
+          </div>
         </div>
 
         <div className="ia-sessions-list">
@@ -499,16 +534,30 @@ function IAAdminPage() {
             <p className="ia-sessions-empty">Sin conversaciones anteriores.</p>
           ) : (
             sessions.map((sid, i) => (
-              <button
+              <div
                 key={sid}
                 className={`ia-session-item${sessionId === sid ? " ia-session-item--active" : ""}`}
-                onClick={() => loadSession(sid)}
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
-                Conversación {sessions.length - i}
-              </button>
+                <button
+                  className="ia-session-item__btn"
+                  onClick={() => loadSession(sid)}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                  Conversación {sessions.length - i}
+                </button>
+                <button
+                  className="ia-session-item__del"
+                  onClick={() => removeSession(sid)}
+                  title="Eliminar conversación"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
             ))
           )}
         </div>

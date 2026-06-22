@@ -257,8 +257,15 @@
 }
 
 /* Small mobile — single column */
-@media (max-width: 380px) {
+@media (max-width: 480px) {
   .vx-footer-top {
     grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .vx-footer {
+    padding: 40px 5% 24px;
+  }
+  .vx-footer-tagline {
+    font-size: 0.78rem;
   }
 }

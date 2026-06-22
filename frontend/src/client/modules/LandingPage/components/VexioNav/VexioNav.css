@@ -53,8 +53,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 40px;                   /* ✓ único padding, igual a HeaderMarket */
+  padding: 0 40px;
   gap: 24px;
+}
+
+@media (max-width: 640px) {
+  .vx-nav-inner { padding: 0 16px; gap: 12px; }
 }
 
 /* ── Logo ── */
@@ -199,9 +203,13 @@
     pointer-events: auto;
     transform: translateY(0);
   }
-  .vx-nav-link { text-align: left; width: 100%; padding: 11px 13px; font-size: 11px; }
+  .vx-nav-link { text-align: left; width: 100%; padding: 14px 13px; font-size: 13px; min-height: 44px; }
   .vx-hamburger { display: flex; }
   .vx-nav-login { display: none; }
+}
+
+@media (max-width: 480px) {
+  .vx-nav-cta { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { sendMessage } from "../../pages/services/aiChatService.js";
+import { sendMessage, deleteSession, deleteAllSessions } from "../../pages/services/aiChatService.js";
 import { getChatSession, setChatSession, clearChatSession } from "../../../utils/chatSession.js";
 import "./AiChatDrawer.css";
 
@@ -287,6 +287,34 @@ export default function AiChatDrawer({ storeId, onCartRefresh, accentColor, prod
     clearImage();
   }, [clearImage, storeId]);
 
+  const handleDeleteSession = useCallback(async () => {
+    if (!sessionId) return;
+    const sid = sessionId;
+    setMessages([]);
+    setSessionId(null);
+    clearChatSession(storeId);
+    setError(null);
+    clearImage();
+    try {
+      await deleteSession(sid, storeId);
+    } catch {
+      // silent — local state already cleared
+    }
+  }, [sessionId, storeId, clearImage]);
+
+  const handleDeleteAll = useCallback(async () => {
+    setMessages([]);
+    setSessionId(null);
+    clearChatSession(storeId);
+    setError(null);
+    clearImage();
+    try {
+      await deleteAllSessions(storeId);
+    } catch {
+      // silent
+    }
+  }, [storeId, clearImage]);
+
   return (
     <>
       {/* Botón flotante */}
@@ -329,19 +357,33 @@ export default function AiChatDrawer({ storeId, onCartRefresh, accentColor, prod
           </div>
           <div className="ai-header__actions">
             {hasMessages && (
-              <button className="ai-header__btn" onClick={handleNewChat} title="Nueva conversación" aria-label="Nueva conversación">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="1 4 1 10 7 10" />
-                  <path d="M3.51 15a9 9 0 1 0 .49-3" />
-                </svg>
-              </button>
+              <>
+                <button
+                  className="ai-header__btn"
+                  onClick={handleDeleteSession}
+                  title="Borrar esta conversación"
+                  aria-label="Borrar conversación"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14H6L5 6" />
+                    <path d="M10 11v6M14 11v6" />
+                    <path d="M9 6V4h6v2" />
+                  </svg>
+                </button>
+                <button
+                  className="ai-header__btn"
+                  onClick={handleNewChat}
+                  title="Nueva conversación"
+                  aria-label="Nueva conversación"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="1 4 1 10 7 10" />
+                    <path d="M3.51 15a9 9 0 1 0 .49-3" />
+                  </svg>
+                </button>
+              </>
             )}
-            {/* Botón luna (toggle visual, sin efecto funcional en esta implementación) */}
-            <button className="ai-header__btn" aria-label="Modo oscuro">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-              </svg>
-            </button>
             <button className="ai-header__btn" onClick={() => setIsOpen(false)} aria-label="Cerrar">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                 <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />

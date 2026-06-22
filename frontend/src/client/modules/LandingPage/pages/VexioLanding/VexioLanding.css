@@ -276,6 +276,16 @@
   .vx-cta-actions .vx-btn-ghost   { justify-content: center; width: 100%; }
 }
 
+@media (max-width: 480px) {
+  .vx-section        { padding: 52px 5%; }
+  .vx-cta-section    { padding: 52px 5%; }
+  .vx-cta-inner      { padding: 32px 18px; border-radius: 14px; }
+  .vx-cta-title      { font-size: clamp(1.5rem, 7vw, 2rem); }
+  .vx-cta-sub        { font-size: 0.88rem; margin-bottom: 24px; }
+  .vx-btn-primary,
+  .vx-btn-ghost      { padding: 13px 20px; font-size: 0.88rem; min-height: 44px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .vx-reveal {
     transition: opacity 200ms ease;

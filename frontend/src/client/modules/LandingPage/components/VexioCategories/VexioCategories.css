@@ -15,7 +15,7 @@
 
 /* ── Sección wrapper ─────────────────────────────────────── */
 .vx-section {
-  padding: 72px 0;
+  padding: 72px 6%;
 }
 
 /* ── Cabecera ────────────────────────────────────────────── */
@@ -531,9 +531,19 @@
   .vx-feat-products { grid-template-columns: repeat(2, 1fr); }
 }
 
+@media (max-width: 640px) {
+  .vx-section { padding: 52px 5%; }
+}
+
 @media (max-width: 560px) {
   .vx-feat-products   { grid-template-columns: 1fr; }
   .vx-section-title   { font-size: 1.45rem; }
   .vx-featured-header { flex-direction: column; align-items: flex-start; }
   .vx-product-img-wrap { height: 160px; }
+}
+
+@media (max-width: 420px) {
+  .vx-cat-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .vx-cat-card { height: 130px; }
+  .vx-cat-label { font-size: 0.82rem; }
 }
