@@ -232,7 +232,7 @@ const VarianteRow = ({ variante, onChange, disabled, colores = DEFAULT_COLORES }
           {label}
         </span>
       </div>
-      <div className="up-vt-cell">
+      <div className="up-vt-cell" data-label="SKU">
         <input
           type="text"
           value={variante.sku}
@@ -242,7 +242,7 @@ const VarianteRow = ({ variante, onChange, disabled, colores = DEFAULT_COLORES }
           className="up-vt-input"
         />
       </div>
-      <div className="up-vt-cell">
+      <div className="up-vt-cell" data-label="Precio">
         <input
           type="number"
           value={variante.precio}
@@ -253,7 +253,7 @@ const VarianteRow = ({ variante, onChange, disabled, colores = DEFAULT_COLORES }
           className="up-vt-input"
         />
       </div>
-      <div className="up-vt-cell">
+      <div className="up-vt-cell" data-label="Stock">
         <input
           type="number"
           value={variante.stock}
@@ -264,7 +264,7 @@ const VarianteRow = ({ variante, onChange, disabled, colores = DEFAULT_COLORES }
           className="up-vt-input"
         />
       </div>
-      <div className="up-vt-cell">
+      <div className="up-vt-cell" data-label="Stock mín.">
         <input
           type="number"
           value={variante.stockMin}
@@ -708,114 +708,123 @@ const UploadProduct = () => {
 
           {/* Selector de tallas y colores */}
           <div className="up-matrix">
+            {/* Fila Tallas */}
             <div className="up-matrix-row">
               <span className="up-matrix-label">Tallas</span>
-              <div className="up-size-chips">
-                {tallasDisponibles.map(t => (
-                  <div key={t} className="up-chip-wrap">
-                    <button
-                      type="button"
-                      className={`up-size-chip${producto.selectedTallas.includes(t) ? " up-size-chip--on" : ""}`}
-                      onClick={() => toggleTalla(t)}
-                      disabled={loading}
-                    >
-                      {t}
-                    </button>
-                    {!DEFAULT_TALLAS.includes(t) && (
+              <div className="up-matrix-content">
+                <div className="up-size-chips">
+                  {tallasDisponibles.map(t => (
+                    <div key={t} className="up-chip-wrap">
                       <button
                         type="button"
-                        className="up-chip-del"
-                        onClick={() => removeFromTallas(t)}
+                        className={`up-size-chip${producto.selectedTallas.includes(t) ? " up-size-chip--on" : ""}`}
+                        onClick={() => toggleTalla(t)}
                         disabled={loading}
-                        title="Eliminar talla"
-                      >×</button>
-                    )}
-                  </div>
-                ))}
-
-                {showAddTalla ? (
-                  <div className="up-add-inline">
-                    <input
-                      type="text"
-                      className="up-add-inline-input"
-                      placeholder="ej: XXXL"
-                      value={newTalla}
-                      maxLength={8}
-                      autoFocus
-                      onChange={e => setNewTalla(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === "Enter") handleAddTalla();
-                        if (e.key === "Escape") { setShowAddTalla(false); setNewTalla(""); }
-                      }}
-                    />
-                    <button type="button" className="up-add-inline-ok" onClick={handleAddTalla} disabled={!newTalla.trim()}>OK</button>
-                    <button type="button" className="up-add-inline-cancel" onClick={() => { setShowAddTalla(false); setNewTalla(""); }}>✕</button>
-                  </div>
-                ) : (
-                  <button type="button" className="up-add-new-btn" onClick={() => setShowAddTalla(true)} disabled={loading}>
-                    + Nueva talla
-                  </button>
-                )}
+                      >
+                        {t}
+                      </button>
+                      {!DEFAULT_TALLAS.includes(t) && (
+                        <button
+                          type="button"
+                          className="up-chip-del"
+                          onClick={() => removeFromTallas(t)}
+                          disabled={loading}
+                          title="Eliminar talla"
+                        >×</button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className="up-matrix-add">
+                  {showAddTalla ? (
+                    <div className="up-add-inline">
+                      <input
+                        type="text"
+                        className="up-add-inline-input"
+                        placeholder="ej: XXXL"
+                        value={newTalla}
+                        maxLength={8}
+                        autoFocus
+                        onChange={e => setNewTalla(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === "Enter") handleAddTalla();
+                          if (e.key === "Escape") { setShowAddTalla(false); setNewTalla(""); }
+                        }}
+                      />
+                      <button type="button" className="up-add-inline-ok" onClick={handleAddTalla} disabled={!newTalla.trim()}>Agregar</button>
+                      <button type="button" className="up-add-inline-cancel" onClick={() => { setShowAddTalla(false); setNewTalla(""); }}>Cancelar</button>
+                    </div>
+                  ) : (
+                    <button type="button" className="up-add-new-btn" onClick={() => setShowAddTalla(true)} disabled={loading}>
+                      + Nueva talla
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
+
+            {/* Fila Colores */}
             <div className="up-matrix-row">
               <span className="up-matrix-label">Colores</span>
-              <div className="up-color-pills">
-                {coloresDisponibles.map(({ name, hex }) => (
-                  <div key={name} className="up-chip-wrap">
-                    <button
-                      type="button"
-                      className={`up-color-pill${producto.selectedColores.includes(name) ? " up-color-pill--on" : ""}`}
-                      onClick={() => toggleColor(name)}
-                      disabled={loading}
-                    >
-                      <span className="up-color-dot" style={{ background: hex }} />
-                      {name}
-                    </button>
-                    {!DEFAULT_COLORES.some(c => c.name === name) && (
+              <div className="up-matrix-content">
+                <div className="up-color-pills">
+                  {coloresDisponibles.map(({ name, hex }) => (
+                    <div key={name} className="up-chip-wrap">
                       <button
                         type="button"
-                        className="up-chip-del"
-                        onClick={() => removeFromColores(name)}
+                        className={`up-color-pill${producto.selectedColores.includes(name) ? " up-color-pill--on" : ""}`}
+                        onClick={() => toggleColor(name)}
                         disabled={loading}
-                        title="Eliminar color"
-                      >×</button>
-                    )}
-                  </div>
-                ))}
-
-                {showAddColor ? (
-                  <div className="up-add-color-inline">
-                    <label className="up-color-picker-wrap" title="Elige un color">
-                      <span className="up-color-preview" style={{ background: newColorHex }} />
+                      >
+                        <span className="up-color-dot" style={{ background: hex }} />
+                        {name}
+                      </button>
+                      {!DEFAULT_COLORES.some(c => c.name === name) && (
+                        <button
+                          type="button"
+                          className="up-chip-del"
+                          onClick={() => removeFromColores(name)}
+                          disabled={loading}
+                          title="Eliminar color"
+                        >×</button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className="up-matrix-add">
+                  {showAddColor ? (
+                    <div className="up-add-color-inline">
+                      <label className="up-color-picker-wrap" title="Elige un color">
+                        <span className="up-color-preview" style={{ background: newColorHex }} />
+                        <input
+                          type="color"
+                          className="up-color-input-hidden"
+                          value={newColorHex}
+                          onChange={e => setNewColorHex(e.target.value)}
+                        />
+                      </label>
                       <input
-                        type="color"
-                        className="up-color-input-hidden"
-                        value={newColorHex}
-                        onChange={e => setNewColorHex(e.target.value)}
+                        type="text"
+                        className="up-add-inline-input"
+                        placeholder="Nombre del color"
+                        value={newColorName}
+                        maxLength={20}
+                        autoFocus
+                        onChange={e => setNewColorName(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === "Enter") handleAddColor();
+                          if (e.key === "Escape") { setShowAddColor(false); setNewColorName(""); }
+                        }}
                       />
-                    </label>
-                    <input
-                      type="text"
-                      className="up-add-inline-input"
-                      placeholder="Nombre del color"
-                      value={newColorName}
-                      maxLength={20}
-                      autoFocus
-                      onChange={e => setNewColorName(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === "Enter") handleAddColor();
-                        if (e.key === "Escape") { setShowAddColor(false); setNewColorName(""); }
-                      }}
-                    />
-                    <button type="button" className="up-add-inline-ok" onClick={handleAddColor} disabled={!newColorName.trim()}>OK</button>
-                    <button type="button" className="up-add-inline-cancel" onClick={() => { setShowAddColor(false); setNewColorName(""); setNewColorHex("#6366f1"); }}>✕</button>
-                  </div>
-                ) : (
-                  <button type="button" className="up-add-new-btn" onClick={() => setShowAddColor(true)} disabled={loading}>
-                    + Nuevo color
-                  </button>
-                )}
+                      <button type="button" className="up-add-inline-ok" onClick={handleAddColor} disabled={!newColorName.trim()}>Agregar</button>
+                      <button type="button" className="up-add-inline-cancel" onClick={() => { setShowAddColor(false); setNewColorName(""); setNewColorHex("#6366f1"); }}>Cancelar</button>
+                    </div>
+                  ) : (
+                    <button type="button" className="up-add-new-btn" onClick={() => setShowAddColor(true)} disabled={loading}>
+                      + Nuevo color
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>

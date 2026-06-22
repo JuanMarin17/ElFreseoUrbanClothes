@@ -827,13 +827,13 @@
 /* ── Apply-to-all bar ────────────────────────────────────── */
 .up-apply-bar {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
   margin-bottom: 16px;
   background: var(--up-surface2);
   border: 1px solid var(--up-border2);
   border-radius: var(--up-radius-sm);
-  padding: 14px 16px;
+  padding: 16px 18px;
 }
 
 .up-apply-group {
@@ -1002,7 +1002,7 @@
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
 }
 
 .up-matrix-row {
@@ -1012,22 +1012,37 @@
 }
 
 .up-matrix-label {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--up-muted);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
-  width: 52px;
+  width: 60px;
   flex-shrink: 0;
-  padding-top: 7px;
+  padding-top: 8px;
 }
 
+/* Columna derecha: chips + botón "añadir" */
+.up-matrix-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* Fila de chips */
 .up-size-chips,
 .up-color-pills {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  flex: 1;
+}
+
+/* Fila del botón "añadir" — siempre en su propia línea */
+.up-matrix-add {
+  display: flex;
+  align-items: center;
 }
 
 /* ── Size Chips ──────────────────────────────────────────── */
@@ -1122,75 +1137,103 @@
 
 /* ── Botón "+ Nueva talla / + Nuevo color" ──────────────────── */
 .up-add-new-btn {
-  background: transparent;
-  border: 1px dashed rgba(99, 102, 241, 0.4);
-  color: rgba(99, 102, 241, 0.75);
-  padding: 5px 12px;
+  background: var(--up-accent-dim);
+  border: 1px solid var(--up-accent-bdr);
+  color: rgba(37, 99, 255, 0.9);
+  padding: 6px 14px;
   font-size: 12px;
-  font-weight: 600;
-  border-radius: var(--up-radius-xs);
+  font-weight: 700;
+  border-radius: 999px;
   cursor: pointer;
   transition: all var(--up-ease);
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 .up-add-new-btn:hover:not(:disabled) {
-  border-color: #6366f1;
-  color: #818cf8;
-  background: rgba(99, 102, 241, 0.08);
+  background: var(--up-accent);
+  border-color: var(--up-accent);
+  color: #fff;
+  box-shadow: 0 0 14px rgba(37,99,255,.30);
+  transform: translateY(-1px);
 }
+.up-add-new-btn:active:not(:disabled) { transform: scale(0.96); }
 .up-add-new-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-/* ── Formulario inline añadir talla ────────────────────────── */
+/* ── Formulario inline añadir talla / color ─────────────────── */
 .up-add-inline {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  flex-wrap: wrap;
+  background: var(--up-accent-dim);
+  border: 1px solid var(--up-accent-bdr);
+  border-radius: var(--up-radius-sm);
+  padding: 10px 14px;
+  animation: up-slide 0.15s ease;
 }
 
 .up-add-inline-input {
   background: var(--up-surface);
-  border: 1px solid rgba(99, 102, 241, 0.5);
+  border: 1px solid var(--up-accent-bdr);
   color: var(--up-text);
-  padding: 5px 10px;
-  font-size: 12px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-family: inherit;
   border-radius: var(--up-radius-xs);
-  width: 90px;
+  width: 120px;
   outline: none;
+  transition: border-color var(--up-ease), box-shadow var(--up-ease);
 }
-.up-add-inline-input:focus { border-color: #6366f1; }
+.up-add-inline-input:focus {
+  border-color: var(--up-accent);
+  box-shadow: 0 0 0 2px var(--up-accent-dim);
+}
+.up-add-inline-input::placeholder { color: var(--up-label); }
 
 .up-add-inline-ok {
-  background: #6366f1;
+  background: var(--up-accent);
   border: none;
   color: #fff;
-  padding: 5px 10px;
+  padding: 7px 16px;
   font-size: 12px;
   font-weight: 700;
-  border-radius: var(--up-radius-xs);
+  border-radius: 999px;
   cursor: pointer;
-  transition: opacity var(--up-ease);
+  transition: opacity var(--up-ease), transform 0.1s;
+  box-shadow: 0 0 12px rgba(37,99,255,.28);
+  white-space: nowrap;
 }
 .up-add-inline-ok:hover:not(:disabled) { opacity: 0.85; }
+.up-add-inline-ok:active:not(:disabled) { transform: scale(0.95); }
 .up-add-inline-ok:disabled { opacity: 0.35; cursor: not-allowed; }
 
 .up-add-inline-cancel {
   background: transparent;
-  border: 1px solid var(--up-border);
+  border: 1px solid rgba(255,255,255,.12);
   color: var(--up-muted);
-  padding: 5px 8px;
+  padding: 7px 14px;
   font-size: 12px;
-  border-radius: var(--up-radius-xs);
+  font-weight: 600;
+  border-radius: 999px;
   cursor: pointer;
   transition: all var(--up-ease);
+  white-space: nowrap;
 }
-.up-add-inline-cancel:hover { color: var(--up-danger); border-color: var(--up-danger); }
+.up-add-inline-cancel:hover { color: var(--up-danger); border-color: rgba(248,113,113,.4); }
 
 /* ── Formulario inline añadir color ─────────────────────────── */
 .up-add-color-inline {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
+  background: var(--up-accent-dim);
+  border: 1px solid var(--up-accent-bdr);
+  border-radius: var(--up-radius-sm);
+  padding: 10px 14px;
+  animation: up-slide 0.15s ease;
 }
 
 .up-color-picker-wrap {
@@ -1511,40 +1554,75 @@
 }
 
 /* ── Responsive ──────────────────────────────────────────── */
+
+/* Tablet */
+@media (max-width: 900px) {
+  .up-apply-bar { grid-template-columns: 1fr 1fr; }
+}
+
+/* Mobile */
 @media (max-width: 700px) {
   .up-stepper { gap: 0; padding-bottom: 20px; }
   .up-step-label { display: none; }
   .up-step-line { min-width: 20px; }
 
-  .up-body   { padding: 16px 0 40px; }
-  .up-section { padding: 16px; }
+  .up-body    { padding: 16px 0 40px; }
+  .up-section { padding: 16px 14px; }
 
   .up-two-col { grid-template-columns: 1fr; }
   .up-variante-row4 { grid-template-columns: 1fr 1fr; }
 
-  .up-page-title { font-size: 16px; }
+  .up-page-title { font-size: 17px; }
   .up-header-left { gap: 10px; }
+  .up-header-actions { gap: 6px; }
+  .up-btn-cancel { padding: 8px 14px; font-size: 11px; }
+  .up-btn-save   { padding: 8px 18px; font-size: 11px; }
 
-  .up-matrix { padding: 14px; }
-  .up-matrix-row { flex-direction: column; gap: 8px; }
-  .up-matrix-label { padding-top: 0; width: auto; }
+  /* Matrix: apila label arriba, chips abajo */
+  .up-matrix { padding: 14px; gap: 16px; }
+  .up-matrix-row { flex-direction: column; gap: 10px; }
+  .up-matrix-label {
+    padding-top: 0;
+    width: auto;
+    border-bottom: 1px solid var(--up-border);
+    padding-bottom: 6px;
+  }
+  .up-matrix-content { gap: 12px; }
 
-  .up-apply-bar { grid-template-columns: 1fr 1fr; }
+  /* Apply bar */
+  .up-apply-bar { grid-template-columns: 1fr; }
+  .up-apply-row { flex-wrap: nowrap; }
+  .up-apply-btn  { white-space: nowrap; font-size: 10px; padding: 8px 10px; }
 
+  /* Variant table → cards en mobile */
   .up-vt-head { display: none; }
   .up-vt-row {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
     padding: 12px 14px;
     gap: 8px;
     min-width: 0;
+    border-bottom: 1px solid var(--up-border);
   }
   .up-vt-cell {
     border-right: none;
     border-bottom: none;
     padding: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+  }
+  .up-vt-cell::before {
+    content: attr(data-label);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--up-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
   }
   .up-vt-cell--label {
+    grid-column: 1 / -1;
     padding-bottom: 8px;
     border-bottom: 1px solid var(--up-border);
   }
