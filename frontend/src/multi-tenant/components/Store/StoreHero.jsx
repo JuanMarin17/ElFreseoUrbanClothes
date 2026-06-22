@@ -1,4 +1,5 @@
 import { cf } from './storeUtils.jsx';
+import './styles/styles.css';
 
 export default function StoreHero({ banner, theme }) {
   const { accent, btnR, desc, titleC, paraC, pageBg, isDark, isMin, isUrb } = theme;
@@ -179,7 +180,7 @@ export default function StoreHero({ banner, theme }) {
 
   /* ── CLÁSICO (dark premium) ──────────────────────────────── */
   return (
-    <section style={{
+    <section className="store-hero-classic" style={{
       background: bannerImageUrl
         ? `linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.55)), url(${bannerImageUrl}) center/cover`
         : `linear-gradient(135deg, #0d1020 0%, ${accent}44 100%)`,
@@ -227,7 +228,7 @@ export default function StoreHero({ banner, theme }) {
         </p>
       </div>
 
-      <div style={{
+      <div className="store-hero-classic-right" style={{
         display: "flex", flexDirection: "column",
         gap: 10, alignItems: "flex-end", position: "relative",
       }}>

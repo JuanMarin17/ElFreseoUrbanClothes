@@ -143,7 +143,8 @@ function extractBackendError(err) {
     for (const [key, value] of Object.entries(businessMap)) {
       if (msg.includes(key)) return value;
     }
-    return msg;
+    // Solo devolver el mensaje crudo para errores de cliente (4xx), no para 5xx
+    if (status && status < 500) return msg;
   }
 
   if (status === 400)
@@ -151,6 +152,8 @@ function extractBackendError(err) {
   if (status === 401) return "Correo o contraseña incorrectos";
   if (status === 404) return "No existe una cuenta con ese correo";
   if (status === 409) return "Ya existe una cuenta con ese correo";
+  if (status === 422) return "Datos inválidos, revisa los campos e intenta de nuevo";
+  if (status === 429) return "Demasiadas peticiones, espera unos minutos e intenta de nuevo";
   if (status === 500) return "Error del servidor, intenta más tarde";
 
   return "Ocurrió un error inesperado, intenta de nuevo";

@@ -168,7 +168,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
   ) : null;
 
   return (
-    <div style={{ background: pageBg, color: titleC, fontFamily: `"${fB}",sans-serif`, minHeight: "100vh", transition: "background 0.3s ease, color 0.3s ease" }}>
+    <div className="store-front-root" style={{ background: pageBg, color: titleC, fontFamily: `"${fB}",sans-serif`, minHeight: "100vh", transition: "background 0.3s ease, color 0.3s ease" }}>
 
       {TopBanner}
 

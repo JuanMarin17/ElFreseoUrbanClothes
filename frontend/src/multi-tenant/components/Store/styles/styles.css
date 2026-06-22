@@ -1,3 +1,39 @@
 .btn-sun-moon svg{
     min-width: 16px;
 }
+
+/* ══ Store layout: responsive ══ */
+
+/* Header: ocultar nav + buscador en móvil */
+@media (max-width: 768px) {
+  .store-header-nav    { display: none !important; }
+  .store-header-search { display: none !important; }
+}
+
+/* Sidebar: ocultar en móvil */
+@media (max-width: 768px) {
+  .store-sidebar { display: none !important; }
+}
+
+/* Hero clásico: apilar columnas en móvil */
+@media (max-width: 600px) {
+  .store-hero-classic {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 28px 20px 32px !important;
+  }
+  .store-hero-classic-right {
+    align-items: stretch !important;
+    width: 100%;
+  }
+  .store-hero-classic-right > button {
+    width: 100% !important;
+    white-space: normal !important;
+    justify-content: center;
+  }
+}
+
+/* StoreFront: prevenir scroll horizontal */
+.store-front-root {
+  overflow-x: hidden;
+}

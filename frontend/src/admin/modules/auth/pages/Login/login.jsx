@@ -92,7 +92,8 @@ export default function Login({ mode }) {
 
   const showToast = (message, type = 'error') => {
     setToast({ message, type });
-    if (type === 'success') setTimeout(() => setToast({ message: '', type: 'error' }), 3000);
+    const delay = type === 'success' ? 3000 : 5000;
+    setTimeout(() => setToast({ message: '', type: 'error' }), delay);
   };
   const clearToast = () => setToast({ message: '', type: 'error' });
 

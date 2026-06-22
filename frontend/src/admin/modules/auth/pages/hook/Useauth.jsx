@@ -9,9 +9,6 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [user, setUser]       = useState(() => authService.getCurrentUser());
 
-  const extractError = (err) =>
-    err?.response?.data?.message || err?.message || 'Ocurrió un error inesperado';
-
   /* ── LOGIN PASO 1 ── */
   const login = async ({ email, password }) => {
     setLoading(true);
@@ -19,7 +16,7 @@ export function AuthProvider({ children }) {
       await authService.login({ email, password });
       return { success: true, email };
     } catch (err) {
-      throw new Error(extractError(err));
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -33,7 +30,7 @@ export function AuthProvider({ children }) {
       setUser(userData);
       return { success: true, user: userData };
     } catch (err) {
-      throw new Error(extractError(err));
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -47,8 +44,6 @@ export function AuthProvider({ children }) {
 
       if (avatarFile) {
         try {
-          // El upload requiere JWT; si aún no existe (registro) falla silenciosamente
-          // y se usa el avatar por defecto. El usuario puede actualizarlo desde su perfil.
           imageProfile = await authService.uploadAvatar(avatarFile);
         } catch {
           // upload fallido → avatar por defecto, el registro continúa
@@ -58,7 +53,7 @@ export function AuthProvider({ children }) {
       await authService.register({ userName, email, password, phone, imageProfile });
       return { success: true, email };
     } catch (err) {
-      throw new Error(extractError(err));
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -72,7 +67,7 @@ export function AuthProvider({ children }) {
       setUser(userData);
       return { success: true, user: userData };
     } catch (err) {
-      throw new Error(extractError(err));
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -85,7 +80,7 @@ export function AuthProvider({ children }) {
       const data = await authService.resendCode({ email });
       return { success: true, message: data?.message };
     } catch (err) {
-      throw new Error(extractError(err));
+      throw err;
     } finally {
       setLoading(false);
     }

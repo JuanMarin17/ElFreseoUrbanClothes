@@ -293,7 +293,7 @@
   .account-sidebar {
     width: 100%;
     height: auto;
-    padding: 12px;
+    padding: 8px 12px;
     border-right: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   }
@@ -301,18 +301,32 @@
   .sidebar-footer {
     display: none;
   }
+  .sidebar-group-label { display: none; }
+
+  /* Barra horizontal scrollable */
   .sidebar-nav-account {
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 4px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
   }
+  .sidebar-nav-account::-webkit-scrollbar { display: none; }
+
   .sidebar-item {
-    flex: 1;
-    min-width: 100px;
+    flex-shrink: 0;
+    flex: 0 0 auto;
+    min-width: 48px;
+    width: 48px;
+    height: 48px;
     justify-content: center;
-    padding: 8px 10px;
+    padding: 0;
+    border-radius: 12px;
   }
   .sidebar-label { display: none; }
   .sidebar-icon  { color: #777; }
-  .sidebar-group-label { display: none; }
+
+  .sidebar-item--active::after { display: none; }
 }
