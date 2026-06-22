@@ -78,7 +78,9 @@ export default function StoreHero({ banner, theme }) {
       <div style={{
         background: bannerImageUrl
           ? `url(${bannerImageUrl}) center/cover`
-          : `linear-gradient(135deg, ${accent}14 0%, transparent 60%)`,
+          : isDark
+            ? `linear-gradient(135deg, ${accent}28 0%, #0d1020 55%, ${accent}10 100%)`
+            : `linear-gradient(135deg, ${accent}20 0%, #e8eef8 55%, ${accent}08 100%)`,
         minHeight: 280,
         display: "flex", alignItems: "center", justifyContent: "center",
         position: "relative", overflow: "hidden",
@@ -89,15 +91,26 @@ export default function StoreHero({ banner, theme }) {
           <>
             <div style={{
               position: "absolute", inset: 0,
-              background: `radial-gradient(ellipse at center, ${accent}12 0%, transparent 70%)`,
+              background: `radial-gradient(ellipse at 40% 50%, ${accent}30 0%, transparent 65%)`,
             }} />
             <div style={{
               position: "absolute", inset: 0,
-              backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px), repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px)`,
+              backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 39px, ${isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)"} 39px, ${isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)"} 40px), repeating-linear-gradient(90deg, transparent, transparent 39px, ${isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)"} 39px, ${isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)"} 40px)`,
             }} />
-            <span style={{ fontSize: 10, color: accent, letterSpacing: 6, opacity: 0.3, fontWeight: 700, position: "relative" }}>
-              IMAGEN
-            </span>
+            <div style={{
+              position: "relative",
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
+            }}>
+              <svg width="44" height="44" viewBox="0 0 24 24" fill="none"
+                stroke={accent} strokeWidth="1" opacity="0.35">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+              <span style={{ fontSize: 9, color: accent, letterSpacing: 5, opacity: 0.45, fontWeight: 700 }}>
+                IMAGEN DEL BANNER
+              </span>
+            </div>
           </>
         )}
       </div>

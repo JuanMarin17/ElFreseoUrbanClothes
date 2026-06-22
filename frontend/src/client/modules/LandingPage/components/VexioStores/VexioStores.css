@@ -304,11 +304,12 @@
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .vx-store-card       { width: 240px; }
-  .vx-store-cover-wrap { height: 96px; }
-  .vx-stores-footer    { flex-direction: column; align-items: stretch; text-align: center; }
-  .vx-stores-footer .vx-btn-ghost { width: 100%; justify-content: center; }
+  .vx-store-cover-wrap { height: 100px; }
+  .vx-stores-footer    { flex-direction: column; align-items: stretch; text-align: center; gap: 14px; }
+  .vx-stores-footer .vx-btn-ghost { width: 100%; justify-content: center; min-height: 48px; }
+  .vx-stores-footer-text { font-size: 0.85rem; }
+  .vx-marquee-track    { gap: 14px; padding: 10px 0 20px; }
 
-  /* Máscara más angosta para que no corte tanto en pantallas pequeñas */
   .vx-marquee-wrapper {
     mask-image: linear-gradient(
       to right,
@@ -327,23 +328,49 @@
   }
 }
 
-@media (max-width: 420px) {
-  .vx-store-card       { width: 210px; }
-  .vx-marquee-track    { gap: 12px; }
-  .vx-store-logo-ring  { width: 44px; height: 44px; margin-top: -22px; border-radius: 12px; }
-  .vx-store-logo-initial { font-size: 1rem; }
-  .vx-store-info       { padding: 10px 14px 14px; }
-  .vx-store-name       { font-size: 0.88rem; }
+@media (max-width: 440px) {
+  .vx-store-card         { width: 220px; border-radius: 14px; }
+  .vx-store-cover-wrap   { height: 92px; border-radius: 12px 12px 0 0; }
+  .vx-marquee-track      { gap: 12px; }
+  .vx-store-logo-ring    { width: 46px; height: 46px; margin-top: -23px; border-radius: 12px; }
+  .vx-store-logo-initial { font-size: 1.05rem; }
+  .vx-store-info         { padding: 10px 14px 14px; }
+  .vx-store-name         { font-size: 0.9rem; }
+  .vx-store-category     { font-size: 0.68rem; }
+  .vx-store-desc         { font-size: 0.75rem; }
+  .vx-store-btn          { padding: 8px 14px; font-size: 0.78rem; }
 }
 
-@media (max-width: 360px) {
-  .vx-store-card       { width: 185px; }
-  .vx-store-cover-wrap { height: 80px; }
-  .vx-marquee-track    { gap: 10px; }
-  .vx-store-info       { padding: 8px 12px 12px; }
-  .vx-store-btn        { padding: 8px 12px; font-size: 0.74rem; }
+@media (max-width: 380px) {
+  .vx-store-card         { width: 195px; }
+  .vx-store-cover-wrap   { height: 82px; }
+  .vx-marquee-track      { gap: 10px; }
+  .vx-store-logo-ring    { width: 42px; height: 42px; margin-top: -21px; }
+  .vx-store-logo-initial { font-size: 0.95rem; }
+  .vx-store-info         { padding: 8px 12px 12px; gap: 3px; }
+  .vx-store-name         { font-size: 0.85rem; }
+  .vx-store-btn          { padding: 8px 12px; font-size: 0.74rem; min-height: 36px; }
 
-  /* Sin máscara en pantallas muy pequeñas para no ocultar tarjetas */
+  .vx-marquee-wrapper {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      #000 3%,
+      #000 97%,
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      #000 3%,
+      #000 97%,
+      transparent 100%
+    );
+  }
+}
+
+@media (max-width: 340px) {
+  .vx-store-card { width: 175px; }
   .vx-marquee-wrapper {
     mask-image: none;
     -webkit-mask-image: none;

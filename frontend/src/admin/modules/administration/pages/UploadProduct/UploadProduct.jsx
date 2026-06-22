@@ -7,8 +7,8 @@ import { getBrands, createBrand } from "../../services/BrandService";
 import { getSuppliersByStore } from "../../services/SupplierService";
 import { uploadFile } from "../../../../../utils/uploadService";
 
-const TALLAS = ["XS", "S", "M", "L", "XL", "XXL"];
-const COLORES = [
+const DEFAULT_TALLAS = ["XS", "S", "M", "L", "XL", "XXL"];
+const DEFAULT_COLORES = [
   { name: "Negro",    hex: "#111111" },
   { name: "Blanco",   hex: "#F0F0F0" },
   { name: "Gris",     hex: "#6B7280" },
@@ -213,9 +213,9 @@ const CategoryChips = ({ categories, selectedIds, onToggle, onCategoryCreated, d
 };
 
 // ─── Fila de variante (tabla) ─────────────────────────────────────────────────
-const VarianteRow = ({ variante, onChange, disabled }) => {
+const VarianteRow = ({ variante, onChange, disabled, colores = DEFAULT_COLORES }) => {
   const set = (field, value) => onChange(variante._id, field, value);
-  const colorObj = COLORES.find(c => c.name === variante.color);
+  const colorObj = colores.find(c => c.name === variante.color);
   const hasColor = !!variante.color;
   const hasTalla = !!variante.talla;
   const label =
@@ -308,6 +308,17 @@ const UploadProduct = () => {
   const [success, setSuccess] = useState(null);
   const [dragging, setDragging] = useState(false);
 
+  // Tallas y colores dinámicos (incluye personalizados)
+  const [tallasDisponibles,  setTallasDisponibles]  = useState(DEFAULT_TALLAS);
+  const [coloresDisponibles, setColoresDisponibles] = useState(DEFAULT_COLORES);
+
+  // UI para añadir nuevas tallas/colores
+  const [showAddTalla,  setShowAddTalla]  = useState(false);
+  const [newTalla,      setNewTalla]      = useState("");
+  const [showAddColor,  setShowAddColor]  = useState(false);
+  const [newColorName,  setNewColorName]  = useState("");
+  const [newColorHex,   setNewColorHex]   = useState("#6366f1");
+
   // Valores de "aplicar a todas"
   const [precioBase, setPrecioBase] = useState("");
   const [stockBase, setStockBase] = useState("");
@@ -375,6 +386,43 @@ const UploadProduct = () => {
         selectedColores: newColores,
         variantes: syncVariantes(prev.variantes, prev.selectedTallas, newColores, prev.name),
       };
+    });
+  };
+
+  // ── Añadir / eliminar tallas personalizadas ──
+  const handleAddTalla = () => {
+    const val = newTalla.trim().toUpperCase();
+    if (!val || tallasDisponibles.includes(val)) { setNewTalla(""); setShowAddTalla(false); return; }
+    setTallasDisponibles(prev => [...prev, val]);
+    setNewTalla("");
+    setShowAddTalla(false);
+  };
+
+  const removeFromTallas = (talla) => {
+    setTallasDisponibles(prev => prev.filter(t => t !== talla));
+    setProducto(prev => {
+      if (!prev.selectedTallas.includes(talla)) return prev;
+      const newTallas = prev.selectedTallas.filter(t => t !== talla);
+      return { ...prev, selectedTallas: newTallas, variantes: syncVariantes(prev.variantes, newTallas, prev.selectedColores, prev.name) };
+    });
+  };
+
+  // ── Añadir / eliminar colores personalizados ──
+  const handleAddColor = () => {
+    const nombre = newColorName.trim();
+    if (!nombre || coloresDisponibles.some(c => c.name.toLowerCase() === nombre.toLowerCase())) {
+      setNewColorName(""); setShowAddColor(false); return;
+    }
+    setColoresDisponibles(prev => [...prev, { name: nombre, hex: newColorHex }]);
+    setNewColorName(""); setNewColorHex("#6366f1"); setShowAddColor(false);
+  };
+
+  const removeFromColores = (nombre) => {
+    setColoresDisponibles(prev => prev.filter(c => c.name !== nombre));
+    setProducto(prev => {
+      if (!prev.selectedColores.includes(nombre)) return prev;
+      const newColores = prev.selectedColores.filter(c => c !== nombre);
+      return { ...prev, selectedColores: newColores, variantes: syncVariantes(prev.variantes, prev.selectedTallas, newColores, prev.name) };
     });
   };
 
@@ -663,34 +711,111 @@ const UploadProduct = () => {
             <div className="up-matrix-row">
               <span className="up-matrix-label">Tallas</span>
               <div className="up-size-chips">
-                {TALLAS.map(t => (
-                  <button
-                    key={t}
-                    type="button"
-                    className={`up-size-chip${producto.selectedTallas.includes(t) ? " up-size-chip--on" : ""}`}
-                    onClick={() => toggleTalla(t)}
-                    disabled={loading}
-                  >
-                    {t}
-                  </button>
+                {tallasDisponibles.map(t => (
+                  <div key={t} className="up-chip-wrap">
+                    <button
+                      type="button"
+                      className={`up-size-chip${producto.selectedTallas.includes(t) ? " up-size-chip--on" : ""}`}
+                      onClick={() => toggleTalla(t)}
+                      disabled={loading}
+                    >
+                      {t}
+                    </button>
+                    {!DEFAULT_TALLAS.includes(t) && (
+                      <button
+                        type="button"
+                        className="up-chip-del"
+                        onClick={() => removeFromTallas(t)}
+                        disabled={loading}
+                        title="Eliminar talla"
+                      >×</button>
+                    )}
+                  </div>
                 ))}
+
+                {showAddTalla ? (
+                  <div className="up-add-inline">
+                    <input
+                      type="text"
+                      className="up-add-inline-input"
+                      placeholder="ej: XXXL"
+                      value={newTalla}
+                      maxLength={8}
+                      autoFocus
+                      onChange={e => setNewTalla(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === "Enter") handleAddTalla();
+                        if (e.key === "Escape") { setShowAddTalla(false); setNewTalla(""); }
+                      }}
+                    />
+                    <button type="button" className="up-add-inline-ok" onClick={handleAddTalla} disabled={!newTalla.trim()}>OK</button>
+                    <button type="button" className="up-add-inline-cancel" onClick={() => { setShowAddTalla(false); setNewTalla(""); }}>✕</button>
+                  </div>
+                ) : (
+                  <button type="button" className="up-add-new-btn" onClick={() => setShowAddTalla(true)} disabled={loading}>
+                    + Nueva talla
+                  </button>
+                )}
               </div>
             </div>
             <div className="up-matrix-row">
               <span className="up-matrix-label">Colores</span>
               <div className="up-color-pills">
-                {COLORES.map(({ name, hex }) => (
-                  <button
-                    key={name}
-                    type="button"
-                    className={`up-color-pill${producto.selectedColores.includes(name) ? " up-color-pill--on" : ""}`}
-                    onClick={() => toggleColor(name)}
-                    disabled={loading}
-                  >
-                    <span className="up-color-dot" style={{ background: hex }} />
-                    {name}
-                  </button>
+                {coloresDisponibles.map(({ name, hex }) => (
+                  <div key={name} className="up-chip-wrap">
+                    <button
+                      type="button"
+                      className={`up-color-pill${producto.selectedColores.includes(name) ? " up-color-pill--on" : ""}`}
+                      onClick={() => toggleColor(name)}
+                      disabled={loading}
+                    >
+                      <span className="up-color-dot" style={{ background: hex }} />
+                      {name}
+                    </button>
+                    {!DEFAULT_COLORES.some(c => c.name === name) && (
+                      <button
+                        type="button"
+                        className="up-chip-del"
+                        onClick={() => removeFromColores(name)}
+                        disabled={loading}
+                        title="Eliminar color"
+                      >×</button>
+                    )}
+                  </div>
                 ))}
+
+                {showAddColor ? (
+                  <div className="up-add-color-inline">
+                    <label className="up-color-picker-wrap" title="Elige un color">
+                      <span className="up-color-preview" style={{ background: newColorHex }} />
+                      <input
+                        type="color"
+                        className="up-color-input-hidden"
+                        value={newColorHex}
+                        onChange={e => setNewColorHex(e.target.value)}
+                      />
+                    </label>
+                    <input
+                      type="text"
+                      className="up-add-inline-input"
+                      placeholder="Nombre del color"
+                      value={newColorName}
+                      maxLength={20}
+                      autoFocus
+                      onChange={e => setNewColorName(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === "Enter") handleAddColor();
+                        if (e.key === "Escape") { setShowAddColor(false); setNewColorName(""); }
+                      }}
+                    />
+                    <button type="button" className="up-add-inline-ok" onClick={handleAddColor} disabled={!newColorName.trim()}>OK</button>
+                    <button type="button" className="up-add-inline-cancel" onClick={() => { setShowAddColor(false); setNewColorName(""); setNewColorHex("#6366f1"); }}>✕</button>
+                  </div>
+                ) : (
+                  <button type="button" className="up-add-new-btn" onClick={() => setShowAddColor(true)} disabled={loading}>
+                    + Nuevo color
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -777,6 +902,7 @@ const UploadProduct = () => {
                   variante={v}
                   onChange={handleVarianteChange}
                   disabled={loading}
+                  colores={coloresDisponibles}
                 />
               ))}
             </div>

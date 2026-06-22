@@ -77,6 +77,7 @@ function Bubble({ msg, storeId }) {
   const isUser = msg.role === "user";
   return (
     <div className={`ai-bubble ai-bubble--${isUser ? "user" : "assistant"}`}>
+      {!isUser && <span className="ai-bubble__sender">✦ Asistente IA</span>}
       {msg.imagePreview && <img src={msg.imagePreview} alt="adjunto" className="ai-bubble__img" />}
       <div className="ai-bubble__text">{msg.content}</div>
       {msg.actionToast && (
@@ -157,6 +158,7 @@ export default function AiChatDrawer({ storeId, onCartRefresh, accentColor, prod
   const [imagePreview,  setImagePreview]  = useState(null);
   const [imageBase64,   setImageBase64]   = useState(null);
   const [imageMimeType, setImageMimeType] = useState(null);
+  const [confirmAction, setConfirmAction] = useState(null);
 
   const messagesEndRef = useRef(null);
   const textareaRef    = useRef(null);
@@ -331,8 +333,8 @@ export default function AiChatDrawer({ storeId, onCartRefresh, accentColor, prod
           </svg>
         ) : (
           <svg className="ai-fab__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            <path d="M9.5 9h5M9.5 13h3" strokeWidth="1.8" />
+            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+            <path d="M5 3V7M19 17v4M3 5h4M17 19h4"/>
           </svg>
         )}
         {!isOpen && hasMessages && <span className="ai-fab__badge" />}
@@ -350,17 +352,21 @@ export default function AiChatDrawer({ storeId, onCartRefresh, accentColor, prod
 
         {/* Header */}
         <div className="ai-header">
-          <span className="ai-header__dot" />
+          <div className="ai-header__avatar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+            </svg>
+          </div>
           <div className="ai-header__info">
-            <p className="ai-header__name">VX AI Workspace</p>
-            <p className="ai-header__sub">{storeName} · Asistente de Compras</p>
+            <p className="ai-header__name">Asistente IA</p>
+            <p className="ai-header__sub"><span className="ai-header__online" />{storeName} · en línea</p>
           </div>
           <div className="ai-header__actions">
             {hasMessages && (
               <>
                 <button
                   className="ai-header__btn"
-                  onClick={handleDeleteSession}
+                  onClick={() => setConfirmAction({ title: "Eliminar conversación", message: "¿Eliminar esta conversación y su historial? Esta acción no se puede deshacer.", fn: handleDeleteSession })}
                   title="Borrar esta conversación"
                   aria-label="Borrar conversación"
                 >
@@ -373,7 +379,7 @@ export default function AiChatDrawer({ storeId, onCartRefresh, accentColor, prod
                 </button>
                 <button
                   className="ai-header__btn"
-                  onClick={handleNewChat}
+                  onClick={() => setConfirmAction({ title: "Nueva conversación", message: "¿Borrar la conversación actual y empezar una nueva?", fn: handleNewChat })}
                   title="Nueva conversación"
                   aria-label="Nueva conversación"
                 >
@@ -398,21 +404,40 @@ export default function AiChatDrawer({ storeId, onCartRefresh, accentColor, prod
             /* ── Vista dashboard ── */
             <div className="ai-dashboard">
 
+              {/* Welcome hero */}
+              <div className="ai-welcome">
+                <div className="ai-welcome__avatar">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                    <path d="M5 3V7M19 17v4M3 5h4M17 19h4"/>
+                  </svg>
+                </div>
+                <div className="ai-welcome__text">
+                  <h3 className="ai-welcome__title">¿En qué te ayudo?</h3>
+                  <p className="ai-welcome__sub">Tu asesor de compras personal</p>
+                </div>
+              </div>
+
+              <p className="ai-section-label">Resumen de la tienda</p>
+
               {/* Stat cards */}
               <div className="ai-stats">
-                <div className="ai-stat-card">
+                <div className="ai-stat-card ai-stat-card--blue">
+                  <span className="ai-stat-card__icon">🛍️</span>
                   <span className="ai-stat-label">Productos</span>
                   <span className="ai-stat-value">{totalProducts}</span>
                   <span className="ai-stat-sub">disponibles</span>
                 </div>
-                <div className="ai-stat-card">
+                <div className="ai-stat-card ai-stat-card--green">
+                  <span className="ai-stat-card__icon">📂</span>
                   <span className="ai-stat-label">Categorías</span>
                   <span className="ai-stat-value">{categories}</span>
                   <span className="ai-stat-sub">en tienda</span>
                 </div>
                 <div className="ai-stat-card ai-stat-card--amber">
+                  <span className="ai-stat-card__icon">✨</span>
                   <span className="ai-stat-label">Asesor IA</span>
-                  <span className="ai-stat-value" style={{ fontSize: 16, paddingTop: 2 }}>Activo</span>
+                  <span className="ai-stat-value" style={{ fontSize: 15, paddingTop: 2 }}>Activo</span>
                   <span className="ai-stat-sub">disponible</span>
                 </div>
               </div>
@@ -466,6 +491,7 @@ export default function AiChatDrawer({ storeId, onCartRefresh, accentColor, prod
               {/* Mensaje inicial del asistente */}
               <div className="ai-messages" style={{ paddingTop: 4, paddingBottom: 4 }}>
                 <div className="ai-bubble ai-bubble--assistant">
+                  <span className="ai-bubble__sender">✦ Asistente IA</span>
                   <div className="ai-bubble__text">
                     {isLoggedIn
                       ? `¡Hola! Soy tu asistente de compras IA. Puedo ayudarte a encontrar productos, verificar tallas, aplicar cupones y más. ¿En qué te puedo ayudar hoy?`
@@ -569,6 +595,27 @@ export default function AiChatDrawer({ storeId, onCartRefresh, accentColor, prod
         </div>
 
       </aside>
+
+      {confirmAction && (
+        <div className="vx-confirm-overlay" onClick={() => setConfirmAction(null)} role="dialog" aria-modal="true">
+          <div className="vx-confirm-box" onClick={e => e.stopPropagation()}>
+            <div className="vx-confirm-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14H6L5 6" />
+                <path d="M10 11v6M14 11v6" />
+                <path d="M9 6V4h6v2" />
+              </svg>
+            </div>
+            <h3 className="vx-confirm-title">{confirmAction.title}</h3>
+            <p className="vx-confirm-msg">{confirmAction.message}</p>
+            <div className="vx-confirm-actions">
+              <button className="vx-confirm-cancel" onClick={() => setConfirmAction(null)}>Cancelar</button>
+              <button className="vx-confirm-ok" onClick={() => { confirmAction.fn(); setConfirmAction(null); }}>Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

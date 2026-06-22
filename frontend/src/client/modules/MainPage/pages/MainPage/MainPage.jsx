@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import SidebarFilters from '../../components/products/SidebarFilters/SidebarFilters';
 import ProductGrid from '../../components/products/ProductGrid/ProductGrid';
-import ModalTastes from '../../components/ModalTastes/ModalTastes';
 import { FavoritesProvider, useFavorites } from '../../components/products/FavoritesContext';
 import { productsMock } from '../../services/productsMock';
 import './MainPage.css';
@@ -76,7 +75,6 @@ function MainPage() {
     <FavoritesProvider>
       <div className="main-page-container">
         <Header />
-        <ModalTastes />
         <CatalogContent />
       </div>
     </FavoritesProvider>

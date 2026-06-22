@@ -15,6 +15,24 @@
   transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
+/* ── Logo Vexio ────────────────────────────────────────────────────────── */
+.admin-header-logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+.admin-header-logo img {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+.admin-header-logo:hover img {
+  opacity: 1;
+}
+
 /* ── Hamburger (mobile-only) ───────────────────────────────────────────── */
 .hamburger-btn {
   padding: 6px;

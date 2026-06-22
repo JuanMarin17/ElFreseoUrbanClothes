@@ -4,13 +4,22 @@
    ============================================================ */
 
 @keyframes vx-nav-enter {
-  from { opacity: 0; transform: translateY(-100%); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .vx-nav {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
   padding: 0;
   display: flex;
@@ -31,16 +40,22 @@
 .vx-nav--hidden {
   top: -80px;
 }
+
 .vx-nav::after {
   content: '';
   position: absolute;
-  bottom: 0; left: 0; right: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(37,99,255,.5), rgba(124,58,237,.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(37, 99, 255, .5), rgba(124, 58, 237, .5), transparent);
   opacity: 0;
   transition: opacity .3s;
 }
-.vx-nav--scrolled::after { opacity: 1; }
+
+.vx-nav--scrolled::after {
+  opacity: 1;
+}
 
 .vx-nav--scrolled {
   background: rgba(10, 10, 10, 0.97);
@@ -58,7 +73,10 @@
 }
 
 @media (max-width: 640px) {
-  .vx-nav-inner { padding: 0 16px; gap: 12px; }
+  .vx-nav-inner {
+    padding: 0 16px;
+    gap: 12px;
+  }
 }
 
 /* ── Logo ── */
@@ -78,7 +96,8 @@
 /* ── Links de navegación ── */
 .vx-nav-links {
   display: flex;
-  gap: 15px;                         /* ✓ corregido de 0 a 15px */
+  gap: 15px;
+  /* ✓ corregido de 0 a 15px */
   list-style: none;
   margin: 0;
   padding: 0;
@@ -89,9 +108,12 @@
   border: none;
   color: var(--vx-muted);
   font-family: var(--vx-font-body);
-  font-size: 11px;                   /* ✓ corregido de .84rem a 11px */
-  font-weight: 600;                  /* ✓ corregido de 500 a 600 */
-  letter-spacing: 1.5px;            /* ✓ corregido de .01em a 1.5px */
+  font-size: 11px;
+  /* ✓ corregido de .84rem a 11px */
+  font-weight: 600;
+  /* ✓ corregido de 500 a 600 */
+  letter-spacing: 1.5px;
+  /* ✓ corregido de .01em a 1.5px */
   padding: 6px 13px;
   border-radius: 6px;
   cursor: pointer;
@@ -120,9 +142,12 @@
   color: var(--vx-muted);
   text-decoration: none;
   font-family: var(--vx-font-body);
-  font-size: 11px;                   /* ✓ igualado a 11px */
-  font-weight: 600;                  /* ✓ igualado a 600 */
-  letter-spacing: 1.5px;            /* ✓ igualado a 1.5px */
+  font-size: 11px;
+  /* ✓ igualado a 11px */
+  font-weight: 600;
+  /* ✓ igualado a 600 */
+  letter-spacing: 1.5px;
+  /* ✓ igualado a 1.5px */
   padding: 7px 13px;
   border-radius: 6px;
   transition: color .18s, background .18s;
@@ -145,7 +170,7 @@
   letter-spacing: 1.5px;
   cursor: pointer;
   transition: opacity 200ms ease-out, box-shadow 200ms ease-out, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
-  box-shadow: 0 0 0 rgba(124,58,237,0);
+  box-shadow: 0 0 0 rgba(124, 58, 237, 0);
   white-space: nowrap;
 }
 
@@ -182,45 +207,75 @@
   transition: transform .28s, opacity .28s;
 }
 
-.vx-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-.vx-hamburger.open span:nth-child(2) { opacity: 0; }
-.vx-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+.vx-hamburger.open span:nth-child(1) {
+  
+  transform: translateY(6.5px) rotate(45deg);
+}
+
+.vx-hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.vx-hamburger.open span:nth-child(3) {
+  transform: translateY(-6.5px) rotate(-45deg);
+}
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
-  .vx-nav-logo-img { height: 34px; }
+  .vx-nav-logo-img {
+    height: 30px;
+  }
 
-
-  
   .vx-nav-links {
     position: fixed;
-    top: 60px; left: 0; right: 0;
+    top: 9vh;
+    left: 0;
+    right: 0;
     flex-direction: column;
-    background: #0A0A0A;
-    border-bottom: 1px solid var(--vx-border);
-    padding: 12px 6%;
+    background: rgba(10, 10, 10, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 8px 5% 16px;
     display: flex;
     gap: 2px;
     opacity: 0;
     pointer-events: none;
     transform: translateY(-8px);
     transition: opacity 200ms cubic-bezier(0.23, 1, 0.32, 1), transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+    max-height: calc(100vh - 9vh);
+    overflow-y: auto;
   }
+
   .vx-nav-links.open {
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
   }
-  .vx-nav-link { text-align: left; width: 100%; padding: 14px 13px; font-size: 13px; min-height: 44px; }
-  .vx-hamburger { display: flex; }
-  .vx-nav-login { display: none; }
 
-  /* Mostrar separador y botones de auth en el dropdown */
+  .vx-nav-link {
+    text-align: left;
+    width: 100%;
+    padding: 13px 14px;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    min-height: 48px;
+    border-radius: 8px;
+  }
+
+  .vx-hamburger {
+    display: flex;
+  }
+
+  .vx-nav-login {
+    display: none;
+  }
+
   .vx-nav-mobile-divider {
     display: block;
     height: 1px;
-    background: rgba(255, 255, 255, 0.08);
-    margin: 6px 13px;
+    background: rgba(255, 255, 255, 0.07);
+    margin: 6px 14px;
     list-style: none;
   }
 
@@ -233,9 +288,10 @@
     background: linear-gradient(135deg, #2563FF 0%, #7C3AED 100%);
     color: #ffffff !important;
     border-radius: 8px;
-    margin: 4px 0 8px;
+    margin: 6px 0 4px;
     font-weight: 700;
     justify-content: center;
+    min-height: 48px;
   }
 
   .vx-nav-link--mobile-cta:hover {
@@ -246,14 +302,31 @@
 
 @media (max-width: 640px) {
   .vx-nav-cta {
-    padding: 7px 12px;
+    padding: 8px 13px;
     font-size: 10px;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
+    min-height: 36px;
+  }
+}
+
+@media (max-width: 400px) {
+  .vx-nav-inner {
+    padding: 0 14px;
+    gap: 8px;
+  }
+  .vx-nav-logo-img {
+    height: 26px;
+  }
+  .vx-nav-cta {
+    padding: 7px 10px;
+    font-size: 9.5px;
   }
 }
 
 @media (max-width: 360px) {
-  .vx-nav-cta { display: none; }
+  .vx-nav-cta {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -261,7 +334,18 @@
     animation: none;
     transition: background .3s ease, border-color .3s ease;
   }
-  .vx-nav--hidden { top: 0; opacity: 0; pointer-events: none; }
-  .vx-nav-links   { transition: none; }
-  .vx-hamburger span { transition: none; }
+
+  .vx-nav--hidden {
+    top: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .vx-nav-links {
+    transition: none;
+  }
+
+  .vx-hamburger span {
+    transition: none;
+  }
 }

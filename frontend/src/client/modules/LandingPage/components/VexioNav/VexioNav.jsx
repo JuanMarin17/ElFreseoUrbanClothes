@@ -67,7 +67,7 @@ export default function VexioNav() {
       <div className="vx-nav-inner">
 
         {/* Logo */}
-        <Link to="/" className="vx-nav-brand">
+        <Link to={loggedIn ? '/market' : '/'} className="vx-nav-brand">
           <img src={Logo} alt="Vexio" className="vx-nav-logo-img" />
         </Link>
 

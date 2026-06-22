@@ -5,6 +5,8 @@ import "./App.css";
 import "./animations.css";
 import { AuthProvider, useAuth } from "./admin/modules/auth/pages/hook/Useauth.jsx";
 import UserNotifToast from "./client/components/UserNotifToast/UserNotifToast.jsx";
+import ModalTastes from "./client/modules/MainPage/components/ModalTastes/ModalTastes.jsx";
+import OfflineBanner from "./client/components/OfflineBanner/OfflineBanner.jsx";
 
 import ProductPage from "./client/modules/ProductPage/ProductPage.jsx";
 
@@ -67,7 +69,10 @@ const ShockAlerts = lazy(
   () => import("./admin/modules/administration/pages/StockAlerts/StockAlert.jsx"),
 );
 const SuppliersPage = lazy(
-  () => import("./admin/modules/administration/pages/Suppliers/SuppliersPage.jsx"),
+  () => import("./admin/modules/administration/pages/Proveedor/SuppliersPage.jsx"),
+);
+const UsersManagement = lazy(
+  () => import("./admin/modules/administration/pages/UsersManagement/UsersManagement.jsx"),
 );
 const PromotionsDashboard = lazy(
   () => import("./admin/modules/administration/promotions/PromotionsDashboards.jsx"),
@@ -127,6 +132,9 @@ const MarketPage = lazy(
 );
 const AccountPage = lazy(
   () => import("./client/modules/account/pages/AccountPage/AccountPage.jsx"),
+);
+const FavoritosPage = lazy(
+  () => import("./client/modules/Favoritos/FavoritosPage.jsx"),
 );
 
 // ── Multi-tenant ──────────────────────────────────────────────────────────────
@@ -226,6 +234,8 @@ function App() {
         <StoreProvider>
           <TokenGuard />
           <UserNotifToastWrapper />
+          <ModalTastes />
+          <OfflineBanner />
           <StoreBuilderChat />
           <div className="main-container">
             <Suspense fallback={<PageLoader />}>
@@ -239,6 +249,7 @@ function App() {
                   <Route path="/catalogo" element={<CatalogoPage />} />
                   <Route path="/products/:productId" element={<ProductPage />} />
                   <Route path="/cuenta/*" element={<AccountPage />} />
+                  <Route path="/favoritos" element={<FavoritosPage />} />
 
                   {/* ── Auth ─────────────────────────────────────────────── */}
                   <Route
@@ -322,7 +333,7 @@ function App() {
                       <Route path="subir-producto"        element={<UploadProduct />} />
                       <Route path="editar-producto/:id"   element={<EditProduct />} />
                       <Route path="inventario"            element={<InventaryStock />} />
-                      <Route path="usuarios"              element={<Dashboard />} />
+                      <Route path="usuarios"              element={<UsersManagement />} />
                       <Route path="promociones"           element={<PromotionsDashboard />} />
                       <Route path="report"                element={<Report />} />
                       <Route path="pedidos"               element={<OrdersManagement />} />
@@ -342,7 +353,7 @@ function App() {
                       <Route path="subir-producto"        element={<UploadProduct />} />
                       <Route path="editar-producto/:id"   element={<EditProduct />} />
                       <Route path="inventario"            element={<InventaryStock />} />
-                      <Route path="usuarios"              element={<Dashboard />} />
+                      <Route path="usuarios"              element={<UsersManagement />} />
                       <Route path="clientes"              element={<CustomersPage />} />
                       <Route path="devoluciones"          element={<AdminReturnsPage />} />
                       <Route path="pos"                   element={<POSPage />} />

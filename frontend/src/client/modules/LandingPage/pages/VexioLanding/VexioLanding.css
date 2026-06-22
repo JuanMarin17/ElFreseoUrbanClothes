@@ -269,26 +269,39 @@
 }
 
 @media (max-width: 768px) {
-  .vx-section     { padding: 70px 5%; }
-  .vx-cta-inner   { padding: 40px 24px; }
-  .vx-cta-actions { flex-direction: column; align-items: stretch; }
+  .vx-section       { padding: 64px 5%; }
+  .vx-cta-inner     { padding: 40px 24px; }
+  .vx-cta-actions   { flex-direction: column; align-items: stretch; }
   .vx-landing .vx-cta-actions .vx-btn-primary,
   .vx-landing .vx-cta-actions .vx-btn-ghost   { justify-content: center; width: 100%; }
 
   .vx-landing .vx-section-head {
     display: flex;
     flex-direction: column;
+    margin-bottom: 40px;
+  }
+  .vx-landing .vx-section-head--center {
+    align-items: center;
+    text-align: center;
   }
 }
 
+@media (max-width: 560px) {
+  .vx-section        { padding: 48px 4.5%; }
+  .vx-cta-section    { padding: 48px 4.5%; }
+  .vx-landing .vx-section-head { margin-bottom: 28px; }
+  .vx-section-title  { font-size: clamp(1.55rem, 5.5vw, 2rem); }
+  .vx-section-sub    { font-size: 0.9rem; }
+}
+
 @media (max-width: 480px) {
-  .vx-section        { padding: 52px 5%; }
-  .vx-cta-section    { padding: 52px 5%; }
-  .vx-cta-inner      { padding: 32px 18px; border-radius: 14px; }
-  .vx-cta-title      { font-size: clamp(1.5rem, 7vw, 2rem); }
-  .vx-cta-sub        { font-size: 0.88rem; margin-bottom: 24px; }
+  .vx-section        { padding: 40px 4%; }
+  .vx-cta-section    { padding: 40px 4%; }
+  .vx-cta-inner      { padding: 28px 16px; border-radius: 14px; }
+  .vx-cta-title      { font-size: clamp(1.4rem, 7vw, 1.9rem); }
+  .vx-cta-sub        { font-size: 0.86rem; margin-bottom: 20px; }
   .vx-landing .vx-btn-primary,
-  .vx-landing .vx-btn-ghost      { padding: 13px 20px; font-size: 0.88rem; min-height: 44px; }
+  .vx-landing .vx-btn-ghost { padding: 13px 18px; font-size: 0.88rem; min-height: 48px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
