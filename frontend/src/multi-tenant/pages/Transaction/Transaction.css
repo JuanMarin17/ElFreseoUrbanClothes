@@ -17,6 +17,49 @@
 }
 
 /* ── Encabezado ───────────────────────────────── */
+.txn-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.txn-refresh-btn {
+  background: transparent;
+  border: 1px solid #1a1a1a;
+  color: #52525b;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .txn-refresh-btn:hover:not(:disabled) {
+    background: rgba(59, 130, 246, 0.08);
+    color: #a1a1aa;
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+}
+.txn-refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.txn-spin { animation: txn-spin 0.9s linear infinite; }
+@keyframes txn-spin { to { transform: rotate(360deg); } }
+
+.txn-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  font-size: 13px;
+}
+
 .txn-title {
   font-size: 22px;
   font-weight: 800;

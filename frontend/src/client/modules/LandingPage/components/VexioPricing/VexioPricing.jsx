@@ -27,7 +27,7 @@ const PLANS = [
     features: [
       { text: 'Hasta 3 tiendas activas', active: true },
       { text: 'Productos ilimitados', active: true },
-      { text: 'Analytics avanzado + reportes', active: true },
+      { text: 'Analytics avanzado con AI + reportes', active: true },
       { text: 'Pasarela multi-método de pago', active: true },
       { text: 'Logística conectada (3 carriers)', active: true },
       { text: 'Integraciones (WhatsApp, Meta)', active: true },

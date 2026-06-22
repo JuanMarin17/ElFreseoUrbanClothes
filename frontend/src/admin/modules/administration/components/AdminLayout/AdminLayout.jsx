@@ -107,9 +107,12 @@ const AdminLayout = () => {
     if (!storeId || storeId === "null") return;
     localStorage.setItem(`sidebarColor_${storeId}`, color);
     try {
+      // "styles" se reemplaza completo en el backend (no hace merge por clave),
+      // así que hay que traer el objeto actual y mandarlo de vuelta entero.
+      const current = await getStoreSettingsByHeader(storeId).catch(() => null);
       await saveStoreSettings(storeId, {
-        completedStep: 9,
-        styles: { sidebarColor: color },
+        completedStep: current?.completedStep ?? 9,
+        styles: { ...(current?.styles ?? {}), sidebarColor: color },
       });
     } catch { /* silent — color ya está en localStorage */ }
   };

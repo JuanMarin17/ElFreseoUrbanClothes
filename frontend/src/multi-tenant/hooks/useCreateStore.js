@@ -70,11 +70,7 @@ export default function useCreateStore(storeContext, ownerId) {
         console.log("📦 storePayload:", JSON.stringify(storePayload, null, 2));
         console.log(
           "📦 settingsPayload:",
-          JSON.stringify(
-            buildSettingsPayload(storeContext, storeForm),
-            null,
-            2,
-          ),
+          JSON.stringify(buildSettingsPayload(storeContext), null, 2),
         );
 
         const storeResponse = await createStore(storePayload);
@@ -87,7 +83,7 @@ export default function useCreateStore(storeContext, ownerId) {
         clearAllChatSessions();
 
         // ── Paso 2: Guardar configuración completa del wizard ────────────────
-        const settingsPayload = buildSettingsPayload(storeContext, storeForm);
+        const settingsPayload = buildSettingsPayload(storeContext);
         await saveStoreSettings(createdStoreId, settingsPayload);
 
         return createdStoreId;
@@ -214,7 +210,7 @@ function buildCmsPayload(cms) {
  * Convierte el estado del StoreContext al DTO que espera StoreSettingsController.
  * Mapeo basado en StoreSettingsRequestDTO.java
  */
-function buildSettingsPayload(state, storeForm) {
+function buildSettingsPayload(state) {
   return {
     // Campo obligatorio (NotNull en el backend)
     completedStep: state.completedStep ?? 4,
@@ -304,13 +300,6 @@ function buildSettingsPayload(state, storeForm) {
 
     // Estilos visuales (JSON libre → JSONB en PostgreSQL)
     styles: state.styles ?? undefined,
-
-    // Paso de confirmación (términos)
-    store: {
-      name: storeForm.name,
-      subdomain: storeForm.subdomain,
-      accepted: storeForm.accepted,
-    },
 
     // Preview: se almacena tal cual
     preview: state.preview ?? undefined,

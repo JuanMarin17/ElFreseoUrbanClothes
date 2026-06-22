@@ -404,6 +404,7 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
 function IAAdminPage() {
   const {
     hasAccess,
+    checkingAccess,
     role,
     sessionId,
     messages,
@@ -444,6 +445,17 @@ function IAAdminPage() {
     obs.observe(wrapper, { attributes: true, attributeFilter: ["data-theme"] });
     return () => obs.disconnect();
   }, []);
+
+  if (checkingAccess) {
+    return (
+      <div className={`ia-page ${darkMode ? "ai--dark" : "ai--light"} ia-page--denied`}>
+        <div className="ia-denied-card">
+          <span className="ai__spinner" />
+          <p>Verificando acceso...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!hasAccess) {
     return (

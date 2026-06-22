@@ -44,10 +44,16 @@ async function request(method, path, body) {
  * POST /chat
  * Primer mensaje: sessionId = null → el backend crea la sesión y devuelve session_id.
  * Mensajes siguientes: pasar el session_id recibido en la primera respuesta.
+ *
+ * `context` informa en qué paso del wizard está el usuario (path/step/stepIndex/
+ * totalSteps/completedStep). El backend aún no tiene contrato confirmado para
+ * este campo — se manda por si ya lo soporta o se agrega soporte más adelante;
+ * si lo ignora, no rompe nada (campo extra en el body).
  */
-export const sendBuilderMessage = (sessionId, message) => {
+export const sendBuilderMessage = (sessionId, message, context) => {
   const body = { message };
   if (sessionId) body.session_id = sessionId;
+  if (context) body.context = context;
   return request("POST", "/chat", body);
 };
 

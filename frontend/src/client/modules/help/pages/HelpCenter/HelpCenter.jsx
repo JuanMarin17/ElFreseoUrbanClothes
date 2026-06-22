@@ -504,8 +504,6 @@ function TicketConversation({
         ) : (
           messages.map((msg, i) => {
             const isOwnMessage = msg.senderId === user.id;
-            const isAdminMsg =
-              user.role === "OWNER" ? isOwnMessage : !isOwnMessage;
             return (
               <div
                 key={msg.messageId}
@@ -721,7 +719,7 @@ function TicketList({ user, onSelect, onToast, refreshTrigger }) {
    MODAL: CREAR TICKET
 ══════════════════════════════════════════════════════════ */
 
-function CreateTicketModal({ user, onClose, onCreated, onToast }) {
+function CreateTicketModal({ user, onClose, onCreated }) {
   const [subject, setSubject] = useState("");
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState(null);
@@ -1149,7 +1147,6 @@ const HelpCenter = () => {
             user={user}
             onClose={() => setShowModal(false)}
             onCreated={triggerRefresh}
-            onToast={showToast}
           />
         )}
         {toast && <Toast {...toast} onClose={() => setToast(null)} />}

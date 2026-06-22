@@ -113,7 +113,14 @@ export function useNotificationInbox() {
         setNotifications(Array.isArray(data) ? data : []);
       })
       .catch((err) => {
-        if (active) setError(err.message ?? "No se pudieron cargar las notificaciones.");
+        if (!active) return;
+        // 404: el backend no tiene historial para este usuario todavía —
+        // se trata como bandeja vacía en vez de mostrar un error.
+        if (err.status === 404) {
+          setNotifications([]);
+        } else {
+          setError(err.message ?? "No se pudieron cargar las notificaciones.");
+        }
       })
       .finally(() => { if (active) setLoading(false); });
 
