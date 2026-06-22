@@ -82,6 +82,15 @@
   color: #5a7a9a;
 }
 
+.unt-item--clickable {
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.unt-item--clickable:hover {
+  background: #111c2a;
+  border-left-color: color-mix(in srgb, var(--unt-color) 80%, white);
+}
+
 .unt-close {
   background: transparent;
   border: none;

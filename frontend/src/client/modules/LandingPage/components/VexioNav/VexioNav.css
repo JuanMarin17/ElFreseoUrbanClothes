@@ -209,6 +209,7 @@
 
 .vx-hamburger.open span:nth-child(1) {
   
+  
   transform: translateY(6.5px) rotate(45deg);
 }
 
