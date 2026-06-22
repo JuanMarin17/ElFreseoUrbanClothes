@@ -55,4 +55,7 @@ export const sendChat = (body) => ia.post("/chat", body);
 export const getSessions = () => ia.get("/sessions");
 export const getSessionHistory = (sessionId) =>
   ia.get(`/sessions/${sessionId}/history`);
+export const deleteSession = (sessionId) =>
+  ia.delete(`/sessions/${sessionId}`);
+export const deleteAllSessions = () => ia.delete("/sessions");
 export const analyzeImage = (body) => ia.post("/image/analyze", body);

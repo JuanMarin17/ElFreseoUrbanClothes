@@ -5,10 +5,11 @@
    ============================================================ */
 .vx-hero {
   min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column; /* ← verificar que esté */
+  flex-direction: column;
   position: relative;
   overflow: hidden;
   padding: 100px 6% 80px;
@@ -532,8 +533,9 @@
 
 /* ── Responsive ── */
 @media (max-width: 640px) {
-  .vx-hero { padding: 120px 5% 80px; }
-  .vx-hero-h1 { font-size: clamp(2.4rem, 8vw, 3.2rem); }
+  .vx-hero { padding: 90px 5% 60px; }
+  .vx-hero-h1 { font-size: clamp(2.2rem, 8vw, 3rem); }
+  .vx-hero-sub { font-size: 0.93rem; }
   .vx-hero-actions {
     flex-direction: column;
     align-items: stretch;
@@ -542,8 +544,17 @@
   .vx-hero-actions .vx-btn-ghost {
     justify-content: center;
     width: 100%;
+    padding: 13px 22px;
+    font-size: 0.9rem;
   }
   .vx-hero-stats { flex-wrap: wrap; }
   .vx-hero-stat { min-width: 48%; }
   .vx-hero-stat + .vx-hero-stat::before { display: none; }
+}
+
+@media (max-width: 390px) {
+  .vx-hero { padding: 80px 4% 50px; }
+  .vx-hero-h1 { font-size: clamp(1.9rem, 9vw, 2.6rem); letter-spacing: -0.03em; }
+  .vx-hero-stat { min-width: 100%; }
+  .vx-hero-stats { border-radius: 10px; }
 }

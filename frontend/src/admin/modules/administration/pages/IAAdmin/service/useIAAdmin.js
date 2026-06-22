@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { sendChat, getSessions, getSessionHistory } from "./iaService";
+import { sendChat, getSessions, getSessionHistory, deleteSession, deleteAllSessions } from "./iaService";
 import { checkIsOwner } from "../../../../../../multi-tenant/pages/services/storeService";
 
 const ALLOWED_ROLES = new Set(["OWNER", "ADMIN", "STORE_USER"]);
@@ -209,6 +209,33 @@ export function useIAAdmin() {
     setSelectedImage(null);
   }, []);
 
+  const removeSession = useCallback(
+    async (id) => {
+      setSessions((prev) => prev.filter((s) => s !== id));
+      if (sessionId === id) {
+        setSessionId(null);
+        setMessages([]);
+      }
+      try {
+        await deleteSession(id);
+      } catch {
+        loadSessions();
+      }
+    },
+    [sessionId, loadSessions]
+  );
+
+  const removeAllSessions = useCallback(async () => {
+    setSessions([]);
+    setSessionId(null);
+    setMessages([]);
+    try {
+      await deleteAllSessions();
+    } catch {
+      loadSessions();
+    }
+  }, [loadSessions]);
+
   return {
     hasAccess,
     checkingAccess,
@@ -226,5 +253,7 @@ export function useIAAdmin() {
     loadSessions,
     loadSession,
     newConversation,
+    removeSession,
+    removeAllSessions,
   };
 }

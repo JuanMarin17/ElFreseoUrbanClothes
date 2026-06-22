@@ -301,8 +301,13 @@
 
 /* ── Responsive ── */
 @media (max-width: 640px) {
-  .vx-store-card       { width: 260px; }
-  .vx-store-cover-wrap { height: 100px; }
+  .vx-store-card       { width: 240px; }
+  .vx-store-cover-wrap { height: 96px; }
   .vx-stores-footer    { flex-direction: column; align-items: stretch; text-align: center; }
   .vx-stores-footer .vx-btn-ghost { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 420px) {
+  .vx-store-card { width: 210px; }
+  .vx-marquee-track { gap: 12px; }
 }

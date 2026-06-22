@@ -1,17 +1,29 @@
 /**
  * aiChatService.js
- * Asistente de compras IA — accedido a través del API Gateway.
- * El gateway inyecta X-User-Id y X-Store-Id desde el JWT; no los enviamos manualmente.
+ * Asistente de compras IA — IaUser module.
  */
 
-const BASE = `${import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_URL}/ia/user`;
+const BASE = `${import.meta.env.VITE_API_URL ?? "/api/v1"}/ia/user`;
+
+function getUserIdFromJwt() {
+  const jwt = localStorage.getItem("jwt");
+  if (!jwt || jwt === "null") return null;
+  try {
+    const payload = JSON.parse(atob(jwt.split(".")[1]));
+    return payload.user_id ?? payload.userId ?? payload.sub ?? payload.id ?? null;
+  } catch {
+    return null;
+  }
+}
 
 const buildHeaders = (storeId) => {
-  const jwt = localStorage.getItem("jwt");
+  const jwt    = localStorage.getItem("jwt");
+  const userId = getUserIdFromJwt();
   return {
     "Content-Type": "application/json",
     Accept: "application/json",
     ...(jwt && jwt !== "null" ? { Authorization: `Bearer ${jwt}` } : {}),
+    ...(userId ? { "X-User-Id": userId } : {}),
     ...(storeId ? { "X-Store-Id": storeId } : {}),
   };
 };
@@ -86,3 +98,11 @@ export const cancelStockNotification = (notificationId, storeId) =>
     undefined,
     storeId,
   );
+
+/** Borrar una sesión específica con todos sus mensajes. */
+export const deleteSession = (sessionId, storeId) =>
+  request("DELETE", `/sessions/${sessionId}`, undefined, storeId);
+
+/** Borrar todo el historial de chat del usuario en esta tienda. */
+export const deleteAllSessions = (storeId) =>
+  request("DELETE", "/sessions", undefined, storeId);

@@ -4,7 +4,7 @@
 
 /* ── Sección ── */
 #vx-reviews {
-  padding: 100px 0;
+  padding: 100px 6%;
 }
 
 /* ── Grid: 3 columnas fijas → mismo ancho, misma altura por fila ── */
@@ -19,6 +19,10 @@
   .vx-reviews-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+@media (max-width: 640px) {
+  #vx-reviews { padding: 60px 5%; }
 }
 
 @media (max-width: 600px) {
