@@ -141,15 +141,17 @@ export function useIAAdmin() {
         setMessages((prev) => [
           ...prev,
           {
-            message_id:              `bot-${Date.now()}`,
-            role:                    "assistant",
-            content:                 response.message,
-            action:                  response.action ?? null,
-            action_data:             response.action_data ?? null,
-            enhanced_image_base64:   response.enhanced_image_base64 ?? null,
-            enhanced_image_mime_type: response.enhanced_image_mime_type ?? null,
-            originalImagePreviewUrl: imagePreviewUrl,
-            created_at:              new Date().toISOString(),
+            message_id:                `bot-${Date.now()}`,
+            role:                      "assistant",
+            content:                   response.message,
+            action:                    response.action ?? null,
+            action_data:               response.action_data ?? null,
+            enhanced_image_base64:     response.enhanced_image_base64 ?? null,
+            enhanced_image_mime_type:  response.enhanced_image_mime_type ?? null,
+            generated_image_base64:    response.generated_image_base64 ?? null,
+            generated_image_mime_type: response.generated_image_mime_type ?? "image/jpeg",
+            originalImagePreviewUrl:   imagePreviewUrl,
+            created_at:                new Date().toISOString(),
           },
         ]);
       } catch (err) {

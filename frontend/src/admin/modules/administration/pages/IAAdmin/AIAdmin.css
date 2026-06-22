@@ -362,6 +362,39 @@
   margin-bottom: 6px;
 }
 
+.ai__generated-image-wrap {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai__generated-image {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  border-radius: 10px;
+  border: 1px solid var(--ai-border);
+  object-fit: cover;
+}
+
+.ai__generated-image-dl {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  background: var(--ai-accent);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.18s;
+}
+.ai__generated-image-dl:hover { opacity: 0.85; }
+
 /* Typing */
 .ai__typing {
   display: flex;

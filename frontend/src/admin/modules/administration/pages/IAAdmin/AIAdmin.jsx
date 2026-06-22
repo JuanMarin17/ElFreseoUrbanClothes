@@ -95,9 +95,20 @@ function MarkdownText({ content }) {
   return <div className="ai__markdown">{elements}</div>;
 }
 
+// ─── Generated image download helper ─────────────────────────────────────────
+function downloadGeneratedImage(base64, mime) {
+  const ext  = mime?.split("/")[1] ?? "jpg";
+  const link = document.createElement("a");
+  link.href     = `data:${mime};base64,${base64}`;
+  link.download = `producto.${ext}`;
+  link.click();
+}
+
 // ─── Shared: Message Bubble ──────────────────────────────────────────────────
 function MessageBubble({ msg }) {
   const isUser = msg.role === "user";
+  const hasGeneratedImage = !isUser && msg.generated_image_base64;
+
   return (
     <div
       className={[
@@ -128,6 +139,26 @@ function MessageBubble({ msg }) {
           ? <p className="ai__bubble-text">{msg.content}</p>
           : <MarkdownText content={msg.content} />
         }
+        {hasGeneratedImage && (
+          <div className="ai__generated-image-wrap">
+            <img
+              src={`data:${msg.generated_image_mime_type};base64,${msg.generated_image_base64}`}
+              alt="Imagen generada por IA"
+              className="ai__generated-image"
+            />
+            <button
+              className="ai__generated-image-dl"
+              onClick={() => downloadGeneratedImage(msg.generated_image_base64, msg.generated_image_mime_type)}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Descargar imagen
+            </button>
+          </div>
+        )}
         {!isUser && msg.action && (
           <ActionRenderer
             action={msg.action}
