@@ -33,13 +33,14 @@ export default function StorePage() {
   const { slug } = useParams();
   const navigate = useNavigate();
 
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState(null);
-  const [previewData, setPreviewData] = useState(null);
-  const [layoutType, setLayoutType]   = useState("minimalista");
-  const [storeName, setStoreName]     = useState("");
-  const [storeId, setStoreId]         = useState(null);
-  const [isOwner, setIsOwner]         = useState(false);
+  const [loading, setLoading]           = useState(true);
+  const [error, setError]               = useState(null);
+  const [previewData, setPreviewData]   = useState(null);
+  const [layoutType, setLayoutType]     = useState("minimalista");
+  const [storeName, setStoreName]       = useState("");
+  const [storeId, setStoreId]           = useState(null);
+  const [isOwner, setIsOwner]           = useState(false);
+  const [isMaintenance, setIsMaintenance] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -76,6 +77,8 @@ export default function StorePage() {
         }
 
         const settings = await getStoreSettingsByHeader(resolvedStoreId);
+
+        if (settings?.maintenance?.enabled) setIsMaintenance(true);
 
         const components = settings?.components ?? {};
         const styles     = settings?.styles     ?? {};
@@ -168,6 +171,17 @@ export default function StorePage() {
         <h2>Tienda no encontrada</h2>
         <p>{error}</p>
         <button onClick={() => navigate(-1)}>← Volver</button>
+      </div>
+    );
+  }
+
+  if (isMaintenance && !isOwner) {
+    return (
+      <div className="sp-maintenance">
+        <div className="sp-maintenance-icon">🔧</div>
+        <h1 className="sp-maintenance-title">{storeName || "Esta tienda"} está en mantenimiento</h1>
+        <p className="sp-maintenance-msg">Estamos trabajando para mejorar tu experiencia. Vuelve pronto.</p>
+        <button className="sp-maintenance-back" onClick={() => navigate(-1)}>← Volver</button>
       </div>
     );
   }

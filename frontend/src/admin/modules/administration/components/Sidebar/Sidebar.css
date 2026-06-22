@@ -339,3 +339,69 @@
   background-color: var(--sidebar-bg, #1e2235);
   border-right-color: #2e3450;
 }
+
+/* ── Logout confirm dialog ─────────────────────────────────────────────── */
+.sb-logout-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,.75);
+  backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  animation: sb-overlay-in .18s ease;
+}
+@keyframes sb-overlay-in { from{opacity:0} to{opacity:1} }
+
+.sb-logout-box {
+  background: #0d1117;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 22px;
+  padding: 34px 30px 26px;
+  max-width: 340px; width: 90%;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  box-shadow: 0 28px 72px rgba(0,0,0,.65), 0 0 0 1px rgba(239,68,68,.1);
+  position: relative;
+  animation: sb-box-in .26s cubic-bezier(0.22,1,0.36,1);
+}
+.sb-logout-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20%; right: 20%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(239,68,68,.3), transparent);
+}
+@keyframes sb-box-in {
+  from { opacity:0; transform:scale(.88) translateY(14px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+
+.sb-logout-icon {
+  width: 58px; height: 58px; border-radius: 18px;
+  background: rgba(239,68,68,.12);
+  display: flex; align-items: center; justify-content: center;
+  color: #f87171;
+  box-shadow: 0 4px 18px rgba(239,68,68,.2);
+}
+.sb-logout-title {
+  font-size: 19px; font-weight: 800;
+  color: #f1f5f9; margin: 0; text-align: center; letter-spacing: -.025em;
+}
+.sb-logout-msg {
+  font-size: 13px; color: #94a3b8;
+  margin: 0; text-align: center; line-height: 1.65; max-width: 260px;
+}
+.sb-logout-actions { display: flex; gap: 10px; width: 100%; margin-top: 4px; }
+.sb-logout-cancel {
+  flex: 1; background: rgba(255,255,255,.06); color: #cbd5e1;
+  border: 1px solid rgba(255,255,255,.1); border-radius: 13px;
+  padding: 12px 14px; font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.sb-logout-cancel:hover { background: rgba(255,255,255,.11); border-color: rgba(255,255,255,.18); }
+.sb-logout-ok {
+  flex: 1;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #fff; border: none; border-radius: 13px;
+  padding: 12px 14px; font-size: 14px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(239,68,68,.38);
+  transition: opacity .15s, transform .12s;
+}
+.sb-logout-ok:hover  { opacity: .9; }
+.sb-logout-ok:active { transform: scale(.96); }

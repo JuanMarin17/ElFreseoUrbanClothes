@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, PackagePlus, Package, Users, ShoppingCart,
@@ -43,6 +43,7 @@ const Sidebar = ({
   sidebarColor,
 }) => {
   const navigate = useNavigate();
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
 
   const handleLogout = () => {
     if (onLogout) onLogout();
@@ -147,13 +148,33 @@ const Sidebar = ({
           </div>
 
           <div className="nav-footer">
-            <button onClick={handleLogout} className="nav-link logout-btn">
+            <button onClick={() => setLogoutConfirm(true)} className="nav-link logout-btn">
               <LogOut size={18} />
               <span>CERRAR SESIÓN</span>
             </button>
           </div>
         </nav>
       </aside>
+
+      {logoutConfirm && (
+        <div className="sb-logout-overlay" onClick={() => setLogoutConfirm(false)}>
+          <div className="sb-logout-box" onClick={e => e.stopPropagation()}>
+            <div className="sb-logout-icon">
+              <LogOut size={22} />
+            </div>
+            <h3 className="sb-logout-title">Cerrar sesión</h3>
+            <p className="sb-logout-msg">¿Seguro que deseas cerrar tu sesión actual?</p>
+            <div className="sb-logout-actions">
+              <button className="sb-logout-cancel" onClick={() => setLogoutConfirm(false)}>
+                Cancelar
+              </button>
+              <button className="sb-logout-ok" onClick={() => { handleLogout(); setLogoutConfirm(false); }}>
+                Cerrar sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
