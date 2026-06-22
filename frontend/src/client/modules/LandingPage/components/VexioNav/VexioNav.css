@@ -188,8 +188,10 @@
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
-  .vx-nav-logo-img { height: 80px; }
+  .vx-nav-logo-img { height: 34px; }
 
+
+  
   .vx-nav-links {
     position: fixed;
     top: 60px; left: 0; right: 0;

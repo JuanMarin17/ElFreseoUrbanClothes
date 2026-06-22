@@ -645,8 +645,8 @@
     flex-direction: column;
     align-items: stretch;
   }
-  .vx-hero-actions .vx-btn-primary,
-  .vx-hero-actions .vx-btn-ghost {
+  .vx-landing .vx-hero-actions .vx-btn-primary,
+  .vx-landing .vx-hero-actions .vx-btn-ghost {
     justify-content: center;
     width: 100%;
     padding: 13px 22px;

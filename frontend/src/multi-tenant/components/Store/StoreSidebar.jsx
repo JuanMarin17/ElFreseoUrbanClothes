@@ -1,4 +1,5 @@
 import { ChevronRight } from './storeUtils.jsx';
+import './styles/styles.css';
 
 export default function StoreSidebar({
   cfg, theme,
@@ -20,7 +21,7 @@ export default function StoreSidebar({
   ];
 
   return (
-    <aside style={{
+    <aside className="store-sidebar" style={{
       width,
       flexShrink: 0,
       background: bg,

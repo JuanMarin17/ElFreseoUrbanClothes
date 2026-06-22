@@ -101,7 +101,7 @@ export default function StoreHeader({
 
       {/* NAV izquierda — solo minimalista */}
       {isMin && (
-        <nav style={{ display: "flex", gap: "clamp(12px,2vw,28px)" }}>
+        <nav className="store-header-nav" style={{ display: "flex", gap: "clamp(12px,2vw,28px)" }}>
           {(Array.isArray(header.items) ? header.items : String(header.items ?? "").split(",").map(s => s.trim()).filter(Boolean)).slice(0, 3).map((it, i) => {
             const to = getItemRoute(it, storeSlug);
             const baseStyle = {
@@ -156,6 +156,7 @@ export default function StoreHeader({
 
       {/* Buscador en header (urbano y clásico) */}
       {(isUrb || isCls) && (
+        <div className="store-header-search" style={{ flex: 1, display: "flex", minWidth: 0 }}>
         <StoreSearchBar
           value={searchQuery}
           onChange={onSearchChange}
@@ -163,11 +164,12 @@ export default function StoreHeader({
           accent={accent}
           maxWidth={isUrb ? 260 : 320}
         />
+        </div>
       )}
 
       {/* NAV derecha — urbano y clásico */}
       {!isMin && (
-        <nav style={{ display: "flex", gap: "clamp(12px,2vw,28px)" }}>
+        <nav className="store-header-nav" style={{ display: "flex", gap: "clamp(12px,2vw,28px)" }}>
           {(Array.isArray(header.items) ? header.items : String(header.items ?? "").split(",").map(s => s.trim()).filter(Boolean)).slice(0, 3).map((it, i) => {
             const to = getItemRoute(it, storeSlug);
             const baseStyle = {
