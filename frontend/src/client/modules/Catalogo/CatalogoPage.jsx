@@ -562,7 +562,12 @@ export default function CatalogoPage() {
   const [error,       setError]       = useState(null);
   const [search,      setSearch]      = useState(searchParams.get("q") ?? "");
   const [debSearch,   setDebSearch]   = useState(search);
-  const [filters,     setFilters]     = useState(DEFAULT_FILTERS);
+  const [filters,     setFilters]     = useState(() => {
+    const catParam = searchParams.get("categoria");
+    return catParam
+      ? { ...DEFAULT_FILTERS, categories: [catParam] }
+      : DEFAULT_FILTERS;
+  });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [gridCompact, setGridCompact] = useState(false);
   const [userTastes,  setUserTastes]  = useState(null);
@@ -585,12 +590,13 @@ export default function CatalogoPage() {
     return () => { alive = false; };
   }, []);
 
-  // Debounce search
+  // Debounce search — también elimina el param categoria de la URL al buscar/limpiar
   useEffect(() => {
     const t = setTimeout(() => {
       setDebSearch(search);
-      search ? setSearchParams({ q: search }, { replace: true })
-             : setSearchParams({}, { replace: true });
+      const params = {};
+      if (search) params.q = search;
+      setSearchParams(params, { replace: true });
     }, 300);
     return () => clearTimeout(t);
   }, [search, setSearchParams]);

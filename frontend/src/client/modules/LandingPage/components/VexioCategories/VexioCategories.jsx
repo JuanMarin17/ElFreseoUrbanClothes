@@ -121,7 +121,7 @@ export default function VexioCategories() {
             className={`vx-cat-card vx-cat-card--${cat.color} vx-reveal`}
             ref={el => (cardsRef.current[i] = el)}
             style={{ transitionDelay: `${i * 50}ms` }}
-            onClick={() => navigate('/catalogo')}
+            onClick={() => navigate(`/catalogo?categoria=${encodeURIComponent(cat.label)}`)}
           >
             <img src={cat.img} alt={cat.label} loading="lazy" className="vx-cat-img" />
             <div className="vx-cat-overlay">
