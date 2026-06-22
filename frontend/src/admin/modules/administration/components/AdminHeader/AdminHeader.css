@@ -347,6 +347,13 @@
   }
 }
 
+/* Medium-small: shrink search box */
+@media (max-width: 600px) {
+  .search-box-terminal {
+    width: 160px;
+  }
+}
+
 /* Very small: hide search entirely, tools stay visible */
 @media (max-width: 480px) {
   .search-box-terminal {
@@ -355,5 +362,10 @@
 
   .top-bar-tools {
     margin-left: auto;
+  }
+
+  .admin-top-bar {
+    padding: 0 10px;
+    gap: 6px;
   }
 }

@@ -327,6 +327,24 @@
   color: var(--text-muted);
 }
 
+/* ── Responsive ──────────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .gridContainer { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .mainPreview { width: 100%; height: 300px; }
+  .row { grid-template-columns: 1fr; }
+  .thumbnailRow { grid-template-columns: repeat(4, 1fr); }
+  .sizeGrid { flex-wrap: wrap; }
+}
+
+@media (max-width: 480px) {
+  .mainPreview  { height: 240px; }
+  .thumbnailRow { grid-template-columns: repeat(3, 1fr); }
+}
+
 /* ── Modo Claro ──────────────────────────────────────────── */
 .admin-terminal-wrapper[data-theme="light"] .adminContainer {
   --bg-dark:      var(--at-bg);

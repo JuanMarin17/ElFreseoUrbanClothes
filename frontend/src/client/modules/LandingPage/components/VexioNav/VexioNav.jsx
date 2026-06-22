@@ -80,6 +80,38 @@ export default function VexioNav() {
               </button>
             </li>
           ))}
+
+          {/* Auth — solo visibles en el menú móvil */}
+          <li className="vx-nav-mobile-divider" aria-hidden="true" />
+          {loggedIn ? (
+            <>
+              <li>
+                <button
+                  className="vx-nav-link vx-nav-link--mobile-auth"
+                  onClick={() => { navigate('/market'); setMenuOpen(false); }}
+                >
+                  Explorar mercado
+                </button>
+              </li>
+              <li>
+                <button
+                  className="vx-nav-link vx-nav-link--mobile-auth vx-nav-link--mobile-cta"
+                  onClick={() => { handleLogout(); setMenuOpen(false); }}
+                >
+                  Cerrar sesión
+                </button>
+              </li>
+            </>
+          ) : (
+            <li>
+              <button
+                className="vx-nav-link vx-nav-link--mobile-auth vx-nav-link--mobile-cta"
+                onClick={() => { navigate('/login/register'); setMenuOpen(false); }}
+              >
+                Comenzar ahora →
+              </button>
+            </li>
+          )}
         </ul>
 
         {/* Acciones */}

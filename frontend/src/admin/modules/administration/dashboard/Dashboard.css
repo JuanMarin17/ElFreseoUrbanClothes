@@ -603,10 +603,13 @@
 }
 
 @media (max-width: 480px) {
-  .db-kpi-grid { grid-template-columns: 1fr 1fr; }
-  .db-actions-grid { grid-template-columns: 1fr 1fr; }
-  .db-inventory-cards { grid-template-columns: 1fr 1fr; }
-  .db-banner-title { font-size: 1.05rem; }
+  .db-kpi-grid          { grid-template-columns: 1fr 1fr; }
+  .db-actions-grid      { grid-template-columns: 1fr 1fr; }
+  .db-inventory-cards   { grid-template-columns: 1fr 1fr; }
+  .db-banner-title      { font-size: 1.05rem; white-space: normal; }
+  .db-banner-inner      { flex-wrap: wrap; gap: 12px; }
+  .db-banner            { padding: 16px; }
+  .db-refresh-btn       { align-self: flex-start; }
 }
 
 .dashboard-stats {
