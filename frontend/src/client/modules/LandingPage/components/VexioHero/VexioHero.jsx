@@ -152,7 +152,7 @@ export default function VexioHero() {
           </p>
 
           <div className="vx-hero-actions">
-            <button className="vx-btn-primary" onClick={() => scrollTo('vx-categories')}>
+            <button className="vx-btn-primary" onClick={() => navigate('/catalogo')}>
               Explorar productos
             </button>
             <button className="vx-btn-ghost" onClick={() => scrollTo('vx-stores')}>
