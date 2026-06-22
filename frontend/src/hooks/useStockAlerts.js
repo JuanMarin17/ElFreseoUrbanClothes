@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 
-const BASE = import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_URL;
+const BASE = import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
 const RECONNECT_DELAY_MS = 5_000;
 
 /**
@@ -29,9 +29,10 @@ export function useStockAlerts(onAlert, enabled = true) {
     const storeId = localStorage.getItem("storeId");
     if (!storeId || storeId === "null") return;
 
-    const source = new EventSource(`${BASE}/alerts/stock/stream/${storeId}`, {
-      withCredentials: true,
-    });
+    const jwt = localStorage.getItem("jwt");
+    const url = new URL(`${BASE}/alerts/stock/stream/${storeId}`);
+    if (jwt && jwt !== "null") url.searchParams.set("token", jwt);
+    const source = new EventSource(url.toString());
     sourceRef.current = source;
 
     source.addEventListener("stock-alert", (e) => {

@@ -75,8 +75,8 @@ export default function AccountSidebar({ active, onSelect }) {
           <div className="online-indicator" />
         </div>
         <div className="avatar-info">
-          <span className="info-tag">MI CUENTA</span>
           <p className="avatar-name">{user.name}</p>
+          <span className="info-tag sidebar-role-tag">• ACTIVO</span>
         </div>
       </div>
 

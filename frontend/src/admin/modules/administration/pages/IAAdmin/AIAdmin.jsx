@@ -622,34 +622,36 @@ function IAAdminPage() {
       {/* Sessions sidebar */}
       <aside className={`ia-sessions-panel${showSessions ? " is-open" : ""}`}>
         <div className="ia-sessions-header">
-          <h2 className="ia-sessions-title">Conversaciones</h2>
-          <div style={{ display: "flex", gap: 6 }}>
-            {sessions.length > 0 && (
-              <button
-                className="ai__icon-btn ia-sessions-del-all"
-                onClick={() => setConfirmAction({ title: "Borrar historial", message: "¿Borrar todas las conversaciones? Esta acción no se puede deshacer.", fn: removeAllSessions })}
-                title="Borrar todo el historial"
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6l-1 14H6L5 6" />
-                  <path d="M10 11v6M14 11v6" />
-                  <path d="M9 6V4h6v2" />
-                </svg>
-              </button>
-            )}
+          <h2 className="ia-sessions-title">Historial</h2>
+          {sessions.length > 0 && (
             <button
-              className="ai__icon-btn ia-sessions-new"
-              onClick={newConversation}
-              title="Nueva conversación"
+              className="ai__icon-btn ia-sessions-del-all"
+              onClick={() => setConfirmAction({ title: "Borrar historial", message: "¿Borrar todas las conversaciones? Esta acción no se puede deshacer.", fn: removeAllSessions })}
+              title="Borrar todo el historial"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14H6L5 6" />
+                <path d="M10 11v6M14 11v6" />
+                <path d="M9 6V4h6v2" />
               </svg>
-              Nueva
             </button>
-          </div>
+          )}
+        </div>
+
+        {/* Nueva conversación — botón prominente */}
+        <div className="ia-sessions-new-wrap">
+          <button
+            className="ia-sessions-new-btn"
+            onClick={newConversation}
+            title="Nueva conversación"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Nueva conversación
+          </button>
         </div>
 
         <div className="ia-sessions-list">
@@ -667,17 +669,15 @@ function IAAdminPage() {
                   className="ia-session-item__btn"
                   onClick={() => loadSession(sid)}
                 >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                  </svg>
-                  Conversación {sessions.length - i}
+                  <span className="ia-session-num">{sessions.length - i}</span>
+                  <span className="ia-session-label">Conversación {sessions.length - i}</span>
                 </button>
                 <button
                   className="ia-session-item__del"
                   onClick={() => setConfirmAction({ title: "Eliminar conversación", message: "¿Eliminar esta conversación del historial?", fn: () => removeSession(sid) })}
-                  title="Eliminar conversación"
+                  title="Eliminar"
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18" />
                     <line x1="6" y1="6" x2="18" y2="18" />
                   </svg>

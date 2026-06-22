@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import "./ModalTastes.css";
 
-const AUTH_PATHS = ["/login", "/login/register", "/recuperar-contraseña", "/verificar-codigo", "/nueva-contraseña", "/verificacion-pagina"];
+const CATALOG_PATH = "/catalogo";
+export const REOPEN_KEY = "vexio_tastes_reopen";
 
 const QUESTIONS = [
   {
@@ -123,25 +124,41 @@ async function saveTastesToBackend(tastes) {
 
 const ModalTastes = () => {
   const { pathname } = useLocation();
-  // Arrancar visible solo si localStorage no tiene respuesta
-  const [visible, setVisible] = useState(
-    () => !localStorage.getItem(STORAGE_KEY),
-  );
+  const isOnCatalog = pathname === CATALOG_PATH || pathname.startsWith(CATALOG_PATH + "/");
+
+  // visible = true si: autenticado + no tiene respuesta guardada, O si se pidió reabrir
+  const [visible, setVisible] = useState(() => {
+    if (!isAuthed()) return false;
+    if (localStorage.getItem(REOPEN_KEY) === "true") return true;
+    return !localStorage.getItem(STORAGE_KEY);
+  });
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [closing, setClosing] = useState(false);
   const [checking, setChecking] = useState(false);
 
+  // Cuando el usuario navega a /catalogo con la flag de reabrir, mostrar el modal
+  useEffect(() => {
+    if (!isOnCatalog) return;
+    if (!isAuthed()) return;
+    if (localStorage.getItem(REOPEN_KEY) === "true") {
+      localStorage.removeItem(REOPEN_KEY);
+      setStep(0);
+      setAnswers({});
+      setVisible(true);
+    }
+  }, [isOnCatalog]);
+
   // Si el usuario está autenticado, verificar si el backend ya tiene sus gustos
   useEffect(() => {
-    if (!visible) return; // ya fue respondido localmente
+    if (!visible) return;
     if (!isAuthed()) return;
+    if (localStorage.getItem(REOPEN_KEY) === "true") return; // reopen manual, no cancelar
 
     setChecking(true);
     fetchTastesFromBackend()
       .then((tastes) => {
-        if (tastes) {
-          // Ya existen en el backend → actualizar caché y ocultar modal
+        if (tastes && !localStorage.getItem(REOPEN_KEY)) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(tastes));
           setVisible(false);
         }
@@ -209,7 +226,8 @@ const ModalTastes = () => {
     closeModal();
   };
 
-  if (!visible || checking || AUTH_PATHS.includes(pathname)) return null;
+  // Solo mostrar si: está en /catalogo, usuario autenticado, y modal visible
+  if (!visible || checking || !isAuthed() || !isOnCatalog) return null;
 
   const progress = ((step + 1) / QUESTIONS.length) * 100;
 

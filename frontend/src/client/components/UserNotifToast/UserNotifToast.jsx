@@ -1,37 +1,47 @@
 import React from "react";
-import { CheckCircle, XCircle, Clock, ShieldAlert, Ban, Store, X } from "lucide-react";
+import { CheckCircle, XCircle, Clock, ShieldAlert, Ban, Store, X, MessageCircle, Package } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useUserNotifToasts } from "../../../hooks/useUserNotifications";
 import "./UserNotifToast.css";
 
 const TYPE_CONFIG = {
-  ORDER_STATUS_CHANGED: { icon: Clock,        color: "#f59e0b", label: "Estado de orden"    },
-  ORDER_CANCELLED:      { icon: XCircle,      color: "#ef4444", label: "Orden cancelada"    },
-  PAYMENT_RESULT:       { icon: CheckCircle,  color: "#22c55e", label: "Resultado de pago"  },
-  SESSION_ALERT:        { icon: ShieldAlert,  color: "#f97316", label: "Alerta de seguridad" },
-  STORE_DISABLED:       { icon: Ban,          color: "#ef4444", label: "Tienda inhabilitada" },
-  STORE_ENABLED:        { icon: Store,        color: "#22c55e", label: "Tienda habilitada"   },
+  ORDER_STATUS_CHANGED:   { icon: Clock,          color: "#f59e0b", label: "Estado de orden",      path: (d) => d?.orderId  ? `/cuenta/pedidos` : `/cuenta/pedidos` },
+  ORDER_CANCELLED:        { icon: XCircle,        color: "#ef4444", label: "Orden cancelada",      path: (d) => `/cuenta/pedidos` },
+  PAYMENT_RESULT:         { icon: CheckCircle,    color: "#22c55e", label: "Resultado de pago",    path: (d) => `/cuenta/pedidos` },
+  SUPPORT_TICKET_REPLIED: { icon: MessageCircle,  color: "#6366f1", label: "Ticket respondido",    path: (d) => d?.ticketId ? `/cuenta/soporte/${d.ticketId}` : `/cuenta/soporte` },
+  SUPPORT_TICKET_CLOSED:  { icon: MessageCircle,  color: "#94a3b8", label: "Ticket cerrado",       path: (d) => d?.ticketId ? `/cuenta/soporte/${d.ticketId}` : `/cuenta/soporte` },
+  SESSION_ALERT:          { icon: ShieldAlert,    color: "#f97316", label: "Alerta de seguridad",  path: ()  => `/cuenta/seguridad` },
+  STORE_DISABLED:         { icon: Ban,            color: "#ef4444", label: "Tienda inhabilitada",  path: ()  => null },
+  STORE_ENABLED:          { icon: Store,          color: "#22c55e", label: "Tienda habilitada",    path: ()  => null },
 };
 
 function UserToastItem({ toast, onDismiss }) {
-  const cfg  = TYPE_CONFIG[toast.type] ?? TYPE_CONFIG.ORDER_STATUS_CHANGED;
-  const Icon = cfg.icon;
+  const navigate  = useNavigate();
+  const cfg       = TYPE_CONFIG[toast.type] ?? TYPE_CONFIG.ORDER_STATUS_CHANGED;
+  const Icon      = cfg.icon;
   const isPayment = toast.type === "PAYMENT_RESULT";
   const approved  = toast.data?.status === "APPROVED";
   const color     = isPayment ? (approved ? "#22c55e" : "#ef4444") : cfg.color;
+  const clickPath = cfg.path?.(toast.data);
 
-  // Para SESSION_ALERT mostramos dispositivo + IP si vienen en data
   const sessionDetail = toast.type === "SESSION_ALERT"
-    ? [toast.data?.device, toast.data?.ip, toast.data?.location]
-        .filter(Boolean).join(" · ")
+    ? [toast.data?.device, toast.data?.ip, toast.data?.location].filter(Boolean).join(" · ")
     : null;
-
-  // Para STORE_DISABLED mostramos el motivo persistido por el backend
   const disableReason = toast.type === "STORE_DISABLED"
     ? (toast.data?.reason ?? toast.data?.disabledReason ?? toast.reason ?? null)
     : null;
 
+  const handleClick = () => {
+    if (clickPath) { navigate(clickPath); onDismiss(toast.id); }
+  };
+
   return (
-    <div className="unt-item" style={{ "--unt-color": color }}>
+    <div
+      className={`unt-item${clickPath ? " unt-item--clickable" : ""}`}
+      style={{ "--unt-color": color }}
+      onClick={handleClick}
+      role={clickPath ? "button" : undefined}
+    >
       <div className="unt-icon"><Icon size={16} /></div>
       <div className="unt-body">
         <p className="unt-label">{cfg.label}</p>
@@ -40,7 +50,7 @@ function UserToastItem({ toast, onDismiss }) {
         {sessionDetail && <p className="unt-msg unt-msg--mono">{sessionDetail}</p>}
         {disableReason && <p className="unt-msg">Motivo: {disableReason}</p>}
       </div>
-      <button className="unt-close" onClick={() => onDismiss(toast.id)} aria-label="Cerrar">
+      <button className="unt-close" onClick={(e) => { e.stopPropagation(); onDismiss(toast.id); }} aria-label="Cerrar">
         <X size={13} />
       </button>
       <div className="unt-progress" />

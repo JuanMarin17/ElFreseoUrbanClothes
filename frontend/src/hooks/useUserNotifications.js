@@ -35,14 +35,34 @@ export function useUserNotifications({ onNotification, enabled = true } = {}) {
     const userId = getUserId();
     if (!userId) return;
 
-    const es = new EventSource(`${BASE}/notifications/user/${userId}/stream`);
+    const jwt = localStorage.getItem("jwt");
+    const sseUrl = new URL(`${BASE}/notifications/user/${userId}/stream`);
+    if (jwt && jwt !== "null") sseUrl.searchParams.set("token", jwt);
 
-    es.onmessage = (e) => {
-      try { onNotifRef.current?.(JSON.parse(e.data)); } catch { }
+    let es;
+    let reconnectTimer;
+    let stopped = false;
+
+    function connect() {
+      es = new EventSource(sseUrl.toString());
+
+      // El backend emite eventos nombrados 'notification' — onmessage no los captura
+      es.addEventListener("notification", (e) => {
+        try { onNotifRef.current?.(JSON.parse(e.data)); } catch { }
+      });
+
+      es.onerror = () => {
+        es.close();
+        if (!stopped) reconnectTimer = setTimeout(connect, 5_000);
+      };
+    }
+
+    connect();
+    return () => {
+      stopped = true;
+      clearTimeout(reconnectTimer);
+      es?.close();
     };
-
-    // EventSource reconecta automáticamente en onerror — no hacer nada extra
-    return () => es.close();
   }, [enabled]);
 }
 
@@ -67,6 +87,8 @@ export function useUserNotifToasts(enabled = true) {
         "ORDER_STATUS_CHANGED",
         "ORDER_CANCELLED",
         "PAYMENT_RESULT",
+        "SUPPORT_TICKET_REPLIED",
+        "SUPPORT_TICKET_CLOSED",
         "SESSION_ALERT",
         "STORE_DISABLED",
         "STORE_ENABLED",

@@ -180,3 +180,75 @@
   .pref-item { padding: 15px 20px; }
   .pref-label { font-size: 0.85rem; }
 }
+/* ── Gustos de compra card ──────────────────────────────────── */
+.prefs-tastes-card {
+  margin-bottom: 20px;
+}
+
+.prefs-tastes-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 16px 0;
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.prefs-taste-row {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  transition: background .15s;
+}
+.prefs-taste-row:last-child { border-bottom: none; }
+.prefs-taste-row:hover { background: rgba(255,255,255,.03); }
+
+.prefs-taste-key {
+  font-size: 10px;
+  font-weight: 700;
+  color: #3b82f6;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  width: 90px;
+  flex-shrink: 0;
+}
+
+.prefs-taste-vals {
+  font-size: 13px;
+  color: rgba(255,255,255,.75);
+  line-height: 1.4;
+}
+
+.prefs-tastes-empty {
+  font-size: 13px;
+  color: rgba(255,255,255,.4);
+  margin: 16px 0;
+  line-height: 1.55;
+  font-style: italic;
+}
+
+.prefs-tastes-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(37,99,235,.12);
+  border: 1px solid rgba(37,99,235,.35);
+  color: #60a5fa;
+  padding: 9px 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .1s;
+  font-family: inherit;
+}
+.prefs-tastes-btn:hover {
+  background: rgba(37,99,235,.22);
+  border-color: rgba(37,99,235,.6);
+  transform: translateY(-1px);
+}
+.prefs-tastes-btn:active { transform: scale(.96); }

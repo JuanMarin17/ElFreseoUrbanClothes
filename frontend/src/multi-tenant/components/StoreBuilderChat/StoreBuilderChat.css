@@ -391,60 +391,68 @@
 /* ── Confirmation dialog ─────────────────────── */
 .vx-confirm-overlay {
   position: fixed; inset: 0; z-index: 9999;
-  background: rgba(0,0,0,.58);
+  background: rgba(15,23,42,.52);
+  backdrop-filter: blur(8px);
   display: flex; align-items: center; justify-content: center;
-  backdrop-filter: blur(5px);
-  animation: vx-overlay-in .16s ease;
+  animation: vx-overlay-in .18s ease;
 }
 @keyframes vx-overlay-in { from{opacity:0} to{opacity:1} }
 .vx-confirm-box {
   background: #fff;
-  border-radius: 22px;
-  padding: 32px 28px 26px;
-  max-width: 340px; width: 90%;
-  display: flex; flex-direction: column; align-items: center; gap: 14px;
-  box-shadow: 0 24px 64px rgba(0,0,0,.28), 0 4px 16px rgba(0,0,0,.12);
-  animation: vx-box-in .24s cubic-bezier(0.22,1,0.36,1);
+  border-radius: 24px;
+  padding: 36px 32px 28px;
+  max-width: 360px; width: 92%;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  box-shadow: 0 32px 80px rgba(0,0,0,.22), 0 4px 16px rgba(0,0,0,.08);
+  border: 1px solid rgba(0,0,0,.06);
+  animation: vx-box-in .28s cubic-bezier(0.22,1,0.36,1);
+  position: relative; overflow: hidden;
+}
+.vx-confirm-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20%; right: 20%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99,102,241,.2), transparent);
 }
 @keyframes vx-box-in {
-  from { opacity:0; transform:scale(.9) translateY(12px); }
-  to   { opacity:1; transform:scale(1) translateY(0); }
+  from { opacity:0; transform:scale(.88) translateY(16px); }
+  to   { opacity:1; transform:scale(1)   translateY(0); }
 }
 .vx-confirm-icon {
-  width: 58px; height: 58px;
-  border-radius: 18px;
+  width: 64px; height: 64px;
+  border-radius: 20px;
   background: #fef2f2;
   display: flex; align-items: center; justify-content: center;
   color: #ef4444;
+  box-shadow: 0 4px 16px rgba(239,68,68,.18);
 }
 .vx-confirm-title {
-  font-size: 18px; font-weight: 800;
+  font-size: 19px; font-weight: 800;
   color: #0f172a; margin: 0; text-align: center;
-  letter-spacing: -.02em;
+  letter-spacing: -.025em;
 }
 .vx-confirm-msg {
   font-size: 13px; color: #64748b;
-  margin: 0; text-align: center; line-height: 1.6;
+  margin: 0; text-align: center; line-height: 1.65; max-width: 280px;
 }
-.vx-confirm-actions {
-  display: flex; gap: 10px; width: 100%; margin-top: 4px;
-}
+.vx-confirm-actions { display: flex; gap: 10px; width: 100%; margin-top: 6px; }
 .vx-confirm-cancel {
   flex: 1;
   background: #f1f5f9; color: #475569;
-  border: 1px solid #e2e8f0; border-radius: 13px;
-  padding: 12px 14px; font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: background .15s;
+  border: 1px solid #e2e8f0; border-radius: 14px;
+  padding: 13px 14px; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: background .15s, border-color .15s;
 }
-.vx-confirm-cancel:hover { background: #e2e8f0; }
+.vx-confirm-cancel:hover { background: #e2e8f0; border-color: #cbd5e1; }
 .vx-confirm-ok {
   flex: 1;
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: #fff; border: none; border-radius: 13px;
-  padding: 12px 14px; font-size: 14px; font-weight: 700;
+  color: #fff; border: none; border-radius: 14px;
+  padding: 13px 14px; font-size: 14px; font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 3px 12px rgba(239,68,68,.38);
-  transition: opacity .15s, transform .1s;
+  box-shadow: 0 4px 16px rgba(239,68,68,.40);
+  transition: opacity .15s, transform .12s, box-shadow .15s;
 }
-.vx-confirm-ok:hover  { opacity: .88; }
+.vx-confirm-ok:hover  { opacity: .9; box-shadow: 0 6px 22px rgba(239,68,68,.52); }
 .vx-confirm-ok:active { transform: scale(.96); }

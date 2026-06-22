@@ -9,6 +9,18 @@ const MAX_QUEUE = 50;
  *   - /stores/{storeId}/support/notifications/stream  → evento "new-ticket"
  *   - /stores/{storeId}/reviews/notifications/stream  → evento "new-review"
  */
+function getJwt() {
+  const j = localStorage.getItem("jwt");
+  return j && j !== "null" ? j : null;
+}
+
+function sseUrl(path) {
+  const jwt = getJwt();
+  const url = new URL(`${BASE}${path}`);
+  if (jwt) url.searchParams.set("token", jwt);
+  return url.toString();
+}
+
 export function useAdminNotifications(storeId) {
   const [notifications, setNotifications] = useState([]);
   const [unread, setUnread]               = useState(0);
@@ -26,7 +38,7 @@ export function useAdminNotifications(storeId) {
 
     // ── Stream 1: Órdenes ─────────────────────────────────────────────────
     const esOrders = new EventSource(
-      `${BASE}/stores/${storeId}/notifications/admin/stream`,
+      sseUrl(`/stores/${storeId}/notifications/admin/stream`),
     );
     esOrders.addEventListener("notification", (e) => {
       try {
@@ -43,7 +55,7 @@ export function useAdminNotifications(storeId) {
 
     // ── Stream 2: Soporte ─────────────────────────────────────────────────
     const esSupport = new EventSource(
-      `${BASE}/stores/${storeId}/support/notifications/stream`,
+      sseUrl(`/stores/${storeId}/support/notifications/stream`),
     );
     esSupport.addEventListener("new-ticket", (e) => {
       try {
@@ -59,7 +71,7 @@ export function useAdminNotifications(storeId) {
 
     // ── Stream 3: Reseñas ─────────────────────────────────────────────────
     const esReviews = new EventSource(
-      `${BASE}/stores/${storeId}/reviews/notifications/stream`,
+      sseUrl(`/stores/${storeId}/reviews/notifications/stream`),
     );
     esReviews.addEventListener("new-review", (e) => {
       try {
