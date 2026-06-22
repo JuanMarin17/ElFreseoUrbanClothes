@@ -518,22 +518,37 @@
 
 /* ── Strip de logos de tiendas (solo mobile) ── */
 .vx-hero-stores-strip {
-  display: none; /* oculto en desktop — se activa en media query */
+  display: none;
 }
 
 @media (max-width: 959px) {
   .vx-hero-stores-strip {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 4px 0 8px;
+    display: block;
+    overflow: hidden;
     margin-top: 28px;
-    scrollbar-width: none;
     width: 100%;
     max-width: 100%;
+    mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
   }
-  .vx-hero-stores-strip::-webkit-scrollbar { display: none; }
+}
+
+.vx-hero-stores-track {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  width: max-content;
+  animation: vx-hero-marquee 18s linear infinite;
+  padding: 4px 0 8px;
+}
+
+.vx-hero-stores-strip:hover .vx-hero-stores-track {
+  animation-play-state: paused;
+}
+
+@keyframes vx-hero-marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 .vx-hero-store-chip {
