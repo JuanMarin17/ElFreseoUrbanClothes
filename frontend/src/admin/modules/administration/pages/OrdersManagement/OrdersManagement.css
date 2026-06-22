@@ -475,6 +475,25 @@
 
 .invoice-footer-print-only { display: none; }
 
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .orders-page-header    { flex-wrap: wrap; gap: 12px; }
+  .orders-stats-grid     { grid-template-columns: 1fr 1fr; }
+  .orders-filter-bar     { flex-direction: column; align-items: stretch; }
+  .orders-search-input-wrapper { max-width: 100%; }
+  .orders-table-wrapper  { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .orders-table          { min-width: 580px; }
+  .orders-table-footer   { flex-direction: column; gap: 10px; align-items: flex-start; }
+  .invoice-details-grid  { grid-template-columns: 1fr; gap: 12px; }
+  .invoice-summary-block { width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .orders-stats-grid  { grid-template-columns: 1fr; }
+  .orders-pagination-controls { flex-wrap: wrap; }
+}
+
 /* ── 🖨️ PRINT: colores forzados para papel ──────────────────────────────── */
 @media print {
   body *,

@@ -68,7 +68,7 @@
 .vx-landing ::-webkit-scrollbar-thumb { background: var(--vx-accent1-mid); border-radius: 99px; }
 
 /* ── Secciones ── */
-.vx-section        { padding: 100px 6%; position: relative; }
+.vx-section        { padding: 100px 6%; position: relative; max-width: 100%; }
 .vx-section--dark  { background: var(--vx-bg); }
 .vx-section--dark2 { background: var(--vx-bg2); }
 
@@ -304,4 +304,6 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }

@@ -118,3 +118,9 @@
     padding: 16px;
   }
 }
+
+@media (max-width: 480px) {
+  .admin-page-body {
+    padding: 10px;
+  }
+}

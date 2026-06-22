@@ -379,3 +379,15 @@
 }
 
 .text-center { text-align: center; }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .um-stats-grid   { grid-template-columns: 1fr 1fr; }
+  .um-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .um-table        { min-width: 520px; }
+}
+
+@media (max-width: 480px) {
+  .um-stats-grid { grid-template-columns: 1fr; }
+}

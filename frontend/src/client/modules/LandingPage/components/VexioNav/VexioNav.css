@@ -103,6 +103,12 @@
   background: rgba(255, 255, 255, .05);
 }
 
+/* ── Auth items en menú móvil (ocultos en desktop) ── */
+.vx-nav-mobile-divider,
+.vx-nav-link--mobile-auth {
+  display: none;
+}
+
 /* ── Derecha: login + CTA ── */
 .vx-nav-right {
   display: flex;
@@ -206,9 +212,45 @@
   .vx-nav-link { text-align: left; width: 100%; padding: 14px 13px; font-size: 13px; min-height: 44px; }
   .vx-hamburger { display: flex; }
   .vx-nav-login { display: none; }
+
+  /* Mostrar separador y botones de auth en el dropdown */
+  .vx-nav-mobile-divider {
+    display: block;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 6px 13px;
+    list-style: none;
+  }
+
+  .vx-nav-link--mobile-auth {
+    display: flex;
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .vx-nav-link--mobile-cta {
+    background: linear-gradient(135deg, #2563FF 0%, #7C3AED 100%);
+    color: #ffffff !important;
+    border-radius: 8px;
+    margin: 4px 0 8px;
+    font-weight: 700;
+    justify-content: center;
+  }
+
+  .vx-nav-link--mobile-cta:hover {
+    opacity: 0.9;
+    background: linear-gradient(135deg, #2563FF 0%, #7C3AED 100%);
+  }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
+  .vx-nav-cta {
+    padding: 7px 12px;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+}
+
+@media (max-width: 360px) {
   .vx-nav-cta { display: none; }
 }
 

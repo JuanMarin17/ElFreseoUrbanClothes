@@ -6,6 +6,8 @@
 .vx-stores-section {
   background: var(--vx-bg2, #111111);
   position: relative;
+  overflow: hidden;
+  max-width: 100%;
 }
 
 /* Línea de separación superior con degradado */
