@@ -80,7 +80,22 @@ const AdminLayout = () => {
   );
 
   // ── Brand: logo + nombre real de la tienda ──────────────────────────────
-  const [storeInfo, setStoreInfo] = useState({ name: null, logo: null });
+  // Se inicializa con la última copia guardada en caché para que el logo
+  // aparezca al instante (stale-while-revalidate) en vez de esperar las
+  // dos llamadas de red (store + settings) antes de pintar algo.
+  const [storeInfo, setStoreInfo] = useState(() => {
+    const cachedStoreId = localStorage.getItem("storeId");
+    const isCachedValid = isValid(cachedStoreId);
+    return {
+      name: localStorage.getItem("storeName") ?? null,
+      logo: isCachedValid ? localStorage.getItem(`storeLogo_${cachedStoreId}`) : null,
+    };
+  });
+
+  const cacheStoreInfo = (storeId, name, logo) => {
+    if (name) localStorage.setItem("storeName", name);
+    if (storeId && logo) localStorage.setItem(`storeLogo_${storeId}`, logo);
+  };
 
   // ── Tema oscuro / claro ──────────────────────────────────────────────────
   const [theme, setTheme] = useState(
@@ -155,16 +170,16 @@ const AdminLayout = () => {
           // Nombre real de la tienda desde el objeto store
           const name = store.name ?? store.storeName ?? null;
           if (name) localStorage.setItem("storeName", name);
-          setStoreInfo({ name, logo: null });
+          // Conserva el logo en caché (si existe) mientras se confirma con el servidor
+          setStoreInfo((prev) => ({ name, logo: prev.logo }));
 
           // Intentar cargar logo y color de sidebar desde settings
           try {
             const settings = await getStoreSettingsByHeader(storeId);
             if (settings) {
-              setStoreInfo({
-                name,
-                logo: settings.basic?.logoPreview ?? settings.logoUrl ?? null,
-              });
+              const logo = settings.basic?.logoPreview ?? settings.logoUrl ?? null;
+              setStoreInfo({ name, logo });
+              cacheStoreInfo(storeId, name, logo);
               const savedColor = settings.styles?.sidebarColor
                 ?? localStorage.getItem(`sidebarColor_${storeId}`);
               if (savedColor) {
@@ -201,10 +216,9 @@ const AdminLayout = () => {
           try {
             const settings = await getStoreSettingsByHeader(storeId);
             if (settings) {
-              setStoreInfo((prev) => ({
-                name: prev.name,
-                logo: settings.basic?.logoPreview ?? settings.logoUrl ?? null,
-              }));
+              const logo = settings.basic?.logoPreview ?? settings.logoUrl ?? null;
+              setStoreInfo((prev) => ({ name: prev.name, logo }));
+              cacheStoreInfo(storeId, null, logo);
               const savedColor = settings.styles?.sidebarColor ?? localColor;
               if (savedColor) {
                 setSidebarColor(savedColor);
@@ -225,14 +239,13 @@ const AdminLayout = () => {
             if (store?.role) localStorage.setItem("userRole", store.role);
             const name = store.name ?? null;
             if (name) localStorage.setItem("storeName", name);
-            setStoreInfo({ name, logo: null });
+            setStoreInfo((prev) => ({ name, logo: prev.logo }));
             try {
               const settings = await getStoreSettingsByHeader(id);
               if (settings) {
-                setStoreInfo({
-                  name,
-                  logo: settings.basic?.logoPreview ?? settings.logoUrl ?? null,
-                });
+                const logo = settings.basic?.logoPreview ?? settings.logoUrl ?? null;
+                setStoreInfo({ name, logo });
+                cacheStoreInfo(id, name, logo);
               }
             } catch { /* silent */ }
           }
@@ -252,14 +265,13 @@ const AdminLayout = () => {
             localStorage.setItem("userRole", role);
             const name = first?.name ?? first?.storeName ?? null;
             if (name) localStorage.setItem("storeName", name);
-            setStoreInfo({ name, logo: null });
+            setStoreInfo((prev) => ({ name, logo: prev.logo }));
             try {
               const settings = await getStoreSettingsByHeader(id);
               if (settings) {
-                setStoreInfo({
-                  name,
-                  logo: settings.basic?.logoPreview ?? settings.logoUrl ?? null,
-                });
+                const logo = settings.basic?.logoPreview ?? settings.logoUrl ?? null;
+                setStoreInfo({ name, logo });
+                cacheStoreInfo(id, name, logo);
               }
             } catch { /* silent */ }
           }

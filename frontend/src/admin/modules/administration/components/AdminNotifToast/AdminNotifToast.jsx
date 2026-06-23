@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { ShoppingBag, Ticket, Star, X } from "lucide-react";
+import { ShoppingBag, Ticket, Star, RefreshCw, X } from "lucide-react";
 import "./AdminNotifToast.css";
 
 const TYPE_CONFIG = {
-  NEW_ORDER:  { icon: ShoppingBag, color: "#22c55e", label: "Nueva orden"   },
-  NEW_TICKET: { icon: Ticket,      color: "#f59e0b", label: "Nuevo ticket"  },
-  NEW_REVIEW: { icon: Star,        color: "#818cf8", label: "Nueva reseña"  },
+  NEW_ORDER:  { icon: ShoppingBag, color: "#22c55e", label: "Nueva orden"     },
+  NEW_TICKET: { icon: Ticket,      color: "#f59e0b", label: "Nuevo ticket"    },
+  NEW_REVIEW: { icon: Star,        color: "#818cf8", label: "Nueva reseña"    },
+  NEW_RETURN: { icon: RefreshCw,   color: "#ef4444", label: "Nueva devolución" },
 };
 
 function NotifToastItem({ notif, onDismiss }) {

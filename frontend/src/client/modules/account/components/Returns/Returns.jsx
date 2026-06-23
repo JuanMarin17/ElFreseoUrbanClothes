@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { RefreshCw, Plus, X, Upload, Clock, CheckCircle2, XCircle, ChevronRight, Package, AlertCircle } from 'lucide-react';
+import { RefreshCw, Plus, X, Upload, Clock, CheckCircle2, XCircle, ChevronRight, Package, AlertCircle, ShoppingBag, Hash } from 'lucide-react';
 import { getMyReturns, createReturn } from '../../../../../utils/returnsService';
+import accountService from '../../services/accountService';
 import './Returns.css';
 
 const STATUS_MAP = {
@@ -47,15 +48,24 @@ function ReturnCard({ item }) {
   );
 }
 
+function fmtMoney(n) {
+  return `$${Number(n ?? 0).toLocaleString('es-CO')}`;
+}
+
 export default function Returns() {
   const [returns, setReturns] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [orderMode, setOrderMode] = useState('select'); // 'select' | 'manual'
   const [form, setForm] = useState({ orderId: '', reason: '', description: '', imageUrl: '' });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const fileRef = useRef();
+
+  const hasOrders = orders.length > 0;
 
   useEffect(() => {
     setLoading(true);
@@ -66,11 +76,22 @@ export default function Returns() {
       })
       .catch(() => setReturns([]))
       .finally(() => setLoading(false));
+
+    setLoadingOrders(true);
+    accountService.getOrders()
+      .then(({ data }) => setOrders(Array.isArray(data) ? data : []))
+      .catch(() => setOrders([]))
+      .finally(() => setLoadingOrders(false));
   }, []);
+
+  const openForm = () => {
+    setOrderMode(hasOrders ? 'select' : 'manual');
+    setShowForm(s => !s);
+  };
 
   const handleSubmit = async () => {
     if (!form.orderId.trim() || !form.reason) {
-      setError('El número de orden y el motivo son obligatorios.');
+      setError('La orden y el motivo son obligatorios.');
       return;
     }
     setSubmitting(true);
@@ -98,7 +119,7 @@ export default function Returns() {
           <h2 className="ret-title">Mis Devoluciones</h2>
           <p className="ret-subtitle">Solicita el retorno de un producto y seguí el estado aquí.</p>
         </div>
-        <button className="ret-new-btn" onClick={() => setShowForm(s => !s)}>
+        <button className="ret-new-btn" onClick={openForm}>
           {showForm ? <X size={15} /> : <Plus size={15} />}
           <span>{showForm ? 'Cancelar' : 'Nueva solicitud'}</span>
         </button>
@@ -114,28 +135,70 @@ export default function Returns() {
         <div className="ret-form-card">
           <h3 className="ret-form-title">Solicitud de devolución</h3>
 
-          <div className="ret-form-grid">
-            <div className="ret-field">
-              <label>Número de orden *</label>
-              <input
-                className="ret-input"
-                placeholder="Ej: abc123-..."
-                value={form.orderId}
-                onChange={e => setForm(f => ({ ...f, orderId: e.target.value }))}
-              />
-            </div>
+          <div className="ret-field">
+            <label>¿Qué compra deseas devolver? *</label>
 
-            <div className="ret-field">
-              <label>Motivo *</label>
+            {!loadingOrders && hasOrders && (
+              <div className="ret-mode-tabs">
+                <button
+                  type="button"
+                  className={`ret-mode-tab${orderMode === 'select' ? ' ret-mode-tab--on' : ''}`}
+                  onClick={() => { setOrderMode('select'); setForm(f => ({ ...f, orderId: '' })); }}
+                >
+                  <ShoppingBag size={13} /> Seleccionar compra
+                </button>
+                <button
+                  type="button"
+                  className={`ret-mode-tab${orderMode === 'manual' ? ' ret-mode-tab--on' : ''}`}
+                  onClick={() => { setOrderMode('manual'); setForm(f => ({ ...f, orderId: '' })); }}
+                >
+                  <Hash size={13} /> Número de guía
+                </button>
+              </div>
+            )}
+
+            {loadingOrders ? (
+              <p className="ret-field-hint">Cargando tus compras…</p>
+            ) : orderMode === 'select' && hasOrders ? (
               <select
                 className="ret-input ret-select"
-                value={form.reason}
-                onChange={e => setForm(f => ({ ...f, reason: e.target.value }))}
+                value={form.orderId}
+                onChange={e => setForm(f => ({ ...f, orderId: e.target.value }))}
               >
-                <option value="">Seleccionar motivo...</option>
-                {REASONS.map(r => <option key={r} value={r}>{r}</option>)}
+                <option value="">Seleccionar una compra...</option>
+                {orders.map(o => (
+                  <option key={o.id} value={o.id}>
+                    Orden #{String(o.id).slice(-8)} — {o.date} — {o.status} — {fmtMoney(o.total)}
+                  </option>
+                ))}
               </select>
-            </div>
+            ) : (
+              <>
+                <input
+                  className="ret-input"
+                  placeholder="Ej: abc123-... (número de guía o de orden)"
+                  value={form.orderId}
+                  onChange={e => setForm(f => ({ ...f, orderId: e.target.value }))}
+                />
+                {!hasOrders && (
+                  <p className="ret-field-hint">
+                    Aún no tienes pedidos registrados en esta tienda. Ingresa el número de guía o de orden que recibiste en tu confirmación de compra.
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="ret-field">
+            <label>Motivo *</label>
+            <select
+              className="ret-input ret-select"
+              value={form.reason}
+              onChange={e => setForm(f => ({ ...f, reason: e.target.value }))}
+            >
+              <option value="">Seleccionar motivo...</option>
+              {REASONS.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
           </div>
 
           <div className="ret-field">

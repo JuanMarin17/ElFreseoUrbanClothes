@@ -104,8 +104,8 @@ function normalizeProduct(p, storeNameMap = {}) {
   };
 }
 
-/** Obtiene mapa storeId → storeName desde la API de tiendas */
-async function fetchStoreNameMap(headers) {
+/** Obtiene mapa storeId → { name, isActive } desde la API de tiendas */
+async function fetchStoreInfoMap(headers) {
   const endpoints = ["/stores", "/stores/all", "/stores/active"];
   for (const ep of endpoints) {
     try {
@@ -124,7 +124,7 @@ async function fetchStoreNameMap(headers) {
       list.forEach((s) => {
         const id = s.storeId ?? s.id;
         const name = s.name ?? s.storeName ?? s.slug ?? s.storeSlug;
-        if (id && name) map[id] = name;
+        if (id) map[id] = { name: name ?? null, isActive: s.isActive !== false };
       });
       if (Object.keys(map).length > 0) return map;
     } catch {
@@ -179,8 +179,21 @@ export async function fetchCatalogProducts() {
     jwt && jwt !== "null"
       ? { Accept: "application/json", Authorization: `Bearer ${jwt}` }
       : publicHeaders;
-  const storeNameMap = await fetchStoreNameMap(mapHeaders);
-  return raw.filter(isActive).map((p) => normalizeProduct(p, storeNameMap));
+  const storeInfoMap = await fetchStoreInfoMap(mapHeaders);
+  const storeNameMap = Object.fromEntries(
+    Object.entries(storeInfoMap).map(([id, info]) => [id, info.name]),
+  );
+
+  // Excluir productos de tiendas inhabilitadas (isActive === false)
+  const fromEnabledStore = (p) => {
+    const info = p.storeId ? storeInfoMap[p.storeId] : null;
+    return !info || info.isActive !== false;
+  };
+
+  return raw
+    .filter(fromEnabledStore)
+    .filter(isActive)
+    .map((p) => normalizeProduct(p, storeNameMap));
 }
 
 // ── Tastes ────────────────────────────────────────────────────────────────────

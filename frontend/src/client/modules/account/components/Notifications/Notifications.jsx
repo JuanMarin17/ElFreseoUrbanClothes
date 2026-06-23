@@ -32,9 +32,9 @@ export default function Notifications() {
   return (
     <div className="notif-section">
       <div className="notif-section-header">
-        <span className="info-tag">CENTRO_NOTIFICACIONES</span>
+        <span className="notif-eyebrow">CENTRO_NOTIFICACIONES</span>
         <div className="notif-title-row">
-          <h2 className="section-title">NOTIFICACIONES</h2>
+          <h2 className="notif-title">NOTIFICACIONES</h2>
           {unread > 0 && (
             <button className="notif-mark-all" onClick={markAllRead}>
               Marcar todas como leídas

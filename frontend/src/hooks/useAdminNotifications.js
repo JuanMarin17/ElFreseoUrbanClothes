@@ -4,10 +4,11 @@ const BASE = import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
 const MAX_QUEUE = 50;
 
 /**
- * Conecta los 3 streams SSE de admin con EventSource nativo (sin JWT).
+ * Conecta los 4 streams SSE de admin con EventSource nativo (sin JWT).
  *   - /stores/{storeId}/notifications/admin/stream   → evento "notification" → NEW_ORDER
  *   - /stores/{storeId}/support/notifications/stream  → evento "new-ticket"
  *   - /stores/{storeId}/reviews/notifications/stream  → evento "new-review"
+ *   - /stores/{storeId}/returns/notifications/stream  → evento "new-return"
  */
 function getJwt() {
   const j = localStorage.getItem("jwt");
@@ -85,10 +86,27 @@ export function useAdminNotifications(storeId) {
       } catch { }
     });
 
+    // ── Stream 4: Devoluciones ───────────────────────────────────────────
+    const esReturns = new EventSource(
+      sseUrl(`/stores/${storeId}/returns/notifications/stream`),
+    );
+    esReturns.addEventListener("new-return", (e) => {
+      try {
+        const p = JSON.parse(e.data);
+        push({
+          type:    "NEW_RETURN",
+          title:   "Nueva solicitud de devolución",
+          message: p.reason ?? `Orden #${p.orderId ?? ""}`,
+          data:    p,
+        });
+      } catch { }
+    });
+
     return () => {
       esOrders.close();
       esSupport.close();
       esReviews.close();
+      esReturns.close();
     };
   }, [storeId, push]);
 
