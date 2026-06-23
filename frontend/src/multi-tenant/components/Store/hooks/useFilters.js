@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { PRICE_RANGES } from '../storeUtils.jsx';
 
-export function useFilters(products) {
+export function useFilters(products, categories = []) {
   const [searchQuery,    setSearchQueryRaw] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState(0);
@@ -40,6 +40,11 @@ export function useFilters(products) {
   const filteredProducts = useMemo(() => {
     let result = products;
 
+    if (activeCategory > 0 && categories[activeCategory]) {
+      const cat = categories[activeCategory].toLowerCase();
+      result = result.filter(p => p.categories?.some(c => c.toLowerCase() === cat));
+    }
+
     if (debouncedQuery.trim()) {
       const q = debouncedQuery.toLowerCase();
       result = result.filter(p =>
@@ -68,10 +73,11 @@ export function useFilters(products) {
     }
 
     return result;
-  }, [products, debouncedQuery, activePrices, activeSizes, sortBy]);
+  }, [products, categories, activeCategory, debouncedQuery, activePrices, activeSizes, sortBy]);
 
   const hasActiveFilters =
     searchQuery.trim() !== '' ||
+    activeCategory > 0 ||
     activePrices.length > 0 ||
     activeSizes.length > 0 ||
     sortBy !== 'relevant';

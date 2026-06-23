@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { cf, DEMO } from './storeUtils.jsx';
 import { useCart } from './hooks/useCart.js';
 import { useFilters } from './hooks/useFilters.js';
@@ -105,6 +105,13 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
     hBg, hColor, hFont, pageBg, catalogBg, footerBg, cardGradients,
   };
 
+  /* ── Categorías reales de la tienda (derivadas de los productos) ── */
+  const categoryList = useMemo(() => {
+    const set = new Set();
+    products.forEach(p => (p.categories ?? []).forEach(c => c && set.add(c)));
+    return ['Todos', ...[...set].sort((a, b) => a.localeCompare(b))];
+  }, [products]);
+
   /* ── Config sidebar ── */
   const sb = widgets?.sidebar ?? null;
   const sidebarCfg = {
@@ -116,7 +123,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
     radius:      sb?.radius      ?? (isMin ? 10 : isUrb ? 0 : 10),
     width:       sb?.width       ?? (isMin ? 210 : isUrb ? 230 : 200),
     font:        cf(sb?.font ?? "Inter"),
-    items:       sb?.items ?? ["Inicio", "Productos", "Categorías", "Ofertas", "Contacto"],
+    items:       sb?.items ?? categoryList,
   };
 
   /* ── Config buscador ── */
@@ -155,7 +162,7 @@ export default function StoreFront({ layoutType = "minimalista", data = {}, isOw
     activeSizes, toggleSize,
     sortBy, setSortBy,
     clearFilters, filteredProducts, hasActiveFilters,
-  } = useFilters(products);
+  } = useFilters(products, categoryList);
 
   /* ── Anuncio superior (solo clásico) ── */
   const TopBanner = isCls ? (

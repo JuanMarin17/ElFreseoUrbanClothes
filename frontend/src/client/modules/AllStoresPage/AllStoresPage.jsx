@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Store, X, ChevronDown, SlidersHorizontal, Star } from 'lucide-react';
+import { Search, Store, X, ChevronDown, Star } from 'lucide-react';
 import HeaderMarket from '../../../utils/Header/HeaderMarket';
 import FooterMarket from '../MarketPage/components/FooterMarket/FooterMarket';
 import { getAllStores, getStoreSettingsByHeader } from '../../../multi-tenant/pages/services/storeService';
@@ -24,9 +24,8 @@ const getLogo   = (s) => {
   return l && l.startsWith('http') ? l : null;
 };
 const getAccent = (s) => s.settings?.styles?.colorBoton ?? '#3e78ff';
-const getPlan   = (s) => s.settings?.plan?.name ?? null;
 
-function applyFilters(stores, { search, plan, sort }) {
+function applyFilters(stores, { search, sort }) {
   let result = [...stores];
 
   if (search.trim()) {
@@ -36,12 +35,6 @@ function applyFilters(stores, { search, plan, sort }) {
         s.name?.toLowerCase().includes(q) ||
         s.description?.toLowerCase().includes(q) ||
         s.slug?.toLowerCase().includes(q),
-    );
-  }
-
-  if (plan && plan !== 'Todos') {
-    result = result.filter(
-      (s) => (getPlan(s) ?? '').toUpperCase() === plan.toUpperCase(),
     );
   }
 
@@ -57,7 +50,6 @@ function StoreCard({ store, onClick }) {
   const cover  = getCover(store);
   const logo   = getLogo(store);
   const accent = getAccent(store);
-  const plan   = getPlan(store);
   const desc   = store.description ?? store.settings?.components?.banner?.title ?? '';
 
   return (
@@ -79,7 +71,6 @@ function StoreCard({ store, onClick }) {
         {(store.isFeatured || store.featured) && (
           <span className="ase-card-featured-badge"><Star size={10} fill="currentColor" /> Destacada</span>
         )}
-        {plan && <span className="ase-card-plan">{plan}</span>}
       </div>
 
       {/* Avatar */}
@@ -128,14 +119,7 @@ export default function AllStoresPage() {
   const [error,     setError]     = useState(null);
 
   const [search, setSearch] = useState('');
-  const [plan,   setPlan]   = useState('Todos');
   const [sort,   setSort]   = useState('az');
-
-  /* Opciones de plan extraídas de los datos reales */
-  const planOptions = useMemo(() => {
-    const plans = [...new Set(allStores.map((s) => getPlan(s)).filter(Boolean))];
-    return ['Todos', ...plans.sort()];
-  }, [allStores]);
 
   useEffect(() => {
     let cancelled = false;
@@ -149,7 +133,8 @@ export default function AllStoresPage() {
           ? data
           : (data?.content ?? data?.stores ?? data?.data ?? []);
 
-        const active = all.filter((s) => s.isActive);
+        // Tienda habilitada = activa (isActive !== false, igual que en la landing)
+        const active = all.filter((s) => s.isActive !== false);
 
         const withSettings = await Promise.all(
           active.map(async (store) => {
@@ -162,7 +147,10 @@ export default function AllStoresPage() {
           }),
         );
 
-        if (!cancelled) setAllStores(withSettings);
+        // Excluir tiendas en mantenimiento — no están realmente visibles al público
+        const enabled = withSettings.filter((s) => !s.settings?.maintenance?.enabled);
+
+        if (!cancelled) setAllStores(enabled);
       })
       .catch((err) => { if (!cancelled) setError(err.message ?? 'No se pudieron cargar las tiendas.'); })
       .finally(() => { if (!cancelled) setLoading(false); });
@@ -171,13 +159,13 @@ export default function AllStoresPage() {
   }, []);
 
   const filtered = useMemo(
-    () => applyFilters(allStores, { search, plan, sort }),
-    [allStores, search, plan, sort],
+    () => applyFilters(allStores, { search, sort }),
+    [allStores, search, sort],
   );
 
-  const clearFilters = () => { setSearch(''); setPlan('Todos'); setSort('az'); };
+  const clearFilters = () => { setSearch(''); setSort('az'); };
 
-  const hasActiveFilters = search.trim() || plan !== 'Todos';
+  const hasActiveFilters = search.trim().length > 0;
 
   return (
     <div className="ase-root">
@@ -221,20 +209,6 @@ export default function AllStoresPage() {
             </div>
 
             <div className="ase-filters-row">
-              {/* Pills de plan */}
-              <div className="ase-plan-pills">
-                <SlidersHorizontal size={13} className="ase-filter-icon" />
-                {planOptions.map((p) => (
-                  <button
-                    key={p}
-                    className={`ase-plan-pill${plan === p ? ' ase-plan-pill--on' : ''}`}
-                    onClick={() => setPlan(p)}
-                  >
-                    {p}
-                  </button>
-                ))}
-              </div>
-
               {/* Ordenar */}
               <div className="ase-sort-wrap">
                 <ChevronDown size={13} className="ase-sort-arrow" />

@@ -80,11 +80,11 @@
 
 @media (hover: hover) and (pointer: fine) {
   .vx-store-card:hover {
-    border-color: rgba(var(--store-accent-rgb, 37, 99, 255), 0.4);
+    border-color: rgba(var(--store-accent-rgb, 62, 120, 255), 0.4);
     transform: translateY(-5px);
     box-shadow:
       0 16px 48px rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(37, 99, 255, 0.12);
+      0 0 0 1px rgba(var(--store-accent-rgb, 62, 120, 255), 0.12);
   }
 }
 
@@ -102,6 +102,13 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 500ms var(--vx-ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vx-store-card:hover .vx-store-cover-img {
+    transform: scale(1.08);
+  }
 }
 
 .vx-store-cover-color {
@@ -136,6 +143,16 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   z-index: 1;
   position: relative;
+  transition: transform 300ms var(--vx-ease-out, cubic-bezier(0.23, 1, 0.32, 1)), box-shadow 300ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vx-store-card:hover .vx-store-logo-ring {
+    transform: scale(1.08) translateY(-2px);
+    box-shadow:
+      0 6px 20px rgba(0, 0, 0, 0.5),
+      0 0 0 3px rgba(var(--store-accent-rgb, 62, 120, 255), 0.3);
+  }
 }
 
 .vx-store-logo-img {
@@ -374,5 +391,42 @@
   .vx-marquee-wrapper {
     mask-image: none;
     -webkit-mask-image: none;
+  }
+}
+
+/* ── Reveal al hacer scroll (cabecera y footer) ── */
+.vx-stores-section .vx-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s var(--vx-ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    transform 0.6s var(--vx-ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  will-change: transform, opacity;
+}
+.vx-stores-section .vx-reveal.vx-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Accesibilidad: respeta prefers-reduced-motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .vx-marquee-track {
+    animation: none;
+  }
+  .vx-stores-section .vx-reveal {
+    transition: opacity 0.4s ease;
+    transform: none;
+  }
+  .vx-store-card,
+  .vx-store-cover-img,
+  .vx-store-logo-ring,
+  .vx-store-btn {
+    transition: opacity 200ms ease, background 200ms ease, border-color 200ms ease, color 200ms ease;
+  }
+  .vx-store-card:hover,
+  .vx-store-card:hover .vx-store-cover-img,
+  .vx-store-card:hover .vx-store-logo-ring,
+  .vx-store-btn:active {
+    transform: none;
   }
 }

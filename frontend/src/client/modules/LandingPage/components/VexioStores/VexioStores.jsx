@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllStores, getStoreSettingsByHeader } from '../../../../../multi-tenant/pages/services/storeService';
 import './VexioStores.css';
@@ -37,6 +37,15 @@ const getLogo = (store) => {
 const getAccent = (store) =>
   store.settings?.styles?.colorBoton ?? '#3e78ff';
 
+// Convierte un hex (#rrggbb o #rgb) al triplete "r, g, b" que necesita rgba() en CSS
+const hexToRgb = (hex) => {
+  const clean = (hex ?? '').replace('#', '');
+  const full = clean.length === 3 ? clean.split('').map((c) => c + c).join('') : clean;
+  const num = parseInt(full, 16);
+  if (Number.isNaN(num) || full.length !== 6) return '62, 120, 255';
+  return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`;
+};
+
 export default function VexioStores() {
   // Empieza con datos quemados — sin estado de carga
   const [stores, setStores] = useState(SEED_STORES);
@@ -69,10 +78,29 @@ export default function VexioStores() {
   const displayStores = [...stores, ...stores, ...stores];
   const [paused, setPaused] = useState(false);
 
+  /* ── Scroll reveal ── */
+  const headRef = useRef(null);
+  const footerRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add('vx-visible');
+          observer.unobserve(e.target);
+        }
+      }),
+      { threshold: 0.1 },
+    );
+    if (headRef.current) observer.observe(headRef.current);
+    if (footerRef.current) observer.observe(footerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section id="vx-stores" className="vx-section vx-stores-section">
 
-      <div className="vx-section-head vx-section-head--center">
+      <div className="vx-section-head vx-section-head--center vx-reveal" ref={headRef}>
         <p className="vx-section-label">Tiendas</p>
         <h2 className="vx-section-title">Tiendas destacadas</h2>
         <p className="vx-section-sub">
@@ -101,7 +129,7 @@ export default function VexioStores() {
                   <div
                     key={`${store.storeId}-${i}`}
                     className="vx-store-card"
-                    style={{ '--store-accent': accent }}
+                    style={{ '--store-accent': accent, '--store-accent-rgb': hexToRgb(accent) }}
                     aria-hidden={i >= stores.length ? 'true' : undefined}
                   >
                     {/* Banner / Cover */}
@@ -159,11 +187,11 @@ export default function VexioStores() {
         </div>
       </div>
 
-      <div className="vx-stores-footer">
+      <div className="vx-stores-footer vx-reveal" ref={footerRef}>
         <p className="vx-stores-footer-text">
           Únete a los <strong>6+ emprendedores</strong> que ya venden con Vexio.
         </p>
-        <button className="vx-btn-ghost" onClick={() => navigate('/market')}>
+        <button className="vx-btn-ghost" onClick={() => navigate('/explorar-tiendas')}>
           Ver todas las tiendas →
         </button>
       </div>

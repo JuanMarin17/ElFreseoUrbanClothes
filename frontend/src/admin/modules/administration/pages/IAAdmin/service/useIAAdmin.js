@@ -59,14 +59,25 @@ export function useIAAdmin() {
     checkIsOwner(storeId, userId)
       .then((res) => {
         if (!active) return;
-        const resolvedRole = res === true ? "OWNER" : String(res ?? "").toUpperCase();
-        setRole(resolvedRole || null);
-        setHasAccess(ALLOWED_ROLES.has(resolvedRole));
+        // El endpoint solo responde true|false ("¿es el owner?"). `false` no
+        // significa "sin acceso" — el usuario puede ser ADMIN/STORE_USER con
+        // acceso válido vía el rol optimista de localStorage. Solo lo usamos
+        // para confirmar OWNER; nunca para revocar acceso.
+        if (res === true) {
+          setRole("OWNER");
+          setHasAccess(true);
+        }
       })
-      .catch(() => {
+      .catch((err) => {
         if (!active) return;
-        setRole(null);
-        setHasAccess(false);
+        // Solo revocamos el acceso ante una respuesta explícita del backend
+        // (403/404 = "no eres el owner"). Si el backend está caído o lento
+        // (500/502/503/504, timeout, error de red) mantenemos el valor
+        // optimista de localStorage para no bloquear al owner real.
+        if (err?.status === 403 || err?.status === 404) {
+          setRole(null);
+          setHasAccess(false);
+        }
       })
       .finally(() => { if (active) setCheckingAccess(false); });
 

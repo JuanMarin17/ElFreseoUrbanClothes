@@ -128,35 +128,6 @@
   flex-wrap: wrap;
 }
 
-.ase-filter-icon { color: #475569; flex-shrink: 0; }
-
-/* Pills de plan */
-.ase-plan-pills {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.ase-plan-pill {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #94a3b8;
-  padding: 5px 14px;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-}
-.ase-plan-pill:hover { border-color: rgba(62,120,255,0.4); color: #93c5fd; }
-.ase-plan-pill--on {
-  background: rgba(62,120,255,0.15);
-  border-color: #3e78ff;
-  color: #93c5fd;
-}
-
 /* Sort */
 .ase-sort-wrap {
   position: relative;
@@ -286,21 +257,6 @@
   display: flex;
   align-items: center;
   gap: 4px;
-}
-
-.ase-card-plan {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(0,0,0,0.5);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: #cbd5e1;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  padding: 3px 8px;
-  border-radius: 20px;
-  backdrop-filter: blur(4px);
 }
 
 /* Avatar flotante */

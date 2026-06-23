@@ -1,6 +1,6 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import "./App.css";
 import "./animations.css";
 import { AuthProvider, useAuth } from "./admin/modules/auth/pages/hook/Useauth.jsx";
@@ -227,6 +227,15 @@ function PageLoader() {
   );
 }
 
+// Resetea el scroll al tope en cada cambio de ruta (React Router no lo hace por defecto)
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 // Muestra toasts SSE del usuario solo cuando está autenticado
 function UserNotifToastWrapper() {
   const { isAuthenticated } = useAuth();
@@ -239,6 +248,7 @@ function App() {
     <AuthProvider>
       <MultiTenantAuthProvider>
         <StoreProvider>
+          <ScrollToTop />
           <TokenGuard />
           <UserNotifToastWrapper />
           <ModalTastes />

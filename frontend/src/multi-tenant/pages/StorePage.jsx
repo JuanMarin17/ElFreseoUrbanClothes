@@ -41,6 +41,7 @@ export default function StorePage() {
   const [storeId, setStoreId]           = useState(null);
   const [isOwner, setIsOwner]           = useState(false);
   const [isMaintenance, setIsMaintenance] = useState(false);
+  const [isDisabled, setIsDisabled]     = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -56,6 +57,12 @@ export default function StorePage() {
 
         setStoreName(store.name ?? slug);
         setStoreId(resolvedStoreId);
+
+        if (store.isActive === false) {
+          setIsDisabled(true);
+          setLoading(false);
+          return;
+        }
         localStorage.setItem("storeId", resolvedStoreId);
         localStorage.setItem("storeSlug", slug);
         localStorage.setItem("storeName", store.name ?? slug);
@@ -177,6 +184,17 @@ export default function StorePage() {
         <span className="sp-error-icon">⚠</span>
         <h2>Tienda no encontrada</h2>
         <p>{error}</p>
+        <button onClick={() => navigate(-1)}>← Volver</button>
+      </div>
+    );
+  }
+
+  if (isDisabled) {
+    return (
+      <div className="sp-error">
+        <span className="sp-error-icon">⚠</span>
+        <h2>{storeName || "Esta tienda"} no está disponible</h2>
+        <p>Esta tienda ha sido inhabilitada y no se pueden mostrar sus productos.</p>
         <button onClick={() => navigate(-1)}>← Volver</button>
       </div>
     );
