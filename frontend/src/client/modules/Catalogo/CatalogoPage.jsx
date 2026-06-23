@@ -294,6 +294,8 @@ function ProductCard({ product, index, onQuickAdd }) {
 
   const handleWishlist = useCallback((e) => {
     e.stopPropagation();
+    const jwt = localStorage.getItem("jwt");
+    if (!jwt || jwt === "null") { navigate("/login"); return; }
     const newState = toggleInWishlist({
       id:             product.id,
       name:           product.name,
@@ -303,7 +305,7 @@ function ProductCard({ product, index, onQuickAdd }) {
       storeSlug:      null,
     });
     setLiked(newState);
-  }, [product.id, product.name, product.priceFormatted, product.image, product.storeId]);
+  }, [product.id, product.name, product.priceFormatted, product.image, product.storeId, navigate]);
 
   return (
     <motion.article

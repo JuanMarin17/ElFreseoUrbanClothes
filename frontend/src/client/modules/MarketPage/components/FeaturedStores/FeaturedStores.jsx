@@ -4,6 +4,15 @@ import { ArrowRight, Store } from 'lucide-react';
 import { getAllStores, getStoreSettingsByHeader } from '../../../../../multi-tenant/pages/services/storeService';
 import './FeaturedStores.css';
 
+// Máximo de tiendas a mostrar en la sección "Destacadas"
+const FEATURED_LIMIT = 6;
+
+function pickFeatured(active) {
+  // Si el backend marca tiendas con isFeatured, usarlas; si no, tomar las primeras N activas
+  const featured = active.filter((s) => s.isFeatured === true || s.featured === true);
+  return featured.length > 0 ? featured.slice(0, FEATURED_LIMIT) : active.slice(0, FEATURED_LIMIT);
+}
+
 export default function FeaturedStores() {
   const [stores, setStores]   = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,10 +30,10 @@ export default function FeaturedStores() {
           ? data
           : (data?.content ?? data?.stores ?? data?.data ?? []);
 
-        const active = all.filter((s) => s.isActive);
+        const candidates = pickFeatured(all.filter((s) => s.isActive));
 
         const withSettings = await Promise.all(
-          active.map(async (store) => {
+          candidates.map(async (store) => {
             try {
               const settings = await getStoreSettingsByHeader(store.storeId);
               return { ...store, settings: settings ?? {} };
@@ -79,7 +88,7 @@ export default function FeaturedStores() {
       <div className="vx-section-wrap">
         <div className="vx-section-head">
           <h2>Tiendas <span>destacadas</span></h2>
-          <button className="vx-section-link" onClick={() => navigate('/market')}>
+          <button className="vx-section-link" onClick={() => navigate('/explorar-tiendas')}>
             Ver todas <ArrowRight size={14} />
           </button>
         </div>

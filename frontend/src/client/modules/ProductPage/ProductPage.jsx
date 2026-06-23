@@ -200,9 +200,14 @@ export default function ProductPage() {
     const isUrb = layoutType === "urbano";
     const isCls = layoutType === "clasico";
 
-    const header = components.header ?? {
+    const rawHeader = components.header ?? {
       logo: "MI TIENDA", items: ["HOME", "SHOP"],
       color: "#fff", bg: "#000", font: "Inter",
+    };
+    const header = {
+      ...rawHeader,
+      logoUrl:   rawHeader.logoUrl ?? storeSettings?.basic?.logoPreview ?? storeSettings?.logoUrl ?? null,
+      storeName: storeInfo?.name ?? rawHeader.storeName ?? null,
     };
 
     const accent = styles.colorBoton ?? (isMin ? "#2563eb" : isUrb ? "#ffffff" : "#2563eb");
@@ -235,7 +240,7 @@ export default function ProductPage() {
     };
 
     return { header, theme, searchCfg };
-  }, [storeSettings, isDark]);
+  }, [storeSettings, storeInfo, isDark]);
 
   /* Info de la tienda para el card en descripción */
   const storeCard = useMemo(() => {
@@ -245,7 +250,7 @@ export default function ProductPage() {
     return {
       name:    name ?? slug,
       slug:    slug,
-      logoUrl: storeSettings?.components?.header?.logoUrl ?? null,
+      logoUrl: storeSettings?.components?.header?.logoUrl ?? storeSettings?.basic?.logoPreview ?? storeSettings?.logoUrl ?? null,
       accent:  storeSettings?.styles?.colorBoton ?? "#2563FF",
     };
   }, [storeInfo, storeSettings, storeSlug]);

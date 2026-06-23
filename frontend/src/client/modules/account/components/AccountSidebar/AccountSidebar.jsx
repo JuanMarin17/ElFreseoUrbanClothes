@@ -8,15 +8,15 @@ import {
 import './AccountSidebar.css';
 
 const MENU = [
-  { key: 'profile',       path: '/cuenta/perfil',         label: 'Mi Perfil',              icon: <User size={15} /> },
-  { key: 'security',      path: '/cuenta/seguridad',      label: 'Seguridad',              icon: <Shield size={15} /> },
-  { key: 'orders',        path: '/cuenta/pedidos',        label: 'Mis Pedidos',            icon: <ShoppingBag size={15} /> },
-  { key: 'returns',       path: '/cuenta/devoluciones',   label: 'Devoluciones',           icon: <RefreshCw size={15} /> },
-  { key: 'loyalty',       path: '/cuenta/puntos',         label: 'Mis Puntos',             icon: <Star size={15} /> },
-  { key: 'notifications', path: '/cuenta/notificaciones', label: 'Notificaciones',         icon: <Bell size={15} /> },
-  { key: 'addresses',     path: '/cuenta/direcciones',    label: 'Libreta de Direcciones', icon: <MapPin size={15} /> },
-  { key: 'preferences',   path: '/cuenta/preferencias',   label: 'Preferencias',           icon: <Settings size={15} /> },
-  { key: 'support',       path: '/cuenta/soporte',        label: 'Ayuda y Soporte',        icon: <HelpCircle size={15} /> },
+  { key: 'profile',       path: '/cuenta/perfil',         label: 'Mi Perfil',              short: 'Perfil',       icon: <User size={15} /> },
+  { key: 'security',      path: '/cuenta/seguridad',      label: 'Seguridad',              short: 'Seguridad',    icon: <Shield size={15} /> },
+  { key: 'orders',        path: '/cuenta/pedidos',        label: 'Mis Pedidos',            short: 'Pedidos',      icon: <ShoppingBag size={15} /> },
+  { key: 'returns',       path: '/cuenta/devoluciones',   label: 'Devoluciones',           short: 'Devol.',       icon: <RefreshCw size={15} /> },
+  { key: 'loyalty',       path: '/cuenta/puntos',         label: 'Mis Puntos',             short: 'Puntos',       icon: <Star size={15} /> },
+  { key: 'notifications', path: '/cuenta/notificaciones', label: 'Notificaciones',         short: 'Notif.',       icon: <Bell size={15} /> },
+  { key: 'addresses',     path: '/cuenta/direcciones',    label: 'Libreta de Direcciones', short: 'Direcc.',      icon: <MapPin size={15} /> },
+  { key: 'preferences',   path: '/cuenta/preferencias',   label: 'Preferencias',           short: 'Prefs.',       icon: <Settings size={15} /> },
+  { key: 'support',       path: '/cuenta/soporte',        label: 'Ayuda y Soporte',        short: 'Soporte',      icon: <HelpCircle size={15} /> },
 ];
 
 function getUserInfo() {
@@ -83,14 +83,15 @@ export default function AccountSidebar({ active, onSelect }) {
       {/* Navegación */}
       <span className="sidebar-group-label">PANEL</span>
       <nav className="sidebar-nav-account">
-        {MENU.map(({ key, path, label, icon }) => (
+        {MENU.map(({ key, path, label, short, icon }) => (
           <button
             key={key}
             className={`sidebar-item${active === key ? ' sidebar-item--active' : ''}`}
             onClick={() => { onSelect(key); navigate(path); }}
           >
             <span className="sidebar-icon">{icon}</span>
-            <span className="sidebar-label">{label}</span>
+            <span className="sidebar-label sidebar-label--full">{label}</span>
+            <span className="sidebar-label sidebar-label--short">{short}</span>
           </button>
         ))}
       </nav>

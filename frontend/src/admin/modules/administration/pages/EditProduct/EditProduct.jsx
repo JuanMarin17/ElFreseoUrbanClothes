@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getProductById, updateProduct } from "../../services/productService";
-import { getCategories, createCategory } from "../../services/CategoryService";
+import { getProductById, updateProduct, increaseStock, decreaseStock } from "../../services/productService";
+import { getCategories, createCategory, activateCategory } from "../../services/CategoryService";
 import { getBrands, createBrand } from "../../services/BrandService";
 import { getSuppliersByStore } from "../../services/SupplierService";
 import { uploadFile } from "../../../../../utils/uploadService";
 import "../UploadProduct/UploadProduct.css";
+import "./EditProduct.css";
 import PageSpinner from "../../../../../components/ui/PageSpinner.jsx";
 
 const TALLAS_DISPONIBLES = ["S", "M", "L", "XL", "XXL"];
@@ -80,6 +81,9 @@ const CategorySelector = ({ categories, selectedIds, onToggle, onCategoryCreated
     setCreateErr(null);
     try {
       const created = await createCategory(name);
+      if (created?.categoryId) {
+        await activateCategory(created.categoryId).catch(() => {});
+      }
       onCategoryCreated(created);
       onToggle(created.categoryId);
       setNewName("");
@@ -159,6 +163,7 @@ export default function EditProduct() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [originalVariants, setOriginalVariants] = useState([]);
 
   useEffect(() => {
     const load = async () => {
@@ -194,6 +199,7 @@ export default function EditProduct() {
           supplierId: product.supplierId ?? "",
           categoryIds: matchedCategoryIds,
           variants: (product.variants ?? []).map(v => ({
+            variantId: v.variantId ?? null,
             sku: v.sku ?? "",
             price: v.price ?? 0,
             stock: v.stock ?? 0,
@@ -205,6 +211,7 @@ export default function EditProduct() {
             uploading: false,
           })),
         });
+        setOriginalVariants(product.variants ?? []);
       } catch (err) {
         setError(err.message ?? "No se pudo cargar el producto.");
       } finally {
@@ -240,7 +247,7 @@ export default function EditProduct() {
   const addVariant = () => {
     setForm(prev => ({
       ...prev,
-      variants: [...prev.variants, { sku: "", price: 0, stock: 0, minStock: 0 }],
+      variants: [...prev.variants, { variantId: null, sku: "", price: 0, stock: 0, minStock: 0 }],
     }));
   };
 
@@ -306,8 +313,20 @@ export default function EditProduct() {
         supplierId: form.supplierId || null,
         categoryIds: form.categoryIds,
         images: form.images.map(img => img.cloudinaryUrl).filter(Boolean),
-        variants: form.variants,
+        variants: form.variants.map(({ variantId, ...rest }) => rest),
       });
+
+      // Sync stock via variant endpoints for existing variants
+      for (const v of form.variants) {
+        if (!v.variantId) continue;
+        const original = originalVariants.find(ov => ov.variantId === v.variantId);
+        const oldStock = original?.stock ?? 0;
+        const delta = v.stock - oldStock;
+        if (delta > 0) await increaseStock(v.variantId, delta);
+        else if (delta < 0) await decreaseStock(v.variantId, Math.abs(delta));
+      }
+
+      setOriginalVariants(form.variants.map(v => ({ variantId: v.variantId, stock: v.stock })));
       setSuccess("✅ Producto actualizado correctamente.");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -315,6 +334,12 @@ export default function EditProduct() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const stockDot = (stock, minStock) => {
+    if (stock === 0) return "ep-stock-dot--out";
+    if (stock <= (minStock || 5)) return "ep-stock-dot--low";
+    return "ep-stock-dot--ok";
   };
 
   if (fetching) {
@@ -329,45 +354,77 @@ export default function EditProduct() {
 
   return (
     <div className="adminContainer">
-      <main className="mainContent">
-        <div className="pageTitleRow">
+      <main className="ep-page">
+
+        {/* ── Header ── */}
+        <div className="ep-header">
           <div>
-            <h2 className="pageTitle">EDITAR PRODUCTO</h2>
-            <p className="protocolText" style={{ fontSize: 11, color: "#555", marginTop: 4 }}>ID: {id}</p>
+            <div className="ep-breadcrumb">
+              <button onClick={() => navigate(-1)}>← Productos</button>
+              <span className="ep-breadcrumb-sep">/</span>
+              <span className="ep-breadcrumb-current">Editar</span>
+            </div>
+            <h1 className="ep-title">Editar producto</h1>
+            <p className="ep-id">ID: {id}</p>
           </div>
-          <div className="topButtons">
-            <button className="btnDiscard" onClick={() => navigate(-1)} disabled={loading}>
-              ← VOLVER
+
+          <div className="ep-actions">
+            <button className="ep-btn-back" onClick={() => navigate(-1)} disabled={loading}>
+              Cancelar
             </button>
-            <button className="btnUpload" onClick={handleSubmit} disabled={loading || fetching}>
-              {loading ? "Guardando..." : "ACTUALIZAR PRODUCTO ⇡"}
+            <button className="ep-btn-save" onClick={handleSubmit} disabled={loading || fetching}>
+              {loading ? "Guardando…" : "Guardar cambios ↑"}
             </button>
           </div>
         </div>
 
-        {error && <div className="errorMsg">{error}</div>}
-        {success && <div className="successMsg">{success}</div>}
+        {error   && <div className="ep-alert ep-alert--error">⚠ {error}</div>}
+        {success && <div className="ep-alert ep-alert--success">{success}</div>}
 
-        <section className="gridContainer">
-          {/* ── Columna formulario ── */}
-          <div className="formColumn">
-            <div className="card">
-              <h3 className="cardTitle"><span className="iconBlue">✎</span> Información General</h3>
+        <div className="ep-grid">
 
-              <div className="inputGroup">
-                <label>Nombre producto</label>
-                <input type="text" name="name" value={form.name} onChange={handleChange}
-                  placeholder="e.g. NEON_VAPOR HOODIE" disabled={loading} />
+          {/* ── Columna izquierda ── */}
+          <div>
+
+            {/* Información general */}
+            <div className="ep-card">
+              <h3 className="ep-card-title">
+                <span className="ep-card-title-icon ep-icon--blue">✎</span>
+                Información general
+              </h3>
+
+              <div className="ep-field">
+                <label className="ep-label">Nombre del producto</label>
+                <input
+                  className="ep-input"
+                  type="text"
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  placeholder="Ej. Camiseta Urbana Negra"
+                  disabled={loading}
+                />
               </div>
 
-              <div className="inputGroup">
-                <label>Descripción</label>
-                <textarea name="description" value={form.description} onChange={handleChange}
-                  placeholder="Especificaciones técnicas y filosofía de diseño..." disabled={loading} />
+              <div className="ep-field">
+                <label className="ep-label">Descripción</label>
+                <textarea
+                  className="ep-textarea"
+                  name="description"
+                  value={form.description}
+                  onChange={handleChange}
+                  placeholder="Describe el producto…"
+                  disabled={loading}
+                />
               </div>
 
-              <BrandSelector brands={brands} value={form.brandId} onChange={handleChange}
-                onBrandCreated={b => setBrands(prev => [...prev, b])} disabled={loading} />
+              <BrandSelector
+                brands={brands}
+                value={form.brandId}
+                onChange={handleChange}
+                onBrandCreated={b => setBrands(prev => [...prev, b])}
+                disabled={loading}
+              />
 
               <div className="inputGroup">
                 <label>Proveedor</label>
@@ -381,7 +438,7 @@ export default function EditProduct() {
                     className="selectWithIcon"
                   >
                     {suppliers.length === 0 ? (
-                      <option value="">— Sin proveedores (créalos en Proveedores) —</option>
+                      <option value="">— Sin proveedores —</option>
                     ) : (
                       <>
                         <option value="">— Sin proveedor —</option>
@@ -394,88 +451,131 @@ export default function EditProduct() {
                 </div>
               </div>
 
-              <CategorySelector categories={categories} selectedIds={form.categoryIds}
+              <CategorySelector
+                categories={categories}
+                selectedIds={form.categoryIds}
                 onToggle={handleCategoryToggle}
                 onCategoryCreated={c => setCategories(prev => [...prev, c])}
-                disabled={loading} />
+                disabled={loading}
+              />
             </div>
 
-            {/* ── Variantes ── */}
-            <div className="card">
-              <h3 className="cardTitle"><span className="iconBlue">📦</span> Variantes</h3>
+            {/* Variantes */}
+            <div className="ep-card">
+              <h3 className="ep-card-title">
+                <span className="ep-card-title-icon ep-icon--amber">▦</span>
+                Variantes
+                <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 500, color: "#555", textTransform: "none", letterSpacing: 0 }}>
+                  {form.variants.length} variante{form.variants.length !== 1 ? "s" : ""}
+                </span>
+              </h3>
 
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-                <thead>
-                  <tr style={{ color: "#555", fontSize: 10, letterSpacing: 1 }}>
-                    <th style={{ textAlign: "left", paddingBottom: 8 }}>SKU</th>
-                    <th style={{ textAlign: "left", paddingBottom: 8 }}>Precio</th>
-                    <th style={{ textAlign: "left", paddingBottom: 8 }}>Stock</th>
-                    <th style={{ textAlign: "left", paddingBottom: 8 }}>Min.</th>
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>
-                  {form.variants.map((v, i) => (
-                    <tr key={i} style={{ borderTop: "1px solid #1a1a1a" }}>
-                      <td style={{ padding: "8px 6px 8px 0" }}>
-                        <input value={v.sku} onChange={e => handleVariantChange(i, "sku", e.target.value)}
-                          placeholder="SKU" disabled={loading}
-                          style={{ background: "#000", border: "1px solid #222", color: "#fff", padding: "6px 8px", fontSize: 11, width: "100%" }} />
-                      </td>
-                      <td style={{ padding: "8px 6px" }}>
-                        <input type="number" value={v.price} min="0"
-                          onChange={e => handleVariantChange(i, "price", e.target.value)}
-                          disabled={loading}
-                          style={{ background: "#000", border: "1px solid #222", color: "#fff", padding: "6px 8px", fontSize: 11, width: 80 }} />
-                      </td>
-                      <td style={{ padding: "8px 6px" }}>
-                        <input type="number" value={v.stock} min="0"
-                          onChange={e => handleVariantChange(i, "stock", e.target.value)}
-                          disabled={loading}
-                          style={{ background: "#000", border: "1px solid #222", color: "#fff", padding: "6px 8px", fontSize: 11, width: 60 }} />
-                      </td>
-                      <td style={{ padding: "8px 6px" }}>
-                        <input type="number" value={v.minStock} min="0"
-                          onChange={e => handleVariantChange(i, "minStock", e.target.value)}
-                          disabled={loading}
-                          style={{ background: "#000", border: "1px solid #222", color: "#fff", padding: "6px 8px", fontSize: 11, width: 60 }} />
-                      </td>
-                      <td style={{ padding: "8px 0 8px 6px" }}>
-                        <button type="button" onClick={() => removeVariant(i)} disabled={loading}
-                          style={{ background: "none", border: "1px solid #333", color: "#ef4444", padding: "5px 8px", cursor: "pointer", fontSize: 11, borderRadius: 4 }}>
-                          ✕
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="ep-variant-header">
+                <span>SKU</span>
+                <span style={{ textAlign: "right" }}>Precio</span>
+                <span style={{ textAlign: "right" }}>Stock</span>
+                <span style={{ textAlign: "right" }}>Mín.</span>
+                <span />
+              </div>
 
-              <button type="button" onClick={addVariant} disabled={loading}
-                style={{ marginTop: 12, background: "none", border: "1px dashed #333", color: "#555", padding: "8px 16px", cursor: "pointer", fontSize: 11, width: "100%" }}>
+              {form.variants.length === 0 && (
+                <p className="ep-variants-empty">Sin variantes. Añade al menos una.</p>
+              )}
+
+              <div className="ep-variant-list">
+                {form.variants.map((v, i) => (
+                  <div key={i} className="ep-variant-row">
+
+                    {/* SKU */}
+                    <input
+                      className="ep-var-input"
+                      value={v.sku}
+                      onChange={e => handleVariantChange(i, "sku", e.target.value)}
+                      placeholder="CAM-NEG-S"
+                      disabled={loading}
+                    />
+
+                    {/* Precio */}
+                    <input
+                      className="ep-var-input ep-var-input--num"
+                      type="number"
+                      value={v.price}
+                      min="0"
+                      onChange={e => handleVariantChange(i, "price", e.target.value)}
+                      disabled={loading}
+                    />
+
+                    {/* Stock con indicador */}
+                    <div className="ep-stock-wrap">
+                      <span className={`ep-stock-dot ${stockDot(v.stock, v.minStock)}`} />
+                      <input
+                        className="ep-var-input ep-var-input--num"
+                        type="number"
+                        value={v.stock}
+                        min="0"
+                        onChange={e => handleVariantChange(i, "stock", e.target.value)}
+                        disabled={loading}
+                        style={{ flex: 1 }}
+                      />
+                    </div>
+
+                    {/* Min stock */}
+                    <input
+                      className="ep-var-input ep-var-input--num"
+                      type="number"
+                      value={v.minStock}
+                      min="0"
+                      onChange={e => handleVariantChange(i, "minStock", e.target.value)}
+                      disabled={loading}
+                    />
+
+                    {/* Eliminar */}
+                    <button
+                      type="button"
+                      className="ep-var-remove"
+                      onClick={() => removeVariant(i)}
+                      disabled={loading}
+                      title="Eliminar variante"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <button type="button" className="ep-add-variant" onClick={addVariant} disabled={loading}>
                 + Añadir variante
               </button>
             </div>
           </div>
 
-          {/* ── Columna imágenes ── */}
-          <div className="previewColumn">
-            <div className="card">
-              <h3 className="cardTitle"><span className="iconBlue">🖼️</span> Imágenes ({form.images.length}/6)</h3>
+          {/* ── Columna derecha: imágenes ── */}
+          <div>
+            <div className="ep-card">
+              <h3 className="ep-card-title">
+                <span className="ep-card-title-icon ep-icon--photo">🖼</span>
+                Imágenes
+                <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 500, color: "#555", textTransform: "none", letterSpacing: 0 }}>
+                  {form.images.length} / 6
+                </span>
+              </h3>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div className="ep-images-grid">
                 {form.images.map((img, i) => (
-                  <div key={i} style={{ position: "relative", background: "#0a0a0a", border: "1px solid #1a1a1a", borderRadius: 6, overflow: "hidden", aspectRatio: "1/1" }}>
-                    <img src={img.previewUrl} alt={`img-${i}`}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", opacity: img.uploading ? 0.4 : 1 }} />
+                  <div key={i} className="ep-img-slot">
+                    <img
+                      src={img.previewUrl}
+                      alt={`img-${i}`}
+                      style={{ opacity: img.uploading ? 0.35 : 1 }}
+                    />
                     {img.uploading && (
-                      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.5)", fontSize: 11, color: "#fff" }}>
-                        Subiendo…
+                      <div className="ep-img-uploading-overlay">
+                        <div className="ep-img-spinner" />
+                        <span>Subiendo…</span>
                       </div>
                     )}
                     {!img.uploading && (
-                      <button onClick={() => removeImage(i)}
-                        style={{ position: "absolute", top: 6, right: 6, background: "rgba(0,0,0,0.8)", border: "1px solid #333", color: "#ef4444", width: 24, height: 24, borderRadius: "50%", cursor: "pointer", fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <button className="ep-img-remove" onClick={() => removeImage(i)} title="Quitar imagen">
                         ✕
                       </button>
                     )}
@@ -483,24 +583,34 @@ export default function EditProduct() {
                 ))}
 
                 {form.images.length < 6 && (
-                  <div onClick={() => imageInputRef.current?.click()}
-                    style={{ background: "#0a0a0a", border: "1px dashed #222", borderRadius: 6, aspectRatio: "1/1", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#444", gap: 8 }}>
-                    <span style={{ fontSize: 24 }}>📷</span>
-                    <small style={{ fontSize: 10 }}>Añadir imagen</small>
-                    <input ref={imageInputRef} type="file" accept="image/*" style={{ display: "none" }}
-                      onChange={e => { const f = e.target.files?.[0]; if (f) handleAddImage(f); e.target.value = ""; }} />
+                  <div className="ep-img-add" onClick={() => imageInputRef.current?.click()}>
+                    <span className="ep-img-add-icon">＋</span>
+                    <span className="ep-img-add-text">Añadir foto</span>
+                    <span className="ep-img-add-count">{6 - form.images.length} restante{6 - form.images.length !== 1 ? "s" : ""}</span>
+                    <input
+                      ref={imageInputRef}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={e => {
+                        const f = e.target.files?.[0];
+                        if (f) handleAddImage(f);
+                        e.target.value = "";
+                      }}
+                    />
                   </div>
                 )}
               </div>
 
               {form.images.length === 0 && (
-                <p style={{ color: "#444", fontSize: 11, textAlign: "center", marginTop: 12 }}>
-                  Sin imágenes. Añade al menos una para que se muestre en la tienda.
+                <p className="ep-images-empty">
+                  Sin imágenes. Añade al menos una para mostrar el producto en la tienda.
                 </p>
               )}
             </div>
           </div>
-        </section>
+
+        </div>
       </main>
     </div>
   );

@@ -4,6 +4,10 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import axios from 'axios'
 import './index.css'
 import App from './App.jsx'
+import { initUIPrefs } from './client/hooks/useUIPrefs.js'
+
+// Aplica preferencias de UI (tema, fuente, etc.) antes del primer render
+initUIPrefs();
 
 /* ── Global 401 interceptor ────────────────────────────────────────────────
    When any request returns 401 (session invalidated from another device),

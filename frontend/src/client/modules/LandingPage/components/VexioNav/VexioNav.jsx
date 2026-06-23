@@ -73,8 +73,8 @@ export default function VexioNav() {
 
         {/* Links de sección */}
         <ul className={`vx-nav-links${menuOpen ? ' open' : ''}`}>
-          {NAV_LINKS.map(({ id, label }) => (
-            <li key={id}>
+          {NAV_LINKS.map(({ id, label }, index) => (
+            <li key={id} style={{ '--i': index }}>
               <button className="vx-nav-link" onClick={() => scrollTo(id)}>
                 {label}
               </button>

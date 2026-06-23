@@ -2,6 +2,15 @@ import { useState } from "react";
 import { X, AlertTriangle } from "lucide-react";
 import "./DisableStoreModal.css";
 
+const SUGGESTIONS = [
+  "Incumplimiento de términos de uso",
+  "Actividad sospechosa detectada",
+  "Productos o contenido no permitidos",
+  "Solicitud del propietario",
+  "Tienda inactiva por largo tiempo",
+  "Verificación de identidad pendiente",
+];
+
 export default function DisableStoreModal({ store, onConfirm, onClose, loading, error }) {
   const [reason, setReason] = useState("");
 
@@ -36,21 +45,35 @@ export default function DisableStoreModal({ store, onConfirm, onClose, loading, 
         <div className="dsm-body">
           <p className="dsm-desc">
             Al inhabilitar esta tienda dejará de ser visible para los clientes.
-            Debes indicar el motivo para continuar.
+            Selecciona un motivo o escribe uno personalizado.
           </p>
 
           <label className="dsm-label">
             Motivo de inhabilitación <span className="dsm-required">*</span>
           </label>
+
+          <div className="dsm-suggestions">
+            {SUGGESTIONS.map((s) => (
+              <button
+                key={s}
+                type="button"
+                className={`dsm-chip${reason === s ? " dsm-chip--active" : ""}`}
+                onClick={() => setReason(s)}
+                disabled={loading}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+
           <textarea
             className="dsm-textarea"
-            placeholder="Ej: Incumplimiento de términos de uso, actividad sospechosa…"
+            placeholder="O escribe un motivo personalizado…"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            rows={4}
+            rows={3}
             maxLength={300}
             disabled={loading}
-            autoFocus
           />
           <span className="dsm-char-count">{reason.length}/300</span>
 

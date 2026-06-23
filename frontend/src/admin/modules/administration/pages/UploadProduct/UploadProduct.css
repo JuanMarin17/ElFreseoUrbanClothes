@@ -1074,6 +1074,16 @@
 }
 .up-size-chip:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* Variante "talla única" — borde punteado para distinguirla */
+.up-size-chip--unica {
+  border-style: dashed;
+  letter-spacing: 0.04em;
+  min-width: 58px;
+}
+.up-size-chip--unica.up-size-chip--on {
+  border-style: solid;
+}
+
 /* ── Color Pills ─────────────────────────────────────────── */
 .up-color-pill {
   background: var(--up-surface);

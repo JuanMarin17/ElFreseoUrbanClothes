@@ -161,6 +161,40 @@
   cursor: not-allowed;
 }
 
+.dsm-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.dsm-chip {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #1a2535;
+  background: #0a1020;
+  color: #5a7a9a;
+  transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+  text-align: left;
+  line-height: 1.3;
+}
+
+.dsm-chip:hover:not(:disabled) {
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #d0dde8;
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.dsm-chip--active {
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #f87171 !important;
+}
+
+.dsm-chip:disabled { opacity: 0.4; cursor: not-allowed; }
+
 .dsm-char-count {
   font-size: 10px;
   color: #2a3a4a;

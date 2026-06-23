@@ -136,6 +136,9 @@ const AccountPage = lazy(
 const FavoritosPage = lazy(
   () => import("./client/modules/Favoritos/FavoritosPage.jsx"),
 );
+const AllStoresPage = lazy(
+  () => import("./client/modules/AllStoresPage/AllStoresPage.jsx"),
+);
 
 // ── Multi-tenant ──────────────────────────────────────────────────────────────
 const StoreProductsAdmin = lazy(
@@ -170,6 +173,10 @@ const OrdersDashboard = lazy(
 );
 const MyStore = lazy(() => import("./multi-tenant/pages/MyStore.jsx"));
 const StorePage = lazy(() => import("./multi-tenant/pages/StorePage.jsx"));
+const StoreAboutPage    = lazy(() => import("./multi-tenant/components/Store/StoreAboutPage.jsx"));
+const StoreContactPage  = lazy(() => import("./multi-tenant/components/Store/StoreContactPage.jsx"));
+const StoreFaqPage      = lazy(() => import("./multi-tenant/components/Store/StoreFaqPage.jsx"));
+const StoreReturnsPage  = lazy(() => import("./multi-tenant/components/Store/StoreReturnsPage.jsx"));
 const CheckoutPage = lazy(() => import("./multi-tenant/pages/Checkout/CheckoutPage.jsx"));
 const StoreMyOrders = lazy(() => import("./multi-tenant/pages/MyOrders/MyOrders.jsx"));
 const StoreOrderDetail = lazy(() => import("./multi-tenant/pages/OrderDetail/OrderDetail.jsx"));
@@ -249,7 +256,8 @@ function App() {
                   <Route path="/catalogo" element={<CatalogoPage />} />
                   <Route path="/products/:productId" element={<ProductPage />} />
                   <Route path="/cuenta/*" element={<AccountPage />} />
-                  <Route path="/favoritos" element={<FavoritosPage />} />
+                  <Route path="/favoritos"        element={<FavoritosPage />} />
+                  <Route path="/explorar-tiendas" element={<AllStoresPage />} />
 
                   {/* ── Auth ─────────────────────────────────────────────── */}
                   <Route
@@ -299,6 +307,10 @@ function App() {
 
                   {/* ── Tienda pública ───────────────────────────────────── */}
                   <Route path="/tienda/:slug" element={<StorePage />} />
+                  <Route path="/tienda/:slug/nosotros"     element={<StoreAboutPage />} />
+                  <Route path="/tienda/:slug/contacto"     element={<StoreContactPage />} />
+                  <Route path="/tienda/:slug/faq"          element={<StoreFaqPage />} />
+                  <Route path="/tienda/:slug/devoluciones" element={<StoreReturnsPage />} />
                   <Route path="/tienda/:slug/checkout" element={<CheckoutPage />} />
                   <Route path="/checkout" element={<CheckoutPage />} />
                   <Route path="/tienda/:slug/orders" element={<StoreMyOrders />} />
