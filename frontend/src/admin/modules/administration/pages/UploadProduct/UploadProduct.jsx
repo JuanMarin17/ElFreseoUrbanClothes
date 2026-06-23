@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./UploadProduct.css";
-import { getCategories, createCategory } from "../../services/CategoryService";
+import { getCategories, createCategory, activateCategory } from "../../services/CategoryService";
 import { createProduct } from "../../services/productService";
 import { getBrands, createBrand } from "../../services/BrandService";
 import { getSuppliersByStore } from "../../services/SupplierService";
@@ -154,6 +154,10 @@ const CategoryChips = ({ categories, selectedIds, onToggle, onCategoryCreated, d
     setCreating(true); setCreateErr(null);
     try {
       const created = await createCategory(name);
+      // Activate so it appears in future product selections (backend creates inactive by default)
+      if (created?.categoryId) {
+        await activateCategory(created.categoryId).catch(() => {});
+      }
       onCategoryCreated(created);
       onToggle(created.categoryId);
       setNewName(""); setShowNew(false); setOpen(false);
@@ -218,11 +222,12 @@ const VarianteRow = ({ variante, onChange, disabled, colores = DEFAULT_COLORES }
   const colorObj = colores.find(c => c.name === variante.color);
   const hasColor = !!variante.color;
   const hasTalla = !!variante.talla;
+  const tallaLabel = variante.talla === "ÚNICA" ? "Talla única" : variante.talla;
   const label =
-    hasColor && hasTalla ? `${variante.color} · ${variante.talla}`
+    hasColor && hasTalla ? `${tallaLabel} / ${variante.color}`
     : hasColor            ? variante.color
-    : hasTalla            ? variante.talla
-    :                       "Única";
+    : hasTalla            ? tallaLabel
+    :                       "Sin variante";
 
   return (
     <div className="up-vt-row">
@@ -365,9 +370,17 @@ const UploadProduct = () => {
   // ── Tallas y Colores ──
   const toggleTalla = (talla) => {
     setProducto(prev => {
-      const newTallas = prev.selectedTallas.includes(talla)
-        ? prev.selectedTallas.filter(t => t !== talla)
-        : [...prev.selectedTallas, talla];
+      let newTallas;
+      if (talla === "ÚNICA") {
+        // ÚNICA es excluyente: desactiva todas las demás
+        newTallas = prev.selectedTallas.includes("ÚNICA") ? [] : ["ÚNICA"];
+      } else {
+        // Cualquier talla normal elimina ÚNICA si estaba activa
+        const sinUnica = prev.selectedTallas.filter(t => t !== "ÚNICA");
+        newTallas = sinUnica.includes(talla)
+          ? sinUnica.filter(t => t !== talla)
+          : [...sinUnica, talla];
+      }
       return {
         ...prev,
         selectedTallas: newTallas,
@@ -511,7 +524,9 @@ const UploadProduct = () => {
     for (const v of producto.variantes) {
       if (!v.sku.trim()) return setError("Todos los SKUs son obligatorios.");
       if (!v.precio || Number(v.precio) <= 0) return setError("El precio de cada variante debe ser mayor que 0.");
+      if (v.stock === "" || v.stock === null || v.stock === undefined) return setError("El stock es obligatorio en cada variante (puede ser 0 si aún no hay inventario).");
       if (Number(v.stock) < 0) return setError("El stock no puede ser negativo.");
+      if (v.stockMin === "" || v.stockMin === null || v.stockMin === undefined) return setError("El stock mínimo es obligatorio en cada variante.");
       if (Number(v.stockMin) < 0) return setError("El stock mínimo no puede ser negativo.");
     }
 
@@ -713,6 +728,16 @@ const UploadProduct = () => {
               <span className="up-matrix-label">Tallas</span>
               <div className="up-matrix-content">
                 <div className="up-size-chips">
+                  {/* Botón ÚNICA — excluyente con todas las demás tallas */}
+                  <button
+                    type="button"
+                    className={`up-size-chip up-size-chip--unica${producto.selectedTallas.includes("ÚNICA") ? " up-size-chip--on" : ""}`}
+                    onClick={() => toggleTalla("ÚNICA")}
+                    disabled={loading}
+                    title="Para productos sin talla específica: gorras, accesorios, billeteras…"
+                  >
+                    ÚNICA
+                  </button>
                   {tallasDisponibles.map(t => (
                     <div key={t} className="up-chip-wrap">
                       <button

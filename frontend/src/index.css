@@ -84,3 +84,67 @@ svg {
   flex-shrink: 0;
   display: inline-block;
 }
+
+/* ── UI Preferences — aplicadas via data-* en <html> ────────────────────── */
+
+/* Tamaño de fuente */
+html[data-fs="small"]  { font-size: 13px; }
+html[data-fs="medium"] { font-size: 16px; }
+html[data-fs="large"]  { font-size: 19px; }
+
+/* Animaciones desactivadas */
+html[data-anim="0"] *,
+html[data-anim="0"] *::before,
+html[data-anim="0"] *::after {
+  animation-duration:       0.01ms !important;
+  animation-iteration-count: 1     !important;
+  transition-duration:      0.01ms !important;
+  scroll-behavior:          auto   !important;
+}
+
+/* Densidad */
+html[data-density="compact"]     { --vx-spacing: 0.75; }
+html[data-density="normal"]      { --vx-spacing: 1;    }
+html[data-density="comfortable"] { --vx-spacing: 1.35; }
+
+/* ── Light mode — área de cuenta del usuario ────────────────────────────── */
+html[data-theme="light"] body {
+  background-color: #f4f4f5;
+  color: #09090b;
+}
+
+html[data-theme="light"] .account-wrapper {
+  --ac-bg:          #f4f4f5;
+  --ac-surface:     #ffffff;
+  --ac-card:        #fafafa;
+  --ac-border:      #e4e4e7;
+  --ac-border-soft: rgba(0, 0, 0, 0.06);
+  --ac-text-1:      #09090b;
+  --ac-text-2:      #52525b;
+  --ac-text-3:      #a1a1aa;
+}
+
+html[data-theme="light"] .prefs-card {
+  background: #ffffff;
+  border-color: #e4e4e7;
+}
+
+html[data-theme="light"] .prefs-card-header {
+  background: rgba(0,0,0,0.01);
+  border-bottom-color: rgba(0,0,0,0.05);
+}
+
+html[data-theme="light"] .section-title  { color: #09090b; }
+html[data-theme="light"] .info-tag       { color: #a1a1aa; }
+html[data-theme="light"] .card-description { color: #71717a; }
+html[data-theme="light"] .pref-label     { color: #09090b; }
+html[data-theme="light"] .pref-desc      { color: #71717a; }
+html[data-theme="light"] .pref-item      { border-bottom-color: rgba(0,0,0,0.04); }
+html[data-theme="light"] .pref-item.active-row { background: rgba(59,130,246,0.04); }
+html[data-theme="light"] .switch-rail    { background: #e4e4e7; border-color: #d4d4d8; }
+html[data-theme="light"] .switch--on .switch-rail { background: rgba(59,130,246,0.12); border-color: #3b82f6; }
+html[data-theme="light"] .save-main-btn  { background: #2563eb; }
+html[data-theme="light"] .prefs-tastes-summary { border-color: rgba(0,0,0,0.08); }
+html[data-theme="light"] .prefs-taste-row { border-bottom-color: rgba(0,0,0,0.05); }
+html[data-theme="light"] .prefs-taste-row:hover { background: rgba(0,0,0,0.02); }
+html[data-theme="light"] .prefs-taste-vals { color: rgba(0,0,0,0.7); }

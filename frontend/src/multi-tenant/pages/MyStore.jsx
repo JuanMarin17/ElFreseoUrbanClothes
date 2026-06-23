@@ -34,6 +34,7 @@ const MyStore = () => {
   const [disableTarget,  setDisableTarget]  = useState(null);
   const [togglingId,     setTogglingId]     = useState(null);
   const [actionError,    setActionError]    = useState(null); // { storeId, message }
+  const [filterStatus,   setFilterStatus]   = useState("all");
 
   const describeToggleError = (err, fallback) => {
     if (err.status === 403) {
@@ -140,7 +141,21 @@ const MyStore = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const filtered = stores;
+  const counts = {
+    all:          stores.length,
+    activa:       stores.filter(s => s.isActive).length,
+    inhabilitada: stores.filter(s => !s.isActive && s.disabledReason).length,
+    borrador:     stores.filter(s => !s.isActive && !s.disabledReason).length,
+  };
+
+  const filtered = filterStatus === "all"
+    ? stores
+    : stores.filter(s => {
+        if (filterStatus === "activa")       return s.isActive;
+        if (filterStatus === "inhabilitada") return !s.isActive && s.disabledReason;
+        if (filterStatus === "borrador")     return !s.isActive && !s.disabledReason;
+        return true;
+      });
 
   return (
     <>
@@ -158,6 +173,28 @@ const MyStore = () => {
           <FiPlus size={14} /> Nueva tienda
         </button>
       </div>
+
+      {isSuperAdmin && !loadingStores && stores.length > 0 && (
+        <div className="ms-filter-bar">
+          {[
+            { key: "all",          label: "Todas" },
+            { key: "activa",       label: "Activas" },
+            { key: "inhabilitada", label: "Inhabilitadas" },
+            { key: "borrador",     label: "Borrador" },
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              className={`ms-filter-tab${filterStatus === key ? " ms-filter-tab--active" : ""}`}
+              onClick={() => setFilterStatus(key)}
+            >
+              {label}
+              {counts[key] > 0 && (
+                <span className="ms-filter-count">{counts[key]}</span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
 
       {loadingStores && (
         <div className="ms-grid">

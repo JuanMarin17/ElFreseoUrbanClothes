@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Save } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Save, Upload, Image, X } from 'lucide-react';
+import { uploadStoreImage } from '../../../../../../utils/uploadService';
 import './TabShared.css';
 
 const FONTS = ['Inter', 'Montserrat', 'Roboto', 'Bebas Neue', 'Poppins', 'Raleway', 'Open Sans', 'Lato'];
@@ -21,9 +22,11 @@ function ColorField({ label, value, onChange }) {
 }
 
 export default function SettingsBanner({ settings, onSave }) {
-  const [banner, setBanner] = useState(DEFAULT);
-  const [saving, setSaving] = useState(false);
-  const [msg,    setMsg]    = useState(null);
+  const [banner,    setBanner]    = useState(DEFAULT);
+  const [uploading, setUploading] = useState(false);
+  const [saving,    setSaving]    = useState(false);
+  const [msg,       setMsg]       = useState(null);
+  const fileRef = useRef();
 
   useEffect(() => {
     if (settings?.components?.banner) {
@@ -36,6 +39,22 @@ export default function SettingsBanner({ settings, onSave }) {
   const showMsg = (text, ok = true) => {
     setMsg({ text, ok });
     setTimeout(() => setMsg(null), 3500);
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadStoreImage(file, 'stores/banners');
+      set('image', url);
+      showMsg('Imagen subida. Guardá para aplicar los cambios.');
+    } catch (err) {
+      showMsg(err.message ?? 'Error al subir la imagen.', false);
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
   };
 
   const handleSave = async () => {
@@ -93,15 +112,50 @@ export default function SettingsBanner({ settings, onSave }) {
 
       <div className="tab-card">
         <p className="tab-card-title">Imagen de fondo</p>
-        <div className="tab-field">
-          <label>URL de la imagen</label>
-          <input
-            className="tab-input"
-            placeholder="https://..."
-            value={banner.image}
-            onChange={e => set('image', e.target.value)}
-          />
-          <p className="tab-field-hint">Subí la imagen a Cloudinary/Imgur y pegá el link. Tamaño recomendado: 1440×480 px.</p>
+
+        <div className="banner-img-wrap">
+          {banner.image ? (
+            <div className="banner-img-preview-wrap">
+              <img src={banner.image} alt="Banner" className="banner-img-preview" />
+              <button
+                className="banner-img-remove"
+                onClick={() => set('image', '')}
+                title="Quitar imagen"
+                type="button"
+              >
+                <X size={13} />
+              </button>
+            </div>
+          ) : (
+            <div className="banner-img-placeholder">
+              <Image size={28} />
+              <span>Sin imagen de fondo</span>
+            </div>
+          )}
+
+          <div className="basic-logo-actions">
+            <p className="tab-field-hint">
+              Formato: JPG o PNG. Tamaño recomendado: 1440 × 480 px.
+            </p>
+            <button
+              className="basic-upload-btn"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              type="button"
+            >
+              {uploading
+                ? <><span className="tab-spinner" /> Subiendo…</>
+                : <><Upload size={14} /> Subir imagen</>
+              }
+            </button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              style={{ display: 'none' }}
+              onChange={handleImageUpload}
+            />
+          </div>
         </div>
       </div>
 
@@ -138,7 +192,7 @@ export default function SettingsBanner({ settings, onSave }) {
             {msg.text}
           </span>
         )}
-        <button className="tab-save-btn" onClick={handleSave} disabled={saving}>
+        <button className="tab-save-btn" onClick={handleSave} disabled={saving || uploading}>
           {saving ? <span className="tab-spinner" /> : <Save size={14} />}
           <span>{saving ? 'Guardando…' : 'Guardar banner'}</span>
         </button>

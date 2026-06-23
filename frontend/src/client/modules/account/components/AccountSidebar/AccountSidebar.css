@@ -274,6 +274,9 @@
   text-align: left;
 }
 
+/* El label corto solo se usa en mobile */
+.sidebar-label--short { display: none; }
+
 /* ── Footer y Logout ───────────────────────────────────────────────────────── */
 .sidebar-footer {
   margin-top: auto;
@@ -301,40 +304,88 @@
   .account-sidebar {
     width: 100%;
     height: auto;
-    padding: 8px 12px;
+    padding: 0;
     border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: #080c10;
   }
+
+  /* Ocultar secciones que no caben en móvil */
   .sidebar-user-area,
-  .sidebar-footer {
-    display: none;
-  }
+  .sidebar-footer,
   .sidebar-group-label { display: none; }
 
-  /* Barra horizontal scrollable */
+  /* Botón "Volver" — compacto arriba */
+  .sidebar-back-btn {
+    display: flex;
+    width: 100%;
+    padding: 10px 16px 6px;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: #334155;
+  }
+  .sidebar-back-btn:hover { color: #64748b; }
+
+  /* Barra de tabs scrollable */
   .sidebar-nav-account {
     flex-direction: row;
     flex-wrap: nowrap;
-    gap: 4px;
+    gap: 0;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding-bottom: 4px;
+    padding: 0;
   }
   .sidebar-nav-account::-webkit-scrollbar { display: none; }
 
+  /* Cada tab: icono arriba + label abajo */
   .sidebar-item {
     flex-shrink: 0;
     flex: 0 0 auto;
-    min-width: 48px;
-    width: 48px;
-    height: 48px;
+    width: auto;
+    min-width: 68px;
+    height: auto;
+    flex-direction: column;
     justify-content: center;
-    padding: 0;
-    border-radius: 12px;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 10px 8px;
+    border-radius: 0;
+    border-bottom: 2px solid transparent;
+    animation: none;
   }
-  .sidebar-label { display: none; }
-  .sidebar-icon  { color: #777; }
 
-  .sidebar-item--active::after { display: none; }
+  /* En mobile: ocultar label completo, mostrar el corto */
+  .sidebar-label--full  { display: none; }
+  .sidebar-label--short {
+    display: block;
+    font-size: 8.5px;
+    letter-spacing: 0.3px;
+    text-align: center;
+    white-space: nowrap;
+    color: #475569;
+    text-transform: uppercase;
+    font-weight: 700;
+    flex: unset;
+  }
+
+  .sidebar-icon { color: #475569; }
+
+  /* Estado activo — línea inferior + color azul */
+  .sidebar-item--active {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid #3b82f6 !important;
+    box-shadow: none !important;
+    color: #60a5fa !important;
+  }
+  .sidebar-item--active .sidebar-label--short { color: #60a5fa; }
+  .sidebar-item--active .sidebar-icon         { color: #3b82f6 !important; }
+  .sidebar-item--active::after                { display: none; }
+
+  /* Hover en móvil */
+  .sidebar-item:hover { background: rgba(255,255,255,0.03); color: #94a3b8; }
+  .sidebar-item:hover .sidebar-label--short { color: #94a3b8; }
+  .sidebar-item:hover .sidebar-icon         { color: #64748b; }
 }

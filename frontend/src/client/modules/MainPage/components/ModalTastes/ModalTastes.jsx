@@ -127,15 +127,31 @@ const ModalTastes = () => {
   const isOnCatalog = pathname === CATALOG_PATH || pathname.startsWith(CATALOG_PATH + "/");
 
   // visible = true si: autenticado + no tiene respuesta guardada, O si se pidió reabrir
-  const [visible, setVisible] = useState(() => {
+  const [visible,    setVisible]    = useState(() => {
     if (!isAuthed()) return false;
     if (localStorage.getItem(REOPEN_KEY) === "true") return true;
     return !localStorage.getItem(STORAGE_KEY);
   });
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [closing, setClosing] = useState(false);
-  const [checking, setChecking] = useState(false);
+  const [step,       setStep]       = useState(0);
+  const [answers,    setAnswers]    = useState({});
+  const [closing,    setClosing]    = useState(false);
+  const [checking,   setChecking]   = useState(false);
+  // forcedOpen = true cuando el usuario abre el modal desde Preferencias (sin navegar)
+  const [forcedOpen, setForcedOpen] = useState(false);
+
+  // Evento global desde la página de Preferencias
+  useEffect(() => {
+    const handler = () => {
+      if (!isAuthed()) return;
+      localStorage.removeItem(STORAGE_KEY);
+      setStep(0);
+      setAnswers({});
+      setForcedOpen(true);
+      setVisible(true);
+    };
+    window.addEventListener("vexio:open-tastes", handler);
+    return () => window.removeEventListener("vexio:open-tastes", handler);
+  }, []);
 
   // Cuando el usuario navega a /catalogo con la flag de reabrir, mostrar el modal
   useEffect(() => {
@@ -215,6 +231,7 @@ const ModalTastes = () => {
 
   const closeModal = () => {
     setClosing(true);
+    setForcedOpen(false);
     setTimeout(() => {
       setVisible(false);
       setClosing(false);
@@ -226,8 +243,9 @@ const ModalTastes = () => {
     closeModal();
   };
 
-  // Solo mostrar si: está en /catalogo, usuario autenticado, y modal visible
-  if (!visible || checking || !isAuthed() || !isOnCatalog) return null;
+  // Solo mostrar si: autenticado, visible, y (en /catalogo O forzado desde Preferencias)
+  if (!visible || checking || !isAuthed()) return null;
+  if (!isOnCatalog && !forcedOpen) return null;
 
   const progress = ((step + 1) / QUESTIONS.length) * 100;
 

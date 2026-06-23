@@ -33,6 +33,11 @@ API.interceptors.response.use(
   async (error) => {
     const original = error.config;
 
+    // Auth endpoints must propagate their errors directly — never attempt a refresh.
+    if (original.url?.startsWith("/auth/")) {
+      return Promise.reject(error);
+    }
+
     if (error.response?.status !== 401 || original._retry) {
       return Promise.reject(error);
     }

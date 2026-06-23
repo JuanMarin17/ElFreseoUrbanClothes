@@ -121,21 +121,28 @@ export default function StorePage() {
           const items = Array.isArray(rawProducts)
             ? rawProducts
             : (rawProducts?.content ?? rawProducts?.items ?? []);
-          products = items.map(p => {
-            const variants = p.variants ?? [];
-            const sizes = [...new Set(
-              variants.flatMap(v => [v.size, v.talla, v.sizeName].filter(Boolean))
-            )];
-            return {
-              id:          p.productId ?? p.id,
-              name:        p.name,
-              description: p.description ?? "",
-              price:       formatCOP(variants[0]?.price ?? p.price ?? 0),
-              images:      p.images ?? [],
-              sizes,
-              categories:  p.categories ?? [],
-            };
-          });
+          products = items
+            .filter(p => {
+              const variants = p.variants ?? [];
+              if (!variants.length) return true; // sin variantes: mostrar siempre
+              const totalStock = variants.reduce((sum, v) => sum + (Number(v.stock ?? v.currentStock ?? 0)), 0);
+              return totalStock > 0;
+            })
+            .map(p => {
+              const variants = p.variants ?? [];
+              const sizes = [...new Set(
+                variants.flatMap(v => [v.size, v.talla, v.sizeName].filter(Boolean))
+              )];
+              return {
+                id:          p.productId ?? p.id,
+                name:        p.name,
+                description: p.description ?? "",
+                price:       formatCOP(variants[0]?.price ?? p.price ?? 0),
+                images:      p.images ?? [],
+                sizes,
+                categories:  p.categories ?? [],
+              };
+            });
         } catch (e) {
           console.warn("[StorePage] Error cargando productos:", e.message);
         }
