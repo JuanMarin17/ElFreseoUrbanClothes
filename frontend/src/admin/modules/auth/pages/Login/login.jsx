@@ -372,7 +372,7 @@ export default function Login({ mode }) {
           </button>
         </form>
 
-        <div className="vp-divider">o continúa con</div>
+        <div className="vp-divider"><span className="vp-divider-text">o continúa con</span></div>
         <GoogleLoginButton
           disabled={loading}
           onSuccess={handleGoogleSuccess}

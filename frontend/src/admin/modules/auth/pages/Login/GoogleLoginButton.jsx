@@ -54,25 +54,41 @@ export default function GoogleLoginButton({ onSuccess, onError, disabled }) {
     };
   }, [clientId]);
 
+  // Ancho del botón = ancho real del contenedor (full-width, igual que el botón ENTRAR),
+  // recalculado si la tarjeta cambia de tamaño (responsive / resize de ventana).
   useEffect(() => {
     if (!ready || !buttonRef.current) return;
-    buttonRef.current.innerHTML = "";
-    window.google.accounts.id.renderButton(buttonRef.current, {
-      type: "standard",
-      theme: "filled_black",
-      size: "large",
-      shape: "pill",
-      text: "continue_with",
-      logo_alignment: "center",
-      width: 300,
-    });
+    let lastWidth = 0;
+
+    const renderGoogleButton = () => {
+      const el = buttonRef.current;
+      if (!el) return;
+      const width = Math.round(el.getBoundingClientRect().width) - 4; // -4 por el padding del marco
+      if (!width || Math.abs(width - lastWidth) < 4) return;
+      lastWidth = width;
+      el.innerHTML = "";
+      window.google.accounts.id.renderButton(el, {
+        type: "standard",
+        theme: "filled_black",
+        size: "large",
+        shape: "pill",
+        text: "continue_with",
+        logo_alignment: "center",
+        width: Math.min(400, Math.max(220, width)),
+      });
+    };
+
+    renderGoogleButton();
+    const ro = new ResizeObserver(renderGoogleButton);
+    ro.observe(buttonRef.current);
+    return () => ro.disconnect();
   }, [ready]);
 
   if (!clientId) return null;
 
   return (
     <div
-      className={`g-login-btn-wrap${disabled ? " g-login-btn-wrap--disabled" : ""}`}
+      className={`g-login-btn-wrap${ready ? " g-login-btn-wrap--ready" : ""}${disabled ? " g-login-btn-wrap--disabled" : ""}`}
       ref={buttonRef}
     />
   );
