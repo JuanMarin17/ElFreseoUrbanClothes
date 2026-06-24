@@ -193,6 +193,16 @@
   flex-direction: column;
   gap: 2px;
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.sidebar-nav-account::-webkit-scrollbar { width: 4px; }
+.sidebar-nav-account::-webkit-scrollbar-track { background: transparent; }
+.sidebar-nav-account::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
 }
 
 /* Pista de "hay más secciones" — oculta en desktop, donde el menú no scrollea */
@@ -349,6 +359,7 @@
     flex-wrap: nowrap;
     gap: 0;
     overflow-x: auto;
+    overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     padding: 0;
