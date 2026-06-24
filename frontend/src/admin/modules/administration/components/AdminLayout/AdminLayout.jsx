@@ -160,6 +160,14 @@ const AdminLayout = () => {
   useEffect(() => {
     if (!slug) return;
 
+    // Si el admin cambia de tienda sin recarga completa (mismo AdminLayout,
+    // slug distinto — p. ej. desde MisTiendas/MyStore), storeReady ya estaba
+    // en true por la tienda anterior. Sin este reset, el widget flotante de
+    // IA (gateado por storeReady) sigue mostrándose con el sseStoreId/
+    // storeId de la tienda ANTERIOR mientras esta petición está en vuelo.
+    setStoreReady(false);
+    setSseStoreId(null);
+
     getStoreBySlug(slug)
       .then(async (store) => {
         const storeId = store?.storeId ?? store?.id ?? store?.store_id ?? null;

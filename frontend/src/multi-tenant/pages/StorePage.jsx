@@ -46,6 +46,20 @@ export default function StorePage() {
   useEffect(() => {
     if (!slug) return;
 
+    // Si el usuario navega de una tienda a otra sin recarga completa (mismo
+    // StorePage, slug distinto), hay que resetear todo el estado ANTES de
+    // pedir la nueva tienda. Si no, mientras getStoreBySlug() está en vuelo,
+    // este componente sigue mostrando storeId/previewData/productos de la
+    // tienda ANTERIOR (loading seguía en false) — el visitante ve productos
+    // de otra tienda mezclados bajo la URL de la nueva.
+    setLoading(true);
+    setError(null);
+    setStoreId(null);
+    setPreviewData(null);
+    setIsDisabled(false);
+    setIsMaintenance(false);
+    setIsOwner(false);
+
     getStoreBySlug(slug)
       .then(async (store) => {
         if (!store) throw new Error("Tienda no encontrada");
