@@ -20,18 +20,20 @@ function loadGoogleScript() {
 
 // Botón "Continuar con Google" basado en Google Identity Services.
 // Requiere VITE_GOOGLE_CLIENT_ID; si no está configurado, no se muestra.
-export default function GoogleLoginButton({ onSuccess, onError, disabled }) {
+export default function GoogleLoginButton({ onSuccess, onError, onUnavailable, disabled }) {
   const buttonRef = useRef(null);
   const [ready, setReady] = useState(false);
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
   // Refs para no reinicializar Google Identity Services en cada render del padre
-  const onSuccessRef = useRef(onSuccess);
-  const onErrorRef   = useRef(onError);
+  const onSuccessRef     = useRef(onSuccess);
+  const onErrorRef       = useRef(onError);
+  const onUnavailableRef = useRef(onUnavailable);
   useEffect(() => {
-    onSuccessRef.current = onSuccess;
-    onErrorRef.current   = onError;
-  }, [onSuccess, onError]);
+    onSuccessRef.current     = onSuccess;
+    onErrorRef.current       = onError;
+    onUnavailableRef.current = onUnavailable;
+  }, [onSuccess, onError, onUnavailable]);
 
   useEffect(() => {
     if (!clientId) return;
@@ -48,7 +50,9 @@ export default function GoogleLoginButton({ onSuccess, onError, disabled }) {
         });
         setReady(true);
       })
-      .catch((err) => onErrorRef.current?.(err.message));
+      // El script no cargó (bloqueado por un navegador/extensión, sin red, etc.):
+      // no es un error de login, es que la opción no está disponible aquí.
+      .catch(() => { if (!cancelled) onUnavailableRef.current?.(); });
     return () => {
       cancelled = true;
     };
