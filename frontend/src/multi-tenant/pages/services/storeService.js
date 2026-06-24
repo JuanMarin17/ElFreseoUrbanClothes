@@ -23,15 +23,24 @@ const storeHeader = (storeId) => ({
 
 // ─── Utilidad de fetch ────────────────────────────────────────────────────────
 
-async function request(url, options = {}) {
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeader(), // JWT en todas las peticiones
-      ...options.headers, // headers extra (ej. X-Store-Id) pueden sobreescribir
-    },
-  });
+async function request(url, options = {}, timeoutMs) {
+  const controller = timeoutMs ? new AbortController() : null;
+  const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+
+  let res;
+  try {
+    res = await fetch(url, {
+      ...options,
+      signal: controller?.signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeader(), // JWT en todas las peticiones
+        ...options.headers, // headers extra (ej. X-Store-Id) pueden sobreescribir
+      },
+    });
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 
   let body;
   const ct = res.headers.get("Content-Type") ?? "";
@@ -148,7 +157,10 @@ export async function validateAccess(storeId, userId) {
  * Respuesta: true | false
  */
 export async function checkIsOwner(storeId, userId) {
-  return request(`${BASE_URL}/${storeId}/isOwner/${userId}`);
+  // Timeout corto: esto gatea la pantalla de "Verificando acceso..." en la página
+  // de IA. Si el backend tarda, no debe dejar al usuario esperando sin límite —
+  // el .catch() del llamador ya sabe mantener el valor optimista ante un timeout.
+  return request(`${BASE_URL}/${storeId}/isOwner/${userId}`, {}, 6000);
 }
 
 // ════════════════════════════════════════════════════════════════════════════
