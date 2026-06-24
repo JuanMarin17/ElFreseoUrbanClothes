@@ -445,3 +445,62 @@
 }
 .confirm-danger:hover:not(:disabled) { background: rgba(248,113,113,.22); border-color: rgba(248,113,113,.55); }
 .confirm-danger:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── Zona de peligro ─────────────────────────────────────────────────────── */
+.danger-zone {
+  margin-top: 20px;
+  border-color: rgba(248, 113, 113, 0.2) !important;
+}
+
+.danger-zone__title {
+  color: #f87171 !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.danger-zone__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.danger-zone__text { flex: 1; min-width: 220px; }
+
+.danger-zone__label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 4px;
+}
+
+.danger-zone__desc {
+  font-size: 0.78rem;
+  color: #666;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.danger-zone__btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: #f87171;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s, border-color .15s;
+}
+
+.danger-zone__btn:hover {
+  background: rgba(248, 113, 113, 0.22);
+  border-color: rgba(248, 113, 113, 0.55);
+}

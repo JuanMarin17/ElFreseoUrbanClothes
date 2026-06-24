@@ -105,6 +105,9 @@ const accountService = {
   toggle2FA: async (enable) =>
     fetchApi("PUT", "/auth/2fa", { enabled: enable }),
 
+  /* ── Cuenta ──────────────────────────────────────────────────────────────── */
+  deactivateAccount: async () => fetchApi("DELETE", "/auth/deactivateAccount"),
+
   /* ── Órdenes ─────────────────────────────────────────────────────────────── */
   getOrders: async () => {
     const STATUS_LABELS = {

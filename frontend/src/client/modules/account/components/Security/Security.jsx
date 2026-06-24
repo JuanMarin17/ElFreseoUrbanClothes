@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Eye, EyeOff, Loader2, Monitor, Smartphone, Globe, Power, LogOut, MapPin, Clock, Activity, Timer } from 'lucide-react';
+import { Lock, Eye, EyeOff, Loader2, Monitor, Smartphone, Globe, Power, LogOut, MapPin, Clock, Activity, Timer, AlertTriangle, UserX } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import accountService from '../../services/accountService';
 import './Security.css';
@@ -106,6 +106,9 @@ export default function Security() {
   const [msg, setMsg]                         = useState('');
   const [confirmOpen, setConfirmOpen]         = useState(false);
   const [confirmSessionId, setConfirmSessionId] = useState(null);
+  const [confirmDeactivateOpen, setConfirmDeactivateOpen] = useState(false);
+  const [deactivating, setDeactivating]       = useState(false);
+  const [deactivateErr, setDeactivateErr]     = useState('');
 
   useEffect(() => {
     const current = buildCurrentSession();
@@ -162,6 +165,21 @@ export default function Security() {
       showSessionMsg('No se pudo cerrar la sesión. Intenta de nuevo.', true);
     } finally {
       setClosingId(null);
+    }
+  };
+
+  const handleDeactivateAccount = async () => {
+    setDeactivating(true);
+    setDeactivateErr('');
+    try {
+      await accountService.deactivateAccount();
+      localStorage.removeItem('jwt');
+      localStorage.removeItem('userRole');
+      navigate('/');
+      window.location.reload();
+    } catch {
+      setDeactivateErr('No se pudo desactivar la cuenta. Intenta de nuevo.');
+      setDeactivating(false);
     }
   };
 
@@ -318,6 +336,30 @@ export default function Security() {
           </div>
         </div>
       </div>
+
+      {/* Zona de peligro */}
+      <div className="sec-card danger-zone">
+        <h3 className="card-subtitle danger-zone__title">
+          <AlertTriangle size={15} /> ZONA DE PELIGRO
+        </h3>
+        <div className="danger-zone__row">
+          <div className="danger-zone__text">
+            <p className="danger-zone__label">Desactivar cuenta</p>
+            <p className="danger-zone__desc">
+              Tu cuenta y tu sesión se cerrarán de inmediato. Tus datos no se eliminan;
+              podrás recuperarla iniciando sesión de nuevo más adelante.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="danger-zone__btn"
+            onClick={() => setConfirmDeactivateOpen(true)}
+          >
+            <UserX size={14} /> Desactivar cuenta
+          </button>
+        </div>
+        {deactivateErr && <div className="status-msg err">{deactivateErr}</div>}
+      </div>
     </div>
 
     {/* Modal de confirmación para cerrar una sesión */}
@@ -382,6 +424,35 @@ export default function Security() {
               }}
             >
               {closingAll ? <Loader2 size={14} className="spin" /> : 'Sí, cerrar todo'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Modal de confirmación para desactivar la cuenta */}
+    {confirmDeactivateOpen && (
+      <div className="confirm-overlay" onClick={() => setConfirmDeactivateOpen(false)}>
+        <div className="confirm-modal" onClick={e => e.stopPropagation()}>
+          <div className="confirm-icon"><UserX size={22} /></div>
+          <h3 className="confirm-title">Desactivar tu cuenta</h3>
+          <p className="confirm-body">
+            Se cerrará tu sesión en todos los dispositivos de inmediato. Tus datos
+            no se eliminan; podrás recuperarla iniciando sesión de nuevo más adelante.
+          </p>
+          <div className="confirm-actions">
+            <button className="confirm-cancel" onClick={() => setConfirmDeactivateOpen(false)}>
+              Cancelar
+            </button>
+            <button
+              className="confirm-danger"
+              disabled={deactivating}
+              onClick={async () => {
+                setConfirmDeactivateOpen(false);
+                await handleDeactivateAccount();
+              }}
+            >
+              {deactivating ? <Loader2 size={14} className="spin" /> : 'Sí, desactivar mi cuenta'}
             </button>
           </div>
         </div>
