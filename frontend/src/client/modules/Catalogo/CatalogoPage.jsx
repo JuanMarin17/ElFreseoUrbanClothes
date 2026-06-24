@@ -577,7 +577,7 @@ export default function CatalogoPage() {
   const searchRef = useRef(null);
 
   // Scroll to top on mount
-  useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, []);
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "auto" }); }, []);
 
   // Load
   useEffect(() => {

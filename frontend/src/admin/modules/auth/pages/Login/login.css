@@ -320,6 +320,39 @@
   to { transform: rotate(360deg); }
 }
 
+/* ─── Divisor "o continúa con" ─── */
+.vp-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0 16px;
+  color: var(--vp-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.vp-divider::before,
+.vp-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--vp-border);
+}
+
+/* ─── Botón de Google ─── */
+.g-login-btn-wrap {
+  display: flex;
+  justify-content: center;
+  border-radius: 50px;
+  overflow: hidden;
+}
+
+.g-login-btn-wrap--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 /* ─── Footer de la Tarjeta ─── */
 .vp-switch-auth {
   margin-top: 25px;

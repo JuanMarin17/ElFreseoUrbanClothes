@@ -9,6 +9,12 @@ import { initUIPrefs } from './client/hooks/useUIPrefs.js'
 // Aplica preferencias de UI (tema, fuente, etc.) antes del primer render
 initUIPrefs();
 
+// Evita que el navegador restaure el scroll de la entrada anterior del historial;
+// el scroll al cambiar de ruta lo controla React Router (ver ScrollToTop en App.jsx)
+if ('scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual';
+}
+
 /* ── Global 401 interceptor ────────────────────────────────────────────────
    When any request returns 401 (session invalidated from another device),
    clear local auth state and force a redirect to login.

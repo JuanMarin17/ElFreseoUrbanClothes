@@ -1,6 +1,7 @@
 import axios from "axios";
 import { uploadUserImage } from "../../../../utils/uploadService";
 import { clearAllChatSessions } from "../../../../utils/chatSession.js";
+import { notifyServerLogout } from "../../../../utils/authFetch.js";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -98,7 +99,7 @@ function parseJwt(jwt) {
   }
 }
 
-function extractBackendError(err) {
+function extractBackendError(err, { treatServerErrorAsBadCredentials = false } = {}) {
   if (!navigator.onLine || err.code === "ERR_NETWORK") {
     return "Sin conexión a internet. Verifica tu red e intenta de nuevo.";
   }
@@ -133,6 +134,8 @@ function extractBackendError(err) {
   const businessMap = {
     "correo o contraseña incorrectos": "Correo o contraseña incorrectos",
     incorrectcredentials: "Correo o contraseña incorrectos",
+    "invalid credentials": "Correo o contraseña incorrectos",
+    unauthorized: "Correo o contraseña incorrectos",
     "user not found": "No existe una cuenta con ese correo",
     "invalid otp": "Código inválido o expirado",
     otp: "Código inválido o expirado",
@@ -141,7 +144,16 @@ function extractBackendError(err) {
     "role not found": "Error de configuración, contacta soporte",
   };
 
-  if (msg) {
+  // Mensajes genéricos del backend que no aportan información real al usuario
+  // (p.ej. credenciales incorrectas devueltas con un texto de error interno)
+  const isGenericBackendMessage = [
+    "internal server error",
+    "error interno",
+    "unexpected error",
+    "something went wrong",
+  ].some((p) => msg.includes(p));
+
+  if (msg && !isGenericBackendMessage) {
     for (const [key, value] of Object.entries(validationMap)) {
       if (msg.includes(key)) return value;
     }
@@ -159,7 +171,13 @@ function extractBackendError(err) {
   if (status === 409) return "Ya existe una cuenta con ese correo";
   if (status === 422) return "Datos inválidos, revisa los campos e intenta de nuevo";
   if (status === 429) return "Demasiadas peticiones, espera unos minutos e intenta de nuevo";
-  if (status === 500) return "Error del servidor, intenta más tarde";
+  if (status === 500) {
+    // El backend a veces responde 500 (en vez de 401) cuando el correo
+    // o la contraseña son incorrectos — tratarlo como tal solo en login paso 1.
+    return treatServerErrorAsBadCredentials
+      ? "Correo o contraseña incorrectos"
+      : "Error del servidor, intenta más tarde";
+  }
 
   return "Ocurrió un error inesperado, intenta de nuevo";
 }
@@ -176,6 +194,18 @@ const authService = {
         console.log("[login paso 1] response →", JSON.stringify(data));
       }
       return data;
+    } catch (err) {
+      throw new Error(extractBackendError(err, { treatServerErrorAsBadCredentials: true }));
+    }
+  },
+
+  async loginWithGoogle({ idToken }) {
+    try {
+      localStorage.removeItem("jwt");
+      const { data } = await API.post("/auth/google", { idToken });
+      if (!data.jwt) throw new Error("No se recibió el token");
+      localStorage.setItem("jwt", data.jwt);
+      return { user: parseJwt(data.jwt), message: data.message };
     } catch (err) {
       throw new Error(extractBackendError(err));
     }
@@ -294,6 +324,7 @@ const authService = {
   },
 
   logout() {
+    notifyServerLogout();
     localStorage.removeItem("jwt");
     localStorage.removeItem("last_email");
     clearAllChatSessions();

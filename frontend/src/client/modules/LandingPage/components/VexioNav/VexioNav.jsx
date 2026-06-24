@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../../../../assets/LogoVexios/banervexio.png';
+import { notifyServerLogout } from '../../../../../utils/authFetch.js';
 import './VexioNav.css';
 
 const isAuthenticated = () => !!localStorage.getItem('jwt');
@@ -57,6 +58,7 @@ export default function VexioNav() {
   };
 
   const handleLogout = () => {
+    notifyServerLogout();
     localStorage.removeItem('jwt');
     setLoggedIn(false);
     navigate('/');

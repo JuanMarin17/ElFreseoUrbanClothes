@@ -36,6 +36,20 @@ export function AuthProvider({ children }) {
     }
   };
 
+  /* ── LOGIN CON GOOGLE ── */
+  const loginWithGoogle = async (idToken) => {
+    setLoading(true);
+    try {
+      const { user: userData } = await authService.loginWithGoogle({ idToken });
+      setUser(userData);
+      return { success: true, user: userData };
+    } catch (err) {
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   /* ── REGISTER PASO 1 ── */
   const register = async ({ userName, email, password, phone, avatarFile }) => {
     setLoading(true);
@@ -143,6 +157,7 @@ export function AuthProvider({ children }) {
 
   const value = {
     login,
+    loginWithGoogle,
     verifyLoginOTP,
     register,
     verifyRegisterOTP,
