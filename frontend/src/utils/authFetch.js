@@ -4,6 +4,33 @@
  * Any 401 from any API call triggers an immediate forced logout and redirect to /login.
  */
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+
+function decodeSessionId(jwt) {
+  try {
+    return JSON.parse(atob(jwt.split(".")[1])).session_id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Best-effort: avisa al backend que esta sesión terminó (deactivateSession),
+ * para que no siga apareciendo como activa en /auth/sessions tras volver a iniciar sesión.
+ * Debe llamarse ANTES de borrar el jwt de localStorage.
+ */
+export function notifyServerLogout() {
+  const jwt = localStorage.getItem("jwt");
+  if (!jwt || jwt === "null") return;
+  const sessionId = decodeSessionId(jwt);
+  if (!sessionId) return;
+  fetch(`${BASE_URL}/auth/sessions/${sessionId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${jwt}` },
+    keepalive: true,
+  }).catch(() => {});
+}
+
 export function forceLogout() {
   localStorage.removeItem("jwt");
   localStorage.removeItem("userRole");

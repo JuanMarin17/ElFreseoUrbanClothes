@@ -33,6 +33,7 @@ html, body {
   background-color: var(--ac-bg);
   color: var(--ac-text-1);
   font-family: 'Barlow Condensed', sans-serif;
+  padding-top: 68px; /* despeja el HeaderMarket fijo (position: fixed, height: 68px) */
 }
 
 .account-layout {
@@ -114,6 +115,6 @@ html, body {
 /* ── Responsive ────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .account-wrapper  { height: auto; overflow-y: visible; }
-  .account-layout   { flex-direction: column; padding-top: 60px; height: auto; overflow: visible; }
+  .account-layout   { flex-direction: column; height: auto; overflow: visible; }
   .account-content  { padding: 20px 15px; height: auto; overflow: visible; }
 }

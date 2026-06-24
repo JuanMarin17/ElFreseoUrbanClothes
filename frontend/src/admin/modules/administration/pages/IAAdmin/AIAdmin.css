@@ -67,29 +67,62 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   SIDEBAR MODE  (embedded in AdminLayout)
+   FLOATING PANEL MODE  (popup widget, anchored bottom-right — embedded in AdminLayout)
    ═══════════════════════════════════════════════════════════════════════════ */
 
+.ai-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  background: transparent;
+  border: none;
+  cursor: default;
+  animation: ai-backdrop-in 0.2s ease;
+}
+@keyframes ai-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+
 .ai-layout-sidebar {
-  height: 100vh;
-  position: relative;
-  transition: width 0.28s cubic-bezier(0.25, 1, 0.5, 1);
-  border-left: 1px solid var(--ai-border);
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 4001;
+  width: 400px;
+  height: min(680px, calc(100vh - 100px));
+  border-radius: 22px;
+  border: 1px solid var(--ai-border);
   background: var(--ai-bg-main);
   box-sizing: border-box;
-  flex-shrink: 0;
+  overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  transform-origin: bottom right;
+  transition: opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1), transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.ai-layout-sidebar.is-open  { width: 420px; }
+.ai-layout-sidebar.ai--light {
+  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.22), 0 6px 20px rgba(15, 23, 42, 0.10);
+}
+.ai-layout-sidebar.ai--dark {
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.12);
+}
+
+.ai-layout-sidebar.is-open {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  animation: ai-panel-in 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
 .ai-layout-sidebar.is-closed {
-  width: 0;
-  border-left: none;
-  overflow: hidden;
+  opacity: 0;
+  transform: scale(0.92) translateY(18px);
+  pointer-events: none;
+}
+
+@keyframes ai-panel-in {
+  from { opacity: 0; transform: scale(0.92) translateY(18px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);    }
 }
 
 .ai-sidebar-inner {
-  width: 420px;
+  width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -1336,14 +1369,14 @@
 
 /* ── Responsiveness ─────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .ai-layout-sidebar.is-open {
-    width: 100vw;
-    position: fixed;
-    top: 0;
-    right: 0;
-    z-index: 9999;
+  .ai-layout-sidebar {
+    top: 12px;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    height: auto;
   }
-  .ai-sidebar-inner { width: 100vw; }
 
   .ia-sessions-panel.is-open { width: 180px; }
   .ia-messages-area .ai__bubble { max-width: 90%; }

@@ -1,5 +1,6 @@
 import React, { useState, Suspense, memo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import HeaderMarket    from '../../../../../utils/Header/HeaderMarket.jsx';
 import AccountSidebar from '../../components/AccountSidebar/AccountSidebar.jsx';
 import MyProfile      from '../../components/Profile/MyProfile.jsx';
 import './AccountPage.css';
@@ -69,6 +70,7 @@ export default function AccountPage() {
 
   return (
     <div className="account-wrapper">
+      <HeaderMarket />
       <div className="account-layout">
         <MemoizedSidebar active={active} onSelect={setActive} />
         <main className="account-content">

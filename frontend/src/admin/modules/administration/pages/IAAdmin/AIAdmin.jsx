@@ -380,6 +380,14 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
     if (isOpen && hasAccess) loadSessions();
   }, [isOpen, hasAccess, loadSessions]);
 
+  // Cerrar con Escape, como cualquier ventana emergente
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e) => { if (e.key === "Escape") setIsOpen(false); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isOpen, setIsOpen]);
+
   useEffect(() => {
     const wrapper = document.querySelector(".admin-terminal-wrapper");
     if (!wrapper) return;
@@ -393,11 +401,20 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
   if (!hasAccess) return null;
 
   return (
-    <div
-      className={`ai-layout-sidebar ${isOpen ? "is-open" : "is-closed"} ${
-        darkMode ? "ai--dark" : "ai--light"
-      }`}
-    >
+    <>
+      {isOpen && (
+        <button
+          type="button"
+          className="ai-backdrop"
+          aria-label="Cerrar asistente"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+      <div
+        className={`ai-layout-sidebar ${isOpen ? "is-open" : "is-closed"} ${
+          darkMode ? "ai--dark" : "ai--light"
+        }`}
+      >
       <div className="ai-sidebar-inner">
         {/* Header */}
         <header className="ai__header">
@@ -441,7 +458,7 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
             <button
               className="ai__close-btn"
               onClick={() => setIsOpen(false)}
-              title="Colapsar panel"
+              title="Cerrar"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18" />
@@ -535,7 +552,8 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
           onCancel={() => setConfirmAction(null)}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

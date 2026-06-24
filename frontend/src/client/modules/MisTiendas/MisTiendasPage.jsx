@@ -190,7 +190,11 @@ export default function MisTiendasPage() {
     const current = settings[storeId]?.maintenance?.enabled ?? false;
     setMaintenanceLoading(p => ({ ...p, [storeId]: true }));
     try {
-      await saveStoreSettings(storeId, { maintenance: { enabled: !current } });
+      // completedStep es obligatorio en toda llamada a createSettings (400 si se omite)
+      await saveStoreSettings(storeId, {
+        completedStep: settings[storeId]?.completedStep ?? 9,
+        maintenance: { enabled: !current },
+      });
       setSettings(p => ({
         ...p,
         [storeId]: { ...(p[storeId] ?? {}), maintenance: { enabled: !current } },

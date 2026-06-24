@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   User, Shield, ShoppingBag, Bell,
   MapPin, Settings, HelpCircle, LogOut, ArrowLeft,
-  RefreshCw, Star,
+  RefreshCw, Star, ChevronRight,
 } from 'lucide-react';
+import { notifyServerLogout } from '../../../../../utils/authFetch.js';
 import './AccountSidebar.css';
 
 const MENU = [
@@ -47,7 +48,31 @@ export default function AccountSidebar({ active, onSelect }) {
   const navigate = useNavigate();
   const user = useMemo(getUserInfo, []);
 
+  // Pista de scroll en la barra de tabs móvil: indica si hay más secciones
+  // ocultas a la derecha, para que el usuario sepa que puede deslizar.
+  const navRef = useRef(null);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollHint = useCallback(() => {
+    const el = navRef.current;
+    if (!el) return;
+    setCanScrollRight(el.scrollWidth - el.scrollLeft - el.clientWidth > 4);
+  }, []);
+
+  useEffect(() => {
+    updateScrollHint();
+    const el = navRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', updateScrollHint, { passive: true });
+    window.addEventListener('resize', updateScrollHint);
+    return () => {
+      el.removeEventListener('scroll', updateScrollHint);
+      window.removeEventListener('resize', updateScrollHint);
+    };
+  }, [updateScrollHint]);
+
   const handleLogout = () => {
+    notifyServerLogout();
     localStorage.removeItem('jwt');
     localStorage.removeItem('user');
     sessionStorage.clear();
@@ -82,19 +107,26 @@ export default function AccountSidebar({ active, onSelect }) {
 
       {/* Navegación */}
       <span className="sidebar-group-label">PANEL</span>
-      <nav className="sidebar-nav-account">
-        {MENU.map(({ key, path, label, short, icon }) => (
-          <button
-            key={key}
-            className={`sidebar-item${active === key ? ' sidebar-item--active' : ''}`}
-            onClick={() => { onSelect(key); navigate(path); }}
-          >
-            <span className="sidebar-icon">{icon}</span>
-            <span className="sidebar-label sidebar-label--full">{label}</span>
-            <span className="sidebar-label sidebar-label--short">{short}</span>
-          </button>
-        ))}
-      </nav>
+      <div className="sidebar-nav-wrap">
+        <nav className="sidebar-nav-account" ref={navRef}>
+          {MENU.map(({ key, path, label, short, icon }) => (
+            <button
+              key={key}
+              className={`sidebar-item${active === key ? ' sidebar-item--active' : ''}`}
+              onClick={() => { onSelect(key); navigate(path); }}
+            >
+              <span className="sidebar-icon">{icon}</span>
+              <span className="sidebar-label sidebar-label--full">{label}</span>
+              <span className="sidebar-label sidebar-label--short">{short}</span>
+            </button>
+          ))}
+        </nav>
+        {canScrollRight && (
+          <div className="sidebar-scroll-hint" aria-hidden="true">
+            <ChevronRight size={14} />
+          </div>
+        )}
+      </div>
 
       {/* Footer */}
       <div className="sidebar-footer">

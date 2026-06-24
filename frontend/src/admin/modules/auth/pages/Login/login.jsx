@@ -3,6 +3,7 @@ import { Mail, Lock, User, Phone, Eye, EyeOff, Loader2, CheckCircle, XCircle, Ca
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hook/Useauth';
 import VerificationPage from '../VerificationPage';
+import GoogleLoginButton from './GoogleLoginButton';
 import Logo from '../../../../../assets/LogoVexios/banervexio.png';
 import './login.css';
 
@@ -72,7 +73,7 @@ function Field({ icon, type = 'text', placeholder, value, onChange, showToggle, 
 
 export default function Login({ mode }) {
   const navigate = useNavigate();
-  const { login, verifyLoginOTP, register, verifyRegisterOTP, loading } = useAuth();
+  const { login, loginWithGoogle, verifyLoginOTP, register, verifyRegisterOTP, loading } = useAuth();
 
   const [step, setStep]                 = useState('form');
   const [emailForOTP, setEmailForOTP]   = useState('');
@@ -128,6 +129,46 @@ export default function Login({ mode }) {
     return Object.keys(tempErrors).length === 0;
   };
 
+  /* ─── Redirección compartida tras login/registro/Google exitoso ─── */
+  const redirectAfterAuth = (user) => {
+    const pendingQuickBuy = sessionStorage.getItem('pendingQuickBuy');
+    if (pendingQuickBuy) {
+      try {
+        const { returnUrl } = JSON.parse(pendingQuickBuy);
+        sessionStorage.removeItem('pendingQuickBuy');
+        const sep = returnUrl.includes('?') ? '&' : '?';
+        setTimeout(() => navigate(`${returnUrl}${sep}quickbuy=1`), 1200);
+      } catch {
+        sessionStorage.removeItem('pendingQuickBuy');
+        setTimeout(() => navigate(DEFAULT_ROUTE), 1200);
+      }
+      return;
+    }
+
+    sessionStorage.removeItem('pendingPlan');
+    const route = getRouteByRol(user?.rolId);
+    setTimeout(() => navigate(route), 1200);
+  };
+
+  /* ─── Login con Google ─── */
+  const handleGoogleSuccess = async (idToken) => {
+    if (loading) return;
+    clearToast();
+    try {
+      const result = await loginWithGoogle(idToken);
+      if (result.success) {
+        showToast('¡Bienvenido!', 'success');
+        redirectAfterAuth(result.user);
+      }
+    } catch (err) {
+      showToast(err.message);
+    }
+  };
+
+  const handleGoogleError = (message) => {
+    showToast(message || 'No se pudo iniciar sesión con Google');
+  };
+
   /* ─── Login paso 1 ─── */
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -181,24 +222,7 @@ export default function Login({ mode }) {
           mode === 'login' ? '¡Bienvenido de vuelta!' : '¡Cuenta creada exitosamente!',
           'success'
         );
-
-        const pendingQuickBuy = sessionStorage.getItem('pendingQuickBuy');
-        if (pendingQuickBuy) {
-          try {
-            const { returnUrl } = JSON.parse(pendingQuickBuy);
-            sessionStorage.removeItem('pendingQuickBuy');
-            const sep = returnUrl.includes('?') ? '&' : '?';
-            setTimeout(() => navigate(`${returnUrl}${sep}quickbuy=1`), 1200);
-          } catch {
-            sessionStorage.removeItem('pendingQuickBuy');
-            setTimeout(() => navigate(DEFAULT_ROUTE), 1200);
-          }
-          return;
-        }
-
-        sessionStorage.removeItem('pendingPlan');
-        const route = getRouteByRol(result.user?.rolId);
-        setTimeout(() => navigate(route), 1200);
+        redirectAfterAuth(result.user);
       }
     } catch (err) {
       showToast(err.message);
@@ -347,6 +371,13 @@ export default function Login({ mode }) {
               : mode === 'login' ? 'ENTRAR' : 'REGISTRARME'}
           </button>
         </form>
+
+        <div className="vp-divider">o continúa con</div>
+        <GoogleLoginButton
+          disabled={loading}
+          onSuccess={handleGoogleSuccess}
+          onError={handleGoogleError}
+        />
 
         {mode === 'login' && (
           <p className="vp-switch-auth">
