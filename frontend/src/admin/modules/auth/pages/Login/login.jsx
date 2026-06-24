@@ -79,6 +79,7 @@ export default function Login({ mode }) {
   const [emailForOTP, setEmailForOTP]   = useState('');
   const [errors, setErrors]             = useState({});
   const [toast, setToast]               = useState({ message: '', type: 'error' });
+  const [googleAvailable, setGoogleAvailable] = useState(true);
 
   /* ─── Avatar ─── */
   const [avatarFile, setAvatarFile]       = useState(null);
@@ -168,6 +169,8 @@ export default function Login({ mode }) {
   const handleGoogleError = (message) => {
     showToast(message || 'No se pudo iniciar sesión con Google');
   };
+
+  const handleGoogleUnavailable = () => setGoogleAvailable(false);
 
   /* ─── Login paso 1 ─── */
   const handleLogin = async (e) => {
@@ -372,12 +375,17 @@ export default function Login({ mode }) {
           </button>
         </form>
 
-        <div className="vp-divider"><span className="vp-divider-text">o continúa con</span></div>
-        <GoogleLoginButton
-          disabled={loading}
-          onSuccess={handleGoogleSuccess}
-          onError={handleGoogleError}
-        />
+        {googleAvailable && (
+          <>
+            <div className="vp-divider"><span className="vp-divider-text">o continúa con</span></div>
+            <GoogleLoginButton
+              disabled={loading}
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              onUnavailable={handleGoogleUnavailable}
+            />
+          </>
+        )}
 
         {mode === 'login' && (
           <p className="vp-switch-auth">
