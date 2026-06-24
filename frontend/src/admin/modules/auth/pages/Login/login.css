@@ -352,16 +352,16 @@
   background: var(--vp-border);
 }
 
-/* ─── Botón de Google ─── */
-.g-login-btn-wrap {
-  display: flex;
-  justify-content: center;
+/* ─── Botón de Google ───
+   Google Identity Services no permite un texto personalizado como "Google"
+   a solas (solo "Continuar con Google", "Iniciar sesión con Google", etc.),
+   así que dibujamos nuestra propia capa visible y dejamos el botón real
+   invisible pero clickeable superpuesto encima, sin tocar el flujo de login. */
+.g-login-btn-shell {
+  position: relative;
   width: 100%;
   box-sizing: border-box;
-  padding: 2px;
   border-radius: 50px;
-  overflow: hidden;
-  background: linear-gradient(135deg, rgba(79, 110, 247, 0.45), rgba(124, 58, 237, 0.45));
   opacity: 0;
   transform: translateY(8px) scale(0.97);
   transition: opacity 0.4s cubic-bezier(0.23, 1, 0.32, 1),
@@ -369,19 +369,44 @@
               box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.g-login-btn-wrap--ready {
+.g-login-btn-shell--ready {
   opacity: 1;
   transform: translateY(0) scale(1);
 }
 
-.g-login-btn-wrap--ready:hover {
+.g-login-btn-shell--ready:hover {
   transform: translateY(-2px) scale(1);
   box-shadow: 0 10px 26px var(--vp-btn-glow);
 }
 
-.g-login-btn-wrap--disabled {
+.g-login-btn-shell--disabled {
   opacity: 0.5;
   pointer-events: none;
+}
+
+.g-login-btn-visible {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 44px;
+  border-radius: 50px;
+  background: #131314;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  pointer-events: none; /* el clic real lo recibe el botón de Google superpuesto */
+}
+
+.g-login-btn-real {
+  position: absolute;
+  inset: 0;
+  opacity: 0.0001;
+  border-radius: 50px;
+  overflow: hidden;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -391,11 +416,11 @@
   .vp-bg-orb--1, .vp-bg-orb--2, .vp-bg-orb--3 {
     animation: none;
   }
-  .g-login-btn-wrap {
+  .g-login-btn-shell {
     transition: opacity 0.2s linear;
     transform: none;
   }
-  .g-login-btn-wrap--ready:hover {
+  .g-login-btn-shell--ready:hover {
     transform: none;
   }
 }

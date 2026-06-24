@@ -109,6 +109,15 @@ export default function Security() {
   const [confirmDeactivateOpen, setConfirmDeactivateOpen] = useState(false);
   const [deactivating, setDeactivating]       = useState(false);
   const [deactivateErr, setDeactivateErr]     = useState('');
+  const [deactivateConfirmText, setDeactivateConfirmText] = useState('');
+
+  const DEACTIVATE_KEYWORD = 'DESACTIVAR';
+  const deactivateConfirmValid = deactivateConfirmText.trim().toUpperCase() === DEACTIVATE_KEYWORD;
+
+  const closeDeactivateModal = () => {
+    setConfirmDeactivateOpen(false);
+    setDeactivateConfirmText('');
+  };
 
   useEffect(() => {
     const current = buildCurrentSession();
@@ -432,27 +441,39 @@ export default function Security() {
 
     {/* Modal de confirmación para desactivar la cuenta */}
     {confirmDeactivateOpen && (
-      <div className="confirm-overlay" onClick={() => setConfirmDeactivateOpen(false)}>
-        <div className="confirm-modal" onClick={e => e.stopPropagation()}>
+      <div className="confirm-overlay" onClick={closeDeactivateModal}>
+        <div className="confirm-modal confirm-modal--wide" onClick={e => e.stopPropagation()}>
           <div className="confirm-icon"><UserX size={22} /></div>
           <h3 className="confirm-title">Desactivar tu cuenta</h3>
           <p className="confirm-body">
             Se cerrará tu sesión en todos los dispositivos de inmediato. Tus datos
             no se eliminan; podrás recuperarla iniciando sesión de nuevo más adelante.
           </p>
+          <label className="confirm-keyword-label">
+            Escribe <strong>{DEACTIVATE_KEYWORD}</strong> para confirmar
+          </label>
+          <input
+            type="text"
+            className="confirm-keyword-input"
+            value={deactivateConfirmText}
+            onChange={e => setDeactivateConfirmText(e.target.value)}
+            placeholder={DEACTIVATE_KEYWORD}
+            disabled={deactivating}
+            autoFocus
+          />
           <div className="confirm-actions">
-            <button className="confirm-cancel" onClick={() => setConfirmDeactivateOpen(false)}>
+            <button className="confirm-cancel" onClick={closeDeactivateModal}>
               Cancelar
             </button>
             <button
               className="confirm-danger"
-              disabled={deactivating}
+              disabled={deactivating || !deactivateConfirmValid}
               onClick={async () => {
                 setConfirmDeactivateOpen(false);
                 await handleDeactivateAccount();
               }}
             >
-              {deactivating ? <Loader2 size={14} className="spin" /> : 'Sí, desactivar mi cuenta'}
+              {deactivating ? <Loader2 size={14} className="spin" /> : 'Sí, desactivar'}
             </button>
           </div>
         </div>

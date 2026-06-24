@@ -504,3 +504,31 @@
   background: rgba(248, 113, 113, 0.22);
   border-color: rgba(248, 113, 113, 0.55);
 }
+
+/* ── Modal de desactivar cuenta: más ancho + input de palabra clave ───────── */
+.confirm-modal--wide { max-width: 420px; }
+
+.confirm-keyword-label {
+  align-self: flex-start;
+  font-size: 0.72rem;
+  color: #888;
+}
+
+.confirm-keyword-label strong { color: #f87171; letter-spacing: 0.5px; }
+
+.confirm-keyword-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: #0f0f0f;
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color .2s;
+}
+
+.confirm-keyword-input:focus { border-color: #f87171; }
+.confirm-keyword-input:disabled { opacity: .5; cursor: not-allowed; }
