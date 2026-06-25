@@ -227,7 +227,11 @@ function PageLoader() {
   );
 }
 
-// Resetea el scroll al tope en cada cambio de ruta (React Router no lo hace por defecto)
+// Resetea el scroll al tope en cada cambio de ruta (React Router no lo hace por defecto).
+// Solo por pathname: si se incluyera el query string completo, páginas como
+// el catálogo (que reflejan la búsqueda en vivo en la URL con cada tecla)
+// reiniciarían el scroll en cada pulsación. Esos casos puntuales se manejan
+// dentro de cada página (ver CatalogoPage.jsx).
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {

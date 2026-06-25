@@ -16,7 +16,10 @@ function buildHeaders() {
 
 async function req(method, path, body, timeoutMs = 10000) {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timer = setTimeout(
+    () => controller.abort(new Error("El servidor no respondió a tiempo. Intenta de nuevo.")),
+    timeoutMs,
+  );
   let res;
   try {
     res = await fetch(`${BASE}${path}`, {

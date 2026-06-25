@@ -579,6 +579,17 @@ export default function CatalogoPage() {
   // Scroll to top on mount
   useEffect(() => { window.scrollTo({ top: 0, behavior: "auto" }); }, []);
 
+  // Si llega un ?categoria= nuevo desde fuera de esta página (ej. al hacer clic
+  // en una tarjeta de categoría desde Market/Landing mientras ya estás en
+  // /catalogo con otro filtro), React Router no remonta el componente porque
+  // la ruta es la misma — sin esto, el scroll se queda donde estaba sobre un
+  // listado distinto. No depende de "q" para no saltar al tope en cada tecla
+  // de la búsqueda en vivo.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get("categoria")]);
+
   // Load
   useEffect(() => {
     let alive = true;
@@ -686,7 +697,11 @@ export default function CatalogoPage() {
 
   const activeFilterCount = filters.categories.length + filters.colors.length + filters.sizes.length;
 
-  const clearFilters = useCallback(() => { setFilters(DEFAULT_FILTERS); setSearch(""); }, []);
+  const clearFilters = useCallback(() => {
+    setFilters(DEFAULT_FILTERS);
+    setSearch("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   const removeFilter = useCallback((key, value) =>
     setFilters(f => ({ ...f, [key]: f[key].filter(v => v !== value) }))
@@ -750,7 +765,7 @@ export default function CatalogoPage() {
         <aside className={`cat-sidebar ${sidebarOpen ? "open" : ""}`}>
           <SidebarContent
             filters={filters} setFilters={setFilters}
-            onApply={() => setSidebarOpen(false)}
+            onApply={() => { setSidebarOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             onClear={clearFilters}
             resultCount={filtered.length}
           />

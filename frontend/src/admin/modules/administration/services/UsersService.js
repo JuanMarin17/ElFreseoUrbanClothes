@@ -22,7 +22,12 @@ function buildHeaders() {
 
 async function apiFetch(path, options = {}, timeoutMs) {
   const controller = timeoutMs ? new AbortController() : null;
-  const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+  const timer = controller
+    ? setTimeout(
+        () => controller.abort(new Error("El servidor no respondió a tiempo. Intenta de nuevo.")),
+        timeoutMs,
+      )
+    : null;
 
   let res;
   try {
