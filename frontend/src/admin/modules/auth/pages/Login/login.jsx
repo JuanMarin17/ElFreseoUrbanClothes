@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Mail, Lock, User, Phone, Eye, EyeOff, Loader2, CheckCircle, XCircle, Camera } from 'lucide-react';
+import { Mail, Lock, User, Phone, Eye, EyeOff, Loader2, CheckCircle, XCircle, Camera, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hook/Useauth';
 import VerificationPage from '../VerificationPage';
@@ -381,7 +381,8 @@ export default function Login({ mode }) {
             className="vp-guest-btn"
             onClick={() => navigate(DEFAULT_ROUTE)}
           >
-            Continuar sin cuenta
+            <span>Continuar sin cuenta</span>
+            <ArrowRight size={14} className="vp-guest-arrow" />
           </button>
         )}
 

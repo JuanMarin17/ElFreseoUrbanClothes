@@ -353,25 +353,53 @@
 }
 
 .vp-guest-btn {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   width: 100%;
-  margin-top: 14px;
-  padding: 8px;
-  background: none;
-  border: none;
+  margin-top: 16px;
+  padding: 11px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--vp-border);
+  border-radius: 50px;
   color: var(--vp-muted);
   font-family: 'Rajdhani', sans-serif;
   font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-align: center;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: color 0.2s;
+  opacity: 0;
+  transform: translateY(6px);
+  animation: guestBtnIn 0.4s cubic-bezier(0.23, 1, 0.32, 1) 0.15s both;
+  transition: color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.vp-guest-btn:hover {
-  color: var(--vp-accent);
-  text-decoration: underline;
+.vp-guest-arrow {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vp-guest-btn:hover {
+    color: var(--vp-text);
+    border-color: rgba(79, 110, 247, 0.35);
+    background: rgba(79, 110, 247, 0.06);
+  }
+  .vp-guest-btn:hover .vp-guest-arrow {
+    transform: translateX(3px);
+  }
+}
+
+.vp-guest-btn:active {
+  transform: scale(0.98);
+}
+
+@keyframes guestBtnIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ─── Botón de Google ───
@@ -443,6 +471,17 @@
     transform: none;
   }
   .g-login-btn-shell--ready:hover {
+    transform: none;
+  }
+  .vp-guest-btn {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .vp-guest-btn:active {
+    transform: none;
+  }
+  .vp-guest-btn:hover .vp-guest-arrow {
     transform: none;
   }
 }
