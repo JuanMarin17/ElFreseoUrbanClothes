@@ -11,11 +11,23 @@ function buildHeaders() {
   return h;
 }
 
-async function apiFetch(method, path, body) {
+async function apiFetch(method, path, body, timeoutMs = 10000) {
   const options = { method, headers: buildHeaders() };
   if (body !== undefined) options.body = JSON.stringify(body);
 
-  const res  = await fetch(`${BASE}${path}`, options);
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () => controller.abort(new Error("El servidor no respondió a tiempo. Intenta de nuevo.")),
+    timeoutMs,
+  );
+  options.signal = controller.signal;
+
+  let res;
+  try {
+    res = await fetch(`${BASE}${path}`, options);
+  } finally {
+    clearTimeout(timer);
+  }
   let   data;
   try { data = await res.json(); } catch { data = {}; }
 

@@ -5,15 +5,26 @@ const authHeader = () => {
   return jwt ? { Authorization: `Bearer ${jwt}` } : {};
 };
 
-async function request(url, options = {}) {
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeader(),
-      ...options.headers,
-    },
-  });
+async function request(url, options = {}, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () => controller.abort(new Error("El servidor no respondió a tiempo. Intenta de nuevo.")),
+    timeoutMs,
+  );
+  let res;
+  try {
+    res = await fetch(url, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeader(),
+        ...options.headers,
+      },
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 
   let body;
   const ct = res.headers.get("Content-Type") ?? "";
