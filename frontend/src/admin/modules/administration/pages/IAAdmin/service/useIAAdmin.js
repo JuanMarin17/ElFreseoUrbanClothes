@@ -48,39 +48,61 @@ export function useIAAdmin() {
   // El localStorage solo se usa como valor optimista mientras esto resuelve.
   useEffect(() => {
     let active = true;
-    const storeId = localStorage.getItem("storeId");
-    const userId  = getUserIdFromJwt();
 
-    if (!storeId || storeId === "null" || !userId) {
-      setCheckingAccess(false);
-      return;
-    }
-
-    checkIsOwner(storeId, userId)
-      .then((res) => {
+    const run = async () => {
+      // En rutas de admin sin slug, AdminLayout resuelve storeId/userRole de
+      // forma asíncrona y este hook puede montar antes de que existan en
+      // localStorage. Sin esta espera, hasAccess se queda en false para
+      // siempre (el efecto solo corre una vez) y el panel de IA nunca
+      // aparece, aunque el usuario sea OWNER/ADMIN legítimo.
+      let storeId = localStorage.getItem("storeId");
+      if (!storeId || storeId === "null") {
+        await new Promise((r) => setTimeout(r, 800));
         if (!active) return;
-        // El endpoint solo responde true|false ("¿es el owner?"). `false` no
-        // significa "sin acceso" — el usuario puede ser ADMIN/STORE_USER con
-        // acceso válido vía el rol optimista de localStorage. Solo lo usamos
-        // para confirmar OWNER; nunca para revocar acceso.
-        if (res === true) {
-          setRole("OWNER");
-          setHasAccess(true);
-        }
-      })
-      .catch((err) => {
-        if (!active) return;
-        // Solo revocamos el acceso ante una respuesta explícita del backend
-        // (403/404 = "no eres el owner"). Si el backend está caído o lento
-        // (500/502/503/504, timeout, error de red) mantenemos el valor
-        // optimista de localStorage para no bloquear al owner real.
-        if (err?.status === 403 || err?.status === 404) {
-          setRole(null);
-          setHasAccess(false);
-        }
-      })
-      .finally(() => { if (active) setCheckingAccess(false); });
+        storeId = localStorage.getItem("storeId");
+      }
 
+      // Reintenta leer el rol optimista por si AdminLayout lo terminó de
+      // fijar durante la espera anterior.
+      const freshRole = getStoredRole();
+      if (active && ALLOWED_ROLES.has(freshRole)) {
+        setRole(freshRole);
+        setHasAccess(true);
+      }
+
+      const userId = getUserIdFromJwt();
+      if (!storeId || storeId === "null" || !userId) {
+        if (active) setCheckingAccess(false);
+        return;
+      }
+
+      checkIsOwner(storeId, userId)
+        .then((res) => {
+          if (!active) return;
+          // El endpoint solo responde true|false ("¿es el owner?"). `false` no
+          // significa "sin acceso" — el usuario puede ser ADMIN/STORE_USER con
+          // acceso válido vía el rol optimista de localStorage. Solo lo usamos
+          // para confirmar OWNER; nunca para revocar acceso.
+          if (res === true) {
+            setRole("OWNER");
+            setHasAccess(true);
+          }
+        })
+        .catch((err) => {
+          if (!active) return;
+          // Solo revocamos el acceso ante una respuesta explícita del backend
+          // (403/404 = "no eres el owner"). Si el backend está caído o lento
+          // (500/502/503/504, timeout, error de red) mantenemos el valor
+          // optimista de localStorage para no bloquear al owner real.
+          if (err?.status === 403 || err?.status === 404) {
+            setRole(null);
+            setHasAccess(false);
+          }
+        })
+        .finally(() => { if (active) setCheckingAccess(false); });
+    };
+
+    run();
     return () => { active = false; };
   }, []);
 

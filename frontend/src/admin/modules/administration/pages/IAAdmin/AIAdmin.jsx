@@ -348,6 +348,7 @@ function InputArea({ inputText, setInputText, selectedImage, setSelectedImage, s
 function IAAdminSidebar({ isOpen, setIsOpen }) {
   const {
     hasAccess,
+    checkingAccess,
     sessionId,
     messages,
     isLoading,
@@ -398,7 +399,35 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
     return () => obs.disconnect();
   }, []);
 
-  if (!hasAccess) return null;
+  if (!hasAccess) {
+    // Sin feedback aquí, el botón del header parecía "no hacer nada" al
+    // dar clic. Mostramos algo solo si el panel está abierto y ya se
+    // resolvió la verificación (evita parpadeo mientras checkingAccess).
+    if (!isOpen || checkingAccess) return null;
+    return (
+      <>
+        <button
+          type="button"
+          className="ai-backdrop"
+          aria-label="Cerrar asistente"
+          onClick={() => setIsOpen(false)}
+        />
+        <div className={`ai-layout-sidebar is-open ${darkMode ? "ai--dark" : "ai--light"}`}>
+          <div className="ai-sidebar-inner">
+            <div className="ia-denied-card" style={{ margin: "auto" }}>
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+              </svg>
+              <h2>Acceso Denegado</h2>
+              <p>Solo administradores y propietarios pueden acceder al asistente de IA.</p>
+              <button className="confirm-cancel" style={{ marginTop: 12 }} onClick={() => setIsOpen(false)}>Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

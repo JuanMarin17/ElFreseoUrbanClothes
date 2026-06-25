@@ -87,12 +87,17 @@ export const createCategory = async (name) => {
   return unwrap(res);
 };
 
-/** PUT /categories/:id  Body: { name } */
-export const updateCategory = async (id, name) => {
+/**
+ * PUT /categories/:id
+ * payload: { name, attribute1Label?, attribute1Options?, attribute2Label?, attribute2Options?, attribute2IsColor? }
+ * Acepta también un string por compatibilidad: updateCategory(id, "Nuevo nombre")
+ */
+export const updateCategory = async (id, payload) => {
+  const body = typeof payload === "string" ? { name: payload } : payload;
   const res = await fetchWithTimeout(`${BASE_URL}/categories/${id}`, {
     method: "PUT",
     headers: writeHeaders(),
-    body: JSON.stringify({ name }),
+    body: JSON.stringify(body),
   });
   return unwrap(res);
 };

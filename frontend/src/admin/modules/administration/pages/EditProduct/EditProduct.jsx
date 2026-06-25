@@ -9,8 +9,6 @@ import "../UploadProduct/UploadProduct.css";
 import "./EditProduct.css";
 import PageSpinner from "../../../../../components/ui/PageSpinner.jsx";
 
-const TALLAS_DISPONIBLES = ["S", "M", "L", "XL", "XXL"];
-
 /* ── BrandSelector ── */
 const BrandSelector = ({ brands = [], value, onChange, onBrandCreated, disabled }) => {
   const [showNew, setShowNew] = useState(false);
@@ -204,6 +202,10 @@ export default function EditProduct() {
             price: v.price ?? 0,
             stock: v.stock ?? 0,
             minStock: v.minStock ?? 0,
+            // Se conservan tal cual: si no se incluyen en el payload de guardado,
+            // el backend los sobreescribe con null y se pierden silenciosamente.
+            size: v.size ?? "",
+            color: v.color ?? "",
           })),
           images: (product.images ?? []).map(img => ({
             cloudinaryUrl: img.url,
@@ -313,7 +315,11 @@ export default function EditProduct() {
         supplierId: form.supplierId || null,
         categoryIds: form.categoryIds,
         images: form.images.map(img => img.cloudinaryUrl).filter(Boolean),
-        variants: form.variants.map(({ variantId, ...rest }) => rest),
+        variants: form.variants.map(({ variantId, size, color, ...rest }) => ({
+          ...rest,
+          ...(size && { size }),
+          ...(color && { color }),
+        })),
       });
 
       // Sync stock via variant endpoints for existing variants
@@ -335,6 +341,12 @@ export default function EditProduct() {
       setLoading(false);
     }
   };
+
+  // Etiquetas de atributo de variante según la categoría del producto (ej.
+  // "Capacidad"/"Color" para Tecnología en vez de "Talla"/"Color" por defecto).
+  const activeCategory = categories.find(c => c.categoryId === form.categoryIds[0]) ?? null;
+  const attr1Label = activeCategory?.attribute1Label || "Talla";
+  const attr2Label = activeCategory?.attribute2Label || "Color";
 
   const stockDot = (stock, minStock) => {
     if (stock === 0) return "ep-stock-dot--out";
@@ -487,13 +499,21 @@ export default function EditProduct() {
                   <div key={i} className="ep-variant-row">
 
                     {/* SKU */}
-                    <input
-                      className="ep-var-input"
-                      value={v.sku}
-                      onChange={e => handleVariantChange(i, "sku", e.target.value)}
-                      placeholder="CAM-NEG-S"
-                      disabled={loading}
-                    />
+                    <div>
+                      <input
+                        className="ep-var-input"
+                        value={v.sku}
+                        onChange={e => handleVariantChange(i, "sku", e.target.value)}
+                        placeholder="CAM-NEG-S"
+                        disabled={loading}
+                      />
+                      {(v.size || v.color) && (
+                        <small style={{ display: "block", fontSize: 10, color: "#777", marginTop: 2 }}>
+                          {[v.size && `${attr1Label}: ${v.size}`, v.color && `${attr2Label}: ${v.color}`]
+                            .filter(Boolean).join(" · ")}
+                        </small>
+                      )}
+                    </div>
 
                     {/* Precio */}
                     <input

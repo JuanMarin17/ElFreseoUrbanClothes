@@ -524,6 +524,86 @@
   flex-wrap: wrap;
 }
 
+/* ── Configurar atributos de categoría ──────────────────────── */
+.up-chip-config {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity var(--up-ease);
+}
+.up-chip-config:hover:not(:disabled) { opacity: 1; }
+.up-chip-config:disabled { cursor: default; opacity: 0.3; }
+
+.up-cat-option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-right: 10px;
+}
+.up-cat-option-row .up-cat-option { flex: 1; }
+
+.up-cat-attrs-editor {
+  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--up-surface);
+  border: 1px solid var(--up-border2);
+  border-radius: var(--up-radius-sm);
+  padding: 14px;
+}
+
+.up-cat-attrs-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--up-text);
+  margin: 0;
+}
+
+.up-cat-attrs-hint {
+  font-size: 11px;
+  color: var(--up-muted);
+  margin: 0 0 4px;
+  line-height: 1.4;
+}
+
+.up-cat-attrs-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--up-muted);
+  margin-top: 4px;
+}
+
+.up-cat-attrs-opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.up-cat-attrs-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--up-text);
+  cursor: pointer;
+}
+
+.up-cat-attrs-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
 /* ── Image Upload Zone ───────────────────────────────────── */
 .up-drop-zone {
   display: flex;

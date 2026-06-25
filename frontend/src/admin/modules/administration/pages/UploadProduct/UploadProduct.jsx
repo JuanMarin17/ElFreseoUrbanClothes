@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./UploadProduct.css";
-import { getCategories, createCategory, activateCategory } from "../../services/CategoryService";
+import { getCategories, createCategory, activateCategory, updateCategory } from "../../services/CategoryService";
 import { createProduct } from "../../services/productService";
 import { getBrands, createBrand } from "../../services/BrandService";
 import { getSuppliersByStore } from "../../services/SupplierService";
@@ -131,13 +131,119 @@ const BrandSelector = ({ brands = [], value, onChange, onBrandCreated, disabled 
   );
 };
 
+// ─── Editor de atributos de variante por categoría ───────────────────────────
+// Permite que cada categoría reemplace "Talla"/"Color" por los atributos que
+// realmente apliquen (ej. Tecnología: Capacidad/Color, Hogar: Material/Tamaño).
+// Si se deja vacío, el producto sigue usando Talla/Color por defecto.
+const CategoryAttributesEditor = ({ category, onSaved, onClose }) => {
+  const [attr1Label, setAttr1Label] = useState(category.attribute1Label ?? "");
+  const [attr1Options, setAttr1Options] = useState(category.attribute1Options ?? []);
+  const [attr2Label, setAttr2Label] = useState(category.attribute2Label ?? "");
+  const [attr2Options, setAttr2Options] = useState(category.attribute2Options ?? []);
+  const [attr2IsColor, setAttr2IsColor] = useState(!!category.attribute2IsColor);
+  const [opt1Input, setOpt1Input] = useState("");
+  const [opt2Input, setOpt2Input] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState(null);
+
+  const addOpt1 = () => {
+    const v = opt1Input.trim();
+    if (!v || attr1Options.includes(v)) { setOpt1Input(""); return; }
+    setAttr1Options(prev => [...prev, v]); setOpt1Input("");
+  };
+  const addOpt2 = () => {
+    const v = opt2Input.trim();
+    if (!v || attr2Options.includes(v)) { setOpt2Input(""); return; }
+    setAttr2Options(prev => [...prev, v]); setOpt2Input("");
+  };
+
+  const handleSave = async () => {
+    setSaving(true); setErr(null);
+    try {
+      const updated = await updateCategory(category.categoryId, {
+        name: category.name,
+        attribute1Label: attr1Label.trim(),
+        attribute1Options: attr1Options,
+        attribute2Label: attr2Label.trim(),
+        attribute2Options: attr2Options,
+        attribute2IsColor: attr2Label.trim() ? attr2IsColor : false,
+      });
+      onSaved(updated);
+    } catch (e) {
+      setErr(e.message ?? "Error al guardar la configuración.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="up-cat-attrs-editor" onClick={e => e.stopPropagation()}>
+      <p className="up-cat-attrs-title">Atributos de variante — {category.name}</p>
+      <p className="up-cat-attrs-hint">
+        Déjalo vacío para usar Talla/Color por defecto. Útil para categorías que no son ropa
+        (ej. Tecnología: Capacidad, Hogar: Material).
+      </p>
+
+      <label className="up-cat-attrs-label">Primer atributo (ej. Talla, Capacidad)</label>
+      <input type="text" className="up-input-sm" value={attr1Label} placeholder="Talla"
+        onChange={e => setAttr1Label(e.target.value)} disabled={saving} />
+      <div className="up-cat-attrs-opts">
+        {attr1Options.map(o => (
+          <span key={o} className="up-chip">
+            {o}
+            <button type="button" className="up-chip-remove" disabled={saving}
+              onClick={() => setAttr1Options(prev => prev.filter(x => x !== o))}>×</button>
+          </span>
+        ))}
+        <input type="text" className="up-input-sm" placeholder="+ opción" value={opt1Input}
+          onChange={e => setOpt1Input(e.target.value)} disabled={saving}
+          onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addOpt1(); } }} />
+        <button type="button" className="up-btn-accent-sm" onClick={addOpt1} disabled={saving || !opt1Input.trim()}>+</button>
+      </div>
+
+      <label className="up-cat-attrs-label">Segundo atributo <span className="up-opt">(opcional, ej. Color, Material)</span></label>
+      <input type="text" className="up-input-sm" value={attr2Label} placeholder="Color"
+        onChange={e => setAttr2Label(e.target.value)} disabled={saving} />
+      <div className="up-cat-attrs-opts">
+        {attr2Options.map(o => (
+          <span key={o} className="up-chip">
+            {o}
+            <button type="button" className="up-chip-remove" disabled={saving}
+              onClick={() => setAttr2Options(prev => prev.filter(x => x !== o))}>×</button>
+          </span>
+        ))}
+        <input type="text" className="up-input-sm" placeholder="+ opción" value={opt2Input}
+          onChange={e => setOpt2Input(e.target.value)} disabled={saving}
+          onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addOpt2(); } }} />
+        <button type="button" className="up-btn-accent-sm" onClick={addOpt2} disabled={saving || !opt2Input.trim()}>+</button>
+      </div>
+      {attr2Label.trim() && (
+        <label className="up-cat-attrs-checkbox">
+          <input type="checkbox" checked={attr2IsColor} disabled={saving}
+            onChange={e => setAttr2IsColor(e.target.checked)} />
+          Es un selector de color (muestra el círculo de color)
+        </label>
+      )}
+
+      {err && <span className="up-field-error">{err}</span>}
+      <div className="up-cat-attrs-actions">
+        <button type="button" className="up-link-btn" onClick={onClose} disabled={saving}>Cancelar</button>
+        <button type="button" className="up-btn-accent-sm" onClick={handleSave} disabled={saving}>
+          {saving ? "…" : "Guardar"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // ─── CategoryChips ────────────────────────────────────────────────────────────
-const CategoryChips = ({ categories, selectedIds, onToggle, onCategoryCreated, disabled }) => {
+const CategoryChips = ({ categories, selectedIds, onToggle, onCategoryCreated, onCategoryUpdated, disabled }) => {
   const [open, setOpen] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [newName, setNewName] = useState("");
   const [creating, setCreating] = useState(false);
   const [createErr, setCreateErr] = useState(null);
+  const [configCategoryId, setConfigCategoryId] = useState(null);
   const dropRef = useRef(null);
 
   useEffect(() => {
@@ -179,6 +285,9 @@ const CategoryChips = ({ categories, selectedIds, onToggle, onCategoryCreated, d
           return cat ? (
             <span key={id} className="up-chip">
               {cat.name}
+              <button type="button" className="up-chip-config" disabled={disabled}
+                title="Configurar atributos de variante para esta categoría"
+                onClick={() => setConfigCategoryId(p => p === id ? null : id)}>⚙</button>
               <button type="button" className="up-chip-remove" onClick={() => onToggle(id)} disabled={disabled}>×</button>
             </span>
           ) : null;
@@ -189,10 +298,15 @@ const CategoryChips = ({ categories, selectedIds, onToggle, onCategoryCreated, d
         {open && (
           <div className="up-cat-dropdown">
             {available.map(c => (
-              <button key={c.categoryId} type="button" className="up-cat-option"
-                onClick={() => { onToggle(c.categoryId); setOpen(false); }}>
-                {c.name}
-              </button>
+              <div key={c.categoryId} className="up-cat-option-row">
+                <button type="button" className="up-cat-option"
+                  onClick={() => { onToggle(c.categoryId); setOpen(false); }}>
+                  {c.name}
+                </button>
+                <button type="button" className="up-chip-config" disabled={disabled}
+                  title="Configurar atributos de variante para esta categoría"
+                  onClick={(e) => { e.stopPropagation(); setConfigCategoryId(p => p === c.categoryId ? null : c.categoryId); }}>⚙</button>
+              </div>
             ))}
             {!showNew ? (
               <button type="button" className="up-cat-option up-cat-option--new" onClick={() => setShowNew(true)}>
@@ -212,17 +326,28 @@ const CategoryChips = ({ categories, selectedIds, onToggle, onCategoryCreated, d
           </div>
         )}
       </div>
+      {configCategoryId && (() => {
+        const cat = categories.find(c => c.categoryId === configCategoryId);
+        if (!cat) return null;
+        return (
+          <CategoryAttributesEditor
+            category={cat}
+            onClose={() => setConfigCategoryId(null)}
+            onSaved={(updated) => { onCategoryUpdated?.(updated); setConfigCategoryId(null); }}
+          />
+        );
+      })()}
     </div>
   );
 };
 
 // ─── Fila de variante (tabla) ─────────────────────────────────────────────────
-const VarianteRow = ({ variante, onChange, disabled, colores = DEFAULT_COLORES }) => {
+const VarianteRow = ({ variante, onChange, disabled, colores = DEFAULT_COLORES, attr1Label = "Talla", isColorMode = true }) => {
   const set = (field, value) => onChange(variante._id, field, value);
-  const colorObj = colores.find(c => c.name === variante.color);
+  const colorObj = isColorMode ? colores.find(c => c.name === variante.color) : null;
   const hasColor = !!variante.color;
   const hasTalla = !!variante.talla;
-  const tallaLabel = variante.talla === "ÚNICA" ? "Talla única" : variante.talla;
+  const tallaLabel = variante.talla === "ÚNICA" ? `${attr1Label} única` : variante.talla;
   const label =
     hasColor && hasTalla ? `${tallaLabel} / ${variante.color}`
     : hasColor            ? variante.color
@@ -331,8 +456,52 @@ const UploadProduct = () => {
 
   const fileInputRef = useRef(null);
 
+  // ── Categoría activa: define qué atributos de variante se muestran ──────
+  // (Talla/Color por defecto, o los personalizados de la primera categoría
+  // seleccionada — ej. Capacidad/Color para Tecnología).
+  const primaryCategoryId = producto.categoryIds[0] ?? null;
+  const activeCategory = categories.find(c => c.categoryId === primaryCategoryId) ?? null;
+  const attr1Label = activeCategory?.attribute1Label || "Talla";
+  const attr1LabelPlural = activeCategory?.attribute1Label || "Tallas";
+  const attr2Label = activeCategory?.attribute2Label || "Color";
+  const attr2LabelPlural = activeCategory?.attribute2Label || "Colores";
+  const hasAttr2 = !activeCategory?.attribute1Label || !!activeCategory?.attribute2Label;
+  const attr2IsColorUI = activeCategory?.attribute1Label ? !!activeCategory?.attribute2IsColor : true;
+
+  const isInitialAttrRender = useRef(true);
   useEffect(() => {
-    (async () => {
+    // Las opciones disponibles para elegir dependen de la categoría activa.
+    const opts1 = activeCategory?.attribute1Label ? (activeCategory.attribute1Options ?? []) : DEFAULT_TALLAS;
+    setTallasDisponibles(opts1);
+
+    if (activeCategory?.attribute1Label && activeCategory.attribute2Label) {
+      const opts2 = activeCategory.attribute2Options ?? [];
+      setColoresDisponibles(opts2.map(name => ({ name, hex: "#6366f1" })));
+    } else if (activeCategory?.attribute1Label) {
+      setColoresDisponibles([]); // sin segundo atributo configurado
+    } else {
+      setColoresDisponibles(DEFAULT_COLORES);
+    }
+
+    // Al cambiar de categoría (y por lo tanto el significado de los
+    // atributos), limpia la selección previa para no mezclar, por ejemplo,
+    // una "Capacidad: 128GB" elegida bajo Tecnología con Ropa.
+    if (!isInitialAttrRender.current) {
+      setProducto(prev => ({
+        ...prev,
+        selectedTallas: [],
+        selectedColores: [],
+        variantes: syncVariantes([], [], [], prev.name),
+      }));
+    }
+    isInitialAttrRender.current = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [primaryCategoryId]);
+
+  useEffect(() => {
+    let alive = true;
+
+    const loadMeta = async (isRetry = false) => {
       setLoadingMeta(true);
       try {
         const [cats, brnds, supps] = await Promise.all([
@@ -340,15 +509,31 @@ const UploadProduct = () => {
           getBrands(),
           getSuppliersByStore().catch(() => []),
         ]);
+        if (!alive) return;
         setCategories(Array.isArray(cats) ? cats : []);
         setBrands(Array.isArray(brnds) ? brnds : []);
         setSuppliers(Array.isArray(supps) ? supps : []);
+        setError("");
       } catch (err) {
-        setError("Error al cargar categorías y marcas. " + err);
+        if (!alive) return;
+        // El timeout (AbortError) suele ser el backend respondiendo lento,
+        // no un error real — reintenta una vez antes de mostrar el aviso.
+        if (err?.name === "AbortError" && !isRetry) {
+          loadMeta(true);
+          return;
+        }
+        setError(
+          err?.name === "AbortError"
+            ? "El servidor está tardando en responder. Verifica tu conexión y vuelve a intentarlo."
+            : "Error al cargar categorías y marcas. Intenta de nuevo.",
+        );
       } finally {
-        setLoadingMeta(false);
+        if (alive) setLoadingMeta(false);
       }
-    })();
+    };
+
+    loadMeta();
+    return () => { alive = false; };
   }, []);
 
   const handleChange = (e) => {
@@ -358,6 +543,22 @@ const UploadProduct = () => {
 
   const handleBrandCreated = (brand) => setBrands(prev => [...prev, brand]);
   const handleCategoryCreated = (cat) => setCategories(prev => [...prev, cat]);
+  const handleCategoryUpdated = (updated) => {
+    setCategories(prev => prev.map(c => c.categoryId === updated.categoryId ? updated : c));
+    // Si se editó la categoría actualmente activa, refresca las opciones
+    // disponibles de inmediato (el efecto por id no se dispara solo).
+    if (updated.categoryId === primaryCategoryId) {
+      const opts1 = updated.attribute1Label ? (updated.attribute1Options ?? []) : DEFAULT_TALLAS;
+      setTallasDisponibles(opts1);
+      if (updated.attribute1Label && updated.attribute2Label) {
+        setColoresDisponibles((updated.attribute2Options ?? []).map(name => ({ name, hex: "#6366f1" })));
+      } else if (updated.attribute1Label) {
+        setColoresDisponibles([]);
+      } else {
+        setColoresDisponibles(DEFAULT_COLORES);
+      }
+    }
+  };
   const handleCategoryToggle = (categoryId) => {
     setProducto(prev => ({
       ...prev,
@@ -655,6 +856,7 @@ const UploadProduct = () => {
           </div>
           <CategoryChips categories={categories} selectedIds={producto.categoryIds}
             onToggle={handleCategoryToggle} onCategoryCreated={handleCategoryCreated}
+            onCategoryUpdated={handleCategoryUpdated}
             disabled={loading || loadingMeta} />
         </section>
 
@@ -715,9 +917,13 @@ const UploadProduct = () => {
         {/* ── 3. Tallas, colores y variantes ── */}
         <section className="up-section">
           <div className="up-section-head">
-            <h2 className="up-section-title">3. Tallas y colores <span className="up-req">*</span></h2>
+            <h2 className="up-section-title">
+              3. {attr1LabelPlural}{hasAttr2 ? ` y ${attr2LabelPlural.toLowerCase()}` : ""} <span className="up-req">*</span>
+            </h2>
             <p className="up-section-desc">
-              Selecciona las tallas y colores disponibles. Las variantes se generan automáticamente.
+              {activeCategory?.attribute1Label
+                ? `Selecciona los valores disponibles para "${activeCategory.name}". Las variantes se generan automáticamente.`
+                : "Selecciona las tallas y colores disponibles. Las variantes se generan automáticamente."}
             </p>
           </div>
 
@@ -725,16 +931,16 @@ const UploadProduct = () => {
           <div className="up-matrix">
             {/* Fila Tallas */}
             <div className="up-matrix-row">
-              <span className="up-matrix-label">Tallas</span>
+              <span className="up-matrix-label">{attr1LabelPlural}</span>
               <div className="up-matrix-content">
                 <div className="up-size-chips">
-                  {/* Botón ÚNICA — excluyente con todas las demás tallas */}
+                  {/* Botón ÚNICA — excluyente con todas las demás opciones */}
                   <button
                     type="button"
                     className={`up-size-chip up-size-chip--unica${producto.selectedTallas.includes("ÚNICA") ? " up-size-chip--on" : ""}`}
                     onClick={() => toggleTalla("ÚNICA")}
                     disabled={loading}
-                    title="Para productos sin talla específica: gorras, accesorios, billeteras…"
+                    title={`Para productos sin ${attr1Label.toLowerCase()} específica`}
                   >
                     ÚNICA
                   </button>
@@ -781,84 +987,88 @@ const UploadProduct = () => {
                     </div>
                   ) : (
                     <button type="button" className="up-add-new-btn" onClick={() => setShowAddTalla(true)} disabled={loading}>
-                      + Nueva talla
+                      + Nueva opción de {attr1Label.toLowerCase()}
                     </button>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Fila Colores */}
-            <div className="up-matrix-row">
-              <span className="up-matrix-label">Colores</span>
-              <div className="up-matrix-content">
-                <div className="up-color-pills">
-                  {coloresDisponibles.map(({ name, hex }) => (
-                    <div key={name} className="up-chip-wrap">
-                      <button
-                        type="button"
-                        className={`up-color-pill${producto.selectedColores.includes(name) ? " up-color-pill--on" : ""}`}
-                        onClick={() => toggleColor(name)}
-                        disabled={loading}
-                      >
-                        <span className="up-color-dot" style={{ background: hex }} />
-                        {name}
-                      </button>
-                      {!DEFAULT_COLORES.some(c => c.name === name) && (
+            {/* Fila Colores (o el segundo atributo que defina la categoría) */}
+            {hasAttr2 && (
+              <div className="up-matrix-row">
+                <span className="up-matrix-label">{attr2LabelPlural}</span>
+                <div className="up-matrix-content">
+                  <div className="up-color-pills">
+                    {coloresDisponibles.map(({ name, hex }) => (
+                      <div key={name} className="up-chip-wrap">
                         <button
                           type="button"
-                          className="up-chip-del"
-                          onClick={() => removeFromColores(name)}
+                          className={`up-color-pill${producto.selectedColores.includes(name) ? " up-color-pill--on" : ""}`}
+                          onClick={() => toggleColor(name)}
                           disabled={loading}
-                          title="Eliminar color"
-                        >×</button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <div className="up-matrix-add">
-                  {showAddColor ? (
-                    <div className="up-add-color-inline">
-                      <label className="up-color-picker-wrap" title="Elige un color">
-                        <span className="up-color-preview" style={{ background: newColorHex }} />
+                        >
+                          {attr2IsColorUI && <span className="up-color-dot" style={{ background: hex }} />}
+                          {name}
+                        </button>
+                        {!DEFAULT_COLORES.some(c => c.name === name) && (
+                          <button
+                            type="button"
+                            className="up-chip-del"
+                            onClick={() => removeFromColores(name)}
+                            disabled={loading}
+                            title={`Eliminar ${attr2Label.toLowerCase()}`}
+                          >×</button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="up-matrix-add">
+                    {showAddColor ? (
+                      <div className="up-add-color-inline">
+                        {attr2IsColorUI && (
+                          <label className="up-color-picker-wrap" title="Elige un color">
+                            <span className="up-color-preview" style={{ background: newColorHex }} />
+                            <input
+                              type="color"
+                              className="up-color-input-hidden"
+                              value={newColorHex}
+                              onChange={e => setNewColorHex(e.target.value)}
+                            />
+                          </label>
+                        )}
                         <input
-                          type="color"
-                          className="up-color-input-hidden"
-                          value={newColorHex}
-                          onChange={e => setNewColorHex(e.target.value)}
+                          type="text"
+                          className="up-add-inline-input"
+                          placeholder={`Nombre de ${attr2Label.toLowerCase()}`}
+                          value={newColorName}
+                          maxLength={20}
+                          autoFocus
+                          onChange={e => setNewColorName(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === "Enter") handleAddColor();
+                            if (e.key === "Escape") { setShowAddColor(false); setNewColorName(""); }
+                          }}
                         />
-                      </label>
-                      <input
-                        type="text"
-                        className="up-add-inline-input"
-                        placeholder="Nombre del color"
-                        value={newColorName}
-                        maxLength={20}
-                        autoFocus
-                        onChange={e => setNewColorName(e.target.value)}
-                        onKeyDown={e => {
-                          if (e.key === "Enter") handleAddColor();
-                          if (e.key === "Escape") { setShowAddColor(false); setNewColorName(""); }
-                        }}
-                      />
-                      <button type="button" className="up-add-inline-ok" onClick={handleAddColor} disabled={!newColorName.trim()}>Agregar</button>
-                      <button type="button" className="up-add-inline-cancel" onClick={() => { setShowAddColor(false); setNewColorName(""); setNewColorHex("#6366f1"); }}>Cancelar</button>
-                    </div>
-                  ) : (
-                    <button type="button" className="up-add-new-btn" onClick={() => setShowAddColor(true)} disabled={loading}>
-                      + Nuevo color
-                    </button>
-                  )}
+                        <button type="button" className="up-add-inline-ok" onClick={handleAddColor} disabled={!newColorName.trim()}>Agregar</button>
+                        <button type="button" className="up-add-inline-cancel" onClick={() => { setShowAddColor(false); setNewColorName(""); setNewColorHex("#6366f1"); }}>Cancelar</button>
+                      </div>
+                    ) : (
+                      <button type="button" className="up-add-new-btn" onClick={() => setShowAddColor(true)} disabled={loading}>
+                        + Nueva opción de {attr2Label.toLowerCase()}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Resumen */}
           <div className="up-variants-summary">
             <span className="up-variants-count">
               {totalVariantes === 1 && !producto.selectedTallas.length && !producto.selectedColores.length
-                ? "1 variante (sin talla ni color)"
+                ? `1 variante (sin ${attr1Label.toLowerCase()}${hasAttr2 ? ` ni ${attr2Label.toLowerCase()}` : ""})`
                 : `${totalVariantes} variante${totalVariantes !== 1 ? "s" : ""}`}
             </span>
           </div>
@@ -937,6 +1147,8 @@ const UploadProduct = () => {
                   onChange={handleVarianteChange}
                   disabled={loading}
                   colores={coloresDisponibles}
+                  attr1Label={attr1Label}
+                  isColorMode={attr2IsColorUI}
                 />
               ))}
             </div>
