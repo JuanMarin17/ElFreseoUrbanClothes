@@ -345,10 +345,14 @@ export default function CheckoutPage() {
     setProcessing(true);
     setPayError("");
 
-    // El backend espera shippingAddress como String plano, no como objeto.
-    const shippingAddress = [
-      shipping.fullName, shipping.address, shipping.city, shipping.department, shipping.phone,
-    ].map((v) => v?.trim()).filter(Boolean).join(", ");
+    const shippingAddress = {
+      fullName:   shipping.fullName.trim(),
+      email:      shipping.email.trim(),
+      phone:      shipping.phone.trim(),
+      address:    shipping.address.trim(),
+      city:       shipping.city.trim(),
+      department: shipping.department,
+    };
 
     const orderPayload = {
       shippingAddress,

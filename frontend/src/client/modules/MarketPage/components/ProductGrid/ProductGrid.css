@@ -90,20 +90,20 @@
   gap: 20px;
 }
 
-/* ── CLIP-PATH CURTAIN REVEAL — the signature animation ───────────────── */
+/* ── Card reveal — fade + rise ─────────────────────────────────────────── */
 /*
-   Cards are "unveiled" from bottom to top, like a curtain being pulled up.
-   Each card in the page staggers 70ms apart.
-   This is distinctly different from the store carousel's 3D flip.
+   Antes usaba un clip-path tipo "cortina" (revelado de abajo hacia arriba),
+   pero si la animación no terminaba de correr a tiempo (carga lenta, primera
+   visita sin caché) el usuario se quedaba viendo la foto con la parte de
+   arriba recortada hasta refrescar. Un fade simple nunca puede dejar la
+   imagen visualmente cortada en ningún punto de la transición.
 */
 @keyframes pgc-curtainUp {
   from {
-    clip-path: inset(100% 0 0 0 round 10px);
-    opacity: 0.4;
+    opacity: 0;
     transform: translateY(10px);
   }
   to {
-    clip-path: inset(0% 0 0 0 round 10px);
     opacity: 1;
     transform: translateY(0);
   }
@@ -452,7 +452,6 @@
   .pgc-card-anim {
     animation: none;
     opacity: 1;
-    clip-path: none !important;
     transform: none;
   }
   .vx-product-img { transition: none; }

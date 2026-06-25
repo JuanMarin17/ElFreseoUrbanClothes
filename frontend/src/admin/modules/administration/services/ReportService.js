@@ -36,7 +36,10 @@ const buildHeaders = () => {
 async function apiFetch(path, options = {}, timeoutMs = 10000) {
   const url = `${BASE}${path}`;
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timer = setTimeout(
+    () => controller.abort(new Error("El servidor no respondió a tiempo. Intenta de nuevo.")),
+    timeoutMs,
+  );
   let response;
   try {
     response = await fetch(url, {

@@ -51,7 +51,10 @@ function adminHeaders() {
 // dejar el botón colgado en estado de carga para siempre.
 function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timer = setTimeout(
+    () => controller.abort(new Error("El servidor no respondió a tiempo. Intenta de nuevo.")),
+    timeoutMs,
+  );
   return fetch(url, { ...options, signal: controller.signal }).finally(() =>
     clearTimeout(timer),
   );

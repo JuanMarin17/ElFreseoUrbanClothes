@@ -39,7 +39,12 @@ async function request(method, path, { body, params, extraHeaders, timeoutMs } =
   if (body !== undefined) options.body = JSON.stringify(body);
 
   const controller = timeoutMs ? new AbortController() : null;
-  const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+  const timer = controller
+    ? setTimeout(
+        () => controller.abort(new Error("El servidor no respondió a tiempo. Intenta de nuevo.")),
+        timeoutMs,
+      )
+    : null;
   if (controller) options.signal = controller.signal;
 
   let res;

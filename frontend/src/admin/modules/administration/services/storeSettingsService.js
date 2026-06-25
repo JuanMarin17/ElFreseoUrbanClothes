@@ -23,7 +23,10 @@ async function req(method, path, body, timeoutMs = 10000) {
     body !== undefined ? { "Content-Type": "application/json" } : {},
   );
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timer = setTimeout(
+    () => controller.abort(new Error("El servidor no respondió a tiempo. Intenta de nuevo.")),
+    timeoutMs,
+  );
   let res;
   try {
     res = await fetch(`${API_BASE}${path}`, {
@@ -63,7 +66,10 @@ export async function uploadLogo(file) {
   form.append("image", file);
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 20000); // subida de archivo: más margen
+  const timer = setTimeout(
+    () => controller.abort(new Error("La subida del archivo tardó demasiado. Intenta de nuevo.")),
+    20000,
+  ); // subida de archivo: más margen
   let res;
   try {
     res = await fetch(`${API_BASE}/stores/settings/logo`, {
