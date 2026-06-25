@@ -87,7 +87,7 @@ export default function StoreHeader({
     >
       {/* Botón volver */}
       <button
-        onClick={() => navigate("/market")}
+        onClick={() => navigate("/explorar-tiendas")}
         title="Volver"
         style={{
           ...iconBtnStyle,
