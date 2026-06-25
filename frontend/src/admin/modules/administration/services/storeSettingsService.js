@@ -18,15 +18,23 @@ function buildHeaders(extra = {}) {
   return h;
 }
 
-async function req(method, path, body) {
+async function req(method, path, body, timeoutMs = 10000) {
   const headers = buildHeaders(
     body !== undefined ? { "Content-Type": "application/json" } : {},
   );
-  const res = await fetch(`${API_BASE}${path}`, {
-    method,
-    headers,
-    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      method,
+      signal: controller.signal,
+      headers,
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 
   if (res.status === 204 || res.status === 404) return null;
 
@@ -54,11 +62,19 @@ export async function uploadLogo(file) {
   const form = new FormData();
   form.append("image", file);
 
-  const res  = await fetch(`${API_BASE}/stores/settings/logo`, {
-    method: "POST",
-    headers: h,
-    body: form,
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 20000); // subida de archivo: más margen
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/stores/settings/logo`, {
+      method: "POST",
+      signal: controller.signal,
+      headers: h,
+      body: form,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
   const json = await res.json().catch(() => ({}));
   if (!res.ok) {
     const err  = new Error(json?.message ?? `HTTP ${res.status}`);

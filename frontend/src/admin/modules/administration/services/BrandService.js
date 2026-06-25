@@ -34,6 +34,16 @@ const writeHeaders = () => ({
   "X-User-Role": localStorage.getItem("userRole") ?? "OWNER",
 });
 
+// fetch con timeout: si el backend no responde en timeoutMs, aborta en vez de
+// dejar el botón colgado en estado de carga para siempre.
+const fetchWithTimeout = (url, options = {}, timeoutMs = 10000) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() =>
+    clearTimeout(timer),
+  );
+};
+
 const unwrap = async (res) => {
   const text = await res.text();
   if (res.status === 204 || !text) return [];
@@ -50,7 +60,7 @@ const unwrap = async (res) => {
 
 /** GET /brands/active */
 export const getBrands = async () => {
-  const res = await fetch(`${BASE_URL}/brands/active`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/brands/active`, {
     headers: readHeaders(),
   });
   return unwrap(res);
@@ -58,7 +68,7 @@ export const getBrands = async () => {
 
 /** GET /brands/getAllBrands */
 export const getAllBrands = async () => {
-  const res = await fetch(`${BASE_URL}/brands/getAllBrands`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/brands/getAllBrands`, {
     headers: readHeaders(),
   });
   return unwrap(res);
@@ -68,7 +78,7 @@ export const getAllBrands = async () => {
 
 /** POST /brands/createBrand  Body: { name } */
 export const createBrand = async (name) => {
-  const res = await fetch(`${BASE_URL}/brands/createBrand`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/brands/createBrand`, {
     method: "POST",
     headers: writeHeaders(),
     body: JSON.stringify({ name }),
@@ -78,7 +88,7 @@ export const createBrand = async (name) => {
 
 /** PUT /brands/:id  Body: { name } */
 export const updateBrand = async (id, name) => {
-  const res = await fetch(`${BASE_URL}/brands/${id}`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/brands/${id}`, {
     method: "PUT",
     headers: writeHeaders(),
     body: JSON.stringify({ name }),
@@ -88,7 +98,7 @@ export const updateBrand = async (id, name) => {
 
 /** PUT /brands/active/:id */
 export const activateBrand = async (id) => {
-  const res = await fetch(`${BASE_URL}/brands/active/${id}`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/brands/active/${id}`, {
     method: "PUT",
     headers: writeHeaders(),
   });
@@ -97,7 +107,7 @@ export const activateBrand = async (id) => {
 
 /** PUT /brands/inactive/:id */
 export const inactivateBrand = async (id) => {
-  const res = await fetch(`${BASE_URL}/brands/inactive/${id}`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/brands/inactive/${id}`, {
     method: "PUT",
     headers: writeHeaders(),
   });

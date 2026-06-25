@@ -18,14 +18,22 @@ function getStoreId() {
   return localStorage.getItem("storeId");
 }
 
-async function req(method, path, body) {
+async function req(method, path, body, timeoutMs = 10000) {
   const storeId = getStoreId();
   const url     = `${API_BASE}/stores/${storeId}${path}`;
-  const res     = await fetch(url, {
-    method,
-    headers: buildHeaders(),
-    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let res;
+  try {
+    res = await fetch(url, {
+      method,
+      signal: controller.signal,
+      headers: buildHeaders(),
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 
   if (res.status === 204) return null;
 
