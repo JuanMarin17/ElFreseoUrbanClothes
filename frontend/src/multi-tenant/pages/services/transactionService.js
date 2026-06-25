@@ -15,13 +15,24 @@ const buildHeaders = () => {
   };
 };
 
-async function request(method, path, body) {
+async function request(method, path, body, timeoutMs = 10000) {
   const url = `${BASE}${path}`;
-  const res = await fetch(url, {
-    method,
-    headers: buildHeaders(),
-    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () => controller.abort(new Error("El servidor no respondió a tiempo. Intenta de nuevo.")),
+    timeoutMs,
+  );
+  let res;
+  try {
+    res = await fetch(url, {
+      method,
+      headers: buildHeaders(),
+      signal: controller.signal,
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 
   if (res.status === 204) return null;
 

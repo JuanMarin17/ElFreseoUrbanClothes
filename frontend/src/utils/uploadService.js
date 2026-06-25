@@ -10,11 +10,22 @@ async function postImage(folder, file) {
   const jwt = localStorage.getItem("jwt");
   const headers = jwt ? { Authorization: `Bearer ${jwt}` } : {};
 
-  const res = await fetch(`${API_ROOT}/upload?folder=${folder}`, {
-    method: "POST",
-    headers,
-    body: formData,
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () => controller.abort(new Error("La subida del archivo tardó demasiado. Intenta de nuevo.")),
+    20000,
+  );
+  let res;
+  try {
+    res = await fetch(`${API_ROOT}/upload?folder=${folder}`, {
+      method: "POST",
+      headers,
+      body: formData,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));

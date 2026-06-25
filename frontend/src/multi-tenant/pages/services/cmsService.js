@@ -16,11 +16,22 @@ function buildHeaders(storeId) {
   };
 }
 
-async function request(url, storeId, options = {}) {
-  const res = await fetch(url, {
-    ...options,
-    headers: buildHeaders(storeId),
-  });
+async function request(url, storeId, options = {}, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () => controller.abort(new Error("El servidor no respondió a tiempo. Intenta de nuevo.")),
+    timeoutMs,
+  );
+  let res;
+  try {
+    res = await fetch(url, {
+      ...options,
+      headers: buildHeaders(storeId),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
   const ct = res.headers.get("Content-Type") ?? "";
   const body = ct.includes("application/json")
     ? await res.json()

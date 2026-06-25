@@ -28,7 +28,7 @@ const buildHeaders = (extra = {}) => {
 };
 
 // ─── Fetch base ───────────────────────────────────────────────────────────────
-async function request(method, path, { body, params, extraHeaders, timeoutMs } = {}) {
+async function request(method, path, { body, params, extraHeaders, timeoutMs = 10000 } = {}) {
   let url = `${BASE}${path}`;
   if (params) {
     const qs = new URLSearchParams(params).toString();
@@ -38,20 +38,18 @@ async function request(method, path, { body, params, extraHeaders, timeoutMs } =
   const options = { method, headers: buildHeaders(extraHeaders) };
   if (body !== undefined) options.body = JSON.stringify(body);
 
-  const controller = timeoutMs ? new AbortController() : null;
-  const timer = controller
-    ? setTimeout(
-        () => controller.abort(new Error("El servidor no respondió a tiempo. Intenta de nuevo.")),
-        timeoutMs,
-      )
-    : null;
-  if (controller) options.signal = controller.signal;
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () => controller.abort(new Error("El servidor no respondió a tiempo. Intenta de nuevo.")),
+    timeoutMs,
+  );
+  options.signal = controller.signal;
 
   let res;
   try {
     res = await fetch(url, options);
   } finally {
-    if (timer) clearTimeout(timer);
+    clearTimeout(timer);
   }
 
   if (res.status === 204) return [];

@@ -23,15 +23,18 @@ const storeHeader = (storeId) => ({
 
 // ─── Utilidad de fetch ────────────────────────────────────────────────────────
 
-async function request(url, options = {}, timeoutMs) {
-  const controller = timeoutMs ? new AbortController() : null;
-  const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+async function request(url, options = {}, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () => controller.abort(new Error("El servidor no respondió a tiempo. Intenta de nuevo.")),
+    timeoutMs,
+  );
 
   let res;
   try {
     res = await fetch(url, {
       ...options,
-      signal: controller?.signal,
+      signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
         ...authHeader(), // JWT en todas las peticiones
@@ -39,7 +42,7 @@ async function request(url, options = {}, timeoutMs) {
       },
     });
   } finally {
-    if (timer) clearTimeout(timer);
+    clearTimeout(timer);
   }
 
   let body;
@@ -219,11 +222,22 @@ export async function uploadStoreLogo(storeId, file) {
   const formData = new FormData();
   formData.append("image", file);
 
-  const res = await fetch(`${SETTINGS_URL}/logo`, {
-    method: "POST",
-    headers: storeHeader(storeId), // Authorization + X-Store-Id (sin Content-Type, lo pone el browser)
-    body: formData,
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () => controller.abort(new Error("La subida del archivo tardó demasiado. Intenta de nuevo.")),
+    20000,
+  );
+  let res;
+  try {
+    res = await fetch(`${SETTINGS_URL}/logo`, {
+      method: "POST",
+      headers: storeHeader(storeId), // Authorization + X-Store-Id (sin Content-Type, lo pone el browser)
+      body: formData,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 
   let body;
   const ct = res.headers.get("Content-Type") ?? "";

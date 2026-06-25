@@ -20,24 +20,22 @@ function buildHeaders() {
   };
 }
 
-async function apiFetch(path, options = {}, timeoutMs) {
-  const controller = timeoutMs ? new AbortController() : null;
-  const timer = controller
-    ? setTimeout(
-        () => controller.abort(new Error("El servidor no respondió a tiempo. Intenta de nuevo.")),
-        timeoutMs,
-      )
-    : null;
+async function apiFetch(path, options = {}, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () => controller.abort(new Error("El servidor no respondió a tiempo. Intenta de nuevo.")),
+    timeoutMs,
+  );
 
   let res;
   try {
     res = await fetch(`${BASE}${path}`, {
       ...options,
-      signal: controller?.signal,
+      signal: controller.signal,
       headers: { ...buildHeaders(), ...(options.headers ?? {}) },
     });
   } finally {
-    if (timer) clearTimeout(timer);
+    clearTimeout(timer);
   }
 
   if (res.status === 204) return null;
