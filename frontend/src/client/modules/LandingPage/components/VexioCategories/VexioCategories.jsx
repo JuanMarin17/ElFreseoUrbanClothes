@@ -62,9 +62,12 @@ export default function VexioCategories() {
     fetchCatalogProducts()
       .then(data => {
         if (cancelled) return;
-        // Toma 4 productos con mejor stock (proxy de popularidad)
+        // Toma 4 productos con mejor stock (proxy de popularidad).
+        // Tiebreak por id: el backend no garantiza el mismo orden entre
+        // peticiones para productos con el mismo stock, así que sin esto
+        // los 4 destacados (y sus fotos) cambiaban de una carga a otra.
         const top4 = [...data]
-          .sort((a, b) => (b.stock ?? 0) - (a.stock ?? 0))
+          .sort((a, b) => (b.stock ?? 0) - (a.stock ?? 0) || String(a.id).localeCompare(String(b.id)))
           .slice(0, 4)
           .map(mapProduct);
         setFeatured(top4);
