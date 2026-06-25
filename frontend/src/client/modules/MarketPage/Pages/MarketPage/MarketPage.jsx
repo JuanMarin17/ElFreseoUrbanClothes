@@ -30,10 +30,13 @@ function useMarketProducts() {
     return () => { cancelled = true; };
   }, []);
 
-  // "Destacados": productos con más stock (proxy de popularidad), tomar los primeros 8
+  // "Destacados": productos con más stock (proxy de popularidad), tomar los primeros 8.
+  // Tiebreak por id: el backend no garantiza el mismo orden entre peticiones para
+  // productos con el mismo stock, así que sin esto el listado (y sus fotos) cambiaba
+  // de una carga a otra aunque los datos fueran los mismos.
   const bestSellers = all.length > 0
     ? [...all]
-        .sort((a, b) => (b.stock ?? 0) - (a.stock ?? 0))
+        .sort((a, b) => (b.stock ?? 0) - (a.stock ?? 0) || String(a.id).localeCompare(String(b.id)))
         .slice(0, 8)
         .map(p => ({ ...p, badge: p.stock > 50 ? 'Más vendido' : 'Destacado' }))
     : [];
