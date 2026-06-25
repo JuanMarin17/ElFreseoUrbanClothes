@@ -375,6 +375,16 @@ export default function Login({ mode }) {
           </button>
         </form>
 
+        {mode === 'login' && (
+          <button
+            type="button"
+            className="vp-guest-btn"
+            onClick={() => navigate(DEFAULT_ROUTE)}
+          >
+            Continuar sin cuenta
+          </button>
+        )}
+
         {googleAvailable && (
           <>
             <div className="vp-divider"><span className="vp-divider-text">o continúa con</span></div>

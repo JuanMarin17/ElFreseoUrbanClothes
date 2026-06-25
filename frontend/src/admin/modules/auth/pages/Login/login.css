@@ -352,6 +352,28 @@
   background: var(--vp-border);
 }
 
+.vp-guest-btn {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 8px;
+  background: none;
+  border: none;
+  color: var(--vp-muted);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.vp-guest-btn:hover {
+  color: var(--vp-accent);
+  text-decoration: underline;
+}
+
 /* ─── Botón de Google ───
    Google Identity Services no permite un texto personalizado como "Google"
    a solas (solo "Continuar con Google", "Iniciar sesión con Google", etc.),
