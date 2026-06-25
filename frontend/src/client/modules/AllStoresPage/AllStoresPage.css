@@ -338,9 +338,9 @@
 }
 
 .ase-card-btn {
-  background: color-mix(in srgb, var(--ase-accent) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ase-accent) 35%, transparent);
-  color: var(--ase-accent);
+  background: color-mix(in srgb, var(--ase-accent) 18%, #1c2330);
+  border: 1px solid color-mix(in srgb, var(--ase-accent) 45%, transparent);
+  color: #f0ede8;
   padding: 8px 14px;
   font-size: 12px;
   font-weight: 700;
@@ -351,7 +351,7 @@
   width: 100%;
 }
 .ase-card:hover .ase-card-btn {
-  background: color-mix(in srgb, var(--ase-accent) 22%, transparent);
+  background: color-mix(in srgb, var(--ase-accent) 30%, #1c2330);
 }
 
 /* ── Skeleton ────────────────────────────────────────────── */
@@ -444,5 +444,6 @@
 @media (max-width: 480px) {
   .ase-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
   .ase-card-cover { height: 90px; }
-  .ase-card-body { padding: 32px 14px 14px; }
+  .ase-card-avatar-ring { top: 56px; width: 44px; height: 44px; }
+  .ase-card-body { padding: 36px 14px 14px; }
 }
