@@ -28,7 +28,7 @@ const buildHeaders = (extra = {}) => {
 };
 
 // ─── Fetch base ───────────────────────────────────────────────────────────────
-async function request(method, path, { body, params, extraHeaders } = {}) {
+async function request(method, path, { body, params, extraHeaders, timeoutMs } = {}) {
   let url = `${BASE}${path}`;
   if (params) {
     const qs = new URLSearchParams(params).toString();
@@ -38,7 +38,16 @@ async function request(method, path, { body, params, extraHeaders } = {}) {
   const options = { method, headers: buildHeaders(extraHeaders) };
   if (body !== undefined) options.body = JSON.stringify(body);
 
-  const res = await fetch(url, options);
+  const controller = timeoutMs ? new AbortController() : null;
+  const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+  if (controller) options.signal = controller.signal;
+
+  let res;
+  try {
+    res = await fetch(url, options);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 
   if (res.status === 204) return [];
 
@@ -74,7 +83,7 @@ export const getAllProducts = (storeId) => {
   const id = storeId ?? localStorage.getItem("storeId");
   if (!id || id === "null")
     throw new Error("Se requiere el storeId para obtener productos.");
-  return request("GET", "/products", { extraHeaders: { "X-Store-Id": id } });
+  return request("GET", "/products", { extraHeaders: { "X-Store-Id": id }, timeoutMs: 8000 });
 };
 
 export const getAllActiveProducts = (storeId) => {
