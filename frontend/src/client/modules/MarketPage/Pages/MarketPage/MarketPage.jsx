@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Grid2X2 } from 'lucide-react';
 import { fetchCatalogProducts } from '../../../Catalogo/catalogoService';
 import HeaderMarket        from '../../../../../utils/Header/HeaderMarket';
@@ -54,6 +54,7 @@ function useMarketProducts() {
 
 export default function MarketPage() {
   const { bestSellers, newArrivals, loading, total } = useMarketProducts();
+  const navigate = useNavigate();
 
   return (
     <div className="vexio-market-root">
@@ -67,7 +68,10 @@ export default function MarketPage() {
         <StatsSection />
 
         {/* 3 · Categorías */}
-        <CategoriesBubble />
+        <CategoriesBubble
+          onCategorySelect={(name) => navigate(`/catalogo?categoria=${encodeURIComponent(name)}`)}
+          onViewAll={() => navigate('/catalogo')}
+        />
 
         {/* 4 · Más vendidos — datos reales */}
         <div id="market-products">

@@ -13,7 +13,7 @@ const categories = [
   { id: 8, name: "Joyería",     img: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&q=80" },
 ];
 
-export default function CategoriesBubble({ onCategorySelect }) {
+export default function CategoriesBubble({ onCategorySelect, onViewAll }) {
   const [active, setActive] = useState(null);
   const itemsRef = useRef([]);
 
@@ -35,9 +35,9 @@ export default function CategoriesBubble({ onCategorySelect }) {
     return () => observer.disconnect();
   }, []);
 
-  const handleSelect = (id) => {
-    setActive((prev) => (prev === id ? null : id));
-    onCategorySelect?.(id);
+  const handleSelect = (cat) => {
+    setActive((prev) => (prev === cat.id ? null : cat.id));
+    onCategorySelect?.(cat.name);
   };
 
   return (
@@ -60,7 +60,7 @@ export default function CategoriesBubble({ onCategorySelect }) {
             className={`cb-card cb-reveal ${active === cat.id ? 'cb-active' : ''}`}
             ref={(el) => (itemsRef.current[i] = el)}
             style={{ transitionDelay: `${i * 40}ms` }}
-            onClick={() => handleSelect(cat.id)}
+            onClick={() => handleSelect(cat)}
             aria-pressed={active === cat.id}
           >
             <div className="cb-image-container">
@@ -77,6 +77,7 @@ export default function CategoriesBubble({ onCategorySelect }) {
           className="cb-card cb-card--more cb-reveal"
           ref={(el) => (itemsRef.current[categories.length] = el)}
           style={{ transitionDelay: `${categories.length * 40}ms` }}
+          onClick={() => onViewAll?.()}
           aria-label="Ver todas las categorías"
         >
           <div className="cb-more-content">

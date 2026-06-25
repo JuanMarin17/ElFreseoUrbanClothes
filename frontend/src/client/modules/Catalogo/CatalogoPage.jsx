@@ -624,13 +624,29 @@ export default function CatalogoPage() {
     }
 
     if (filters.categories.length) {
-      list = list.filter(p =>
+      const matchesCategoryTag = (p) =>
         p.categories?.some(c =>
           filters.categories.some(fc =>
             c.toLowerCase().includes(fc.toLowerCase()) || fc.toLowerCase().includes(c.toLowerCase())
           )
-        )
-      );
+        );
+      // Las categorías de las tarjetas de inicio (ej. "Mujer", "Joyería") no
+      // siempre coinciden con cómo cada tienda nombró sus propias categorías.
+      // Si nadie etiquetó nada con ese término exacto, no devuelvas una lista
+      // vacía: amplía la búsqueda a nombre/marca/tienda antes de rendirte.
+      const hasTagMatch = products.some(matchesCategoryTag);
+      if (hasTagMatch) {
+        list = list.filter(matchesCategoryTag);
+      } else {
+        const terms = filters.categories.map(fc => fc.toLowerCase());
+        list = list.filter(p =>
+          terms.some(fc =>
+            p.name?.toLowerCase().includes(fc) ||
+            p.brand?.toLowerCase().includes(fc) ||
+            p.storeName?.toLowerCase().includes(fc)
+          )
+        );
+      }
     }
 
     if (filters.colors.length) {
@@ -847,10 +863,20 @@ export default function CatalogoPage() {
           ) : !error && filtered.length === 0 ? (
             <motion.div className="cat-empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <div className="cat-empty-icon"><Search size={36} /></div>
-              <h3>{products.length === 0 ? "No hay productos disponibles" : "Sin resultados"}</h3>
-              <p>{products.length === 0
-                ? "Aún no hay productos publicados. Vuelve pronto."
-                : "Ajusta los filtros o prueba con otra búsqueda"}</p>
+              <h3>
+                {products.length === 0
+                  ? "No hay productos disponibles"
+                  : filters.categories.length > 0
+                    ? `Sin resultados para "${filters.categories.join(", ")}"`
+                    : "Sin resultados"}
+              </h3>
+              <p>
+                {products.length === 0
+                  ? "Aún no hay productos publicados. Vuelve pronto."
+                  : filters.categories.length > 0
+                    ? "Aún no hay productos en esta categoría. Prueba con otra o explora el catálogo completo."
+                    : "Ajusta los filtros o prueba con otra búsqueda"}
+              </p>
               {products.length > 0 && (
                 <button className="cat-empty-btn" onClick={clearFilters}>Limpiar filtros</button>
               )}
