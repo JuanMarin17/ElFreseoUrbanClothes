@@ -20,11 +20,20 @@ function buildHeaders() {
   };
 }
 
-async function apiFetch(path, options = {}) {
-  const res = await fetch(`${BASE}${path}`, {
-    ...options,
-    headers: { ...buildHeaders(), ...(options.headers ?? {}) },
-  });
+async function apiFetch(path, options = {}, timeoutMs) {
+  const controller = timeoutMs ? new AbortController() : null;
+  const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+
+  let res;
+  try {
+    res = await fetch(`${BASE}${path}`, {
+      ...options,
+      signal: controller?.signal,
+      headers: { ...buildHeaders(), ...(options.headers ?? {}) },
+    });
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 
   if (res.status === 204) return null;
 
@@ -58,7 +67,7 @@ async function apiFetch(path, options = {}) {
  */
 export const getMembers = () => {
   const storeId = localStorage.getItem('storeId');
-  return apiFetch(`/stores/${storeId}/users`);
+  return apiFetch(`/stores/${storeId}/users`, {}, 8000);
 };
 
 /**
