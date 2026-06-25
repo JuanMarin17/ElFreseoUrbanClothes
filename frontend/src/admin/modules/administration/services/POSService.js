@@ -20,11 +20,19 @@ function buildHeaders() {
   };
 }
 
-async function apiFetch(path, options = {}) {
-  const res = await fetch(`${BASE}${path}`, {
-    ...options,
-    headers: { ...buildHeaders(), ...(options.headers ?? {}) },
-  });
+async function apiFetch(path, options = {}, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let res;
+  try {
+    res = await fetch(`${BASE}${path}`, {
+      ...options,
+      signal: controller.signal,
+      headers: { ...buildHeaders(), ...(options.headers ?? {}) },
+    });
+  } finally {
+    clearTimeout(timer);
+  }
   if (res.status === 204) return null;
   let data;
   try { data = await res.json(); } catch { data = {}; }

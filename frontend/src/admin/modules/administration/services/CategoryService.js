@@ -34,6 +34,16 @@ const writeHeaders = () => ({
   "X-User-Role": localStorage.getItem("userRole") ?? "OWNER",
 });
 
+// fetch con timeout: si el backend no responde en timeoutMs, aborta en vez de
+// dejar el botón colgado en estado de carga para siempre.
+const fetchWithTimeout = (url, options = {}, timeoutMs = 10000) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() =>
+    clearTimeout(timer),
+  );
+};
+
 // Desenvuelve { message, status, data, timestamp } → data
 const unwrap = async (res) => {
   const text = await res.text();
@@ -51,7 +61,7 @@ const unwrap = async (res) => {
 
 /** GET /categories/active */
 export const getCategories = async () => {
-  const res = await fetch(`${BASE_URL}/categories/active`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/categories/active`, {
     headers: readHeaders(),
   });
   return unwrap(res);
@@ -59,7 +69,7 @@ export const getCategories = async () => {
 
 /** GET /categories/getAllCategories */
 export const getAllCategories = async () => {
-  const res = await fetch(`${BASE_URL}/categories/getAllCategories`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/categories/getAllCategories`, {
     headers: readHeaders(),
   });
   return unwrap(res);
@@ -69,7 +79,7 @@ export const getAllCategories = async () => {
 
 /** POST /categories/createCategory  Body: { name } */
 export const createCategory = async (name) => {
-  const res = await fetch(`${BASE_URL}/categories/createCategory`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/categories/createCategory`, {
     method: "POST",
     headers: writeHeaders(),
     body: JSON.stringify({ name }),
@@ -79,7 +89,7 @@ export const createCategory = async (name) => {
 
 /** PUT /categories/:id  Body: { name } */
 export const updateCategory = async (id, name) => {
-  const res = await fetch(`${BASE_URL}/categories/${id}`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/categories/${id}`, {
     method: "PUT",
     headers: writeHeaders(),
     body: JSON.stringify({ name }),
@@ -89,7 +99,7 @@ export const updateCategory = async (id, name) => {
 
 /** PUT /categories/active/:id */
 export const activateCategory = async (id) => {
-  const res = await fetch(`${BASE_URL}/categories/active/${id}`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/categories/active/${id}`, {
     method: "PUT",
     headers: writeHeaders(),
   });
@@ -98,7 +108,7 @@ export const activateCategory = async (id) => {
 
 /** DELETE /categories/:id  (soft delete) */
 export const deleteCategory = async (id) => {
-  const res = await fetch(`${BASE_URL}/categories/${id}`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/categories/${id}`, {
     method: "DELETE",
     headers: writeHeaders(),
   });

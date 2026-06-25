@@ -33,15 +33,23 @@ const buildHeaders = () => {
  * @param {string} path       - Ruta relativa (ej. "/reports/dashboard")
  * @param {object} [options]  - Opciones adicionales para fetch
  */
-async function apiFetch(path, options = {}) {
+async function apiFetch(path, options = {}, timeoutMs = 10000) {
   const url = `${BASE}${path}`;
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      ...buildHeaders(),
-      ...(options.headers || {}),
-    },
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let response;
+  try {
+    response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        ...buildHeaders(),
+        ...(options.headers || {}),
+      },
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 
   if (response.status === 400) {
     throw new Error("STORE_ID_MISSING"); // X-Store-Id es requerido

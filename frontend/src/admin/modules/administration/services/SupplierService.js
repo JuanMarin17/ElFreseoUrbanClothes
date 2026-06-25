@@ -47,6 +47,16 @@ function adminHeaders() {
   };
 }
 
+// fetch con timeout: si el backend no responde en timeoutMs, aborta en vez de
+// dejar el botón colgado en estado de carga para siempre.
+function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() =>
+    clearTimeout(timer),
+  );
+}
+
 async function unwrap(res) {
   const text = await res.text();
 
@@ -76,7 +86,7 @@ async function unwrap(res) {
 
 /** GET /suppliers/getSuppliersByStore — lista proveedores activos de la tienda */
 export async function getSuppliersByStore() {
-  const res = await fetch(`${BASE_URL}/suppliers/getSuppliersByStore`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/suppliers/getSuppliersByStore`, {
     headers: readHeaders(),
   });
   const data = await unwrap(res);
@@ -85,7 +95,7 @@ export async function getSuppliersByStore() {
 
 /** GET /suppliers/{supplierId} */
 export async function getSupplierById(supplierId) {
-  const res = await fetch(`${BASE_URL}/suppliers/${supplierId}`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/suppliers/${supplierId}`, {
     headers: readHeaders(),
   });
   return unwrap(res);
@@ -99,7 +109,7 @@ export async function getSupplierById(supplierId) {
  * 409 → nombre duplicado globalmente
  */
 export async function createSupplier(body) {
-  const res = await fetch(`${BASE_URL}/suppliers/createSupplier`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/suppliers/createSupplier`, {
     method: "POST",
     headers: writeHeaders(),
     body: JSON.stringify(body),
@@ -112,7 +122,7 @@ export async function createSupplier(body) {
  * Body: { name?, contactName?, phone?, email? }
  */
 export async function updateSupplier(supplierId, body) {
-  const res = await fetch(`${BASE_URL}/suppliers/${supplierId}`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/suppliers/${supplierId}`, {
     method: "PUT",
     headers: writeHeaders(),
     body: JSON.stringify(body),
@@ -127,7 +137,7 @@ export async function updateSupplier(supplierId, body) {
  * Solo rompe el vínculo tienda-proveedor. No borra el proveedor globalmente.
  */
 export async function unlinkSupplier(supplierId) {
-  const res = await fetch(`${BASE_URL}/suppliers/${supplierId}/unlink`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/suppliers/${supplierId}/unlink`, {
     method: "DELETE",
     headers: readHeaders(),
   });
@@ -139,7 +149,7 @@ export async function unlinkSupplier(supplierId) {
  * Soft-delete global. Requiere X-User-Role: ADMIN.
  */
 export async function deactivateSupplier(supplierId) {
-  const res = await fetch(`${BASE_URL}/suppliers/${supplierId}`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/suppliers/${supplierId}`, {
     method: "DELETE",
     headers: adminHeaders(),
   });

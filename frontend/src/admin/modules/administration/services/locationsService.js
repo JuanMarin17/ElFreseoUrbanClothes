@@ -14,12 +14,20 @@ function buildHeaders() {
   return h;
 }
 
-async function req(method, path, body) {
-  const res = await fetch(`${BASE}${path}`, {
-    method,
-    headers: buildHeaders(),
-    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
-  });
+async function req(method, path, body, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let res;
+  try {
+    res = await fetch(`${BASE}${path}`, {
+      method,
+      signal: controller.signal,
+      headers: buildHeaders(),
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 
   if (res.status === 204) return null;
 

@@ -12,9 +12,11 @@ const buildHeaders = () => ({
   "X-Store-Id": localStorage.getItem("storeId"),
 });
 
-async function apiFetch(path) {
+async function apiFetch(path, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch(`${BASE}${path}`, { headers: buildHeaders() });
+    const res = await fetch(`${BASE}${path}`, { headers: buildHeaders(), signal: controller.signal });
     if (res.status === 401) throw new Error("UNAUTHORIZED");
     if (res.status === 400) throw new Error("STORE_ID_MISSING");
     if (!res.ok) throw new Error(`HTTP_${res.status}`);
@@ -23,10 +25,12 @@ async function apiFetch(path) {
     return JSON.parse(text);
   } catch (e) {
     if (e.message === "UNAUTHORIZED" || e.message === "STORE_ID_MISSING") throw e;
-    if (e.name === "TypeError" || e.message?.includes("Failed to fetch") || e.message?.includes("NetworkError")) {
+    if (e.name === "AbortError" || e.name === "TypeError" || e.message?.includes("Failed to fetch") || e.message?.includes("NetworkError")) {
       throw new Error("EMPTY_RESPONSE");
     }
     throw e;
+  } finally {
+    clearTimeout(timer);
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Bell, X, ShoppingCart, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
 import { getOrders } from '../../../services/OrdersService';
 import { getAllProducts } from '../../../services/productService';
@@ -34,6 +34,7 @@ function useNotifications() {
   const [notifs, setNotifs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const aliveRef = useRef(true);
 
   const load = () => {
     setLoading(true);
@@ -43,6 +44,7 @@ function useNotifications() {
       Promise.resolve().then(() => getOrders({ size: 5 })),
       Promise.resolve().then(() => getAllProducts(localStorage.getItem('storeId'))),
     ]).then(([ordersRes, productsRes]) => {
+      if (!aliveRef.current) return;
       const items = [];
 
       if (ordersRes.status === 'fulfilled') {
@@ -92,7 +94,11 @@ function useNotifications() {
     });
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    aliveRef.current = true;
+    load();
+    return () => { aliveRef.current = false; };
+  }, []);
 
   return { notifs, loading, error, reload: load };
 }
