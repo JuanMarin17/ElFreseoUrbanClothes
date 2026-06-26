@@ -7,7 +7,49 @@ import { getSuppliersByStore } from "../../services/SupplierService";
 import { uploadFile } from "../../../../../utils/uploadService";
 import "../UploadProduct/UploadProduct.css";
 import "./EditProduct.css";
-import PageSpinner from "../../../../../components/ui/PageSpinner.jsx";
+
+/* ── Skeleton de carga ── */
+const SkelLine = ({ className = "", ...rest }) => <div className={`ep-skel-line ${className}`} {...rest} />;
+
+const EditProductSkeleton = () => (
+  <div className="adminContainer">
+    <main className="ep-page">
+      <div className="ep-header">
+        <div>
+          <SkelLine className="ep-skel-line--bc" style={{ width: 140 }} />
+          <SkelLine className="ep-skel-line--title" style={{ width: 220 }} />
+        </div>
+        <SkelLine className="ep-skel-line--btn" style={{ width: 160 }} />
+      </div>
+      <div className="ep-grid">
+        <div>
+          <div className="ep-card ep-skel-card">
+            <SkelLine style={{ width: "35%", height: 14, marginBottom: 20 }} />
+            <SkelLine style={{ width: "100%", height: 36, marginBottom: 16 }} />
+            <SkelLine style={{ width: "100%", height: 80, marginBottom: 16 }} />
+            <SkelLine style={{ width: "100%", height: 36, marginBottom: 16 }} />
+            <SkelLine style={{ width: "100%", height: 36 }} />
+          </div>
+          <div className="ep-card ep-skel-card">
+            <SkelLine style={{ width: "25%", height: 14, marginBottom: 20 }} />
+            <SkelLine style={{ width: "100%", height: 42, marginBottom: 8 }} />
+            <SkelLine style={{ width: "100%", height: 42 }} />
+          </div>
+        </div>
+        <div>
+          <div className="ep-card ep-skel-card">
+            <SkelLine style={{ width: "25%", height: 14, marginBottom: 20 }} />
+            <div className="ep-skel-grid">
+              <div className="ep-skel-tile" />
+              <div className="ep-skel-tile" />
+              <div className="ep-skel-tile" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+);
 
 /* ── BrandSelector ── */
 const BrandSelector = ({ brands = [], value, onChange, onBrandCreated, disabled }) => {
@@ -162,6 +204,25 @@ export default function EditProduct() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [originalVariants, setOriginalVariants] = useState([]);
+
+  /* ── Revelado de tarjetas al entrar en viewport ── */
+  const cardRefs = useRef([]);
+  useEffect(() => {
+    if (fetching) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("vx-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    cardRefs.current.forEach((el) => el && observer.observe(el));
+    return () => observer.disconnect();
+  }, [fetching]);
 
   useEffect(() => {
     const load = async () => {
@@ -359,13 +420,7 @@ export default function EditProduct() {
   };
 
   if (fetching) {
-    return (
-      <div className="adminContainer">
-        <main className="mainContent">
-          <PageSpinner label="Cargando producto..." />
-        </main>
-      </div>
-    );
+    return <EditProductSkeleton />;
   }
 
   return (
@@ -403,7 +458,11 @@ export default function EditProduct() {
           <div>
 
             {/* Información general */}
-            <div className="ep-card">
+            <div
+              className="ep-card vx-reveal"
+              ref={(el) => (cardRefs.current[0] = el)}
+              style={{ "--delay": "0ms" }}
+            >
               <h3 className="ep-card-title">
                 <span className="ep-card-title-icon ep-icon--blue">✎</span>
                 Información general
@@ -489,7 +548,11 @@ export default function EditProduct() {
             </div>
 
             {/* Variantes */}
-            <div className="ep-card">
+            <div
+              className="ep-card vx-reveal"
+              ref={(el) => (cardRefs.current[1] = el)}
+              style={{ "--delay": "90ms" }}
+            >
               <h3 className="ep-card-title">
                 <span className="ep-card-title-icon ep-icon--amber">▦</span>
                 Variantes
@@ -587,7 +650,11 @@ export default function EditProduct() {
 
           {/* ── Columna derecha: imágenes ── */}
           <div>
-            <div className="ep-card">
+            <div
+              className="ep-card vx-reveal"
+              ref={(el) => (cardRefs.current[2] = el)}
+              style={{ "--delay": "180ms" }}
+            >
               <h3 className="ep-card-title">
                 <span className="ep-card-title-icon ep-icon--photo">🖼</span>
                 Imágenes
@@ -598,7 +665,7 @@ export default function EditProduct() {
 
               <div className="ep-images-grid">
                 {form.images.map((img, i) => (
-                  <div key={i} className="ep-img-slot">
+                  <div key={i} className="ep-img-slot" style={{ "--delay": `${i * 60}ms` }}>
                     <img
                       src={img.previewUrl}
                       alt={`img-${i}`}
@@ -619,7 +686,11 @@ export default function EditProduct() {
                 ))}
 
                 {form.images.length < 6 && (
-                  <div className="ep-img-add" onClick={() => imageInputRef.current?.click()}>
+                  <div
+                    className="ep-img-add"
+                    style={{ "--delay": `${form.images.length * 60}ms` }}
+                    onClick={() => imageInputRef.current?.click()}
+                  >
                     <span className="ep-img-add-icon">＋</span>
                     <span className="ep-img-add-text">Añadir foto</span>
                     <span className="ep-img-add-count">{6 - form.images.length} restante{6 - form.images.length !== 1 ? "s" : ""}</span>
