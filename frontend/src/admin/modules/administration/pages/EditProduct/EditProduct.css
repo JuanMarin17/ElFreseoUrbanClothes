@@ -87,7 +87,7 @@
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: border-color 180ms, color 180ms, background 180ms;
+  transition: border-color 180ms, color 180ms, background 180ms, transform 120ms;
   letter-spacing: 0.02em;
 }
 
@@ -96,6 +96,8 @@
   color: #fff;
   background: rgba(255,255,255,0.04);
 }
+
+.ep-btn-back:active:not(:disabled) { transform: scale(0.96); }
 
 .ep-btn-save {
   display: inline-flex;
@@ -184,6 +186,20 @@
 
 @media (max-width: 1024px) { .ep-grid { grid-template-columns: 1fr; } }
 
+/* ── Revelado de tarjetas al entrar en viewport (IntersectionObserver) ──── */
+.vx-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+              transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  transition-delay: var(--delay, 0ms);
+}
+
+.vx-reveal.vx-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* ── Card ────────────────────────────────────────────────── */
 .ep-card {
   background: #111;
@@ -191,10 +207,19 @@
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 16px;
-  transition: border-color 250ms;
+  transition: border-color 250ms,
+              transform 300ms cubic-bezier(0.23, 1, 0.32, 1),
+              box-shadow 300ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .ep-card:hover { border-color: #2a2a2a; }
+
+@media (hover: hover) and (pointer: fine) {
+  .ep-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(37,99,255,0.08);
+  }
+}
 
 .ep-card-title {
   display: flex;
@@ -347,11 +372,12 @@
   font-weight: 600;
   padding: 9px 12px;
   cursor: pointer;
-  transition: border-color 200ms, background 200ms;
+  transition: border-color 200ms, background 200ms, transform 120ms;
   white-space: nowrap;
 }
 
 .btnNewCategory:hover { border-color: #2563ff; background: rgba(37,99,255,0.08); }
+.btnNewCategory:active { transform: scale(0.95); }
 .btnNewCategoryActive { color: #fca5a5; border-color: #3a1f1f; }
 .btnNewCategoryActive:hover { border-color: #ef4444; background: rgba(239,68,68,0.08); }
 
@@ -389,10 +415,11 @@
   font-weight: 600;
   padding: 9px 14px;
   cursor: pointer;
-  transition: background 200ms;
+  transition: background 200ms, transform 120ms;
 }
 
 .btnConfirmCategory:hover { background: #1d4fd6; }
+.btnConfirmCategory:active:not(:disabled) { transform: scale(0.95); }
 .btnConfirmCategory:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .createCatError {
@@ -420,6 +447,12 @@
   color: #e5e7eb;
   font-size: 12px;
   padding: 5px 6px 5px 12px;
+  animation: ep-pill-pop 220ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+@keyframes ep-pill-pop {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 .pillRemove {
@@ -431,9 +464,11 @@
   padding: 2px 4px;
   border-radius: 50%;
   line-height: 1;
+  transition: color 180ms, transform 120ms;
 }
 
 .pillRemove:hover { color: #fca5a5; }
+.pillRemove:active { transform: scale(0.85); }
 
 .ep-textarea {
   resize: vertical;
@@ -541,7 +576,7 @@
   color: #3a3a3a;
   cursor: pointer;
   font-size: 12px;
-  transition: border-color 180ms, color 180ms, background 180ms;
+  transition: border-color 180ms, color 180ms, background 180ms, transform 120ms;
 }
 
 .ep-var-remove:hover:not(:disabled) {
@@ -549,6 +584,8 @@
   color: #ef4444;
   background: rgba(239,68,68,0.06);
 }
+
+.ep-var-remove:active:not(:disabled) { transform: scale(0.88); }
 
 .ep-add-variant {
   display: flex;
@@ -565,7 +602,7 @@
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: border-color 180ms, color 180ms, background 180ms;
+  transition: border-color 180ms, color 180ms, background 180ms, transform 120ms;
 }
 
 .ep-add-variant:hover:not(:disabled) {
@@ -573,6 +610,8 @@
   color: #6b9fff;
   background: rgba(37,99,255,0.04);
 }
+
+.ep-add-variant:active:not(:disabled) { transform: scale(0.98); }
 
 .ep-variants-empty {
   text-align: center;
@@ -596,6 +635,13 @@
   background: #0a0a0a;
   border: 1px solid #1a1a1a;
   transition: border-color 200ms;
+  animation: ep-img-pop 320ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  animation-delay: var(--delay, 0ms);
+}
+
+@keyframes ep-img-pop {
+  from { opacity: 0; transform: scale(0.92) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .ep-img-slot:hover { border-color: #2a2a2a; }
@@ -605,7 +651,11 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: opacity 250ms;
+  transition: opacity 250ms, transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ep-img-slot:hover img { transform: scale(1.06); }
 }
 
 .ep-img-uploading-overlay {
@@ -650,10 +700,11 @@
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity 180ms;
+  transition: opacity 180ms, transform 120ms;
 }
 
 .ep-img-slot:hover .ep-img-remove { opacity: 1; }
+.ep-img-remove:active { transform: scale(0.85); }
 
 .ep-img-add {
   aspect-ratio: 1/1;
@@ -667,7 +718,9 @@
   cursor: pointer;
   gap: 7px;
   color: #333;
-  transition: border-color 180ms, color 180ms, background 180ms;
+  transition: border-color 180ms, color 180ms, background 180ms, transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+  animation: ep-img-pop 320ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  animation-delay: var(--delay, 0ms);
 }
 
 .ep-img-add:hover {
@@ -675,6 +728,12 @@
   color: #a78bfa;
   background: rgba(124,58,237,0.03);
 }
+
+@media (hover: hover) and (pointer: fine) {
+  .ep-img-add:hover { transform: translateY(-2px); }
+}
+
+.ep-img-add:active { transform: scale(0.97); }
 
 .ep-img-add-icon { font-size: 22px; }
 .ep-img-add-text { font-size: 10px; font-weight: 600; letter-spacing: 0.04em; }
@@ -697,5 +756,62 @@
   .ep-variant-row {
     grid-template-columns: 1fr 80px 72px 60px 32px;
     gap: 5px;
+  }
+}
+
+/* ── Skeleton de carga ──────────────────────────────────────── */
+.ep-skel-line {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #141414 25%, #1c1c1c 37%, #141414 63%);
+  background-size: 400% 100%;
+  animation: ep-skel-shimmer 1.6s ease-in-out infinite;
+}
+
+.ep-skel-line--bc    { height: 10px; width: 140px; margin-bottom: 8px; }
+.ep-skel-line--title { height: 22px; }
+.ep-skel-line--btn   { height: 36px; border-radius: 8px; }
+
+.ep-skel-card { animation: ep-fade-in 320ms ease both; }
+
+.ep-skel-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.ep-skel-tile {
+  aspect-ratio: 1/1;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #141414 25%, #1c1c1c 37%, #141414 63%);
+  background-size: 400% 100%;
+  animation: ep-skel-shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes ep-skel-shimmer {
+  0%   { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Accesibilidad: respeta prefers-reduced-motion ──────────── */
+@media (prefers-reduced-motion: reduce) {
+  .vx-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .ep-card { transition: border-color 250ms; }
+  .ep-img-slot,
+  .ep-img-add,
+  .categoryPill {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .ep-img-slot img { transition: opacity 250ms; }
+  .ep-skel-line,
+  .ep-skel-tile {
+    animation: none;
+    background: #161616;
   }
 }
