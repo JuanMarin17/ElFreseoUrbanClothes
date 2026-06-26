@@ -276,12 +276,12 @@ export default function EditProduct() {
         if (idx !== -1) imgs[idx] = { previewUrl, cloudinaryUrl, uploading: false };
         return { ...prev, images: imgs };
       });
-    } catch {
+    } catch (e) {
       setForm(prev => ({
         ...prev,
         images: prev.images.filter(i => i.previewUrl !== previewUrl),
       }));
-      setError("Error al subir la imagen. Intenta de nuevo.");
+      setError(e.message ?? "Error al subir la imagen. Intenta de nuevo.");
     }
   };
 

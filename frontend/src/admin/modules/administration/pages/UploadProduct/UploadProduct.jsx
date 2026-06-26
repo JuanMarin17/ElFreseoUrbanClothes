@@ -667,7 +667,9 @@ const UploadProduct = () => {
 
   // ── Imágenes ──
   const agregarImagen = async (file) => {
-    if (!file?.type.startsWith("image/")) return;
+    if (!file?.type.startsWith("image/")) {
+      return setError(`Tipo de archivo no permitido: ${file?.type || "desconocido"}. Solo se aceptan imágenes.`);
+    }
     const previewUrl = URL.createObjectURL(file);
     setProducto(prev => {
       if (prev.imagenes.length >= MAX_IMAGENES) { URL.revokeObjectURL(previewUrl); return prev; }
@@ -684,7 +686,7 @@ const UploadProduct = () => {
     } catch (e) {
       URL.revokeObjectURL(previewUrl);
       setProducto(prev => ({ ...prev, imagenes: prev.imagenes.filter(img => img.previewUrl !== previewUrl) }));
-      setError("Error al subir la imagen. " + e);
+      setError(e.message ?? "Error al subir la imagen.");
     }
   };
 

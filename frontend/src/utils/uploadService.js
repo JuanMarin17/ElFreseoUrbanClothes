@@ -29,7 +29,7 @@ async function postImage(folder, file) {
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.message ?? `Error al subir imagen: ${res.status}`);
+    throw new Error(body.error ?? body.message ?? `Error al subir imagen: ${res.status}`);
   }
 
   const body = await res.json();
