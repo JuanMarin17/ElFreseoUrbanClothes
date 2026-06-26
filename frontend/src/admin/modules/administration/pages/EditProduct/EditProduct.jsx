@@ -302,8 +302,8 @@ export default function EditProduct() {
     setSuccess(null);
     if (!form.name.trim()) return setError("El nombre del producto es obligatorio.");
     const descTrim = form.description.trim();
-    if (descTrim.length > 0 && (descTrim.length < 50 || form.description.length > 1000)) {
-      return setError("La descripción debe tener entre 50 y 1000 caracteres.");
+    if (descTrim.length > 0 && (descTrim.length < 50 || form.description.length > 200)) {
+      return setError("La descripción debe tener entre 50 y 200 caracteres.");
     }
     if (form.variants.length === 0) return setError("Agrega al menos una variante.");
     if (form.variants.some(v => !v.sku.trim())) return setError("Todas las variantes deben tener SKU.");
@@ -431,16 +431,17 @@ export default function EditProduct() {
                   onChange={handleChange}
                   placeholder="Describe el producto…"
                   disabled={loading}
+                  maxLength={200}
                 />
                 {form.description.trim().length > 0 && (
                   <span className={
-                    form.description.trim().length < 50 || form.description.length > 1000
+                    form.description.trim().length < 50 || form.description.length > 200
                       ? "ep-field-error"
                       : "ep-hint"
                   }>
-                    {form.description.length}/1000 caracteres
+                    {form.description.length}/200 caracteres
                     {form.description.trim().length < 50 && ` — escribe al menos 50 (faltan ${50 - form.description.trim().length})`}
-                    {form.description.length > 1000 && " — supera el máximo permitido"}
+                    {form.description.length > 200 && " — supera el máximo permitido"}
                   </span>
                 )}
               </div>
