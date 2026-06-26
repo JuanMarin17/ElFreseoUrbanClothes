@@ -718,6 +718,10 @@ const UploadProduct = () => {
   const handleSubmit = async () => {
     setError(null); setSuccess(null);
     if (!producto.name.trim()) return setError("El nombre del producto es obligatorio.");
+    const descTrim = producto.description.trim();
+    if (descTrim.length > 0 && (descTrim.length < 50 || producto.description.length > 1000)) {
+      return setError("La descripción debe tener entre 50 y 1000 caracteres.");
+    }
     if (producto.imagenes.length === 0) return setError("Agrega al menos una imagen.");
     if (producto.imagenes.some(img => img.uploading)) return setError("Espera a que terminen de subirse todas las imágenes.");
     if (producto.imagenes.some(img => !img.cloudinaryUrl)) return setError("Algunas imágenes no se subieron correctamente.");
@@ -853,6 +857,17 @@ const UploadProduct = () => {
             <label className="up-label">Descripción <span className="up-opt">(opcional)</span></label>
             <textarea name="description" value={producto.description} onChange={handleChange}
               placeholder="Camiseta de algodón 100% unisex" disabled={loading} className="up-textarea" />
+            {producto.description.trim().length > 0 && (
+              <small className={
+                producto.description.trim().length < 50 || producto.description.length > 1000
+                  ? "up-field-error"
+                  : "up-hint"
+              }>
+                {producto.description.length}/1000 caracteres
+                {producto.description.trim().length < 50 && ` — escribe al menos 50 (faltan ${50 - producto.description.trim().length})`}
+                {producto.description.length > 1000 && " — supera el máximo permitido"}
+              </small>
+            )}
           </div>
           <CategoryChips categories={categories} selectedIds={producto.categoryIds}
             onToggle={handleCategoryToggle} onCategoryCreated={handleCategoryCreated}
