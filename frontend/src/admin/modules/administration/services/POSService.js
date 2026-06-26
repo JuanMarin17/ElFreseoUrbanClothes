@@ -11,6 +11,11 @@ function buildHeaders() {
       role   = d.role    ?? 'ADMIN';
     } catch { /* silent */ }
   }
+  // El rol específico de la tienda (OWNER, ADMIN, EMPLOYEE) prevalece sobre el
+  // rol global del JWT (normalmente "USER") — sin esto, un OWNER recibe
+  // "No tienes permiso para acceder al módulo POS" del backend.
+  const storedRole = localStorage.getItem('userRole');
+  if (storedRole && storedRole !== 'null') role = storedRole;
   return {
     'Content-Type': 'application/json',
     Authorization:  `Bearer ${jwt}`,

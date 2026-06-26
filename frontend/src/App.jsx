@@ -80,6 +80,9 @@ const PromotionsDashboard = lazy(
 const AdminProductsPage = lazy(
   () => import("./admin/modules/administration/pages/AdminProducts/AdminProductsPage.jsx"),
 );
+const AdminProductDetail = lazy(
+  () => import("./admin/modules/administration/pages/AdminProducts/AdminProductDetail.jsx"),
+);
 const CustomersPage = lazy(
   () => import("./admin/modules/administration/pages/CustomersPage/CustomersPage.jsx"),
 );
@@ -376,6 +379,7 @@ function App() {
                       <Route path="IA"                    element={<IAAdmin />} />
                       <Route path="dashboard"             element={<Dashboard />} />
                       <Route path="productos"             element={<AdminProductsPage />} />
+                      <Route path="productos/:id"         element={<AdminProductDetail />} />
                       <Route path="subir-producto"        element={<UploadProduct />} />
                       <Route path="editar-producto/:id"   element={<EditProduct />} />
                       <Route path="inventario"            element={<InventaryStock />} />

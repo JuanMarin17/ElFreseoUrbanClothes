@@ -301,6 +301,10 @@ export default function EditProduct() {
     setError(null);
     setSuccess(null);
     if (!form.name.trim()) return setError("El nombre del producto es obligatorio.");
+    const descTrim = form.description.trim();
+    if (descTrim.length > 0 && (descTrim.length < 50 || form.description.length > 1000)) {
+      return setError("La descripción debe tener entre 50 y 1000 caracteres.");
+    }
     if (form.variants.length === 0) return setError("Agrega al menos una variante.");
     if (form.variants.some(v => !v.sku.trim())) return setError("Todas las variantes deben tener SKU.");
     if (form.variants.some(v => v.price <= 0)) return setError("El precio de cada variante debe ser mayor a 0.");
@@ -428,6 +432,17 @@ export default function EditProduct() {
                   placeholder="Describe el producto…"
                   disabled={loading}
                 />
+                {form.description.trim().length > 0 && (
+                  <span className={
+                    form.description.trim().length < 50 || form.description.length > 1000
+                      ? "ep-field-error"
+                      : "ep-hint"
+                  }>
+                    {form.description.length}/1000 caracteres
+                    {form.description.trim().length < 50 && ` — escribe al menos 50 (faltan ${50 - form.description.trim().length})`}
+                    {form.description.length > 1000 && " — supera el máximo permitido"}
+                  </span>
+                )}
               </div>
 
               <BrandSelector
