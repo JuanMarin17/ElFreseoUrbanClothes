@@ -18,6 +18,8 @@ const DEFAULT = {
   legalName:     '',
   idNumber:      '',
   documentName:  'CUIT',
+  address:       '',
+  phone:         '',
   paymentMethod: 'mercadopago',
   shipping:      'fisico',
 };
@@ -36,6 +38,8 @@ export default function SettingsLegal({ settings, onSave }) {
       legalName:    legal.legalName    ?? '',
       idNumber:     legal.idNumber     ?? '',
       documentName: legal.documentName ?? 'CUIT',
+      address:      legal.address      ?? '',
+      phone:        legal.phone        ?? '',
       paymentMethod: payment.paymentMethod ?? 'mercadopago',
       shipping:      payment.shipping      ?? 'fisico',
     }));
@@ -52,7 +56,10 @@ export default function SettingsLegal({ settings, onSave }) {
     setSaving(true);
     try {
       await onSave({
-        legal:   { legalName: form.legalName, idNumber: form.idNumber, documentName: form.documentName },
+        legal:   {
+          legalName: form.legalName, idNumber: form.idNumber, documentName: form.documentName,
+          address: form.address, phone: form.phone,
+        },
         payment: { paymentMethod: form.paymentMethod, shipping: form.shipping },
       });
       showMsg('Información legal guardada.');
@@ -99,6 +106,28 @@ export default function SettingsLegal({ settings, onSave }) {
             />
           </div>
         </div>
+
+        <div className="tab-grid-2">
+          <div className="tab-field">
+            <label>Dirección (opcional)</label>
+            <input
+              className="tab-input"
+              placeholder="Ej: Calle 10 # 20-30, Medellín"
+              value={form.address}
+              onChange={e => set('address', e.target.value)}
+            />
+          </div>
+          <div className="tab-field">
+            <label>Teléfono (opcional)</label>
+            <input
+              className="tab-input"
+              placeholder="Ej: 300 123 4567"
+              value={form.phone}
+              onChange={e => set('phone', e.target.value)}
+            />
+          </div>
+        </div>
+        <p className="tab-field-hint">Estos datos aparecerán en las facturas que genere el módulo de Punto de Venta.</p>
       </div>
 
       <div className="tab-card">

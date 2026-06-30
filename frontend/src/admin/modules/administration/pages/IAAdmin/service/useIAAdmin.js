@@ -29,6 +29,26 @@ function getStoredRole() {
   }
 }
 
+// El límite de peticiones de IA es por usuario, no por sesión — persiste en
+// localStorage (clave por userId) para que sobreviva a recargar la página o
+// a abrir una conversación nueva.
+function rateLimitKey(userId) {
+  return `ia_rate_limit_until_${userId}`;
+}
+
+function readStoredRateLimit() {
+  const userId = getUserIdFromJwt();
+  if (!userId) return null;
+  const stored = Number(localStorage.getItem(rateLimitKey(userId)));
+  return stored && stored > Date.now() ? stored : null;
+}
+
+function formatRemaining(ms) {
+  const totalSeconds = Math.ceil(ms / 1000);
+  if (totalSeconds < 60) return `${totalSeconds}s`;
+  return `${Math.ceil(totalSeconds / 60)} min`;
+}
+
 function toBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -115,6 +135,31 @@ export function useIAAdmin() {
   const [sessionsLoading, setSessionsLoading] = useState(false);
   const [toastError, setToastError]       = useState(null);
 
+  // ── Límite de peticiones por usuario (no por sesión) ─────────────────────
+  const [rateLimitedUntil, setRateLimitedUntil] = useState(readStoredRateLimit);
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!rateLimitedUntil) return;
+    const tick = () => {
+      if (Date.now() >= rateLimitedUntil) {
+        setRateLimitedUntil(null);
+        const userId = getUserIdFromJwt();
+        if (userId) localStorage.removeItem(rateLimitKey(userId));
+      } else {
+        setNow(Date.now());
+      }
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [rateLimitedUntil]);
+
+  const isRateLimited   = !!rateLimitedUntil && now < rateLimitedUntil;
+  const rateLimitText   = isRateLimited
+    ? `Podrás escribir de nuevo en ${formatRemaining(rateLimitedUntil - now)}`
+    : null;
+
   const addErrorMessage = (text) => {
     setMessages((prev) => [
       ...prev,
@@ -131,7 +176,7 @@ export function useIAAdmin() {
   const sendMessage = useCallback(
     async (text) => {
       const txt = (text ?? inputText).trim();
-      if (!txt || isLoading) return;
+      if (!txt || isLoading || isRateLimited) return;
 
       let imageBase64    = null;
       let imageMimeType  = "image/jpeg";
@@ -194,7 +239,15 @@ export function useIAAdmin() {
       } catch (err) {
         const status = err.status;
         if (status === 429) {
-          setToastError(err.message || "Demasiadas peticiones, intenta de nuevo más tarde.");
+          const retrySec = Number(err.retryAfterSeconds);
+          if (retrySec > 0) {
+            const until = Date.now() + retrySec * 1000;
+            const userId = getUserIdFromJwt();
+            if (userId) localStorage.setItem(rateLimitKey(userId), String(until));
+            setRateLimitedUntil(until);
+          } else {
+            setToastError(err.message || "Demasiadas peticiones, intenta de nuevo más tarde.");
+          }
         } else if (status === 401) {
           addErrorMessage("Sesión expirada. Por favor inicia sesión nuevamente.");
         } else if (status === 403) {
@@ -211,7 +264,7 @@ export function useIAAdmin() {
         setIsLoading(false);
       }
     },
-    [inputText, isLoading, sessionId, selectedImage]
+    [inputText, isLoading, isRateLimited, sessionId, selectedImage]
   );
 
   const loadSessions = useCallback(async () => {
@@ -292,6 +345,8 @@ export function useIAAdmin() {
     sessionsLoading,
     toastError,
     setToastError,
+    isRateLimited,
+    rateLimitText,
     sendMessage,
     loadSessions,
     loadSession,

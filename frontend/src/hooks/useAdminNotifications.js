@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://46.225.21.146:8080/api/v1";
 const MAX_QUEUE = 50;
+const RECONNECT_DELAY_MS = 5_000;
 
 /**
  * Conecta los 4 streams SSE de admin con EventSource nativo (sin JWT).
@@ -37,76 +38,87 @@ export function useAdminNotifications(storeId) {
   useEffect(() => {
     if (!storeId || storeId === "null" || storeId === "undefined") return;
 
-    // ── Stream 1: Órdenes ─────────────────────────────────────────────────
-    const esOrders = new EventSource(
-      sseUrl(`/stores/${storeId}/notifications/admin/stream`),
-    );
-    esOrders.addEventListener("notification", (e) => {
-      try {
-        const p = JSON.parse(e.data);
-        push({
-          type:      p.type      ?? "NEW_ORDER",
-          title:     p.title     ?? "Nueva orden",
-          message:   p.message   ?? "",
-          timestamp: p.timestamp,
-          data:      p.data      ?? p,
-        });
-      } catch { /* ignorar líneas mal formadas */ }
-    });
+    const pushRef = { current: push };
+    pushRef.current = push;
 
-    // ── Stream 2: Soporte ─────────────────────────────────────────────────
-    const esSupport = new EventSource(
-      sseUrl(`/stores/${storeId}/support/notifications/stream`),
-    );
-    esSupport.addEventListener("new-ticket", (e) => {
-      try {
-        const p = JSON.parse(e.data);
-        push({
-          type:    "NEW_TICKET",
-          title:   "Nuevo ticket de soporte",
-          message: p.subject ?? `Ticket #${p.ticketId ?? ""}`,
-          data:    p,
-        });
-      } catch { }
-    });
+    let cancelled = false;
+    const sources = [];
+    const timers   = [];
 
-    // ── Stream 3: Reseñas ─────────────────────────────────────────────────
-    const esReviews = new EventSource(
-      sseUrl(`/stores/${storeId}/reviews/notifications/stream`),
-    );
-    esReviews.addEventListener("new-review", (e) => {
-      try {
-        const p = JSON.parse(e.data);
-        push({
-          type:    "NEW_REVIEW",
-          title:   "Nueva reseña",
-          message: `Producto ${p.productId ?? ""} — ${p.rating ?? "?"}★`,
-          data:    p,
-        });
-      } catch { }
-    });
+    // Conecta un stream con reconexión controlada: si el backend responde con
+    // error (ej. 504 porque el stream está caído), el EventSource nativo
+    // reintenta solo de inmediato y sin límite si no hay onerror — eso inunda
+    // la consola con cientos de 504 seguidos. Con esto, reintenta cada 5s.
+    const connectStream = (path, eventName, mapToNotif) => {
+      if (cancelled) return;
+      const source = new EventSource(sseUrl(path));
+      sources.push(source);
 
-    // ── Stream 4: Devoluciones ───────────────────────────────────────────
-    const esReturns = new EventSource(
-      sseUrl(`/stores/${storeId}/returns/notifications/stream`),
+      source.addEventListener(eventName, (e) => {
+        try {
+          pushRef.current(mapToNotif(JSON.parse(e.data)));
+        } catch { /* ignorar líneas mal formadas */ }
+      });
+
+      source.onerror = () => {
+        source.close();
+        const idx = sources.indexOf(source);
+        if (idx !== -1) sources.splice(idx, 1);
+        if (!cancelled) {
+          timers.push(setTimeout(() => connectStream(path, eventName, mapToNotif), RECONNECT_DELAY_MS));
+        }
+      };
+    };
+
+    connectStream(
+      `/stores/${storeId}/notifications/admin/stream`,
+      "notification",
+      (p) => ({
+        type:      p.type      ?? "NEW_ORDER",
+        title:     p.title     ?? "Nueva orden",
+        message:   p.message   ?? "",
+        timestamp: p.timestamp,
+        data:      p.data      ?? p,
+      }),
     );
-    esReturns.addEventListener("new-return", (e) => {
-      try {
-        const p = JSON.parse(e.data);
-        push({
-          type:    "NEW_RETURN",
-          title:   "Nueva solicitud de devolución",
-          message: p.reason ?? `Orden #${p.orderId ?? ""}`,
-          data:    p,
-        });
-      } catch { }
-    });
+
+    connectStream(
+      `/stores/${storeId}/support/notifications/stream`,
+      "new-ticket",
+      (p) => ({
+        type:    "NEW_TICKET",
+        title:   "Nuevo ticket de soporte",
+        message: p.subject ?? `Ticket #${p.ticketId ?? ""}`,
+        data:    p,
+      }),
+    );
+
+    connectStream(
+      `/stores/${storeId}/reviews/notifications/stream`,
+      "new-review",
+      (p) => ({
+        type:    "NEW_REVIEW",
+        title:   "Nueva reseña",
+        message: `Producto ${p.productId ?? ""} — ${p.rating ?? "?"}★`,
+        data:    p,
+      }),
+    );
+
+    connectStream(
+      `/stores/${storeId}/returns/notifications/stream`,
+      "new-return",
+      (p) => ({
+        type:    "NEW_RETURN",
+        title:   "Nueva solicitud de devolución",
+        message: p.reason ?? `Orden #${p.orderId ?? ""}`,
+        data:    p,
+      }),
+    );
 
     return () => {
-      esOrders.close();
-      esSupport.close();
-      esReviews.close();
-      esReturns.close();
+      cancelled = true;
+      timers.forEach(clearTimeout);
+      sources.forEach((s) => s.close());
     };
   }, [storeId, push]);
 

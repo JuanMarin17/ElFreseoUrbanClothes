@@ -779,6 +779,27 @@
 .pos-cancel-btn:hover:not(:disabled) { background: rgba(239,68,68,.15); }
 .pos-cancel-btn:disabled { opacity: .4; cursor: not-allowed; }
 
+.pos-print-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border: 1px solid rgba(37,99,255,.25);
+  border-radius: 7px;
+  background: rgba(37,99,255,.08);
+  color: #6b9fff;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.pos-print-btn:hover { background: rgba(37,99,255,.16); }
+
+/* La factura imprimible (#printable-invoice-area, definido en InvoiceDocument)
+   vive siempre en el DOM pero solo se muestra al imprimir. Fuera de impresión
+   se oculta aquí; dentro de @media print, OrdersManagement.css ya fuerza esa
+   misma id a display:block !important, así que no hace falta repetirlo. */
+#printable-invoice-area { display: none; }
+
 @media (max-width: 900px) {
   .pos-split { grid-template-columns: 1fr; }
   .pos-right { border-top: 1px solid #1a1a1a; }

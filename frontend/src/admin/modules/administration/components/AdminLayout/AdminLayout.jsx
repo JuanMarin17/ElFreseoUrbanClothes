@@ -327,7 +327,18 @@ const AdminLayout = () => {
 
         <div className="admin-workspace-split">
           <main className="admin-page-body">
-            <Outlet />
+            {storeReady ? (
+              <Outlet />
+            ) : (
+              // Evita que las subpáginas (Clientes, Productos, etc.) disparen sus
+              // propios fetches leyendo localStorage.storeId antes de que este layout
+              // termine de resolverlo para el :slug actual — si lo hacen, pueden
+              // pegarle al storeId de la tienda anterior y el backend responde 403.
+              <div className="admin-page-loading">
+                <span className="admin-page-loading__spinner" />
+                <span>Cargando tienda…</span>
+              </div>
+            )}
           </main>
 
           {storeReady && <IAAdmin isOpen={isAiOpen} setIsOpen={setIsAiOpen} />}

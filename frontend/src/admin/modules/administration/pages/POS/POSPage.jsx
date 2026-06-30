@@ -6,8 +6,10 @@ import {
 } from 'lucide-react';
 import { getAllProducts } from '../../services/productService';
 import {
-  registerSale, getSales, cancelSale, getDailySummary,
+  registerSale, getSales, getSale, cancelSale, getDailySummary,
 } from '../../services/POSService';
+import { getSettings } from '../../services/storeSettingsService';
+import '../OrdersManagement/OrdersManagement.css';
 import './POSPage.css';
 
 /* ── Constantes ─────────────────────────────────────────────────────────── */
@@ -29,7 +31,7 @@ const STATUS_CFG = {
 /* ── Modal de confirmación ───────────────────────────────────────────────── */
 function SuccessModal({ sale, onClose }) {
   return (
-    <div className="pos-modal-backdrop" onClick={onClose}>
+    <div className="pos-modal-backdrop no-print" onClick={onClose}>
       <div className="pos-modal" onClick={e => e.stopPropagation()}>
         <div className="pos-modal-icon"><CheckCircle size={40} /></div>
         <h2 className="pos-modal-title">¡Venta registrada!</h2>
@@ -52,6 +54,114 @@ function SuccessModal({ sale, onClose }) {
           <button className="pos-btn-primary" onClick={onClose}>
             Nueva venta
           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Documento de factura imprimible ──────────────────────────────────────
+   Oculto en pantalla siempre (ver regla #printable-invoice-area en
+   POSPage.css); solo se hace visible dentro de @media print, donde
+   OrdersManagement.css ya aísla esa misma id del resto de la página
+   (sidebar, fondo oscuro, etc.) con una regla !important que gana por id. */
+function InvoiceDocument({ sale, storeName, storeLogo, billingInfo }) {
+  if (!sale) return null;
+  const legal = billingInfo ?? {};
+
+  return (
+    <div className="invoice-card" id="printable-invoice-area">
+      <div className="invoice-print-body">
+        <div className="invoice-brand-row">
+          <div>
+            {storeLogo
+              ? <img src={storeLogo} alt={storeName ?? 'Tienda'} style={{ height: 40, marginBottom: 6 }} />
+              : <h2 className="invoice-logo">{storeName ?? 'Tienda'}</h2>}
+            {legal.legalName && <p className="invoice-meta-text">{legal.legalName}</p>}
+            {legal.idNumber && (
+              <p className="invoice-meta-text">{legal.documentName ?? 'NIT'}: {legal.idNumber}</p>
+            )}
+            {legal.address && <p className="invoice-meta-text">{legal.address}</p>}
+            {legal.phone && <p className="invoice-meta-text">Tel: {legal.phone}</p>}
+          </div>
+          <div className="text-right">
+            <h4 className="invoice-id-title">COMPROBANTE DE VENTA</h4>
+            <p className="invoice-id-num">{sale.saleNumber}</p>
+          </div>
+        </div>
+
+        <hr className="invoice-divider" />
+
+        <div className="invoice-details-grid">
+          <div>
+            <span className="invoice-section-label">FECHA</span>
+            <p className="invoice-client-detail">
+              {sale.createdAt ? new Date(sale.createdAt).toLocaleString('es-CO') : '—'}
+            </p>
+          </div>
+          <div className="text-right flex-end-dir">
+            <p className="invoice-meta-item"><b>Método de pago:</b> {sale.paymentMethod}</p>
+            {sale.paymentMethod === 'CASH' && Number(sale.amountReceived) > 0 && (
+              <p className="invoice-meta-item"><b>Recibido:</b> {fmt(sale.amountReceived)}</p>
+            )}
+            {Number(sale.change) > 0 && (
+              <p className="invoice-meta-item"><b>Vuelto:</b> {fmt(sale.change)}</p>
+            )}
+          </div>
+        </div>
+
+        <table className="invoice-items-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th className="text-center">Cant.</th>
+              <th className="text-right">P. Unitario</th>
+              <th className="text-right">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(sale.items ?? []).map((item, i) => (
+              <tr key={item.itemId ?? i}>
+                <td>{item.productName}</td>
+                <td className="text-center">{item.quantity}</td>
+                <td className="text-right">{fmt(item.unitPrice)}</td>
+                <td className="text-right">
+                  {fmt(item.subtotal ?? (item.unitPrice - (item.discount ?? 0)) * item.quantity)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="invoice-summary-block">
+          <div className="invoice-summary-row">
+            <span>Subtotal:</span><span>{fmt(sale.subtotal)}</span>
+          </div>
+          {Number(sale.discount) > 0 && (
+            <div className="invoice-summary-row">
+              <span>Descuento:</span><span>−{fmt(sale.discount)}</span>
+            </div>
+          )}
+          {Number(sale.tax) > 0 && (
+            <div className="invoice-summary-row">
+              <span>Impuestos:</span><span>{fmt(sale.tax)}</span>
+            </div>
+          )}
+          <hr className="invoice-divider-sm" />
+          <div className="invoice-summary-row total-row">
+            <span>TOTAL:</span><span>{fmt(sale.total)}</span>
+          </div>
+        </div>
+
+        {sale.notes && (
+          <div style={{ marginTop: 16, fontSize: 12, color: '#000000' }}>
+            <b>Notas:</b> {sale.notes}
+          </div>
+        )}
+
+        <div className="invoice-footer-print-only">
+          <p>Documento generado por el sistema POS. No constituye una factura electrónica con validez fiscal ante la DIAN.</p>
+          <small>{storeName ?? 'Tienda'} • Venta {sale.saleNumber}</small>
         </div>
       </div>
     </div>
@@ -117,6 +227,7 @@ export default function POSPage() {
   // Estado de UI
   const [submitting, setSubmitting]     = useState(false);
   const [successSale, setSuccessSale]   = useState(null);
+  const [printingSale, setPrintingSale] = useState(null); // reimpresión desde historial
   const [error, setError]               = useState('');
 
   // Historial
@@ -125,6 +236,21 @@ export default function POSPage() {
   const [histLoading, setHistLoading]   = useState(false);
   const [histError, setHistError]       = useState('');
   const [cancelling, setCancelling]     = useState(null);
+
+  // Datos de la tienda para la factura (nombre/logo ya los guarda AdminLayout)
+  const storeId = localStorage.getItem('storeId');
+  const [storeInfo] = useState(() => ({
+    name: localStorage.getItem('storeName') ?? undefined,
+    logo: storeId ? localStorage.getItem(`storeLogo_${storeId}`) : undefined,
+  }));
+  const [billingInfo, setBillingInfo] = useState(null);
+
+  /* Cargar datos legales de la tienda (NIT, dirección, teléfono) para la factura */
+  useEffect(() => {
+    getSettings()
+      .then(settings => setBillingInfo(settings?.legal ?? null))
+      .catch(() => { /* sin datos legales configurados: la factura los omite */ });
+  }, []);
 
   /* Cargar productos — espera a que AdminLayout setee storeId en localStorage */
   useEffect(() => {
@@ -165,6 +291,12 @@ export default function POSPage() {
       })
       .finally(() => setHistLoading(false));
   }, [tab]);
+
+  /* Dispara la impresión apenas se monta la factura de una venta pasada */
+  useEffect(() => {
+    if (!printingSale) return;
+    window.print();
+  }, [printingSale]);
 
   /* Productos filtrados — muestra todos si no hay búsqueda */
   const displayProducts = useMemo(() => {
@@ -270,6 +402,17 @@ export default function POSPage() {
       setHistError(e.message ?? 'No se pudo cancelar la venta.');
     } finally {
       setCancelling(null);
+    }
+  };
+
+  /* ── Reimprimir una venta del historial ─────────────────────────────────── */
+  const handlePrintPastSale = async (saleId) => {
+    setHistError('');
+    try {
+      const sale = await getSale(saleId);
+      setPrintingSale(sale);
+    } catch (e) {
+      setHistError(e.message ?? 'No se pudo cargar la venta para imprimir.');
     }
   };
 
@@ -540,6 +683,13 @@ export default function POSPage() {
                     <div className="pos-sale-right">
                       <span className="pos-sale-total">{fmt(s.total)}</span>
                       <span className={`pos-status ${cfg.cls}`}>{cfg.label}</span>
+                      <button
+                        className="pos-print-btn"
+                        onClick={() => handlePrintPastSale(s.saleId)}
+                        title="Imprimir factura"
+                      >
+                        <Receipt size={12} /> Imprimir
+                      </button>
                       {s.status === 'COMPLETED' && (
                         <button
                           className="pos-cancel-btn"
@@ -562,6 +712,14 @@ export default function POSPage() {
       {successSale && (
         <SuccessModal sale={successSale} onClose={() => setSuccessSale(null)} />
       )}
+
+      {/* Documento de factura — oculto en pantalla, visible solo al imprimir */}
+      <InvoiceDocument
+        sale={successSale ?? printingSale}
+        storeName={storeInfo.name}
+        storeLogo={storeInfo.logo}
+        billingInfo={billingInfo}
+      />
     </div>
   );
 }

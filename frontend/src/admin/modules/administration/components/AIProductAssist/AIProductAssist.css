@@ -1,0 +1,191 @@
+.aips-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 9px;
+  border: 1px solid rgba(37, 99, 255, 0.32);
+  background: rgba(37, 99, 255, 0.1);
+  color: #6b9fff;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.aips-toggle-btn:hover { background: rgba(37, 99, 255, 0.18); }
+.aips-toggle-btn:active { transform: scale(0.97); }
+.aips-toggle-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.aips-panel {
+  margin: 10px 0 18px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(37, 99, 255, 0.22);
+  background: rgba(37, 99, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.aips-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.aips-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #6b9fff;
+}
+
+.aips-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: rgba(240, 237, 232, 0.45);
+  cursor: pointer;
+}
+.aips-close-btn:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+
+.aips-hint-text {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(240, 237, 232, 0.55);
+  line-height: 1.4;
+}
+
+.aips-textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 52px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0e1117;
+  color: #f0ede8;
+  font-size: 13px;
+  font-family: inherit;
+}
+.aips-textarea:focus {
+  outline: none;
+  border-color: rgba(37, 99, 255, 0.5);
+}
+
+.aips-error {
+  font-size: 12px;
+  color: #f87171;
+}
+
+.aips-generate-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #2563ff;
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.aips-generate-btn:hover:not(:disabled) { background: #3b74ff; }
+.aips-generate-btn:active:not(:disabled) { transform: scale(0.97); }
+.aips-generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.aips-spin { animation: aips-spin 0.8s linear infinite; }
+@keyframes aips-spin {
+  to { transform: rotate(360deg); }
+}
+
+.aips-suggestion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.aips-sug-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.aips-sug-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(240, 237, 232, 0.4);
+}
+
+.aips-sug-value {
+  font-size: 13px;
+  color: #f0ede8;
+  line-height: 1.4;
+}
+
+.aips-sug-tag {
+  align-self: flex-start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(37, 99, 255, 0.14);
+  color: #6b9fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.aips-sug-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.aips-discard-btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: rgba(240, 237, 232, 0.6);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.aips-discard-btn:hover { background: rgba(255, 255, 255, 0.06); color: #fff; }
+
+.aips-apply-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #16a34a;
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.aips-apply-btn:hover { background: #1bbf59; }
+.aips-apply-btn:active { transform: scale(0.97); }
+
+@media (prefers-reduced-motion: reduce) {
+  .aips-spin { animation: none; }
+  .aips-toggle-btn, .aips-generate-btn, .aips-apply-btn { transition: none; }
+}

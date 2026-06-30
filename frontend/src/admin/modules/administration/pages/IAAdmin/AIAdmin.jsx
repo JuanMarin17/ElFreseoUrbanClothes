@@ -161,7 +161,7 @@ function ReportDownload({ base64, mimeType, filename }) {
 }
 
 // ─── Shared: Message Bubble ──────────────────────────────────────────────────
-function MessageBubble({ msg }) {
+function MessageBubble({ msg, onStartFresh }) {
   const isUser = msg.role === "user";
   const hasGeneratedImage = !isUser && msg.generated_image_base64;
 
@@ -240,14 +240,26 @@ function MessageBubble({ msg }) {
             originalImageSrc={msg.originalImagePreviewUrl}
           />
         )}
+        {/* El backend a veces devuelve 500 sin más detalle tras varios turnos en
+            la misma sesión; ofrecer salida directa en vez de dejar el chat muerto. */}
+        {msg.isError && onStartFresh && (
+          <button className="ai__error-retry-btn" onClick={onStartFresh}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="23 4 23 10 17 10" />
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+            </svg>
+            Empezar nueva conversación
+          </button>
+        )}
       </div>
     </div>
   );
 }
 
 // ─── Shared: Input Area ──────────────────────────────────────────────────────
-function InputArea({ inputText, setInputText, selectedImage, setSelectedImage, sendMessage, isLoading }) {
+function InputArea({ inputText, setInputText, selectedImage, setSelectedImage, sendMessage, isLoading, isRateLimited, rateLimitText }) {
   const fileInputRef = useRef(null);
+  const disabled = isLoading || isRateLimited;
 
   const handleKey = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -258,6 +270,15 @@ function InputArea({ inputText, setInputText, selectedImage, setSelectedImage, s
 
   return (
     <div className="ai__input-area">
+      {isRateLimited && (
+        <div className="ai__cooldown-banner" role="status">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          <span>{rateLimitText}</span>
+        </div>
+      )}
       {selectedImage && (
         <div className="ai__img-preview">
           <img
@@ -290,7 +311,7 @@ function InputArea({ inputText, setInputText, selectedImage, setSelectedImage, s
           className="ai__attach-btn"
           onClick={() => fileInputRef.current?.click()}
           title="Adjuntar imagen"
-          disabled={isLoading}
+          disabled={disabled}
         >
           <svg
             width="16"
@@ -312,14 +333,14 @@ function InputArea({ inputText, setInputText, selectedImage, setSelectedImage, s
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           onKeyDown={handleKey}
-          placeholder="Pregúntame algo..."
+          placeholder={isRateLimited ? "Límite de peticiones alcanzado..." : "Pregúntame algo..."}
           rows={1}
-          disabled={isLoading}
+          disabled={disabled}
         />
         <button
           className="ai__send-btn"
           onClick={() => sendMessage()}
-          disabled={isLoading || !inputText.trim()}
+          disabled={disabled || !inputText.trim()}
         >
           {isLoading ? (
             <span className="ai__spinner" />
@@ -359,6 +380,8 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
     sessions,
     toastError,
     setToastError,
+    isRateLimited,
+    rateLimitText,
     sendMessage,
     loadSessions,
     loadSession,
@@ -548,7 +571,7 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
           <div className="ai__chat-container">
             <div className="ai__chat-log">
               {messages.map((msg) => (
-                <MessageBubble key={msg.message_id} msg={msg} />
+                <MessageBubble key={msg.message_id} msg={msg} onStartFresh={newConversation} />
               ))}
               {isLoading && <TypingIndicator />}
               <div ref={bottomRef} />
@@ -568,6 +591,8 @@ function IAAdminSidebar({ isOpen, setIsOpen }) {
               setSelectedImage={setSelectedImage}
               sendMessage={sendMessage}
               isLoading={isLoading}
+              isRateLimited={isRateLimited}
+              rateLimitText={rateLimitText}
             />
           </div>
         </div>
@@ -603,6 +628,8 @@ function IAAdminPage() {
     sessionsLoading,
     toastError,
     setToastError,
+    isRateLimited,
+    rateLimitText,
     sendMessage,
     loadSessions,
     loadSession,
@@ -821,7 +848,7 @@ function IAAdminPage() {
           )}
 
           {messages.map((msg) => (
-            <MessageBubble key={msg.message_id} msg={msg} />
+            <MessageBubble key={msg.message_id} msg={msg} onStartFresh={newConversation} />
           ))}
           {isLoading && <TypingIndicator />}
         </div>
@@ -843,6 +870,8 @@ function IAAdminPage() {
             setSelectedImage={setSelectedImage}
             sendMessage={sendMessage}
             isLoading={isLoading}
+            isRateLimited={isRateLimited}
+            rateLimitText={rateLimitText}
           />
         </div>
       </main>

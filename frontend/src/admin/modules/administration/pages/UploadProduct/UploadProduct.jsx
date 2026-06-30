@@ -6,6 +6,7 @@ import { createProduct } from "../../services/productService";
 import { getBrands, createBrand } from "../../services/BrandService";
 import { getSuppliersByStore } from "../../services/SupplierService";
 import { uploadFile } from "../../../../../utils/uploadService";
+import AIProductAssist from "../../components/AIProductAssist/AIProductAssist.jsx";
 
 const DEFAULT_TALLAS = ["XS", "S", "M", "L", "XL", "XXL"];
 const DEFAULT_COLORES = [
@@ -568,6 +569,30 @@ const UploadProduct = () => {
     }));
   };
 
+  // ── Sugerencia de IA (nombre/descripción/precio/categoría) ──
+  const handleApplyAISuggestion = ({ name, description, price, categoryId }) => {
+    setProducto(prev => ({
+      ...prev,
+      ...(name ? { name } : {}),
+      ...(description ? { description: description.slice(0, 200) } : {}),
+      ...(categoryId && !prev.categoryIds.includes(categoryId)
+        ? { categoryIds: [...prev.categoryIds, categoryId] }
+        : {}),
+    }));
+    if (price) {
+      // Si se agregó una categoría arriba, el efecto que reconstruye las
+      // variantes según la categoría activa corre después de este render —
+      // se difiere un tick para no perder el precio que esa reconstrucción
+      // pisaría si se aplicara en el mismo batch.
+      setTimeout(() => {
+        setProducto(prev => ({
+          ...prev,
+          variantes: prev.variantes.map(v => ({ ...v, precio: String(price) })),
+        }));
+      }, 0);
+    }
+  };
+
   // ── Tallas y Colores ──
   const toggleTalla = (talla) => {
     setProducto(prev => {
@@ -821,6 +846,11 @@ const UploadProduct = () => {
             <h2 className="up-section-title">1. Información básica</h2>
             <p className="up-section-desc">Completa los datos principales de tu producto.</p>
           </div>
+          <AIProductAssist
+            categories={categories}
+            onApply={handleApplyAISuggestion}
+            disabled={loading || loadingMeta}
+          />
           <div className="up-two-col">
             <div className="up-field">
               <label className="up-label">Nombre del producto <span className="up-req">*</span></label>
