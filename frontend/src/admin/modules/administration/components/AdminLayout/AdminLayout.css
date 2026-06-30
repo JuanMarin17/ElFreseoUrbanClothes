@@ -91,6 +91,32 @@
   overflow: hidden;
 }
 
+/* ── Loading state mientras se resuelve el storeId del :slug actual ──────── */
+.admin-page-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 100%;
+  min-height: 240px;
+  color: var(--at-text-3);
+  font-size: 13px;
+}
+
+.admin-page-loading__spinner {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2.5px solid var(--at-border);
+  border-top-color: var(--at-accent);
+  animation: admin-page-loading-spin 0.7s linear infinite;
+}
+
+@keyframes admin-page-loading-spin {
+  to { transform: rotate(360deg); }
+}
+
 /* Scrollbar estilo terminal para el contenido */
 .admin-page-body::-webkit-scrollbar {
   width: 6px;

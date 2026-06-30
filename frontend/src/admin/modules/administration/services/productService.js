@@ -48,6 +48,15 @@ async function request(method, path, { body, params, extraHeaders, timeoutMs = 1
   let res;
   try {
     res = await fetch(url, options);
+  } catch (err) {
+    // TypeError ("Failed to fetch") es lo que el navegador lanza cuando la
+    // conexión falla a nivel de red (DNS, CORS, ERR_CONNECTION_RESET, etc.) —
+    // se distingue del Error personalizado que nosotros mismos lanzamos al
+    // abortar por timeout (ese ya trae un mensaje amigable y debe propagarse tal cual).
+    if (err instanceof TypeError) {
+      throw new Error("No se pudo conectar con el servidor. Verifica tu conexión e intenta de nuevo.");
+    }
+    throw err;
   } finally {
     clearTimeout(timer);
   }

@@ -47,6 +47,7 @@ ia.interceptors.response.use(
       error.response?.data?.message || error.message || "Error desconocido",
     );
     err.status = error.response.status;
+    err.retryAfterSeconds = error.response?.data?.retryAfterSeconds;
     return Promise.reject(err);
   },
 );
@@ -59,3 +60,4 @@ export const deleteSession = (sessionId) =>
   ia.delete(`/sessions/${sessionId}`);
 export const deleteAllSessions = () => ia.delete("/sessions");
 export const analyzeImage = (body) => ia.post("/image/analyze", body);
+export const suggestProduct = (body) => ia.post("/product/suggest", body);

@@ -90,11 +90,14 @@ export default function QuickBuyModal({
     try {
       const itemSubtotal = quantity * currentPrice;
 
-      // El backend espera shippingAddress como String plano, no como objeto.
-      const shippingAddress = [address.street, address.city, address.state]
-        .map((v) => v?.trim())
-        .filter(Boolean)
-        .join(", ") || undefined;
+      const hasAddress = [address.street, address.city, address.state].some((v) => v?.trim());
+      const shippingAddress = hasAddress
+        ? {
+            address:    address.street.trim()  || undefined,
+            city:       address.city.trim()    || undefined,
+            department: address.state.trim()   || undefined,
+          }
+        : undefined;
 
       const payload = {
         productId:    product.id,

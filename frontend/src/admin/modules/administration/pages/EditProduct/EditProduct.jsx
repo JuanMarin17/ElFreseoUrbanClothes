@@ -5,6 +5,7 @@ import { getCategories, createCategory, activateCategory } from "../../services/
 import { getBrands, createBrand } from "../../services/BrandService";
 import { getSuppliersByStore } from "../../services/SupplierService";
 import { uploadFile } from "../../../../../utils/uploadService";
+import AIProductAssist from "../../components/AIProductAssist/AIProductAssist.jsx";
 import "../UploadProduct/UploadProduct.css";
 import "./EditProduct.css";
 
@@ -298,6 +299,19 @@ export default function EditProduct() {
     }));
   };
 
+  // ── Sugerencia de IA (nombre/descripción/precio/categoría) ──
+  const handleApplyAISuggestion = ({ name, description, price, categoryId }) => {
+    setForm(prev => ({
+      ...prev,
+      ...(name ? { name } : {}),
+      ...(description ? { description: description.slice(0, 200) } : {}),
+      ...(categoryId && !prev.categoryIds.includes(categoryId)
+        ? { categoryIds: [...prev.categoryIds, categoryId] }
+        : {}),
+      ...(price ? { variants: prev.variants.map(v => ({ ...v, price: Number(price) })) } : {}),
+    }));
+  };
+
   /* ── Variantes ── */
   const handleVariantChange = (index, field, value) => {
     setForm(prev => {
@@ -467,6 +481,12 @@ export default function EditProduct() {
                 <span className="ep-card-title-icon ep-icon--blue">✎</span>
                 Información general
               </h3>
+
+              <AIProductAssist
+                categories={categories}
+                onApply={handleApplyAISuggestion}
+                disabled={loading}
+              />
 
               <div className="ep-field">
                 <label className="ep-label">Nombre del producto</label>
