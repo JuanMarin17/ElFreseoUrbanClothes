@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import {
   Search,
   ChevronDown,
@@ -22,6 +23,12 @@ import {
   CreditCard,
   Ticket,
   ArrowRight,
+  BookOpen,
+  Rocket,
+  Compass,
+  Store,
+  LayoutDashboard,
+  UserRound,
 } from "lucide-react";
 import "./HelpCenter.css";
 import HeaderMarket from "../../../../../utils/Header/HeaderMarket";
@@ -338,6 +345,183 @@ const FAQS = [
       "Sí. Vexio no almacena datos de tarjetas. Todos los pagos se procesan a través de pasarelas certificadas con cifrado SSL/TLS.",
   },
 ];
+
+/* ══════════════════════════════════════════════════════════
+   MANUAL DE USUARIO — guía de navegación para nuevos usuarios
+══════════════════════════════════════════════════════════ */
+
+const MANUAL_SECTIONS = [
+  {
+    id: "start",
+    icon: <Rocket size={19} />,
+    title: "Primeros pasos",
+    steps: [
+      'Crea tu cuenta gratis con el botón "Registrarse".',
+      "Inicia sesión con tu correo y contraseña.",
+      "Completa tu perfil en Mi Cuenta para agilizar tus compras.",
+      "¿Olvidaste tu contraseña? Puedes recuperarla desde la pantalla de inicio de sesión.",
+    ],
+    links: [
+      { label: "Crear cuenta", to: "/login/register" },
+      { label: "Iniciar sesión", to: "/login" },
+    ],
+  },
+  {
+    id: "shop",
+    icon: <Compass size={19} />,
+    title: "Explorar y comprar",
+    steps: [
+      "Visita el Marketplace para ver tiendas y productos destacados.",
+      "Usa el Catálogo para buscar y filtrar por categoría, talla, color o precio.",
+      "Entra al detalle de un producto para ver fotos, tallas, colores y reseñas.",
+      "Agrega productos al carrito con el ícono de bolsa en la parte superior.",
+      "Guarda tus prendas favoritas con el ícono de corazón para verlas después.",
+      "Cuando estés listo, ve al carrito y sigue el proceso de pago (checkout).",
+    ],
+    links: [
+      { label: "Ir al Marketplace", to: "/market" },
+      { label: "Ver Catálogo", to: "/catalogo" },
+      { label: "Mis Favoritos", to: "/favoritos" },
+    ],
+  },
+  {
+    id: "account",
+    icon: <UserRound size={19} />,
+    title: "Mi cuenta",
+    steps: [
+      "Actualiza tus datos personales en Mi Perfil.",
+      "Gestiona tu contraseña y verificación en Seguridad.",
+      "Consulta el estado de tus compras en Mis Pedidos.",
+      "Solicita cambios o devoluciones desde la sección de Devoluciones.",
+      "Revisa tus puntos de fidelidad acumulados en Mis Puntos.",
+      "Administra tus direcciones de envío guardadas y tus preferencias de notificación.",
+    ],
+    links: [
+      { label: "Ir a Mi Cuenta", to: "/cuenta/perfil" },
+      { label: "Mis Pedidos", to: "/cuenta/pedidos" },
+    ],
+  },
+  {
+    id: "store",
+    icon: <Store size={19} />,
+    title: "Crea tu propia tienda",
+    steps: [
+      "Elige un plan de suscripción según el tamaño de tu negocio.",
+      "Sigue el asistente paso a paso: datos básicos, información legal y método de pago.",
+      "Personaliza el diseño (layout, componentes y widgets) de tu tienda.",
+      "Completa el contenido de tu tienda (Quiénes somos, Contacto, FAQ, Políticas) desde el CMS.",
+      "Confirma la creación: tu tienda quedará publicada con su propia URL.",
+    ],
+    links: [
+      { label: "Ver planes", to: "/planes" },
+      { label: "Comenzar a crear tienda", to: "/crear-tienda/basico" },
+    ],
+  },
+  {
+    id: "manage",
+    icon: <LayoutDashboard size={19} />,
+    title: "Administra tu tienda",
+    steps: [
+      'Desde "Mis Tiendas" accede al panel de administración de cada tienda que tengas.',
+      "Sube y edita productos, controla inventario y recibe alertas de stock bajo.",
+      "Gestiona pedidos y devoluciones, o usa el Punto de Venta (POS) para ventas presenciales.",
+      "Crea promociones y cupones, y revisa tus informes de ventas.",
+      "Administra tus clientes, ubicaciones y la suscripción de tu tienda.",
+    ],
+    links: [{ label: "Ir a Mis Tiendas", to: "/mis-tiendas" }],
+  },
+  {
+    id: "support",
+    icon: <MessageCircle size={19} />,
+    title: "Ayuda y soporte",
+    steps: [
+      "Busca tu respuesta en las Preguntas Frecuentes, aquí mismo en el Centro de Ayuda.",
+      "Si no la encuentras, abre un ticket de soporte y te responderemos en menos de 24 horas.",
+      'Consulta el estado de tus tickets en cualquier momento desde "Mis tickets".',
+    ],
+    links: [
+      { label: "Ver Preguntas Frecuentes", view: "home" },
+      { label: "Abrir ticket de soporte", action: "ticket" },
+      { label: "Ver mis tickets", view: "tickets" },
+    ],
+  },
+];
+
+function UserManualSection({ onNavigateView, onOpenTicket }) {
+  const [open, setOpen] = useState("start");
+
+  const renderLink = (l) => {
+    if (l.to) {
+      return (
+        <Link key={l.label} to={l.to} className="hc-manual-link">
+          {l.label} <ArrowRight size={12} />
+        </Link>
+      );
+    }
+    return (
+      <button
+        key={l.label}
+        type="button"
+        className="hc-manual-link"
+        onClick={() => {
+          if (l.action === "ticket") onOpenTicket();
+          else if (l.view) onNavigateView(l.view);
+        }}
+      >
+        {l.label} <ArrowRight size={12} />
+      </button>
+    );
+  };
+
+  return (
+    <section className="faq-section">
+      <h2 className="section-title">
+        Guía de Navegación
+        <span className="hc-count-pill">{MANUAL_SECTIONS.length}</span>
+      </h2>
+      <div className="accordion-group hc-manual-group">
+        {MANUAL_SECTIONS.map((sec) => (
+          <div
+            key={sec.id}
+            className={`accordion-item${open === sec.id ? " active" : ""}`}
+            onClick={() => setOpen(open === sec.id ? null : sec.id)}
+          >
+            <div className="accordion-header">
+              <span
+                style={{ display: "inline-flex", alignItems: "center", gap: 10 }}
+              >
+                <span style={{ color: "var(--fire)", display: "flex" }}>
+                  {sec.icon}
+                </span>
+                {sec.title}
+              </span>
+              <div className="icon-wrapper">
+                <ChevronDown size={16} className="arrow-icon" />
+              </div>
+            </div>
+            <div className="accordion-content">
+              <div className="content-inner">
+                <ol className="hc-manual-steps">
+                  {sec.steps.map((s, i) => (
+                    <li key={i}>{s}</li>
+                  ))}
+                </ol>
+                {sec.links?.length > 0 && (
+                  <div
+                    className="hc-manual-links"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {sec.links.map(renderLink)}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 /* ══════════════════════════════════════════════════════════
    VISTA: CONVERSACIÓN (detalle de un ticket + mensajes)
@@ -1043,7 +1227,7 @@ const HelpCenter = () => {
   const isOwner = user.role === "OWNER";
   const isAuthenticated = isJwtValid();
 
-  // Vista activa: 'home' | 'tickets' | 'conversation'
+  // Vista activa: 'home' | 'manual' | 'tickets' | 'conversation'
   const [view, setView] = useState("home");
   const [selectedTicket, setTicket] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -1097,6 +1281,53 @@ const HelpCenter = () => {
             onTicketUpdated={triggerRefresh}
           />
         </div>
+        {toast && <Toast {...toast} onClose={() => setToast(null)} />}
+      </>
+    );
+  }
+
+  /* ── VISTA: MANUAL DE USUARIO ─────────────────── */
+  if (view === "manual") {
+    return (
+      <>
+        <HeaderMarket />
+        <div className="hc-atmosphere" />
+        <div className="help-container">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              marginBottom: "2rem",
+            }}
+          >
+            <button className="hc-back-btn" onClick={() => setView("home")}>
+              <ChevronLeft size={16} /> Inicio
+            </button>
+          </div>
+
+          <header className="help-header" style={{ marginBottom: "2.5rem" }}>
+            <h1 style={{ fontSize: "clamp(2.2rem, 6vw, 3.6rem)" }}>
+              Manual de <span className="neon-text">Usuario</span>
+            </h1>
+            <p className="subtitle">
+              Guía rápida para navegar VEXIO paso a paso
+            </p>
+          </header>
+
+          <UserManualSection
+            onNavigateView={setView}
+            onOpenTicket={() => setShowModal(true)}
+          />
+        </div>
+        {showModal && (
+          <CreateTicketModal
+            user={user}
+            onClose={() => setShowModal(false)}
+            onCreated={triggerRefresh}
+            onToast={showToast}
+          />
+        )}
         {toast && <Toast {...toast} onClose={() => setToast(null)} />}
       </>
     );
@@ -1193,6 +1424,18 @@ const HelpCenter = () => {
 
         {/* Tarjetas de acción rápida */}
         <section className="support-cards hc-reveal">
+          {/* Manual de usuario — visible para todos, incluso sin sesión */}
+          <div className="glass-card" onClick={() => setView("manual")}>
+            <div className="card-icon">
+              <BookOpen size={30} />
+            </div>
+            <h3>Manual de Usuario</h3>
+            <p>¿Eres nuevo en VEXIO? Aprende a navegar la plataforma paso a paso.</p>
+            <div className="hc-card-cta">
+              Ver guía <ChevronRight size={12} />
+            </div>
+          </div>
+
           {/* Ver mis tickets / Ver todos (OWNER) — solo usuarios autenticados */}
           {(isOwner || isAuthenticated) && (
           <div className="glass-card" onClick={() => setView("tickets")}>
